@@ -1,0 +1,22 @@
+/* Extra responsive tweaks beyond Bootstrap's own grid behavior */
+
+@media (max-width: 991.98px) {
+  .hero { min-height: auto; padding: 2.5rem 0; text-align: center; }
+  .hero-desc { margin-left: auto; margin-right: auto; }
+  .hero-image-wrap { margin-top: 2rem; max-width: 420px; margin-left: auto; margin-right: auto; }
+  .hero-badge { left: 1rem; transform: none; bottom: 1rem; }
+  .section { padding: 2.75rem 0; }
+  .section-heading { margin-left: auto; margin-right: auto; text-align: center; }
+}
+
+@media (max-width: 767.98px) {
+  .gallery-item img { height: 200px; }
+  .contact-info-item { text-align: left; }
+  .step-item { text-align: center; margin-bottom: 1.5rem; }
+  .step-number { margin-left: auto; margin-right: auto; }
+}
+
+@media (max-width: 575.98px) {
+  .section { padding: 2.25rem 0; }
+  .hero-title { font-size: 1.8rem; }
+}

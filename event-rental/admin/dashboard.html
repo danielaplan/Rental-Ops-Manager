@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<aside class="admin-sidebar" id="adminSidebar"></aside>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
+      <h1 id="adminPageTitle">Dashboard</h1>
+    </div>
+    <a href="manual-booking.html" class="btn btn-admin-accent"><i class="bi bi-plus-lg me-1"></i> Create Manual Booking</a>
+  </div>
+
+  <!-- STATS CARDS -->
+  <div class="row g-3 mb-4" id="statsRow"></div>
+
+  <!-- CHARTS ROW 1: REVENUE TREND & STATUS DISTRIBUTION -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="panel-title mb-0"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Revenue & Bookings Trend</h5>
+            <span class="text-muted small">Monthly performance overview</span>
+          </div>
+          <span class="badge bg-light text-dark border">Recent Months</span>
+        </div>
+        <div style="position: relative; height: 280px;">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="panel-title mb-0"><i class="bi bi-pie-chart-fill me-2 text-success"></i>Booking Status</h5>
+        </div>
+        <div style="position: relative; height: 260px;" class="d-flex align-items-center justify-content-center">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS & TABLES ROW 2: POPULAR SERVICES & INVENTORY ATTENTION -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-7">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="panel-title mb-0"><i class="bi bi-bar-chart-line-fill me-2 text-info"></i>Most Booked Services</h5>
+          <a href="services.html" class="btn btn-sm btn-outline-secondary">Manage Services</a>
+        </div>
+        <div style="position: relative; height: 230px;">
+          <canvas id="servicesChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="panel-title mb-0"><i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Inventory Attention</h5>
+          <a href="inventory.html" class="btn btn-sm btn-outline-secondary">View Inventory</a>
+        </div>
+        <div id="attentionList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPCOMING BOOKINGS TABLE -->
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="panel mb-0">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="panel-title mb-0"><i class="bi bi-calendar-check me-2 text-primary"></i>Upcoming Bookings</h5>
+          <a href="bookings.html" class="btn btn-sm btn-admin-primary">View All Bookings</a>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>Customer</th>
+                <th>Event Date</th>
+                <th>Services</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="upcomingBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/storage.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/bookings.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+$(function () {
+  initAdminChrome('dashboard.html', 'Dashboard');
+  const stats = API.getDashboardStats();
+  const services = API.getServices();
+  const bookings = API.getBookings();
+
+  // Render top stat cards
+  const cards = [
+    { label: "Total Revenue", value: BookingCalc.formatCurrency(stats.total_revenue), icon: "bi-cash-stack", cls: "success" },
+    { label: "Total Bookings", value: stats.total_bookings, icon: "bi-journal-check" },
+    { label: "Pending Approval", value: stats.pending_bookings, icon: "bi-hourglass-split", cls: "warn" },
+    { label: "Confirmed Events", value: stats.confirmed_bookings, icon: "bi-check2-circle" },
+    { label: "Completed", value: stats.completed_bookings, icon: "bi-flag" },
+    { label: "Active Services", value: stats.active_services, icon: "bi-boxes" },
+    { label: "Items On Rental", value: stats.items_on_rental, icon: "bi-truck" },
+    { label: "Needs Attention", value: stats.items_needing_attention, icon: "bi-exclamation-triangle", cls: stats.items_needing_attention > 0 ? "danger" : "" }
+  ];
+
+  const $row = $('#statsRow');
+  cards.forEach(c => {
+    $row.append(`
+      <div class="col-6 col-md-4 col-xl-3">
+        <div class="stat-card ${c.cls || ''}">
+          <div class="stat-header">
+            <span class="stat-label">${c.label}</span>
+            <div class="stat-icon"><i class="bi ${c.icon}"></i></div>
+          </div>
+          <div class="stat-value">${c.value}</div>
+        </div>
+      </div>`);
+  });
+
+  // Render Upcoming Bookings Table
+  const $upcoming = $('#upcomingBody');
+  if (!stats.upcoming_bookings.length) {
+    $upcoming.append('<tr><td colspan="6" class="text-muted text-center py-3">No upcoming bookings found.</td></tr>');
+  }
+  stats.upcoming_bookings.forEach(b => {
+    const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name || id).join(', ');
+    $upcoming.append(`
+      <tr>
+        <td><a href="bookings.html" class="fw-semibold">${b.id}</a></td>
+        <td class="fw-semibold">${escapeHtmlA(b.customer_name)}</td>
+        <td>${BookingCalc.formatDate(b.event_date)}</td>
+        <td><span class="text-truncate d-inline-block" style="max-width: 220px;" title="${escapeHtmlA(svcNames)}">${escapeHtmlA(svcNames)}</span></td>
+        <td class="fw-bold">${BookingCalc.formatCurrency(b.total)}</td>
+        <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}</td>
+      </tr>`);
+  });
+
+  // Render Items Needing Attention
+  const items = API.getRentalItems().filter(i => ["Damaged", "Under Maintenance", "Missing"].includes(i.status));
+  const $att = $('#attentionList');
+  if (!items.length) {
+    $att.append('<div class="text-center text-muted py-4"><i class="bi bi-shield-check fs-2 text-success d-block mb-1"></i>All inventory items are in good condition.</div>');
+  } else {
+    items.forEach(i => {
+      $att.append(`
+        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+          <div>
+            <div class="fw-semibold">${escapeHtmlA(i.name)} <span class="text-muted small">(${escapeHtmlA(i.item_code)})</span></div>
+          </div>
+          ${badgeStatus(i.status, CONFIG.inventoryStatusColors)}
+        </div>`);
+    });
+  }
+
+  // Render Chart.js Graphs
+  renderDashboardCharts(bookings, services);
+});
+
+function renderDashboardCharts(bookings, services) {
+  // 1. Revenue & Bookings Trend (Last 6 Months)
+  const monthLabels = [];
+  const monthlyRevenue = [];
+  const monthlyBookings = [];
+
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const yearMonth = d.toISOString().slice(0, 7);
+    const monthName = d.toLocaleString('default', { month: 'short' });
+    monthLabels.push(monthName);
+
+    const monthB = bookings.filter(b => (b.event_date || "").startsWith(yearMonth));
+    const monthRev = monthB.reduce((sum, b) => sum + (b.amount_paid || b.total || 0), 0);
+
+    monthlyRevenue.push(monthRev);
+    monthlyBookings.push(monthB.length);
+  }
+
+  const ctxRev = document.getElementById('revenueChart').getContext('2d');
+  new Chart(ctxRev, {
+    type: 'line',
+    data: {
+      labels: monthLabels,
+      datasets: [
+        {
+          label: 'Revenue (₱)',
+          data: monthlyRevenue,
+          borderColor: '#1F4E45',
+          backgroundColor: 'rgba(31, 78, 69, 0.08)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointBackgroundColor: '#1F4E45',
+          pointRadius: 4,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Bookings',
+          data: monthlyBookings,
+          borderColor: '#D9A441',
+          backgroundColor: 'rgba(217, 164, 65, 0.15)',
+          fill: false,
+          tension: 0.35,
+          borderWidth: 2.5,
+          borderDash: [4, 4],
+          pointBackgroundColor: '#D9A441',
+          pointRadius: 4,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter', size: 12 } } }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          grid: { color: '#F0EEE6' },
+          ticks: {
+            callback: function(val) { return '₱' + (val >= 1000 ? (val/1000) + 'k' : val); },
+            font: { family: 'Inter', size: 11 }
+          }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          grid: { display: false },
+          ticks: { stepSize: 1, precision: 0, font: { family: 'Inter', size: 11 } }
+        }
+      }
+    }
+  });
+
+  // 2. Booking Status Distribution (Doughnut Chart)
+  const statusCounts = {
+    Pending: bookings.filter(b => b.status === 'Pending').length,
+    Confirmed: bookings.filter(b => b.status === 'Confirmed').length,
+    Completed: bookings.filter(b => b.status === 'Completed').length,
+    Cancelled: bookings.filter(b => ['Cancelled', 'Rejected'].includes(b.status)).length
+  };
+
+  const ctxStatus = document.getElementById('statusChart').getContext('2d');
+  new Chart(ctxStatus, {
+    type: 'doughnut',
+    data: {
+      labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+      datasets: [{
+        data: [statusCounts.Pending, statusCounts.Confirmed, statusCounts.Completed, statusCounts.Cancelled],
+        backgroundColor: ['#D9A441', '#1F4E45', '#2E6E5F', '#E74C3C'],
+        borderWidth: 3,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter', size: 11 } } }
+      }
+    }
+  });
+
+  // 3. Most Popular Services (Horizontal Bar Chart)
+  const serviceCountMap = {};
+  bookings.forEach(b => (b.service_ids || []).forEach(sid => {
+    serviceCountMap[sid] = (serviceCountMap[sid] || 0) + 1;
+  }));
+
+  const sortedServices = services.map(s => ({
+    name: s.name,
+    count: serviceCountMap[s.service_id] || 0
+  })).sort((a, b) => b.count - a.count).slice(0, 5);
+
+  const ctxServices = document.getElementById('servicesChart').getContext('2d');
+  new Chart(ctxServices, {
+    type: 'bar',
+    data: {
+      labels: sortedServices.map(s => s.name),
+      datasets: [{
+        label: 'Bookings',
+        data: sortedServices.map(s => s.count),
+        backgroundColor: 'rgba(31, 78, 69, 0.85)',
+        borderColor: '#1F4E45',
+        borderWidth: 1,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { stepSize: 1, precision: 0 } },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
