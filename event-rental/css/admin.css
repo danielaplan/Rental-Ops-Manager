@@ -138,6 +138,14 @@ body.admin-body {
 .stat-card.warn .stat-icon { background: rgba(217,164,65,0.15); color: var(--a-accent); }
 .stat-card.danger .stat-icon { background: rgba(192,57,43,0.1); color: #C0392B; }
 .stat-card.success .stat-icon { background: rgba(46,110,95,0.15); color: #2E6E5F; }
+.compact-stat-card {
+  padding: 0.8rem 0.95rem;
+  border-radius: 8px;
+}
+.compact-stat-card .stat-header { margin-bottom: 0.35rem; }
+.compact-stat-card .stat-label { font-size: 0.7rem; }
+.compact-stat-card .stat-value { font-size: 1.3rem; }
+.compact-stat-card .stat-icon { width: 34px; height: 34px; font-size: 1rem; border-radius: 8px; }
 
 .panel {
   background: var(--a-surface);
@@ -216,6 +224,26 @@ table.admin-table tbody tr:hover { background: rgba(31,78,69,0.03); }
 .checklist-row.checked { background: rgba(31,78,69,0.05); border-color: var(--a-primary); }
 .checklist-row .item-name { font-weight: 600; flex: 1; }
 .progress-pill { font-size: 0.85rem; font-weight: 700; color: var(--a-primary); }
+
+.receipt-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.receipt-summary > div {
+  padding: 0.8rem;
+  background: var(--a-bg);
+  border: 1px solid var(--a-border);
+  border-radius: 6px;
+}
+.receipt-summary span,
+.receipt-summary strong { display: block; }
+.receipt-summary span { color: var(--a-muted); font-size: 0.75rem; }
+.receipt-summary strong { margin-top: 0.2rem; color: var(--a-primary-dark); }
+
+@media (max-width: 575.98px) {
+  .receipt-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 .sidebar-backdrop {
   display: none;
