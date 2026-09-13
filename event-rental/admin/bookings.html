@@ -105,17 +105,16 @@
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label mb-1 fw-bold">Booking Status</label>
-                      <div class="d-flex gap-2">
-                        <select class="form-select form-select-sm" id="dStatusSelect"></select>
-                        <button class="btn btn-sm btn-admin-primary px-3 text-nowrap" id="dSaveStatusBtn">Save</button>
-                      </div>
+                      <select class="form-select form-select-sm" id="dStatusSelect"></select>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label mb-1 fw-bold">Payment Status</label>
-                      <div class="d-flex gap-2">
-                        <select class="form-select form-select-sm" id="dPaymentStatusSelect"></select>
-                        <button class="btn btn-sm btn-admin-accent px-3 text-nowrap" id="dSavePaymentStatusBtn">Save</button>
-                      </div>
+                      <select class="form-select form-select-sm" id="dPaymentStatusSelect"></select>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                      <button class="btn btn-sm btn-admin-primary px-3" id="dSaveBookingBtn">
+                        <i class="bi bi-check2 me-1"></i> Save Status Changes
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -246,19 +245,14 @@ $(function () {
     openBookingDetail($(this).data('id'));
   });
 
-  $('#dSaveStatusBtn').on('click', function () {
-    API.updateBooking(currentBookingId, { status: $('#dStatusSelect').val() });
+  $('#dSaveBookingBtn').on('click', function () {
+    API.updateBooking(currentBookingId, {
+      status: $('#dStatusSelect').val(),
+      payment_status: $('#dPaymentStatusSelect').val()
+    });
+    bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
     showAdminToast('Booking status updated');
     renderBookingsTable();
-    loadBookingDetail(currentBookingId);
-  });
-
-  $('#dSavePaymentStatusBtn').on('click', function () {
-    const newPaymentStatus = $('#dPaymentStatusSelect').val();
-    API.updateBooking(currentBookingId, { payment_status: newPaymentStatus });
-    showAdminToast('Payment status updated to ' + newPaymentStatus);
-    renderBookingsTable();
-    loadBookingDetail(currentBookingId);
   });
 
   $(document).on('change', '.js-release-check', function () {

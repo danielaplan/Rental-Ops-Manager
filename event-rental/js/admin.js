@@ -184,6 +184,7 @@ function showAdminToast(message, type) {
   const toastEl = document.getElementById(id);
   const toast = new bootstrap.Toast(toastEl, { delay: 2500 });
   toast.show();
+  window.setTimeout(() => toast.hide(), 2500);
   toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
 }
 
