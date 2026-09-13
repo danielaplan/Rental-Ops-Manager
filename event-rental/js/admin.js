@@ -77,15 +77,91 @@ function initAdminChrome(activeHref, pageTitle) {
   AdminAuth.requireLogin();
   renderAdminSidebar(activeHref);
   $('#adminPageTitle').text(pageTitle);
+  initAdminSpaNavigation();
 
-  $('#sidebarToggleBtn').on('click', function () {
+  $('#sidebarToggleBtn').off('click.adminChrome').on('click.adminChrome', function () {
     $('#adminSidebar').toggleClass('show');
     $('#sidebarBackdrop').toggleClass('show');
   });
-  $('#sidebarBackdrop').on('click', function () {
+  $('#sidebarBackdrop').off('click.adminChrome').on('click.adminChrome', function () {
     $('#adminSidebar').removeClass('show');
     $(this).removeClass('show');
   });
+}
+
+function initAdminSpaNavigation() {
+  if (window.__adminSpaNavigationReady) return;
+  window.__adminSpaNavigationReady = true;
+
+  $(document).on('click.adminSpa', '.admin-sidebar a[href]', function (e) {
+    const href = this.getAttribute('href');
+    if (!href || href === '#' || this.id === 'adminLogoutBtn' || href.startsWith('http')) return;
+    e.preventDefault();
+    loadAdminPage(href, true);
+  });
+
+  window.addEventListener('popstate', function () {
+    const page = window.location.pathname.split('/').pop() || 'dashboard.html';
+    if (page.endsWith('.html') && page !== 'login.html') loadAdminPage(page, false);
+  });
+}
+
+async function loadAdminPage(href, pushHistory) {
+  const url = new URL(href, window.location.href);
+  const currentMain = document.querySelector('.admin-main');
+  if (!currentMain) return;
+
+  currentMain.classList.add('admin-page-loading');
+  try {
+    const response = await fetch(url.href);
+    if (!response.ok) throw new Error('Unable to load admin page');
+    const html = await response.text();
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    const nextMain = parsed.querySelector('.admin-main');
+    if (!nextMain) throw new Error('Admin page content was not found');
+
+    document.querySelectorAll('.modal').forEach(modal => modal.remove());
+    currentMain.outerHTML = nextMain.outerHTML;
+    parsed.body.querySelectorAll('.modal').forEach(modal => {
+      document.body.appendChild(document.importNode(modal, true));
+    });
+
+    await loadAdminPageScripts(parsed, url);
+    document.title = parsed.title || document.title;
+    if (pushHistory) window.history.pushState({}, '', url.href);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    closeAdminSidebar();
+  } catch (error) {
+    console.error('Admin navigation error:', error);
+    window.location.href = url.href;
+  }
+}
+
+async function loadAdminPageScripts(parsed, pageUrl) {
+  const scripts = Array.from(parsed.querySelectorAll('script'));
+  for (const source of scripts.filter(script => script.src)) {
+    const sourceUrl = new URL(source.getAttribute('src'), pageUrl.href).href;
+    const alreadyLoaded = Array.from(document.scripts).some(script => script.src === sourceUrl);
+    if (alreadyLoaded) continue;
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = sourceUrl;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+  }
+
+  for (const inlineScript of scripts.filter(script => !script.src)) {
+    if (inlineScript.textContent.trim()) {
+      new Function(inlineScript.textContent)();
+    }
+  }
+}
+
+function closeAdminSidebar() {
+  $('#adminSidebar').removeClass('show');
+  $('#sidebarBackdrop').removeClass('show');
 }
 
 function confirmDelete(message, callback) {
