@@ -379,6 +379,16 @@ const API = {
     const current = API.getWebsiteContent();
     const updated = { ...current, ...data };
     STORAGE.setOne("websiteContent", updated);
+    const settings = API.getSettings();
+    STORAGE.setOne("settings", {
+      ...settings,
+      business_name: updated.business_name,
+      phone: updated.contact_phone,
+      email: updated.contact_email,
+      address: updated.contact_address,
+      facebook: updated.contact_facebook,
+      instagram: updated.contact_instagram
+    });
     return updated;
   },
 
@@ -390,6 +400,16 @@ const API = {
     const current = API.getSettings();
     const updated = { ...current, ...data };
     STORAGE.setOne("settings", updated);
+    const content = API.getWebsiteContent();
+    STORAGE.setOne("websiteContent", {
+      ...content,
+      business_name: updated.business_name,
+      contact_phone: updated.phone,
+      contact_email: updated.email,
+      contact_address: updated.address,
+      contact_facebook: updated.facebook,
+      contact_instagram: updated.instagram
+    });
     return updated;
   },
 

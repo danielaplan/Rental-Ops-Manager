@@ -26,56 +26,10 @@
 
   <div class="panel">
     <form id="manualBookingForm">
-      <div class="row g-4">
-
-        <div class="col-lg-7">
-          <h6 class="mb-2">1. Select Services</h6>
-          <div class="row g-2 mb-3" id="mServiceChecklist"></div>
-
-          <div id="mAddonSection" style="display:none;">
-            <h6 class="mb-2">2. Optional Add-ons</h6>
-            <div class="row g-2 mb-3" id="mAddonChecklist"></div>
-          </div>
-
-          <h6 class="mb-2">Event Date &amp; Time</h6>
-          <div class="row g-3 mb-2">
-            <div class="col-md-4">
-              <label class="form-label">Event Date</label>
-              <input type="date" class="form-control" id="mDate" required>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Start Time</label>
-              <input type="time" class="form-control" id="mStart" required>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">End Time</label>
-              <input type="time" class="form-control" id="mEnd" required>
-            </div>
-          </div>
-          <div class="mb-3" id="mAvailabilityStatus"></div>
-
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Event Type</label>
-              <select class="form-select" id="mEventType" required></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Number of Guests</label>
-              <input type="number" min="1" class="form-control" id="mGuests">
-            </div>
-            <div class="col-12">
-              <label class="form-label">Event Location</label>
-              <input type="text" class="form-control" id="mLocation" required>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Special Requests</label>
-              <textarea class="form-control" id="mSpecialRequests" rows="2"></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-5">
-          <h6 class="mb-2">Customer</h6>
+      <div class="manual-booking-layout">
+        <div class="row g-4 manual-booking-top">
+          <div class="col-lg-5 manual-booking-section">
+            <h6 class="manual-section-title">1. Customer Details</h6>
           <div class="row g-3 mb-3">
             <div class="col-12">
               <label class="form-label">Full Name</label>
@@ -108,8 +62,61 @@
               </select>
             </div>
           </div>
+          </div>
 
-          <h6 class="mb-2">Pricing</h6>
+          <div class="col-lg-7 manual-booking-section">
+            <h6 class="manual-section-title">2. Event Details</h6>
+            <div class="row g-3 mb-2">
+              <div class="col-md-4">
+                <label class="form-label">Event Date</label>
+                <input type="date" class="form-control" id="mDate" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Start Time</label>
+                <input type="time" class="form-control" id="mStart" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">End Time</label>
+                <input type="time" class="form-control" id="mEnd" required>
+              </div>
+            </div>
+            <div class="mb-3" id="mAvailabilityStatus"></div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Event Type</label>
+                <select class="form-select" id="mEventType" required></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Number of Guests</label>
+                <input type="number" min="1" class="form-control" id="mGuests">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Event Location</label>
+                <input type="text" class="form-control" id="mLocation" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Special Requests</label>
+                <textarea class="form-control" id="mSpecialRequests" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="manual-booking-section manual-booking-services">
+          <h6 class="manual-section-title">3. Select Services</h6>
+          <div class="row g-2 mb-3" id="mServiceChecklist"></div>
+
+          <div id="mAddonSection" style="display:none;">
+            <h6 class="manual-section-title">4. Optional Add-ons</h6>
+            <div class="row g-2 mb-3" id="mAddonChecklist"></div>
+          </div>
+        </div>
+
+        <div class="manual-booking-section manual-booking-payment">
+          <h6 class="manual-section-title">5. Pricing &amp; Payment</h6>
+          <div class="row g-4 align-items-start">
+            <div class="col-lg-7">
           <div class="row g-3 mb-3">
             <div class="col-6">
               <label class="form-label">Discount (₱)</label>
@@ -128,18 +135,22 @@
               <select class="form-select" id="mPayMethod"></select>
             </div>
           </div>
+            </div>
 
-          <div class="summary-box mb-3">
+            <div class="col-lg-5">
+              <div class="summary-box mb-3">
             <div class="summary-row"><span>Subtotal</span><span id="mSumSubtotal">₱0</span></div>
             <div class="summary-row"><span>Add-ons</span><span id="mSumAddons">₱0</span></div>
             <div class="summary-row"><span>Discount</span><span id="mSumDiscount">-₱0</span></div>
             <div class="summary-row"><span>Fees</span><span id="mSumFees">₱0</span></div>
             <div class="summary-row total"><span>Total</span><span id="mSumTotal">₱0</span></div>
-          </div>
+              </div>
 
-          <button type="submit" class="btn btn-admin-primary w-100 py-2" id="mSubmitBtn">
-            <i class="bi bi-check2-circle"></i> Create Booking
-          </button>
+              <button type="submit" class="btn btn-admin-primary w-100 py-2" id="mSubmitBtn">
+                <i class="bi bi-check2-circle"></i> Create Booking
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </form>
