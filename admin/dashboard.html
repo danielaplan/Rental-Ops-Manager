@@ -23,11 +23,8 @@
     <a href="manual-booking.html" class="btn btn-admin-accent"><i class="bi bi-plus-lg me-1"></i> Create Manual Booking</a>
   </div>
 
-  <!-- STATS CARDS -->
-  <div class="row g-3 mb-4" id="statsRow"></div>
-
-  <!-- CHARTS ROW 1: REVENUE TREND & STATUS DISTRIBUTION -->
-  <div class="row g-3 mb-4">
+  <!-- ANIMATED OVERVIEW CHARTS -->
+  <div class="row g-3 mb-4 dashboard-primary-charts">
     <div class="col-lg-8">
       <div class="panel h-100">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -53,6 +50,9 @@
       </div>
     </div>
   </div>
+
+  <!-- STATS CARDS -->
+  <div class="row g-2 mb-3 admin-summary-cards" id="statsRow"></div>
 
   <!-- CHARTS & TABLES ROW 2: POPULAR SERVICES & INVENTORY ATTENTION -->
   <div class="row g-3 mb-4">
@@ -137,7 +137,7 @@ $(function () {
   cards.forEach(c => {
     $row.append(`
       <div class="col-6 col-md-4 col-xl-3">
-        <div class="stat-card ${c.cls || ''}">
+        <div class="stat-card compact-stat-card ${c.cls || ''}">
           <div class="stat-header">
             <span class="stat-label">${c.label}</span>
             <div class="stat-icon"><i class="bi ${c.icon}"></i></div>
@@ -192,15 +192,20 @@ function renderDashboardCharts(bookings, services) {
   const monthlyRevenue = [];
   const monthlyBookings = [];
 
-  const now = new Date();
+  const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  const datedBookings = bookings.filter(b => /^\d{4}-\d{2}-\d{2}/.test(b.event_date || ''));
+  const latestBookingDate = datedBookings
+    .map(b => new Date(`${b.event_date.slice(0, 10)}T12:00:00`))
+    .sort((a, b) => b - a)[0];
+  const now = latestBookingDate || new Date();
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const yearMonth = d.toISOString().slice(0, 7);
-    const monthName = d.toLocaleString('default', { month: 'short' });
+    const yearMonth = monthKey(d);
+    const monthName = d.toLocaleString('default', { month: 'short', year: '2-digit' });
     monthLabels.push(monthName);
 
     const monthB = bookings.filter(b => (b.event_date || "").startsWith(yearMonth));
-    const monthRev = monthB.reduce((sum, b) => sum + (b.amount_paid || b.total || 0), 0);
+    const monthRev = monthB.reduce((sum, b) => sum + Number(b.amount_paid || 0), 0);
 
     monthlyRevenue.push(monthRev);
     monthlyBookings.push(monthB.length);
@@ -242,6 +247,10 @@ function renderDashboardCharts(bookings, services) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+        animation: {
+          duration: 1200,
+          easing: 'easeOutQuart'
+        },
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter', size: 12 } } }
@@ -292,6 +301,12 @@ function renderDashboardCharts(bookings, services) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: {
+        animateRotate: true,
+        animateScale: true,
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
       cutout: '68%',
       plugins: {
         legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter', size: 11 } } }
@@ -328,6 +343,11 @@ function renderDashboardCharts(bookings, services) {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
+      animation: {
+        duration: 900,
+        easing: 'easeOutQuart',
+        delay: (context) => context.type === 'data' && context.mode === 'default' ? context.dataIndex * 100 : 0
+      },
       plugins: {
         legend: { display: false }
       },

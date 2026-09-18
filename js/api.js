@@ -14,6 +14,14 @@
  * All methods return plain JS values (objects/arrays), same shape
  * a JSON API response would be decoded into.
  * ------------------------------------------------------------- */
+function calculatePaymentStatus(booking) {
+  const total = Number(booking.total || 0);
+  const paid = Number(booking.amount_paid || 0);
+  if (total > 0 && paid >= total) return "Fully Paid";
+  if (paid > 0) return "Partial";
+  return "Unpaid";
+}
+
 const API = {
 
   /* ============ CATEGORIES ============ */
@@ -247,10 +255,19 @@ const API = {
 
   /* ============ BOOKINGS ============ */
   getBookings() {
-    return STORAGE.getAll("bookings");
+    const list = STORAGE.getAll("bookings");
+    let changed = false;
+    const normalized = list.map(booking => {
+      const paymentStatus = calculatePaymentStatus(booking);
+      if (booking.payment_status === paymentStatus) return booking;
+      changed = true;
+      return { ...booking, payment_status: paymentStatus };
+    });
+    if (changed) STORAGE.saveAll("bookings", normalized);
+    return normalized;
   },
   getBooking(id) {
-    return STORAGE.getAll("bookings").find(b => b.id === id) || null;
+    return API.getBookings().find(b => b.id === id) || null;
   },
   createBooking(data) {
     const list = STORAGE.getAll("bookings");
@@ -261,6 +278,7 @@ const API = {
       created_at: new Date().toISOString(),
       ...data
     };
+    record.payment_status = calculatePaymentStatus(record);
     list.push(record);
     STORAGE.saveAll("bookings", list);
 
@@ -275,16 +293,7 @@ const API = {
     const idx = list.findIndex(b => b.id === id);
     if (idx === -1) return null;
     list[idx] = { ...list[idx], ...data };
-    // keep payment status in sync if amount_paid or total changed, unless explicitly set
-    if (data.payment_status) {
-      list[idx].payment_status = data.payment_status;
-    } else {
-      const b = list[idx];
-      const remaining = (b.total || 0) - (b.amount_paid || 0);
-      if (remaining <= 0 && (b.total || 0) > 0) list[idx].payment_status = "Fully Paid";
-      else if ((b.amount_paid || 0) > 0) list[idx].payment_status = "Partial";
-      else list[idx].payment_status = "Unpaid";
-    }
+    list[idx].payment_status = calculatePaymentStatus(list[idx]);
     STORAGE.saveAll("bookings", list);
     return list[idx];
   },
@@ -379,6 +388,16 @@ const API = {
     const current = API.getWebsiteContent();
     const updated = { ...current, ...data };
     STORAGE.setOne("websiteContent", updated);
+    const settings = API.getSettings();
+    STORAGE.setOne("settings", {
+      ...settings,
+      business_name: updated.business_name,
+      phone: updated.contact_phone,
+      email: updated.contact_email,
+      address: updated.contact_address,
+      facebook: updated.contact_facebook,
+      instagram: updated.contact_instagram
+    });
     return updated;
   },
 
@@ -390,6 +409,16 @@ const API = {
     const current = API.getSettings();
     const updated = { ...current, ...data };
     STORAGE.setOne("settings", updated);
+    const content = API.getWebsiteContent();
+    STORAGE.setOne("websiteContent", {
+      ...content,
+      business_name: updated.business_name,
+      contact_phone: updated.phone,
+      contact_email: updated.email,
+      contact_address: updated.address,
+      contact_facebook: updated.facebook,
+      contact_instagram: updated.instagram
+    });
     return updated;
   },
 
@@ -418,8 +447,13 @@ const API = {
     };
   },
 
-  getReportStats() {
-    const bookings = STORAGE.getAll("bookings");
+  getReportStats(startDate, endDate) {
+    const allBookings = STORAGE.getAll("bookings");
+    const bookings = allBookings.filter(b => {
+      if (startDate && b.event_date < startDate) return false;
+      if (endDate && b.event_date > endDate) return false;
+      return true;
+    });
     const services = STORAGE.getAll("services");
     const items = STORAGE.getAll("rentalItems");
 
@@ -435,9 +469,11 @@ const API = {
       .sort((a, b) => b.count - a.count);
 
     const outstanding = bookings.reduce((sum, b) => sum + Math.max((b.total || 0) - (b.amount_paid || 0), 0), 0);
+    const customers = new Set(bookings.map(b => b.customer_id || b.customer_name).filter(Boolean));
 
     return {
       total_bookings: bookings.length,
+      total_customers: customers.size,
       pending: bookings.filter(b => b.status === "Pending").length,
       confirmed: bookings.filter(b => b.status === "Confirmed").length,
       completed: bookings.filter(b => b.status === "Completed").length,
@@ -445,7 +481,9 @@ const API = {
       total_revenue: bookings.reduce((s, b) => s + (b.amount_paid || 0), 0),
       outstanding_balance: outstanding,
       popular_services: popular,
-      damaged_or_missing: items.filter(i => ["Damaged", "Missing"].includes(i.status)).length
+      damaged_or_missing: items.filter(i => ["Damaged", "Missing"].includes(i.status)).length,
+      range_start: startDate || "",
+      range_end: endDate || ""
     };
   }
 };

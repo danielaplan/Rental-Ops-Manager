@@ -5,6 +5,7 @@
  * inquiry/booking modal (availability check + totals + submit).
  */
 $(function () {
+  applySiteAppearance();
   renderSiteChrome();
   renderHero();
   renderAbout();
@@ -13,13 +14,57 @@ $(function () {
   renderContact();
   initBookingForm();
 
-  $('.navbar-nav .nav-link').on('click', function () {
+  $('.navbar-nav .nav-link').on('click', function (e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+
     const nav = document.getElementById('mainNav');
+    const scrollToTarget = () => {
+      const navbar = document.querySelector('.navbar-custom');
+      const offset = (navbar ? navbar.offsetHeight : 0) + 8;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    };
+
     if (nav && nav.classList.contains('show')) {
       bootstrap.Collapse.getOrCreateInstance(nav).hide();
+      window.setTimeout(scrollToTarget, 250);
+    } else {
+      scrollToTarget();
     }
   });
 });
+
+function applySiteAppearance() {
+  const settings = API.getSettings();
+  const root = document.documentElement;
+  const primary = normalizeHexColor(settings.primary_color);
+  const accent = normalizeHexColor(settings.accent_color);
+
+  if (primary) {
+    root.style.setProperty('--color-primary', primary);
+    root.style.setProperty('--color-primary-dark', adjustColor(primary, -18));
+    root.style.setProperty('--color-primary-light', adjustColor(primary, 18));
+  }
+  if (accent) {
+    root.style.setProperty('--color-accent', accent);
+    root.style.setProperty('--color-accent-dark', adjustColor(accent, -18));
+  }
+}
+
+function normalizeHexColor(value) {
+  return /^#[0-9a-f]{6}$/i.test(value || '') ? value : null;
+}
+
+function adjustColor(hex, amount) {
+  const value = parseInt(hex.slice(1), 16);
+  const change = (channel) => Math.max(0, Math.min(255, channel + amount));
+  const red = change((value >> 16) & 255);
+  const green = change((value >> 8) & 255);
+  const blue = change(value & 255);
+  return '#' + [red, green, blue].map(channel => channel.toString(16).padStart(2, '0')).join('');
+}
 
 function renderSiteChrome() {
   const content = API.getWebsiteContent();
