@@ -1,37 +1,38 @@
 # AKAD frontend developer handoff
 
-Updated: September 23, 2026.
+Updated: September 24, 2026.
 
-Audience: frontend developer. Backend partner: PHP/MySQL developer.
+Audience: frontend developer. Scope: frontend only.
 
-Complete the staff interface using HTML, CSS, JavaScript, Bootstrap, and jQuery. Communicate with PHP through asynchronous AJAX requests. The backend owns MySQL persistence, authentication, authorization, final financial calculations, and scheduling enforcement. Use localStorage/IndexedDB for supported offline entries.
+Complete the staff interface using HTML, CSS, JavaScript, Bootstrap, and jQuery. Use local sample data and clearly labeled mock responses to demonstrate interface behavior. Use localStorage/IndexedDB for supported local drafts and offline entries.
+
+**Responsibility boundary:** The project owner handles the database, PHP/backend implementation, and connecting the frontend to live APIs. The frontend developer delivers screens, styling, interactions, client-side validation, local draft behavior, and mock-data demonstrations. Live API integration and backend testing are not part of the frontend developer's assignment or completion criteria.
+
+Throughout this handoff, saves and responses mean local demo records or mock responses. Demo authentication, availability, payments, and sync results must be clearly identified as simulations.
 
 Payments are recorded after staff receive them externally. Build payment-entry and tracking controls; payment-gateway integration and automatic transfers are outside this work.
 
 ## Work order and task status
 
-Start with P1, then P2. P3 is lower-priority workflow completion. Begin API coordination early so both developers can work in parallel.
+Start with P1, then P2. P3 is lower-priority workflow completion. All frontend tasks can be demonstrated without a running backend.
 
 - **Action required:** the inspected frontend needs the change described.
 - **Corrected in source — retest:** the old defect's code has changed; run regression checks before closing it.
-- **Shared integration work:** frontend work needs agreed backend behavior before end-to-end completion.
-- **Needs clarification:** obtain the rule or interface decision from the backend partner before implementing that dependent behavior.
+- **Needs clarification:** obtain missing business content or UI decisions from the project owner; continue independent frontend work.
 
-These assessments are based on source inspection on September 23, 2026. Browser results from the September 18 review are historical observations, not fresh test results. No new browser or backend acceptance tests were run for this handoff. The old coverage totals are retired because some findings have changed.
+These assessments are based on source inspection on September 23, 2026. The September 24 revision changes assignment scope; it is not a new source or browser audit. Browser results from the September 18 review are historical observations, not fresh test results. The old coverage totals are retired because some findings have changed.
 
-## P1 — Fix existing interactions and prepare integration
+## P1 — Fix existing interactions and frontend data states
 
 ### FE-01 — Validate booking times and confirmation
 
-**Status:** Action required; shared integration work. **Screens:** Manual Booking and Booking Details.
+**Status:** Action required. **Screens:** Manual Booking and Booking Details.
 
 **Evidence:** In [manual-booking.html](../../admin/manual-booking.html), the time warning does not independently prevent submission through `createManualBooking()`. In [bookings.html](../../admin/bookings.html), the status-save handler calls `API.updateBooking()` without an availability check.
 
-**Action:** Validate dates/times at submission. Reject equal or reversed times in the current single-date form. Request availability validation when creating, confirming, re-confirming, or rescheduling a booking. Provide a date/time/location edit flow using the same validation. Display rejected saves without losing entered values or claiming success.
+**Action:** Validate dates/times at submission. Reject equal or reversed times in the current single-date form. Provide a date/time/location edit flow using the same validation. Build pending, accepted, and conflict feedback for creating, confirming, re-confirming, and rescheduling using mock outcomes. Preserve input on rejection. Ask the project owner for intended overnight/whole-day form behavior before extending the current form.
 
-**Backend dependency:** PHP validates again and prevents conflicts during the save, including concurrent requests. A successful preliminary availability check is insufficient. Obtain scheduling rules per service; do not apply the single-karaoke-unit rule to every service. Coordinate overnight/whole-day behavior before extending the current form.
-
-**Acceptance:** Invalid ranges cannot submit. Cancel A, reserve its slot with B, then re-confirm A: display the backend conflict and leave A unconfirmed. A rejected edit retains the draft and last saved record.
+**Acceptance:** Invalid ranges cannot submit. Simulated conflicts display a clear error and leave the last saved local record unchanged. A rejected edit retains the draft. Demonstrate each booking action with accepted and rejected mock outcomes.
 
 ### FE-02 — Restore saved return inspections
 
@@ -40,8 +41,6 @@ These assessments are based on source inspection on September 23, 2026. Browser 
 **Evidence:** [inventory.js](../../js/inventory.js), `renderChecklist()`, defaults to expected quantity, Good, and empty notes despite saved return fields.
 
 **Action:** Repopulate saved quantities, conditions, and notes. Preserve zero as a saved value; apply defaults only to unrecorded fields. Make quantity shortfalls visible.
-
-**Backend dependency:** Agree on checklist identifiers, inspection fields, allowed conditions, and how quantity shortfalls affect inventory status.
 
 **Acceptance:** Save zero returned, Missing, and a note; reopen/reload and verify all values. Saving again without edits preserves the exception. Repeat with a partial return.
 
@@ -53,83 +52,73 @@ These assessments are based on source inspection on September 23, 2026. Browser 
 
 **Action:** Replace that selector with a read-only value and stop submitting manual payment-status overrides. Refresh history, balance, and status after successful payment saves. Keep booking status separate.
 
-**Backend dependency:** Use authoritative balances and payment status returned by PHP; agree on status values.
+Use consistent sample balances and status values in the demo. Financial enforcement is outside this frontend assignment.
 
 **Acceptance:** Staff cannot mark an unpaid booking Fully Paid using a selector. Verify zero, partial, and full payments. A failed payment save leaves saved totals unchanged. Do not assign the old override-calculation bug as an untouched task.
 
-### FE-04 — Connect asynchronous data access
+### FE-04 — Build asynchronous mock data handling
 
-**Status:** Shared integration work. **Screens:** All staff screens.
+**Status:** Action required. **Screens:** All staff screens.
 
 **Evidence:** [api.js](../../js/api.js) currently returns synchronous values from [storage.js](../../js/storage.js). Page callers consume those values immediately.
 
-**Action:** Centralize request handling in `js/api.js` and update callers to await responses. Add loading, empty, success, validation-error, and connection-error states. Prevent duplicate clicks while saving. Preserve input on failure, restore retry controls, and show success only after acceptance. Use clearly identified mocks behind the same agreed interface while endpoints are being built.
+**Action:** Centralize asynchronous mock data access in `js/api.js` and update callers to await mock responses. Add loading, empty, success, validation-error, conflict, and connection-error states. Prevent duplicate clicks while saving. Preserve input on failure, restore retry controls, and show demo success only after mock acceptance. Keep fixtures and scenario controls separate from screen rendering. No live requests or endpoint connection are required.
 
-**Backend dependency:** Obtain endpoint URLs, methods, payloads, error examples, and session behavior. Agree on duplicate protection for retries; disabling a button alone cannot prevent duplicate server writes.
-
-**Acceptance:** Test delayed/failing mock responses, retained input, and duplicate clicks, then repeat against PHP. Test a timeout after a possible server save using the agreed retry behavior.
+**Acceptance:** Test successful, empty, delayed, and failing mock responses, retained input, retry controls, and duplicate clicks. Document how to select each scenario. Verify one mock save per user action despite repeated clicks.
 
 ### FE-05 — Keep booking entry internal and align staff access
 
-**Status:** Action required; shared integration work. **Screens:** Homepage, Login, and staff navigation.
+**Status:** Action required. **Screens:** Homepage, Login, and staff navigation.
 
 **Evidence:** [app.js](../../js/app.js) creates bookings from public submissions. [login.html](../../admin/login.html) uses demo authentication. [config.js](../../js/config.js) and [storage.js](../../js/storage.js) retain Fiesta & Co. defaults and customer-account terminology.
 
-**Action:** Remove public submission paths that create bookings; retain staff booking entry. Apply supplied AKAD branding and remove Guest / Registered account controls from the rental workflow. Connect login/logout and handle invalid credentials, expired sessions, and access-denied responses. Any retained brochure content must not create bookings.
+**Action:** Remove public submission paths that create bookings; retain staff booking entry. Apply supplied AKAD branding and remove Guest / Registered account controls from the rental workflow. Build login/logout interactions and invalid-credentials, expired-session, and access-denied feedback using labeled mock states. Any retained brochure content must not create bookings. Request missing branding, business details, and login field/role labels from the project owner.
 
-**Backend dependency:** PHP verifies credentials and authorizes protected operations. Confirm login fields/roles and obtain real business details. Hiding controls or setting a localStorage flag is not access control.
+**Acceptance:** Public controls cannot create local demo bookings. Demo staff navigation reaches booking entry. Simulated login errors and session expiry produce clear feedback without false save success. Demo access must not be described as secure authentication.
 
-**Acceptance:** Public controls cannot submit bookings. Authorized staff can create them. Invalid credentials and expired sessions produce clear feedback without false save success.
-
-## P2 — Complete staff workflows and shared capabilities
+## P2 — Complete staff interface workflows
 
 ### FE-06 — Select a service and its package
 
-**Status:** Action required; shared integration work. **Screens:** Manual Booking and Booking Details/edit.
+**Status:** Action required. **Screens:** Manual Booking and Booking Details/edit.
 
 **Evidence:** [manual-booking.html](../../admin/manual-booking.html) submits multiple `service_ids` and generic add-ons; no fixed-package selector exists.
 
 **Action:** Support one service and one associated package per booking. Filter packages by service, clear incompatible selections, and show the package and price in summaries/details. Generic add-ons must not substitute for packages. Handle empty/failed catalog loads.
 
-**Backend dependency:** Obtain confirmed package names/prices, catalog responses, identifiers, and booking payloads. Agree on handling existing multi-service prototype records; do not silently discard selections or rewrite records.
+**Content needed:** Use owner-supplied package names/prices or clearly labeled sample values. Preserve existing multi-service prototype records and flag them for review; do not silently discard selections or rewrite records.
 
 **Acceptance:** A package from another service cannot be submitted. Saved details display the returned service/package and amounts. Catalog failures preserve the draft and offer retry.
 
 ### FE-07 — Record down payments and payment history
 
-**Status:** Action required; shared integration work; rules need clarification. **Screens:** Manual Booking, Booking Details, and Payments.
+**Status:** Action required; business rules need clarification. **Screens:** Manual Booking, Booking Details, and Payments.
 
 **Evidence:** Payment entry/history exists, but reservation/down payments are not explicitly distinguished from balance payments. Manual creation currently confirms bookings with zero payment.
 
-**Action:** Add an explicit down-payment/reservation-fee classification using the agreed payload. Show amount, accepted method, payment date, and purpose in history. Validate inputs and display returned balances/statuses. Use the method list agreed with the backend partner.
+**Action:** Add an explicit down-payment/reservation-fee classification. Show amount, method, payment date, and purpose in history. Validate required inputs and numeric amounts, and display sample balances/statuses from mock results. Obtain method labels and intended confirmation UI behavior from the project owner. Keep the proposed PHP 1,000 minimum down-payment rule and exceptions marked Needs clarification until confirmed. Recording a method must not imply transaction verification.
 
-**Backend dependency:** Confirm accepted payment methods, classification, and the P1,000 minimum down-payment rule, including exceptions and when confirmation requires it. Agree on excessive/invalid amount handling. Recording a method does not verify a wallet transaction.
-
-**Acceptance:** Down payments and balance payments are distinguishable. Invalid amounts show clear errors. Failed saves do not alter history or balances. Confirmation follows the agreed payment rule.
+**Acceptance:** Down payments and balance payments are distinguishable. Invalid inputs show field-level errors. Failed mock saves do not alter history or balances. Demonstrate confirmation-allowed and confirmation-rejected feedback using labeled mock scenarios.
 
 ### FE-08 — Add deposit and delivery controls
 
-**Status:** Action required; shared integration work. **Screens:** Manual Booking and Booking Details/Return Inspection.
+**Status:** Action required. **Screens:** Manual Booking and Booking Details/Return Inspection.
 
 **Evidence:** Structured deposit/refund and delivery workflows are absent. Generic additional fees do not capture these details.
 
-**Action:** Add amount held, deduction amount, required reason when deducting, refundable amount, and refund status. Separate deposits/refunds from rental payments. Add delivery method (self-pickup, Lalamove, owner-delivered), fee, and fee responsibility. Repopulate saved values. Display backend-calculated refunds; reconcile any local preview with the save response.
-
-**Backend dependency:** Agree on record shape, support for multiple deposit/delivery records, deduction/refund rules, and renter-paid versus included-fee mapping.
+**Action:** Add amount held, deduction amount, required reason when deducting, read-only refundable amount, and refund status. Separate deposits/refunds from rental payments. Add delivery method (self-pickup, Lalamove, owner-delivered), fee, and fee responsibility. Repopulate locally saved values. Display consistent mock refund results and label any local calculation as a preview. Request missing status labels and fee-responsibility choices from the project owner.
 
 **Acceptance:** Reject deductions without reasons or above the held amount. Valid deductions show the returned refund. Delivery fields survive reload. Failed saves do not claim success.
 
-### FE-09 — Complete calendar navigation and refresh
+### FE-09 — Complete calendar navigation and refresh feedback
 
-**Status:** Action required; shared integration work. **Screen:** Calendar.
+**Status:** Action required. **Screen:** Calendar.
 
 **Evidence:** [calendar.js](../../js/calendar.js) shows customer-only chips, limits days to three visible bookings, and renders inactive '+ more' text. Data is local without server refresh.
 
-**Action:** Show service/status details using text as well as color. Make '+ more' open every booking for that day. Use keyboard-accessible controls. Add periodic AJAX refresh without resetting the selected month or issuing overlapping refresh requests; indicate refresh failures.
+**Action:** Show service/status details using text as well as color. Make '+ more' open every booking for that day. Use keyboard-accessible controls. Refresh from the mock data source without resetting the selected month or issuing overlapping operations; indicate mock refresh failures. Refresh the local view after accepted demo edits.
 
-**Backend dependency:** Agree on response fields, filters, visible statuses, refresh interval, and refresh behavior after edits/sync.
-
-**Acceptance:** A five-booking day exposes all five. Keyboard controls work. Failed refresh preserves the last successful view. Changes from another staff session appear within the agreed interval after integration.
+**Acceptance:** A five-booking sample day exposes all five. Keyboard controls work. Failed mock refresh preserves the last successful view. Changed sample data appears after refresh without resetting the selected month.
 
 ### FE-10 — Improve phone layouts and accessibility
 
@@ -139,7 +128,7 @@ These assessments are based on source inspection on September 23, 2026. Browser 
 
 **Action:** Stack/wrap each item's return controls on narrow screens. Associate field labels, quantities, conditions, and notes clearly. Provide keyboard actions, visible focus, and field-level errors. Keep input after validation failure.
 
-**Backend dependency:** Agree on error keys so server validation maps to the correct fields.
+Map mock validation errors to the correct fields for demonstration.
 
 **Acceptance:** At 375 x 812, phone landscape, and desktop widths, staff can inspect/save items without clipped controls. Complete booking/calendar actions by keyboard and verify useful focus behavior around dialogs and errors.
 
@@ -149,67 +138,50 @@ These assessments are based on source inspection on September 23, 2026. Browser 
 
 **Evidence:** [dashboard.html](../../admin/dashboard.html) now uses a local `monthKey()` and sums `amount_paid` without the full-total fallback. It still groups by event date and anchors the six-month window to the latest booking month when records exist.
 
-**Action:** Preserve those fixes. Confirm the meaning of monthly income and the intended reporting window. Show backend report data with matching filters, labels, currency, loading, empty, and error states. Retain most-booked-service and upcoming-booking views.
+**Action:** Preserve those fixes. Ask the project owner for the intended monthly-income label, date basis, and reporting window. Show sample report data with matching filters, labels, currency, loading, empty, and error states. Retain most-booked-service and upcoming-booking views. Document sample assumptions while definitions remain undecided.
 
-**Backend dependency:** Agree on payment-date versus event-date reporting, included statuses, date range, and treatment of deposits/refunds. Obtain aggregate responses instead of independently redefining totals in each screen.
+**Acceptance:** An unpaid sample booking contributes zero receipts in the existing local calculation. Test a month boundary in Asia/Manila and samples with payment/event dates in different months. Compare displayed values with documented fixtures, including an empty period. Do not list the corrected month-shift/unpaid-total bugs as unchanged defects.
 
-**Acceptance:** An unpaid booking contributes zero receipts. Test a month boundary in Asia/Manila and payment/event dates in different months. Compare displayed values with backend results, including an empty period. Do not list the corrected month-shift/unpaid-total bugs as unchanged defects.
+### FE-12 — Support local offline entry and demonstrate sync states
 
-### FE-12 — Support offline entry and sync feedback
-
-**Status:** Shared integration work. **Screens:** Booking entry/edit, deposits, checklist, and sync/conflict feedback.
+**Status:** Action required. **Screens:** Booking entry/edit, deposits, checklist, and sync/conflict feedback.
 
 **Evidence:** Local storage exists, but no durable operation queue, reconnect sync, or conflict-review workflow was found. Core assets depend on external hosts.
 
-**Action:** Persist supported offline changes across reloads. Provide offline, Pending Sync, syncing, synced, failed, and conflict states. Retry automatically after reconnection and retain rejected/conflicting changes for review. Coordinate local asset availability so supported screens reopen offline after setup.
+**Action:** Persist supported local offline entries across reloads. Provide offline, Pending Sync, syncing, synced, failed, and conflict views through a clearly labeled sync demonstration. Add retry and conflict-review controls that retain entered values. Make required local assets available so supported screens reopen offline after setup. Real local entries remain Pending Sync while no live connection exists; simulated success must not relabel them as uploaded.
 
-**Backend dependency:** Agree on temporary IDs, operation IDs, queued-record dependencies, duplicate protection, session expiry, sync responses, and conflict resolution. A queued booking is not a server-confirmed reservation.
+**Acceptance:** Create/update local bookings, deposits, and checklist entries offline and verify retention after reload. Reopen supported screens offline after setup. Use separate mock fixtures to demonstrate sync progress, success, failure, retry, and conflict views. Verify that actual local entries remain pending and conflicts retain entered values. Real uploads, reconnect synchronization, and two-device checks are outside this frontend assignment.
 
-**Acceptance:** Create/update bookings, deposits, and checklist entries offline and verify retention after reload. With an available authenticated backend, valid queued changes upload automatically within 30 seconds of reconnection. Test two devices entering the same karaoke slot, retained conflicts, interrupted-response retries without duplication, and visibility on another session after refresh.
-
-## P3 — Manage unavailable periods
+## P3 — Build unavailable-period controls
 
 ### FE-13 — Add service/date blockouts
 
-**Status:** Action required; shared integration work. **Screens:** Calendar and staff availability controls.
+**Status:** Action required. **Screens:** Calendar and staff availability controls.
 
 **Evidence:** No dedicated blockout workflow exists. Deactivating a service is not date-specific availability management.
 
-**Action:** Add service, unavailable period, and reason controls. Distinguish blocks from customer bookings and provide API-permitted edit/remove actions. Show booking conflicts with blocked periods.
+**Action:** Add service, unavailable period, and reason controls with client-side required-field and date/time validation. Distinguish blocks from customer bookings and provide local demo create/edit/remove actions. Show mock blocked-period conflict feedback. Do not create fake customer bookings to represent blocks. Obtain intended whole-day/timed form behavior from the project owner.
 
-**Backend dependency:** Obtain blockout API/storage behavior, whole-day versus timed rules, permissions, and treatment of existing bookings. Do not create fake customer bookings to represent blocks.
+**Acceptance:** Create, reload, edit, and remove a local demo blockout. Verify distinct calendar styling and accessible labels. Simulated booking rejection preserves the draft and explains the conflict. Successful mock outcomes update the local view.
 
-**Acceptance:** Create, reload, edit, and remove a blockout. Reject a booking inside a blocked period. After removal, use the returned availability result.
+## Frontend handoff materials
 
-## Frontend/backend agreement checklist
-
-Complete each agreement before connecting its workflow. UI work can proceed with identified mock responses using the same agreed shape.
-
-| Agreement | Frontend responsibility | Backend responsibility |
-|---|---|---|
-| Endpoints and lifecycle | Await responses, render states, use supplied methods/URLs | Supply endpoints and success/failure examples |
-| Fields and IDs | Submit one service/package and map labels to agreed IDs | Define accepted fields, ID types, and validation |
-| Status values | Use supported transitions; payment status is read-only | Return allowed transitions and calculated status |
-| Date/time and money | Send agreed formats and use consistent labels | Define timezone, precision, parsing, and calculations |
-| Saved results and errors | Render returned records, retain drafts, map field errors | Distinguish validation, conflict, session, and server errors |
-| Authentication | Login/logout, expiry feedback, role-appropriate controls | Verify sessions and enforce authorization |
-| Sync and retry | Preserve operation IDs and show retries/conflicts | Define duplicate protection and resolution behavior |
-| Existing prototype records | Preserve records pending an agreed transition | Agree on import/migration or mock-data handling |
-
-Do not assume every current option in `js/config.js` is accepted by PHP or that local IDs map directly to backend IDs. Do not invent endpoint URLs or silently translate unsupported statuses.
-
-Resolve these with the backend partner: accepted payment methods, package names/prices, scheduling and blockout rules, down-payment exceptions, deposit/refund behavior, monthly-income definition, and login behavior. Keep the affected task marked Needs clarification until agreed; continue independent frontend work.
+- Document mock fixture fields, sample values, and how to run success/error scenarios.
+- List implemented screens/controls, changed files, and browser test results.
+- List unresolved business content/UI decisions and identify sample assumptions.
+- Explain local draft storage, demo-data setup, and offline behavior.
+- Keep real local drafts separate from disposable mock scenario data.
 
 ## Delivery and acceptance checklist
 
 - [ ] P1 interactions fixed; existing calculation corrections regression-tested.
 - [ ] Required forms display saved values and handle catalog failures, rejected input, and failed saves.
-- [ ] Each finished task lists changed files, dependencies, test steps/results, and remaining decisions.
+- [ ] Each finished task lists changed files, test steps/results, and remaining UI decisions.
 - [ ] Mock-response checks cover success, empty data, delays, validation errors, conflicts, and session expiry.
 - [ ] Phone and keyboard checks cover booking, calendar, payments, and returns.
-- [ ] PHP checks cover persistence after reload, authentication, final calculations, and duplicate-safe retry.
-- [ ] Two-session checks cover simultaneous booking conflicts and calendar refresh.
-- [ ] Offline checks cover reload retention, reconnect sync, rejected changes, and conflict review.
+- [ ] Dashboard/report values match documented sample fixtures and labels.
+- [ ] Offline checks cover screen availability, reload retention, pending local entries, and simulated sync/conflict feedback.
+- [ ] Demo behavior is clearly identified and does not claim real authentication, confirmed reservations, verified transactions, or server uploads.
 - [ ] Owners/staff usability and representative-volume performance are reported as unverified until tested.
 
-Mark a task **Frontend ready** when its UI and mock-response checks pass. Mark it **Integrated** only after the PHP/MySQL workflow passes. Attach the test date and evidence, and distinguish unfinished backend dependencies from frontend defects.
+Mark a task **Frontend complete** when its UI, local behavior, and mock-response checks pass. Attach the test date and evidence. The project owner handles database work, backend implementation, live API connection, and integration testing separately; none is required for the frontend developer to complete this handoff.
