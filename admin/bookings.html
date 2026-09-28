@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bookings | Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="../vendor/fonts.css" rel="stylesheet">
+<link href="../vendor/bootstrap-5.3.3.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons.css">
 <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body class="admin-body">
@@ -25,10 +25,10 @@
 
   <div class="panel">
     <div class="d-flex flex-wrap gap-2 mb-3">
-      <select class="form-select form-select-sm" style="max-width:180px;" id="filterStatus">
+      <select aria-label="Filter booking status" class="form-select form-select-sm" style="max-width:180px;" id="filterStatus">
         <option value="">All Statuses</option>
       </select>
-      <input type="text" class="form-control form-control-sm" style="max-width:220px;" id="filterSearch" placeholder="Search customer or ID...">
+      <input aria-label="Search customer or booking ID" type="text" class="form-control form-control-sm" style="max-width:220px;" id="filterSearch" placeholder="Search customer or ID...">
     </div>
     <div class="table-wrap">
       <table class="admin-table booking-table">
@@ -104,24 +104,35 @@
                   <h6 class="mb-3"><i class="bi bi-sliders me-1"></i> Quick Status Update</h6>
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label class="form-label mb-1 fw-bold">Booking Status</label>
+                      <label class="form-label mb-1 fw-bold" for="dStatusSelect">Booking Status</label>
                       <select class="form-select form-select-sm" id="dStatusSelect"></select>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label mb-1 fw-bold">Payment Status</label>
-                      <select class="form-select form-select-sm" id="dPaymentStatusSelect"></select>
+                      <label class="form-label mb-1 fw-bold" for="dPaymentStatusSelect">Payment Status</label>
+                      <input class="form-control form-control-sm" id="dPaymentStatusSelect" readonly aria-label="Calculated payment status">
                     </div>
                     <div class="col-12 d-flex justify-content-end">
                       <button class="btn btn-sm btn-admin-primary px-3" id="dSaveBookingBtn">
                         <i class="bi bi-check2 me-1"></i> Save Status Changes
                       </button>
                     </div>
+                    <div class="col-12" id="dSaveConflictMsg" style="display:none;"></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
+          <div class="border rounded p-3 my-3">
+            <h6>Negotiated refundable deposit</h6><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
+            <div class="row g-2">
+              <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0" step="0.01"></div>
+              <div class="col-sm-6"><label for="depositDeduction">Deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01"></div>
+              <div class="col-sm-6"><label for="depositReason">Deduction reason</label><input id="depositReason" class="form-control" type="text"></div>
+              <div class="col-sm-6"><label for="depositRefund">Refund preview (₱)</label><input id="depositRefund" class="form-control" readonly></div>
+            </div><div id="depositError" role="alert" tabindex="-1" class="text-danger my-2" hidden></div>
+            <button type="button" class="btn btn-outline-secondary mt-2" id="saveDepositBtn">Save deposit</button>
+          </div>
           <!-- CHECKLIST / RELEASE TAB -->
           <div class="tab-pane fade" id="tabChecklist">
             <p class="text-muted small">Auto-generated from this booking's selected services. Check each item before release.</p>
@@ -132,11 +143,11 @@
             </div>
             <div class="row g-2 mt-2">
               <div class="col-md-6">
-                <label class="form-label">Released By</label>
+                <label class="form-label" for="releasedByInput">Released By</label>
                 <input type="text" class="form-control form-control-sm" id="releasedByInput" placeholder="Staff name">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Release Notes</label>
+                <label class="form-label" for="releaseNotesInput">Release Notes</label>
                 <input type="text" class="form-control form-control-sm" id="releaseNotesInput">
               </div>
             </div>
@@ -148,14 +159,14 @@
           <!-- RETURN TAB -->
           <div class="tab-pane fade" id="tabReturn">
             <p class="text-muted small">Inspect returned items and record their condition.</p>
-            <div id="returnChecklistWrap"></div>
+            <div id="returnSaveError" class="alert alert-danger" role="alert" tabindex="-1" hidden></div><div id="returnChecklistWrap"></div>
             <div class="row g-2 mt-2">
               <div class="col-md-6">
-                <label class="form-label">Inspected By</label>
+                <label class="form-label" for="inspectedByInput">Inspected By</label>
                 <input type="text" class="form-control form-control-sm" id="inspectedByInput" placeholder="Staff name">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Return Notes</label>
+                <label class="form-label" for="returnNotesInput">Return Notes</label>
                 <input type="text" class="form-control form-control-sm" id="returnNotesInput" placeholder="e.g. One speaker was not returned.">
               </div>
             </div>
@@ -169,7 +180,7 @@
             <div class="d-flex gap-2 mt-3">
               <button class="btn btn-outline-secondary" id="previewReturnBtn">Preview Summary</button>
               <button class="btn btn-admin-primary" id="completeReturnBtn">
-                <i class="bi bi-check2-all"></i> Complete Return Inspection
+                <i class="bi bi-check2-all"></i> Save Return Inspection
               </button>
             </div>
           </div>
@@ -181,15 +192,15 @@
                 <div class="panel mb-0">
                   <div class="panel-title">Record Payment</div>
                   <div class="mb-2">
-                    <label class="form-label">Amount (₱)</label>
+                    <label class="form-label" for="payAmount">Amount (₱)</label>
                     <input type="number" min="1" class="form-control" id="payAmount">
                   </div>
                   <div class="mb-2">
-                    <label class="form-label">Method</label>
+                    <label class="form-label" for="payMethod">Method</label>
                     <select class="form-select" id="payMethod"></select>
                   </div>
                   <div class="mb-2">
-                    <label class="form-label">Notes</label>
+                    <label class="form-label" for="payNotes">Notes</label>
                     <input type="text" class="form-control" id="payNotes">
                   </div>
                   <button class="btn btn-admin-primary w-100" id="recordPaymentBtn">Record Payment</button>
@@ -210,19 +221,23 @@
   </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../vendor/jquery-3.7.1.min.js"></script>
+<script src="../vendor/bootstrap-5.3.3.bundle.min.js"></script>
 <script src="../js/config.js"></script>
 <script src="../js/storage.js"></script>
 <script src="../js/api.js"></script>
+<script src="../js/sync.js"></script>
 <script src="../js/bookings.js"></script>
 <script src="../js/inventory.js"></script>
 <script src="../js/payments.js"></script>
 <script src="../js/admin.js"></script>
+<script src="../js/sync-ui.js"></script>
+<script src="../js/offline.js"></script>
 <script>
 let currentBookingId = null;
 
-$(function () {
+$(async function () {
+  await API.ready;
   initAdminChrome('bookings.html', 'Bookings');
 
   const $statusFilter = $('#filterStatus');
@@ -246,12 +261,35 @@ $(function () {
   });
 
   $('#dSaveBookingBtn').on('click', function () {
+    const newStatus = $('#dStatusSelect').val();
+    const booking = API.getBooking(currentBookingId);
+    if (!booking) return;
+
+    // Confirming / re-confirming / rescheduling must re-check availability.
+    // A status change that activates the booking's time slot needs the same
+    // conflict check as a new booking — the slot may have been taken.
+    if (newStatus === 'Confirmed' || newStatus === 'Reserved' || newStatus === 'Preparing') {
+      const conflict = (booking.service_ids || []).filter(sid =>
+        !API.checkAvailability(sid, booking.event_date, booking.start_time, booking.end_time, booking.id).available
+      );
+      if (conflict.length) {
+        $('#dSaveConflictMsg').html(
+          `<div class="alert alert-danger mb-0"><i class="bi bi-exclamation-triangle me-1"></i>` +
+          `Cannot confirm: the time slot is already booked for another reservation. ` +
+          `Your changes were not saved.</div>`
+        );
+        $('#dSaveConflictMsg').show();
+        return;
+      }
+    }
+
+    $('#dSaveConflictMsg').hide();
     API.updateBooking(currentBookingId, {
-      status: $('#dStatusSelect').val(),
-      payment_status: $('#dPaymentStatusSelect').val()
+      status: newStatus,
+
     });
     bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
-    showAdminToast('Booking status updated');
+    showAdminToast(API.savedMessage());
     renderBookingsTable();
   });
 
@@ -287,33 +325,37 @@ $(function () {
   });
 
   $('#completeReturnBtn').on('click', function () {
-    const results = InventoryHelper.collectReturnResults('#returnChecklistWrap');
-    API.recordReturn(currentBookingId, $('#inspectedByInput').val() || 'Staff', results, $('#returnNotesInput').val());
-    results.forEach(r => {
-      let status = 'Available';
-      if (r.condition === 'Missing') status = 'Missing';
-      else if (r.condition === 'Damaged') status = 'Damaged';
-      else if (r.condition === 'Minor Damage') status = 'Under Maintenance';
-      API.updateRentalItem(r.rental_item_id, { status, condition: r.condition });
-      API.updateBookingItem(r.booking_item_id, { returned_qty: r.returned_qty, condition: r.condition, notes: r.notes });
-    });
-    API.updateBooking(currentBookingId, { status: 'Completed' });
-    showAdminToast('Return inspection completed');
-    renderBookingsTable();
-    loadBookingDetail(currentBookingId);
+    const results=InventoryHelper.collectReturnResults('#returnChecklistWrap');
+    if(!results.length||results.some(r=>!Number.isInteger(r.returned_qty)||r.returned_qty<0||r.returned_qty>Number(r.expected_qty))){
+      $('#returnSaveError').prop('hidden',false).text('Enter whole returned quantities between zero and the expected quantity.').trigger('focus');return;
+    }
+    try{
+      API.recordReturn(currentBookingId,$('#inspectedByInput').val()||'Staff',results,$('#returnNotesInput').val());
+      const complete=results.every(r=>r.returned_qty===Number(r.expected_qty)&&r.condition!=='Missing');
+      if(complete)API.finalizeReturn(currentBookingId);
+      showAdminToast(API.savedMessage()+(complete?' Completion awaits server validation.':' Missing items remain outstanding.'));
+      loadBookingDetail(currentBookingId);
+    }catch(error){$('#returnSaveError').prop('hidden',false).text(error.message).trigger('focus');}
   });
-
+  $('#saveDepositBtn').on('click',function(){
+    try{
+      API.upsertDeposit(currentBookingId,{amount_held:Number($('#depositHeld').val()),deduction_amount:Number($('#depositDeduction').val()),deduction_reason:$('#depositReason').val()});
+      $('#depositError').prop('hidden',true);showAdminToast(API.savedMessage());
+    }catch(error){$('#depositError').prop('hidden',false).text(error.message).trigger('focus');}
+  });
+  $('#depositHeld,#depositDeduction').on('input',function(){$('#depositRefund').val(Math.max(Number($('#depositHeld').val())-Number($('#depositDeduction').val()),0).toFixed(2));});
   $('#recordPaymentBtn').on('click', function () {
     const amount = Number($('#payAmount').val());
     if (!amount || amount <= 0) { alert('Enter a valid amount.'); return; }
     PaymentsHelper.recordPayment(currentBookingId, amount, $('#payMethod').val(), $('#payNotes').val());
     $('#payAmount, #payNotes').val('');
-    showAdminToast('Payment recorded');
+    showAdminToast(API.savedMessage());
     renderBookingsTable();
     loadBookingDetail(currentBookingId);
   });
 });
 
+let bookingPage=0;
 function renderBookingsTable(statusFilter, search) {
   let bookings = API.getBookings().slice().sort((a, b) => (a.event_date < b.event_date ? 1 : -1));
   const services = API.getServices();
@@ -321,19 +363,21 @@ function renderBookingsTable(statusFilter, search) {
   if (statusFilter) bookings = bookings.filter(b => b.status === statusFilter);
   if (search) {
     const q = search.toLowerCase();
-    bookings = bookings.filter(b => b.customer_name.toLowerCase().includes(q) || b.id.toLowerCase().includes(q));
+    bookings = bookings.filter(b => b.customer_name.toLowerCase().includes(q) || String(b.id).toLowerCase().includes(q));
   }
 
+  if(bookingPage*50>=bookings.length)bookingPage=0;
   const $body = $('#bookingsBody').empty();
   if (!bookings.length) {
     $body.append('<tr><td colspan="8" class="text-center text-muted py-4">No bookings found.</td></tr>');
     return;
   }
-  bookings.forEach(b => {
+  const total=bookings.length;
+  bookings.slice(bookingPage*50,(bookingPage+1)*50).forEach(b => {
     const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name).filter(Boolean).join(', ');
     $body.append(`
       <tr>
-        <td><a href="#" class="fw-semibold js-view-booking" data-id="${b.id}">${b.id}</a></td>
+        <td><a href="#" class="fw-semibold js-view-booking" data-id="${escapeHtmlA(b.id)}">${escapeHtmlA(b._server_id || (String(b.id).startsWith('LOCAL-')?'Offline draft':b.id))}</a></td>
         <td>
           <div class="fw-semibold text-truncate" style="max-width:150px;" title="${escapeHtmlA(b.customer_name)}">${escapeHtmlA(b.customer_name)}</div>
           <div class="text-muted small">${escapeHtmlA(b.contact)}</div>
@@ -347,7 +391,7 @@ function renderBookingsTable(statusFilter, search) {
         </td>
         <td class="fw-bold">${BookingCalc.formatCurrency(b.total)}</td>
         <td>${badgeStatus(b.payment_status || 'Unpaid', CONFIG.paymentStatusColors)}</td>
-        <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}</td>
+        <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}${b.pending_sync?'<span class="badge bg-warning text-dark">Pending Sync</span>':''}</td>
         <td class="text-center">
           <button class="btn btn-sm btn-outline-secondary py-1 px-2 js-view-booking" data-id="${b.id}" title="View Details">
             <i class="bi bi-eye"></i> View
@@ -355,6 +399,10 @@ function renderBookingsTable(statusFilter, search) {
         </td>
       </tr>`);
   });
+  if(!$('#bookingPagination').length)$('<div id="bookingPagination" class="d-flex align-items-center flex-wrap gap-2 mt-3"></div>').insertAfter($('#bookingsBody').closest('.table-responsive'));
+  $('#bookingPagination').html('<button type="button" id="bookingPrev" class="btn btn-sm btn-outline-secondary" '+(bookingPage===0?'disabled':'')+'>Previous</button><span>Showing '+(bookingPage*50+1)+'–'+Math.min((bookingPage+1)*50,total)+' of '+total+'</span><button type="button" id="bookingNext" class="btn btn-sm btn-outline-secondary" '+((bookingPage+1)*50>=total?'disabled':'')+'>Next</button>');
+  $('#bookingPrev').on('click',()=>{bookingPage--;renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());});
+  $('#bookingNext').on('click',()=>{bookingPage++;renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());});
 }
 
 function openBookingDetail(id) {
@@ -369,7 +417,7 @@ function loadBookingDetail(id) {
   const services = API.getServices();
   const addons = API.getAddons();
 
-  $('#detailBookingId').text(b.id);
+  $('#detailBookingId').text(b._server_id || (String(b.id).startsWith('LOCAL-')?'Offline draft':b.id));
   $('#dCustName').text(b.customer_name);
   $('#dCustContact').html(`<i class="bi bi-telephone"></i> ${b.contact}`);
   $('#dCustEmail').html(b.email ? `<i class="bi bi-envelope"></i> ${b.email}` : '<span class="text-muted">No email provided</span>');
@@ -384,7 +432,8 @@ function loadBookingDetail(id) {
   const $svcList = $('#dServicesList').empty();
   (b.service_ids || []).forEach(sid => {
     const s = services.find(x => x.service_id === sid);
-    if (s) $svcList.append(`<li>${s.name} — ${BookingCalc.formatCurrency(s.price)}</li>`);
+    const pack=API.getPackages().find(p=>String(p.package_id)===String(b.package_id));
+    if (s) $svcList.append(`<li>${escapeHtmlA(s.name)}${pack?' — '+escapeHtmlA(pack.name)+' — '+BookingCalc.formatCurrency(pack.price):''}</li>`);
   });
   (b.addon_ids || []).forEach(aid => {
     const a = addons.find(x => x.addon_id === aid);
@@ -406,6 +455,10 @@ function loadBookingDetail(id) {
   $('#returnSummaryBox').hide();
 
   PaymentsHelper.renderHistory(id, '#paymentHistoryWrap');
+  const deposit=API.getDeposit(id);
+  $('#depositHeld').val(deposit.amount_held||0);$('#depositDeduction').val(deposit.deduction_amount||0);
+  $('#depositReason').val(deposit.deduction_reason||'');$('#depositRefund').val((Number(deposit.amount_held||0)-Number(deposit.deduction_amount||0)).toFixed(2));
+
 }
 </script>
 </body>

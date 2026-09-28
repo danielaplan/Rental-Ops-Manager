@@ -8,6 +8,3 @@ memory/
 
 # Local project planning and assistant memory
 /.project-memory/
-
-# Private project documentation uploads
-/Documentation/

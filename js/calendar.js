@@ -8,6 +8,8 @@ const CalendarHelper = {
 
   render(containerSelector, onBookingClick) {
     const bookings = API.getBookings();
+    const byDate=new Map(),services=new Map(API.getServices().map(s=>[s.service_id,s.name]));
+    bookings.forEach(b=>{if(!['Cancelled','Rejected'].includes(b.status)){const day=byDate.get(b.event_date)||[];day.push(b);byDate.set(b.event_date,day);}});
     const year = this.currentYear, month = this.currentMonth;
     const firstDay = new Date(year, month, 1);
     const startOffset = firstDay.getDay();
@@ -24,16 +26,17 @@ const CalendarHelper = {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const dayBookings = bookings.filter(b => b.event_date === dateStr && b.status !== 'Cancelled' && b.status !== 'Rejected');
+      const dayBookings = byDate.get(dateStr)||[];
       const isToday = dateStr === new Date().toISOString().slice(0, 10);
 
       html += `<div class="border rounded p-1" style="min-height:90px;background:${isToday ? 'rgba(31,78,69,0.06)' : '#fff'};">
         <div class="small fw-bold ${isToday ? 'text-primary' : 'text-muted'}">${day}</div>`;
-      dayBookings.slice(0, 3).forEach(b => {
+      dayBookings.forEach((b,index) => {
         const color = CONFIG.bookingStatusColors[b.status] || 'secondary';
-        html += `<div class="js-cal-booking badge bg-${color} d-block text-truncate mb-1" style="cursor:pointer;font-weight:400;text-align:left;" data-id="${b.id}" title="${escapeHtmlA(b.customer_name)}">${escapeHtmlA(b.customer_name)}</div>`;
+        const service=(b.service_ids||[]).map(id=>services.get(id)||id).join(', ');
+        html += `<button type="button" class="js-cal-booking badge bg-${color} d-block text-truncate mb-1 w-100 border-0 ${index>=3?'cal-extra':''}" ${index>=3?'hidden':''} style="font-weight:400;text-align:left;" data-date="${dateStr}" data-id="${b.id}" aria-label="${escapeHtmlA(b.customer_name+', '+service+', '+b.status+', '+b.start_time)}">${escapeHtmlA(b.customer_name)}<br>${escapeHtmlA(service)} · ${escapeHtmlA(b.status)}</button>`;
       });
-      if (dayBookings.length > 3) html += `<div class="small text-muted">+${dayBookings.length - 3} more</div>`;
+      if (dayBookings.length > 3) html += `<button type="button" class="js-cal-more btn btn-sm p-0" data-date="${dateStr}" aria-expanded="false">+${dayBookings.length - 3} more</button>`;
       html += `</div>`;
     }
     html += '</div>';
@@ -41,6 +44,12 @@ const CalendarHelper = {
 
     $(containerSelector).off('click', '.js-cal-booking').on('click', '.js-cal-booking', function () {
       if (onBookingClick) onBookingClick($(this).data('id'));
+    });
+    $(containerSelector).off('click','.js-cal-more').on('click','.js-cal-more',function(){
+      const expanded=this.getAttribute('aria-expanded')==='true';
+      this.setAttribute('aria-expanded',String(!expanded));
+      $(containerSelector).find('.cal-extra').filter((i,el)=>el.dataset.date===this.dataset.date).prop('hidden',expanded);
+      this.textContent=expanded?'Show more':'Show fewer';
     });
   },
 

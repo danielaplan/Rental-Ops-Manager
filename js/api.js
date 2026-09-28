@@ -235,12 +235,10 @@ const API = {
 
   /* ============ AVAILABILITY ============ */
   checkAvailability(serviceId, date, startTime, endTime, excludeBookingId) {
-    const bookings = STORAGE.getAll("bookings").filter(b =>
-      b.event_date === date &&
-      b.service_ids.includes(serviceId) &&
-      b.status !== "Cancelled" && b.status !== "Rejected" &&
-      b.id !== excludeBookingId
-    );
+    if(serviceId!=='SVC-001' && Number(serviceId)!==1)return {available:true,conflictWith:null};
+    const bookings=STORAGE.getAll("bookings").filter(b=>b.event_date===date &&
+      (b.service_ids||[]).some(id=>id==='SVC-001'||Number(id)===1) &&
+      ['confirmed','reserved','preparing','released'].includes(String(b.status).toLowerCase()) && String(b.id)!==String(excludeBookingId));
     const toMin = (t) => {
       const [h, m] = t.split(":").map(Number);
       return h * 60 + m;

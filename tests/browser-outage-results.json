@@ -1,0 +1,13 @@
+{
+  "bookingId": 10019,
+  "duplicateCount": 1,
+  "downPayment": 250,
+  "depositHeld": 350,
+  "deduction": 50,
+  "refund": 300,
+  "returnedQuantity": 0,
+  "condition": "Missing",
+  "inspectionNotesPreserved": true,
+  "notCompleted": true,
+  "passed": true
+}

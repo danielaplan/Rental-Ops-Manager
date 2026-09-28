@@ -223,6 +223,23 @@ table.admin-table tbody tr:hover { background: rgba(31,78,69,0.03); }
 .checklist-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 0.9rem; border: 1px solid var(--a-border); border-radius: 6px; margin-bottom: 0.6rem; background: #fff; }
 .checklist-row.checked { background: rgba(31,78,69,0.05); border-color: var(--a-primary); }
 .checklist-row .item-name { font-weight: 600; flex: 1; }
+.admin-main { min-width: 0; }
+.return-row { display: grid; grid-template-columns: minmax(120px,1fr) auto minmax(90px,110px) minmax(130px,150px) minmax(130px,1fr); }
+.return-row > *, .sync-panel, .sync-panel article { min-width: 0; overflow-wrap: anywhere; }
+.sync-panel summary { cursor: pointer; min-height: 32px; }
+.sync-panel form { max-width: 100%; }
+.calendar-grid .js-cal-booking { min-width: 0; max-width: 100%; }
+.calendar-grid [hidden] { display: none !important; }
+.js-view-booking { overflow-wrap: anywhere; }
+:focus-visible { outline: 3px solid var(--a-accent); outline-offset: 3px; }
+@media (max-width: 767.98px) {
+  .return-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .return-row .item-name, .return-row > div:last-of-type { grid-column: 1 / -1; }
+  .return-row input, .return-row select { min-height: 44px; width: 100%; }
+  .sync-panel button { min-height: 44px; }
+  .calendar-grid { gap: 2px !important; }
+  .calendar-grid .js-cal-booking { font-size: .65rem; padding: 4px 2px; }
+}
 .progress-pill { font-size: 0.85rem; font-weight: 700; color: var(--a-primary); }
 
 .receipt-summary {

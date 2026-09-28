@@ -1,0 +1,33 @@
+{
+  "date": "2026-09-28T18:18:00",
+  "database": "akad_verify_20260928",
+  "syntheticBookings": 10000,
+  "parallelReaders": 3,
+  "server": "Windows PHP built-in server, local MariaDB; not production hosting",
+  "measurements": {
+    "bookings.php?do=all": {
+      "requests": 15,
+      "medianMs": 713.25,
+      "p95Ms": 999.41,
+      "maxMs": 1009.43,
+      "responseBytes": 10436390,
+      "illustrativeUnder2Seconds": true
+    },
+    "reports.php?do=dashboard": {
+      "requests": 15,
+      "medianMs": 122.38,
+      "p95Ms": 193.72,
+      "maxMs": 210.6,
+      "responseBytes": 1734,
+      "illustrativeUnder2Seconds": true
+    },
+    "reports.php?do=report&start=2098-01-01&end=2098-01-31": {
+      "requests": 15,
+      "medianMs": 125.03,
+      "p95Ms": 207.03,
+      "maxMs": 224.41,
+      "responseBytes": 538,
+      "illustrativeUnder2Seconds": true
+    }
+  }
+}

@@ -48,7 +48,54 @@ CREATE TABLE IF NOT EXISTS SERVICES (
     service_id   INT          NOT NULL AUTO_INCREMENT,
     service_name VARCHAR(50)  NOT NULL,
     description  TEXT,
+    status       VARCHAR(20) NOT NULL DEFAULT 'Active',
     PRIMARY KEY (service_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS CATEGORIES (
+    category_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS ADDONS (
+    addon_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    service_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'Active',
+    FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS RENTAL_ITEMS (
+    rental_item_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    service_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    item_code VARCHAR(50),
+    required TINYINT(1) NOT NULL DEFAULT 0,
+    tracking VARCHAR(30) NOT NULL DEFAULT 'quantity',
+    status VARCHAR(40) NOT NULL DEFAULT 'Available',
+    `condition` VARCHAR(100) NOT NULL DEFAULT 'Good',
+    notes TEXT,
+    FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS GALLERY (
+    image_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150),
+    image TEXT NOT NULL,
+    featured TINYINT(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS WEBSITE_CONTENT (
+    content_id INT NOT NULL PRIMARY KEY DEFAULT 1,
+    content JSON NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS APP_SETTINGS (
+    settings_id INT NOT NULL PRIMARY KEY DEFAULT 1,
+    settings JSON NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
@@ -82,10 +129,24 @@ CREATE TABLE IF NOT EXISTS BOOKINGS (
     start_time      TIME         NOT NULL,
     end_time        TIME         NOT NULL,
     event_location  VARCHAR(255),
-    status          ENUM('pending','confirmed','completed','cancelled')
-                    NOT NULL DEFAULT 'pending',
+    status          VARCHAR(30) NOT NULL DEFAULT 'pending',
     sync_status     ENUM('synced','pending_sync')
                     NOT NULL DEFAULT 'pending_sync',
+    service_ids JSON NULL,
+    addon_ids JSON NULL,
+    discount DECIMAL(10,2) NOT NULL DEFAULT 0,
+    fees DECIMAL(10,2) NOT NULL DEFAULT 0,
+    subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
+    addons_total DECIMAL(10,2) NOT NULL DEFAULT 0,
+    total DECIMAL(10,2) NOT NULL DEFAULT 0,
+    amount_paid DECIMAL(10,2) NOT NULL DEFAULT 0,
+    payment_status VARCHAR(20) NOT NULL DEFAULT 'Unpaid',
+    source VARCHAR(50),
+    guests INT,
+    event_type VARCHAR(100),
+    special_requests TEXT,
+    email VARCHAR(255),
+    customer_type VARCHAR(100),
     PRIMARY KEY (booking_id),
     FOREIGN KEY (customer_id) REFERENCES CUSTOMERS(customer_id)
         ON UPDATE CASCADE ON DELETE RESTRICT,
@@ -110,6 +171,7 @@ CREATE TABLE IF NOT EXISTS PAYMENTS (
     payment_status   ENUM('paid','unpaid','partial')
                     NOT NULL DEFAULT 'unpaid',
     payment_date     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notes            TEXT,
     PRIMARY KEY (payment_id),
     FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id)
         ON UPDATE CASCADE ON DELETE CASCADE
@@ -123,7 +185,7 @@ CREATE TABLE IF NOT EXISTS PAYMENTS (
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS DEPOSITS (
     deposit_id        INT           NOT NULL AUTO_INCREMENT,
-    booking_id        INT           NOT NULL,
+    booking_id        INT           NOT NULL UNIQUE,
     amount_held       DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     deduction_amount  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     deduction_reason  TEXT,
@@ -143,17 +205,63 @@ CREATE TABLE IF NOT EXISTS DEPOSITS (
 CREATE TABLE IF NOT EXISTS EQUIPMENT_CHECKLIST (
     checklist_id   INT          NOT NULL AUTO_INCREMENT,
     booking_id     INT          NOT NULL,
+    rental_item_id INT,
     item_name      VARCHAR(100) NOT NULL,
     condition_out  VARCHAR(255),
     condition_in   VARCHAR(255),
+    expected_qty   INT NOT NULL DEFAULT 0,
+    returned_qty   INT NOT NULL DEFAULT 0,
+    inspection_notes TEXT,
     return_status  ENUM('pending','inspected','damaged','missing')
                     NOT NULL DEFAULT 'pending',
     checked_by     INT,
     PRIMARY KEY (checklist_id),
+    UNIQUE KEY uq_equipment_booking_item (booking_id, rental_item_id),
     FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id)
         ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (rental_item_id) REFERENCES RENTAL_ITEMS(rental_item_id)
+        ON UPDATE CASCADE ON DELETE SET NULL,
     FOREIGN KEY (checked_by) REFERENCES USERS(user_id)
         ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS BOOKING_ITEMS (
+    booking_item_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT NOT NULL,
+    rental_item_id INT,
+    service_id INT,
+    name VARCHAR(100) NOT NULL,
+    expected_qty INT NOT NULL DEFAULT 0,
+    released_qty INT NOT NULL DEFAULT 0,
+    returned_qty INT NOT NULL DEFAULT 0,
+    required TINYINT(1) NOT NULL DEFAULT 0,
+    checked_released TINYINT(1) NOT NULL DEFAULT 0,
+    `condition` VARCHAR(100),
+    notes TEXT,
+    FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (rental_item_id) REFERENCES RENTAL_ITEMS(rental_item_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS ITEM_RELEASES (
+    release_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT NOT NULL,
+    released_by VARCHAR(100),
+    notes TEXT,
+    released_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS ITEM_HISTORY (
+    history_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    rental_item_id INT,
+    booking_id INT,
+    action VARCHAR(40) NOT NULL,
+    qty INT NOT NULL DEFAULT 0,
+    `condition` VARCHAR(100),
+    event_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (rental_item_id) REFERENCES RENTAL_ITEMS(rental_item_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
@@ -164,7 +272,7 @@ CREATE TABLE IF NOT EXISTS EQUIPMENT_CHECKLIST (
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS DELIVERY (
     delivery_id         INT           NOT NULL AUTO_INCREMENT,
-    booking_id          INT           NOT NULL,
+    booking_id          INT           NOT NULL UNIQUE,
     delivery_method     ENUM('self_pickup','lalamove','owner_delivered')
                     NOT NULL DEFAULT 'self_pickup',
     delivery_fee        DECIMAL(10,2) NOT NULL DEFAULT 0.00,

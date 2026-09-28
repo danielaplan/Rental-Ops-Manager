@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AKAD synthetic browser verification</title>
+<style>body{font:15px system-ui;margin:16px;background:#eee}button,select{padding:8px;margin:3px}iframe{display:block;border:2px solid #333;background:white}pre{white-space:pre-wrap}fieldset{margin-bottom:12px}</style>
+<h1>AKAD browser verification — isolated test database</h1>
+<p>This fixture sizes the actual staff pages. Sign in with TEST-OWNER / OfflineTest!2026. All records on ports 8017 and 8018 are synthetic.</p>
+<fieldset><legend>Viewport</legend><button type="button" data-size="375,812">Phone 375 × 812</button><button type="button" data-size="812,375">Landscape 812 × 375</button><button type="button" data-size="1366,900">Desktop 1366 × 900</button>
+<label for="page">Staff page</label><select id="page"><option value="login.html">Login</option><option value="manual-booking.html">Manual booking</option><option value="bookings.html">Bookings</option><option value="calendar.html">Calendar</option></select>
+<button type="button" id="diagnose">Check layout and labels</button></fieldset>
+<pre id="results" role="status" aria-live="polite">Select a viewport and complete the staff workflow below.</pre>
+<iframe id="app" title="Actual AKAD staff interface" src="../admin/login.html" width="375" height="812"></iframe>
+<script>
+const app=document.querySelector('#app'),results=document.querySelector('#results'),records=[];
+document.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>{const [w,h]=b.dataset.size.split(',');app.width=w;app.height=h;}));
+document.querySelector('#page').addEventListener('change',e=>app.src='../admin/'+e.target.value);
+document.querySelector('#diagnose').addEventListener('click',()=>{
+ const doc=app.contentDocument,win=app.contentWindow;
+ if(!doc?.documentElement){results.textContent='Page is still loading. Check again when the form appears.';return;}
+ const visible=el=>!!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+ const controls=[...doc.querySelectorAll('input:not([type=hidden]),select,textarea')].filter(visible);
+ const unlabelled=controls.filter(el=>!el.labels?.length&&!el.getAttribute('aria-label')&&!el.getAttribute('aria-labelledby'));
+ const clipped=[...doc.querySelectorAll('.return-row input,.return-row select,.sync-edit input')].filter(visible).filter(el=>{const r=el.getBoundingClientRect();return r.left<0||r.right>win.innerWidth;});
+ const record={page:win.location.pathname,width:win.innerWidth,height:win.innerHeight,documentWidth:doc.documentElement.scrollWidth,viewportFits:doc.documentElement.scrollWidth<=win.innerWidth,visibleFormControls:controls.length,unlabelledControls:unlabelled.map(el=>el.id||el.className),clippedReturnControls:clipped.length,offlineReady:!!win.akadOfflineReady,at:new Date().toISOString()};
+ records.push(record);results.textContent=JSON.stringify({latest:record,history:records},null,2);
+ localStorage.setItem('akad_browser_verification',JSON.stringify(records));
+});
+</script></html>

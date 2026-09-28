@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Website Content | Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="../vendor/fonts.css" rel="stylesheet">
+<link href="../vendor/bootstrap-5.3.3.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons.css">
 <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body class="admin-body">
@@ -28,11 +28,11 @@
       <div class="panel-title">Business</div>
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label">Business Name</label>
+          <label class="form-label" for="cBusinessName">Business Name</label>
           <input type="text" class="form-control" id="cBusinessName">
         </div>
         <div class="col-md-6">
-          <label class="form-label">Logo URL (optional)</label>
+          <label class="form-label" for="cLogo">Logo URL (optional)</label>
           <input type="text" class="form-control" id="cLogo">
         </div>
       </div>
@@ -42,19 +42,19 @@
       <div class="panel-title">Hero Section</div>
       <div class="row g-3">
         <div class="col-12">
-          <label class="form-label">Title</label>
+          <label class="form-label" for="cHeroTitle">Title</label>
           <input type="text" class="form-control" id="cHeroTitle">
         </div>
         <div class="col-12">
-          <label class="form-label">Description</label>
+          <label class="form-label" for="cHeroDesc">Description</label>
           <textarea class="form-control" id="cHeroDesc" rows="2"></textarea>
         </div>
         <div class="col-md-8">
-          <label class="form-label">Hero Image URL</label>
+          <label class="form-label" for="cHeroImage">Hero Image URL</label>
           <input type="text" class="form-control" id="cHeroImage">
         </div>
         <div class="col-md-4">
-          <label class="form-label">Button Text</label>
+          <label class="form-label" for="cHeroBtn">Button Text</label>
           <input type="text" class="form-control" id="cHeroBtn">
         </div>
       </div>
@@ -64,11 +64,11 @@
       <div class="panel-title">About Section</div>
       <div class="row g-3">
         <div class="col-12">
-          <label class="form-label">Title</label>
+          <label class="form-label" for="cAboutTitle">Title</label>
           <input type="text" class="form-control" id="cAboutTitle">
         </div>
         <div class="col-12">
-          <label class="form-label">Description</label>
+          <label class="form-label" for="cAboutDesc">Description</label>
           <textarea class="form-control" id="cAboutDesc" rows="3"></textarea>
         </div>
       </div>
@@ -78,23 +78,23 @@
       <div class="panel-title">Contact Section</div>
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label">Phone</label>
+          <label class="form-label" for="cPhone">Phone</label>
           <input type="text" class="form-control" id="cPhone">
         </div>
         <div class="col-md-6">
-          <label class="form-label">Email</label>
+          <label class="form-label" for="cEmail">Email</label>
           <input type="email" class="form-control" id="cEmail">
         </div>
         <div class="col-12">
-          <label class="form-label">Address</label>
+          <label class="form-label" for="cAddress">Address</label>
           <input type="text" class="form-control" id="cAddress">
         </div>
         <div class="col-md-6">
-          <label class="form-label">Facebook URL</label>
+          <label class="form-label" for="cFacebook">Facebook URL</label>
           <input type="text" class="form-control" id="cFacebook">
         </div>
         <div class="col-md-6">
-          <label class="form-label">Instagram URL</label>
+          <label class="form-label" for="cInstagram">Instagram URL</label>
           <input type="text" class="form-control" id="cInstagram">
         </div>
       </div>
@@ -104,14 +104,18 @@
   </form>
 </main>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../vendor/jquery-3.7.1.min.js"></script>
+<script src="../vendor/bootstrap-5.3.3.bundle.min.js"></script>
 <script src="../js/config.js"></script>
 <script src="../js/storage.js"></script>
 <script src="../js/api.js"></script>
+<script src="../js/sync.js"></script>
 <script src="../js/admin.js"></script>
+<script src="../js/sync-ui.js"></script>
+<script src="../js/offline.js"></script>
 <script>
-$(function () {
+$(async function () {
+  await API.ready;
   initAdminChrome('content.html', 'Website Content');
   loadContent();
 

@@ -1,20 +1,27 @@
 /**
  * admin.js
  * Shared scaffolding for every admin/*.html page:
- *  - mock auth guard (redirects to login.html if no session)
+ *  - cached session guard (PHP validates authenticated requests)
  *  - sidebar navigation with active-state + mobile offcanvas behavior
  *  - small reusable UI helpers (toast, confirm-delete, badges)
  *
- * NOTE: Auth here is a MOCK frontend-only session flag in localStorage.
- * There is no real security. When PHP is added, replace AdminAuth with
- * real server-side session/cookie checks.
+ * Offline work requires an existing online-authenticated session.
  */
 const AdminAuth = {
   isLoggedIn() {
-    return !!STORAGE._get(STORAGE_KEYS.adminSession);
+    const s=STORAGE._get(STORAGE_KEYS.adminSession);
+    return !!(s?.session_token && s?.user?.user_id && (!s.expiresAt || s.expiresAt>Date.now()));
   },
-  login(username) {
-    STORAGE._set(STORAGE_KEYS.adminSession, { username, loginAt: new Date().toISOString() });
+  async login(username, password) {
+    try {
+      const response = await fetch('../api/auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contact_number: username, password }) });
+      const envelope = await response.json();
+      if (!response.ok || !envelope.ok) throw new Error(envelope.error || 'Sign in failed.');
+      STORAGE._set(STORAGE_KEYS.adminSession, { username, loginAt: new Date().toISOString(), expiresAt:Date.now()+envelope.data.expires_in*1000, ...envelope.data });
+      return true;
+    } catch (error) {
+      throw error;
+    }
   },
   logout() {
     localStorage.removeItem(STORAGE_KEYS.adminSession);
@@ -29,7 +36,7 @@ const AdminAuth = {
 
 function escapeHtmlA(str) {
   if (str === undefined || str === null) return '';
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 const ADMIN_NAV = [
@@ -78,6 +85,7 @@ function initAdminChrome(activeHref, pageTitle) {
   renderAdminSidebar(activeHref);
   $('#adminPageTitle').text(pageTitle);
   initAdminSpaNavigation();
+  window.initSyncPanel?.();
 
   $('#sidebarToggleBtn').off('click.adminChrome').on('click.adminChrome', function () {
     $('#adminSidebar').toggleClass('show');
@@ -90,73 +98,7 @@ function initAdminChrome(activeHref, pageTitle) {
 }
 
 function initAdminSpaNavigation() {
-  if (window.__adminSpaNavigationReady) return;
-  window.__adminSpaNavigationReady = true;
-
-  $(document).on('click.adminSpa', '.admin-sidebar a[href]', function (e) {
-    const href = this.getAttribute('href');
-    if (!href || href === '#' || this.id === 'adminLogoutBtn' || href.startsWith('http')) return;
-    e.preventDefault();
-    loadAdminPage(href, true);
-  });
-
-  window.addEventListener('popstate', function () {
-    const page = window.location.pathname.split('/').pop() || 'dashboard.html';
-    if (page.endsWith('.html') && page !== 'login.html') loadAdminPage(page, false);
-  });
-}
-
-async function loadAdminPage(href, pushHistory) {
-  const url = new URL(href, window.location.href);
-  const currentMain = document.querySelector('.admin-main');
-  if (!currentMain) return;
-
-  currentMain.classList.add('admin-page-loading');
-  try {
-    const response = await fetch(url.href);
-    if (!response.ok) throw new Error('Unable to load admin page');
-    const html = await response.text();
-    const parsed = new DOMParser().parseFromString(html, 'text/html');
-    const nextMain = parsed.querySelector('.admin-main');
-    if (!nextMain) throw new Error('Admin page content was not found');
-
-    document.querySelectorAll('.modal').forEach(modal => modal.remove());
-    currentMain.outerHTML = nextMain.outerHTML;
-    parsed.body.querySelectorAll('.modal').forEach(modal => {
-      document.body.appendChild(document.importNode(modal, true));
-    });
-
-    await loadAdminPageScripts(parsed, url);
-    document.title = parsed.title || document.title;
-    if (pushHistory) window.history.pushState({}, '', url.href);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    closeAdminSidebar();
-  } catch (error) {
-    console.error('Admin navigation error:', error);
-    window.location.href = url.href;
-  }
-}
-
-async function loadAdminPageScripts(parsed, pageUrl) {
-  const scripts = Array.from(parsed.querySelectorAll('script'));
-  for (const source of scripts.filter(script => script.src)) {
-    const sourceUrl = new URL(source.getAttribute('src'), pageUrl.href).href;
-    const alreadyLoaded = Array.from(document.scripts).some(script => script.src === sourceUrl);
-    if (alreadyLoaded) continue;
-    await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = sourceUrl;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.body.appendChild(script);
-    });
-  }
-
-  for (const inlineScript of scripts.filter(script => !script.src)) {
-    if (inlineScript.textContent.trim()) {
-      new Function(inlineScript.textContent)();
-    }
-  }
+  // Native links use the cached app shell and initialize each page once.
 }
 
 function closeAdminSidebar() {
@@ -176,7 +118,7 @@ function showAdminToast(message, type) {
   const html = `
     <div id="${id}" class="toast align-items-center text-white bg-${type} border-0" role="alert" style="position:fixed;top:1rem;right:1rem;z-index:3000;">
       <div class="d-flex">
-        <div class="toast-body">${message}</div>
+        <div class="toast-body">${escapeHtmlA(message)}</div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
       </div>
     </div>`;
@@ -191,6 +133,27 @@ function showAdminToast(message, type) {
 function badgeStatus(status, map) {
   const color = (map && map[status]) || 'secondary';
   return `<span class="badge bg-${color}">${status}</span>`;
+}
+
+/* Field-level validation error display. Attaches a small red message
+   under the field and marks the control invalid so the browser's
+   built-in validation styling stays consistent. */
+function showFieldError(selector, message) {
+  const $field = $(selector);
+  if (!$field.length) return;
+  $field.addClass('is-invalid');
+  let $msg = $field.nextAll('.invalid-feedback');
+  if (!$msg.length) {
+    $msg = $(`<div class="invalid-feedback"></div>`).insertAfter($field);
+  }
+  $msg.text(message);
+}
+
+function clearFieldError(selector) {
+  const $field = $(selector);
+  if (!$field.length) return;
+  $field.removeClass('is-invalid');
+  $field.nextAll('.invalid-feedback').remove();
 }
 
 function statusSelect(currentStatus, options, cssClass) {

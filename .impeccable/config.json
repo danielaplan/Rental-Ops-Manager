@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "fraunces",
+        "createdAt": "2026-09-23T17:49:52.033Z",
+        "reason": "Pre-existing project-wide type system (Fraunces headings + Inter body) declared in css/admin.css and applied across all admin pages; unchanged by FE-01 which added only JS validation logic and a conflict-message element. Not introduced by this change."
+      }
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "date": "2026-09-28T10:23:29.077Z",
+  "environment": "Two independent storage clients, live PHP/MySQL, synthetic isolated database",
+  "results": [
+    {
+      "name": "offline booking, deposit, payment, and full checklist survive reload",
+      "passed": true,
+      "ms": 30.05
+    },
+    {
+      "name": "reconnect uploads all entries in under 30 seconds with correct database links",
+      "passed": true,
+      "ms": 801.21
+    },
+    {
+      "name": "independent device retrieves the same accepted booking and negotiated amounts",
+      "passed": true,
+      "ms": 553.18
+    },
+    {
+      "name": "conflicting offline booking and dependent checklist are retained through reload",
+      "passed": true,
+      "ms": 1074.73
+    },
+    {
+      "name": "lost response retries without duplicate bookings or payments",
+      "passed": true,
+      "ms": 875.96
+    },
+    {
+      "name": "stale status edits require review instead of overwriting another device",
+      "passed": true,
+      "ms": 726.7
+    },
+    {
+      "name": "non-karaoke bookings do not conflict with karaoke; invalid ranges stay rejected",
+      "passed": true,
+      "ms": 605.21
+    },
+    {
+      "name": "deposit bounds and deduction reasons are enforced without a fixed minimum",
+      "passed": true,
+      "ms": 42.11
+    },
+    {
+      "name": "finalize return succeeds only after a complete saved inspection",
+      "passed": true,
+      "ms": 650.1
+    },
+    {
+      "name": "different signed-in user cannot upload another user outbox",
+      "passed": true,
+      "ms": 4.82
+    },
+    {
+      "name": "simultaneous karaoke confirmations serialize across two PHP processes",
+      "passed": true,
+      "ms": 37.01
+    },
+    {
+      "name": "online event automatically uploads a persisted offline draft",
+      "passed": true,
+      "ms": 845.06
+    },
+    {
+      "name": "periodic retry uploads when connection returns without an online event",
+      "passed": true,
+      "ms": 2292.28
+    },
+    {
+      "name": "incomplete inspection cannot finalize a return",
+      "passed": true,
+      "ms": 602.89
+    }
+  ]
+}

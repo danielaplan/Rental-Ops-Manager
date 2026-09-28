@@ -22,15 +22,20 @@ const InventoryHelper = {
             <span class="text-muted">× ${it.expected_qty}</span>
           </div>`);
       } else if (mode === 'return') {
+        const saved=it.inspected || !!it.condition;
+        const returned=saved ? (it.returned_qty ?? 0) : it.expected_qty;
+        const condition=saved ? it.condition : 'Good';
+        const controlId='return-'+String(it.booking_item_id).replace(/[^a-zA-Z0-9_-]/g,'');
         $wrap.append(`
-          <div class="checklist-row" data-item="${it.booking_item_id}">
+          <div class="checklist-row return-row" data-item="${it.booking_item_id}">
             <span class="item-name">${escapeHtmlA(it.name)}</span>
             <span class="text-muted small">Expected: ${it.expected_qty}</span>
-            <input type="number" min="0" class="form-control form-control-sm js-return-qty" style="width:80px" value="${it.expected_qty}">
-            <select class="form-select form-select-sm js-return-condition" style="width:150px">
-              ${CONFIG.itemConditions.map(c => `<option ${c === 'Good' ? 'selected' : ''}>${c}</option>`).join('')}
-            </select>
-            <input type="text" class="form-control form-control-sm js-return-notes" placeholder="Notes" style="width:160px">
+            <div><label class="small" for="${controlId}-qty">Returned quantity</label><input id="${controlId}-qty" type="number" min="0" max="${it.expected_qty}" step="1" required class="form-control form-control-sm js-return-qty" value="${returned}"></div>
+            <div><label class="small" for="${controlId}-condition">Condition</label><select id="${controlId}-condition" class="form-select form-select-sm js-return-condition">
+              ${CONFIG.itemConditions.map(c => `<option ${c === condition ? 'selected' : ''}>${c}</option>`).join('')}
+            </select></div>
+            <div><label class="small" for="${controlId}-notes">Notes</label><input id="${controlId}-notes" type="text" maxlength="2000" class="form-control form-control-sm js-return-notes" value="${escapeHtmlA(it.notes||'')}"></div>
+            ${Number(returned)<Number(it.expected_qty)?'<span class="text-danger small">Quantity shortfall</span>':''}
           </div>`);
       } else {
         $wrap.append(`
@@ -59,7 +64,7 @@ const InventoryHelper = {
     $(containerSelector).find('.checklist-row').each(function () {
       const itemId = $(this).data('item');
       const items = STORAGE.getAll('bookingItems');
-      const bi = items.find(x => x.booking_item_id === itemId);
+      const bi = items.find(x => String(x.booking_item_id) === String(itemId));
       results.push({
         booking_item_id: itemId,
         rental_item_id: bi ? bi.rental_item_id : null,
@@ -76,7 +81,7 @@ const InventoryHelper = {
   summarizeReturn(results) {
     const totalExpected = results.reduce((s, r) => s + Number(r.expected_qty), 0);
     const totalReturned = results.reduce((s, r) => s + Number(r.returned_qty), 0);
-    const missing = results.filter(r => r.condition === 'Missing').length;
+    const missing = results.reduce((sum,r)=>sum+Math.max(Number(r.expected_qty)-Number(r.returned_qty),r.condition==='Missing'?Number(r.expected_qty):0),0);
     const damaged = results.filter(r => r.condition === 'Damaged' || r.condition === 'Minor Damage').length;
     const good = results.filter(r => r.condition === 'Good').length;
     return { totalExpected, totalReturned, missing, damaged, good };

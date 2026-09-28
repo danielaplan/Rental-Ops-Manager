@@ -1,187 +1,204 @@
-# AKAD frontend developer handoff
+# AKAD frontend requirements review and developer handoff
 
-Updated: September 24, 2026.
+Updated: September 28, 2026. Current source review; earlier September 18–24 findings are superseded where they differ below.
 
-Audience: frontend developer. Scope: frontend only.
+## Purpose and assignment boundary
 
-Complete the staff interface using HTML, CSS, JavaScript, Bootstrap, and jQuery. Use local sample data and clearly labeled mock responses to demonstrate interface behavior. Use localStorage/IndexedDB for supported local drafts and offline entries.
+Complete the internal staff interface using HTML, CSS, JavaScript, Bootstrap, and jQuery. This document is the current frontend work list, including remaining defects, missing workflows, completed work to preserve, and acceptance checks.
 
-**Responsibility boundary:** The project owner handles the database, PHP/backend implementation, and connecting the frontend to live APIs. The frontend developer delivers screens, styling, interactions, client-side validation, local draft behavior, and mock-data demonstrations. Live API integration and backend testing are not part of the frontend developer's assignment or completion criteria.
+**Frontend developer:** screens, styling, interactions, accessible forms, client validation, retained drafts, loading/error feedback, and frontend regression checks. The project owner handles database/PHP changes and live API integration and backend verification. Coordinate interface contracts with the owner; identify dependency gaps instead of inventing backend behavior. Labeled fixtures may demonstrate missing interfaces, but do not replace existing live authentication or synchronization with mock implementations.
 
-Throughout this handoff, saves and responses mean local demo records or mock responses. Demo authentication, availability, payments, and sync results must be clearly identified as simulations.
+**Current authorization:** this handoff is documentation. The user instructed that frontend code must not be changed in this session. FR-10 blockouts remain **skipped**, including their frontend. This document does not authorize blockout implementation.
 
-Payments are recorded after staff receive them externally. Build payment-entry and tracking controls; payment-gateway integration and automatic transfers are outside this work.
+Payments are recorded after staff receive them externally. Payment gateways, transfers, and automatic verification are outside scope. Down payments and refundable deposits are separate amounts negotiated by the owner and client under admin control. **Neither has a fixed amount or a mandatory ₱1,000 minimum.**
 
-## Work order and task status
+## Sources and evidence limits
 
-Start with P1, then P2. P3 is lower-priority workflow completion. All frontend tasks can be demonstrated without a running backend.
+- [Official requirements](../../Documentation/AKAD_Requirements_Analysis_Documentation.md): FR-01–10, NFR-01–04, WONT-01.
+- [Implementation and verification report](../../Implementation/Offline-Sync-Verification-2026-09-28.md): engineering changes, passed focused checks, and limitations.
+- [Integration results](../../tests/offline-sync-results.json): 14 live PHP/MySQL checks.
+- [Browser outage results](../../tests/browser-outage-results.json) and [layout results](../../tests/browser-layout-results.json): focused browser workflow and viewport checks.
 
-- **Action required:** the inspected frontend needs the change described.
-- **Corrected in source — retest:** the old defect's code has changed; run regression checks before closing it.
-- **Needs clarification:** obtain missing business content or UI decisions from the project owner; continue independent frontend work.
+This update inspected source; it did not run a new browser regression suite. Earlier September 28 results establish selected workflows only. Physical phones, all screens, full keyboard behavior, production peak load, and two-owner/one-staff usability are not certified.
 
-These assessments are based on source inspection on September 23, 2026. The September 24 revision changes assignment scope; it is not a new source or browser audit. Browser results from the September 18 review are historical observations, not fresh test results. The old coverage totals are retired because some findings have changed.
+## Work order
 
-## P1 — Fix existing interactions and frontend data states
+| Task | Priority | Current status | Requirements |
+|---|---|---|---|
+| FE-01 Booking validation and edit/confirmation feedback | P1 | Submission validation implemented; edit and conflict UX need completion | FR-01, FR-03 |
+| FE-02 Restore return inspections | Preserve | Implemented; focused persistence checks passed | FR-09 |
+| FE-03 Calculated payment status | Preserve/P1 | Read-only status implemented; refresh and amount validation need review | FR-04 |
+| FE-04 Screen loading, refresh, errors, and truthful saves | P1 | Partially implemented; remaining screens need attention | FR-01–09, NFR-01 |
+| FE-05 Internal scope, branding, and staff access | P1 | Public prototype paths/branding remain; real login already exists | WONT-01, NFR-03 |
+| FE-06 Service/package selection and display | P1 | Selector implemented; detail mapping and catalog states need correction | FR-01, FR-05 |
+| FE-07 Negotiated payments and history | P1 | Initial down-payment entry exists; labels/purpose/validation need alignment | FR-04 |
+| FE-08 Deposit and delivery workflows | P1 | Deposit controls implemented; delivery controls missing | FR-06, FR-08 |
+| FE-09 Calendar navigation and freshness | P2 | Labels/expansion/refresh implemented; complete regression and feedback | FR-02, FR-03 |
+| FE-10 Phone and keyboard accessibility | P2 | Return layout checks passed; full interface/device audit remains | NFR-02, NFR-03 |
+| FE-11 Reporting definitions and freshness | P2 | Local reports exist; definitions, refresh, and states need attention | FR-07 |
+| FE-12 Offline and conflict feedback | P1/Preserve | Real queue/cache/sync implemented; error visibility and screen coverage remain | NFR-01 |
+| FE-13 Service/date blockouts | Skipped | Explicitly deferred; do not implement | FR-10 |
+| FE-14 Catalog/settings field contracts | P1 | Some screen fields exceed backend persistence contracts | Supporting workflows |
+| FE-15 Safe rendering of user-entered values | P1 | Unescaped HTML interpolation remains | All relevant screens |
+| FE-16 Draft recovery and save consistency | P2 | Manual draft support exists; additions and failure recovery need review | FR-01, NFR-01 |
+| FE-17 Frontend performance | P2 | Pagination/date indexing implemented; broader measurement remains | NFR-04 |
 
-### FE-01 — Validate booking times and confirmation
+Start with delivery, package display, save/error feedback, and field-contract issues. Complete the scope/branding cleanup and then the device, accessibility, reporting, and regression work. Do not redo passed work solely because the old review called it missing.
 
-**Status:** Action required. **Screens:** Manual Booking and Booking Details.
+## P1 — Complete missing workflows and correct misleading states
 
-**Evidence:** In [manual-booking.html](../../admin/manual-booking.html), the time warning does not independently prevent submission through `createManualBooking()`. In [bookings.html](../../admin/bookings.html), the status-save handler calls `API.updateBooking()` without an availability check.
+### FE-01 — Booking validation, editing, and confirmation
 
-**Action:** Validate dates/times at submission. Reject equal or reversed times in the current single-date form. Provide a date/time/location edit flow using the same validation. Build pending, accepted, and conflict feedback for creating, confirming, re-confirming, and rescheduling using mock outcomes. Preserve input on rejection. Ask the project owner for intended overnight/whole-day form behavior before extending the current form.
+**Evidence:** [manual-booking.html](../../admin/manual-booking.html) validates time order at submission and requires one service/package. New bookings start Pending. [bookings.html](../../admin/bookings.html) offers status changes but no normal date/time/location edit form. The sync panel provides date/time edits for rejected drafts.
 
-**Acceptance:** Invalid ranges cannot submit. Simulated conflicts display a clear error and leave the last saved local record unchanged. A rejected edit retains the draft. Demonstrate each booking action with accepted and rejected mock outcomes.
+**Remaining work:** Provide an ordinary booking edit workflow for required event fields, using the same validation and preserved input. Distinguish a locally saved change from server acceptance. Explain a confirmation conflict without falsely presenting the booking as accepted. Replace blocking generic alerts with accessible inline errors. If overnight/multi-day scheduling is proposed, obtain a business decision before extending the current single-date form.
 
-### FE-02 — Restore saved return inspections
+**Acceptance:** Equal/reversed times cannot submit. Date/time/location edits retain rejected input. Confirming/rescheduling a conflicting karaoke booking gives an actionable reason and review/retry path. A local Pending Sync draft may remain changed while the accepted server record is unchanged; do not treat it as silently accepted. Other service lines must not be blocked by karaoke overlap rules.
 
-**Status:** Action required. **Screen:** Booking Details > Return Inspection.
+### FE-03 — Preserve calculated payment status; complete validation
 
-**Evidence:** [inventory.js](../../js/inventory.js), `renderChecklist()`, defaults to expected quantity, Good, and empty notes despite saved return fields.
+**Already delivered:** Booking detail has read-only calculated payment status and no manual payment-status override. Preserve that behavior.
 
-**Action:** Repopulate saved quantities, conditions, and notes. Preserve zero as a saved value; apply defaults only to unrecorded fields. Make quantity shortfalls visible.
+**Remaining work:** Review all payment entry points for finite positive amounts, useful field errors, repeated clicks, and storage failures. Refresh history, paid amount, balance, and status consistently when accepted data arrives. Show pending payments distinctly from accepted payments. Coordinate rejected-payment reconciliation with the integration owner; an optimistic local total must not appear as an accepted receipt.
 
-**Acceptance:** Save zero returned, Missing, and a note; reopen/reload and verify all values. Saving again without edits preserves the exception. Repeat with a partial return.
+**Acceptance:** Unpaid cannot be changed to Fully Paid through a selector. Verify zero, partial, full, invalid, failed, pending, and repeated-click cases. Booking status remains independent of payment status.
 
-### FE-03 — Display calculated payment status
+### FE-04 — Loading, refresh, errors, and truthful save feedback
 
-**Status:** Action required for the interface; calculation corrected in source — retest. **Screens:** Booking Details and Payments.
+**Evidence:** [sync.js](../../js/sync.js) keeps synchronous cached API values and performs background reads. [sync-ui.js](../../js/sync-ui.js) handles data-change rendering for calendar/bookings, but does not provide equivalent page refresh handling for every catalog/customer/payment/dashboard/report screen. It also does not display every `api-read-error` or stored synchronization transport error. Several catalog handlers still toast “added/updated/deleted” immediately after local mutation.
 
-**Evidence:** [api.js](../../js/api.js) now recalculates payment status on booking updates. [bookings.html](../../admin/bookings.html) still offers an editable payment-status selector.
+**Remaining work:** Add consistent initial-loading, empty, stale/offline, validation, access-denied, read-failure, storage-failure, and retry states. Rerender the relevant page after its background data arrives while preserving filters, page, selected month, and unsaved form input. Disable or otherwise deduplicate repeated submissions. Use “Saved on this device — Pending Sync” until acknowledgement; never imply server acceptance from a local return value.
 
-**Action:** Replace that selector with a read-only value and stop submitting manual payment-status overrides. Refresh history, balance, and status after successful payment saves. Keep booking status separate.
+**Architecture constraint:** Do not convert every cached `API.*` method into a promise or remove the existing outbox as the old handoff proposed. Use the existing `API.ready`, data-change/error events, and operation state; coordinate any adapter changes with the owner.
 
-Use consistent sample balances and status values in the demo. Financial enforcement is outside this frontend assignment.
+**Acceptance:** Cold-cache, delayed, empty, failed, offline, unauthorized, and successful loads are distinguishable. A record received in the background appears without navigating away. Pending and failed saves retain input and expose retry. Repeated clicks produce one intended mutation.
 
-**Acceptance:** Staff cannot mark an unpaid booking Fully Paid using a selector. Verify zero, partial, and full payments. A failed payment save leaves saved totals unchanged. Do not assign the old override-calculation bug as an untouched task.
+### FE-05 — Internal booking scope, branding, and staff access
 
-### FE-04 — Build asynchronous mock data handling
+**Evidence:** [index.html](../../index.html) still loads [app.js](../../js/app.js), which calls `API.createBooking()` for public submissions; it does not load the staff sync adapter. This is a public local prototype path, not evidence of live server booking. [config.js](../../js/config.js) retains “Fiesta & Co.” and [login.html](../../admin/login.html) retains that title. Guest/Registered customer-account terminology remains in manual booking.
 
-**Status:** Action required. **Screens:** All staff screens.
+**Already delivered:** [admin.js](../../js/admin.js) signs in through PHP and uses a cached authenticated session for offline entry. Login is no longer purely mock.
 
-**Evidence:** [api.js](../../js/api.js) currently returns synchronous values from [storage.js](../../js/storage.js). Page callers consume those values immediately.
+**Remaining work:** Remove public booking creation controls/handlers under WONT-01; retain only approved brochure content. Apply owner-supplied AKAD name, logo, contact details, service wording, and titles. Remove customer-account wording from the staff rental workflow without deleting historical records. Improve invalid-credentials, expired-session, offline-first-login, and access-denied feedback. Show owner-only catalog actions appropriately for roles. Coordinate server session revocation with the owner: current logout clears the local marker.
 
-**Action:** Centralize asynchronous mock data access in `js/api.js` and update callers to await mock responses. Add loading, empty, success, validation-error, conflict, and connection-error states. Prevent duplicate clicks while saving. Preserve input on failure, restore retry controls, and show demo success only after mock acceptance. Keep fixtures and scenario controls separate from screen rendering. No live requests or endpoint connection are required.
+**Acceptance:** Public controls cannot create local or live bookings. Staff booking entry remains available. Authentication is described accurately; first-time login requires connectivity. Expiry/access errors preserve pending records. Role visibility matches the server contract. No fabricated branding/contact content.
 
-**Acceptance:** Test successful, empty, delayed, and failing mock responses, retained input, retry controls, and duplicate clicks. Document how to select each scenario. Verify one mock save per user action despite repeated clicks.
+### FE-06 — Service/package selection and display
 
-### FE-05 — Keep booking entry internal and align staff access
+**Already delivered:** Manual booking supports one service radio and a service-filtered package selector, with package/add-on pricing. Do not rebuild it as a multiple-service form.
 
-**Status:** Action required. **Screens:** Homepage, Login, and staff navigation.
+**Evidence requiring correction:** Booking detail uses `pack.name`, while manual booking uses `package_name` and the backend package field is `package_name`. [sync.js](../../js/sync.js) does not normalize package names to `name`. This can display an undefined package label.
 
-**Evidence:** [app.js](../../js/app.js) creates bookings from public submissions. [login.html](../../admin/login.html) uses demo authentication. [config.js](../../js/config.js) and [storage.js](../../js/storage.js) retain Fiesta & Co. defaults and customer-account terminology.
+**Remaining work:** Align the package display contract; show saved service/package and price consistently. Add catalog-loading/failure/retry states, clear incompatible selections, and preserve valid drafts. Confirm real Sweet Corner package content with the owner. Preserve historical multi-service prototype records and flag them for review rather than silently rewriting them. Package administration is additional scope unless the owner assigns it; the requirement is selection of fixed packages.
 
-**Action:** Remove public submission paths that create bookings; retain staff booking entry. Apply supplied AKAD branding and remove Guest / Registered account controls from the rental workflow. Build login/logout interactions and invalid-credentials, expired-session, and access-denied feedback using labeled mock states. Any retained brochure content must not create bookings. Request missing branding, business details, and login field/role labels from the project owner.
+**Acceptance:** No undefined package labels. A package from another service cannot submit. Saved details match the selected package and amounts after reload. Empty/failed catalogs do not misleadingly imply no business packages or erase input.
 
-**Acceptance:** Public controls cannot create local demo bookings. Demo staff navigation reaches booking entry. Simulated login errors and session expiry produce clear feedback without false save success. Demo access must not be described as secure authentication.
+### FE-07 — Negotiated payments, methods, and history
 
-## P2 — Complete staff interface workflows
+**Already delivered:** Manual booking has “Agreed down payment paid now” and records a payment with a negotiated-down-payment note. Neither down payment nor deposit has a mandatory minimum. A zero initial payment creates a Pending booking.
 
-### FE-06 — Select a service and its package
+**Evidence:** [config.js](../../js/config.js) offers Cash, GCash, Bank Transfer, Other; official interview findings specify GCash/Maribank. Current sync maps several method labels, including Cash, to Maribank, while the direct payment endpoint differs. Method selection can therefore be displayed/persisted inconsistently.
 
-**Status:** Action required. **Screens:** Manual Booking and Booking Details/edit.
+**Remaining work:** Agree supported labels with the owner and align the frontend contract. Distinguish down payment/reservation fee from balance payments in history, using an agreed existing field such as notes unless the owner adds a structured purpose field. Show amount, date, method, purpose, and pending state. Keep rental payments separate from deposits. Do not infer that selecting a method verifies an external transaction.
 
-**Evidence:** [manual-booking.html](../../admin/manual-booking.html) submits multiple `service_ids` and generic add-ons; no fixed-package selector exists.
+**Acceptance:** Agreed amounts below ₱1,000 are allowed. Payment purpose and accepted method remain clear after synchronization/reload. Invalid amounts show useful errors. Document any backend field/method changes as owner dependencies, not completed frontend fixes.
 
-**Action:** Support one service and one associated package per booking. Filter packages by service, clear incompatible selections, and show the package and price in summaries/details. Generic add-ons must not substitute for packages. Handle empty/failed catalog loads.
+### FE-08 — Preserve deposits; add delivery controls
 
-**Content needed:** Use owner-supplied package names/prices or clearly labeled sample values. Preserve existing multi-service prototype records and flag them for review; do not silently discard selections or rewrite records.
+**Already delivered:** Booking detail includes amount held, deduction, deduction reason, read-only refund preview, and local/sync deposit saving. Bounds and deduction reasons are validated; focused browser evidence confirmed ₱350 held − ₱50 deducted = ₱300 refundable.
 
-**Acceptance:** A package from another service cannot be submitted. Saved details display the returned service/package and amounts. Catalog failures preserve the draft and offer retry.
+**Remaining deposit work:** Show refund status and distinguish refundable amount from a refund actually released. Explain Pending Sync and server rejection. Repopulate accepted saved data without overwriting ongoing edits. Add deposit-at-creation entry only if needed by the agreed workflow; do not duplicate rental-payment entry.
 
-### FE-07 — Record down payments and payment history
+**Missing delivery workflow:** No delivery controls or frontend delivery API methods were found in `admin/` or `js/`, although [delivery.php](../../api/delivery.php) supports the backend workflow. Add delivery method (self-pickup, Lalamove, owner-delivered), fee, and who pays/inclusion wording. The current backend uses `delivery_method`, `delivery_fee`, and `fee_shouldered_by` (`renter`/`owner`). Coordinate its frontend adapter and offline queue with the owner; generic Additional Fees is not delivery tracking.
 
-**Status:** Action required; business rules need clarification. **Screens:** Manual Booking, Booking Details, and Payments.
+**Acceptance:** Deduction above held amount or without a reason is rejected. Preview is not labeled as an executed refund. Delivery fields survive save/reload and remain separate from general pricing. Pending/failed delivery saves never claim acceptance. No payment/refund transfer is initiated.
 
-**Evidence:** Payment entry/history exists, but reservation/down payments are not explicitly distinguished from balance payments. Manual creation currently confirms bookings with zero payment.
+### FE-12 — Preserve real offline sync; complete user feedback
 
-**Action:** Add an explicit down-payment/reservation-fee classification. Show amount, method, payment date, and purpose in history. Validate required inputs and numeric amounts, and display sample balances/statuses from mock results. Obtain method labels and intended confirmation UI behavior from the project owner. Keep the proposed PHP 1,000 minimum down-payment rule and exceptions marked Needs clarification until confirmed. Recording a method must not imply transaction verification.
+**Already delivered:** Durable operation keys, account-bound queue, automatic sync/retry, acknowledgement-based removal, retained conflicts, IndexedDB snapshots, cached local assets, offline readiness indicator, and a date/time conflict editor. Fourteen integration checks and a focused real browser outage workflow passed.
 
-**Acceptance:** Down payments and balance payments are distinguishable. Invalid inputs show field-level errors. Failed mock saves do not alter history or balances. Demonstrate confirmation-allowed and confirmation-rejected feedback using labeled mock scenarios.
+**Remaining work:** Surface transport/read/storage/authentication failures clearly, including when the browser says Online but the server is unreachable. Give stale-edit conflicts enough current-server context to review before retrying; the queue retains `server_record`, but the editor currently emphasizes date/time rather than showing a complete comparison. Review feedback for non-booking failures and dependent operations. Audit offline states on remaining screens and coordinate delivery support. Do not overwrite edits during background refresh.
 
-### FE-08 — Add deposit and delivery controls
+**Acceptance:** Entries remain Pending Sync until acknowledged. Conflicts and failed operations survive reload. Online-with-unreachable-server feedback is useful. Staff can tell what changed on another device before retrying a stale edit. No silent deletion of queued work. First-use offline/expired-session limitations are explained. Do not replace working uploads with simulated success or claim every queue/network meets the 30-second target from selected tests.
 
-**Status:** Action required. **Screens:** Manual Booking and Booking Details/Return Inspection.
+### FE-14 — Catalog/settings screen contracts
 
-**Evidence:** Structured deposit/refund and delivery workflows are absent. Generic additional fees do not capture these details.
+**Evidence:** [services.html](../../admin/services.html) submits category, generic service price, price label, image, inclusions, and featured fields. [services.php](../../api/services.php) and the service branch in `sync.php` persist only service name, description, and status. The form can therefore show fields as saved locally that are not persisted centrally. Service prices also differ conceptually from package pricing.
 
-**Action:** Add amount held, deduction amount, required reason when deducting, read-only refundable amount, and refund status. Separate deposits/refunds from rental payments. Add delivery method (self-pickup, Lalamove, owner-delivered), fee, and fee responsibility. Repopulate locally saved values. Display consistent mock refund results and label any local calculation as a preview. Request missing status labels and fee-responsibility choices from the project owner.
+**Remaining work:** Inventory every editable screen field against its current backend contract: services, categories, add-ons, inventory, customers, gallery, website content, and settings. Identify unsupported fields in a contract checklist and coordinate whether to remove/disable them or have the owner extend persistence. Review identifier/type mappings, saved select values, Active/Inactive labels, and refresh behavior. Align deletion confirmations with actual database behavior; the service dialog currently promises records remain unlinked, which must be checked against owner-approved deletion semantics.
 
-**Acceptance:** Reject deductions without reasons or above the held amount. Valid deductions show the returned refund. Delivery fields survive reload. Failed saves do not claim success.
+**Acceptance:** Each field is either supported and verified after reload or explicitly identified as local/demo/unsupported. No success message falsely promises central persistence. Do not alter schema, add payment rules, or expand public-portal scope to satisfy a screen contract.
 
-### FE-09 — Complete calendar navigation and refresh feedback
+### FE-15 — Safely render user-entered values
 
-**Status:** Action required. **Screen:** Calendar.
+**Evidence:** The shared escaping helper handles quotes, but raw values are still interpolated into HTML in booking detail, calendar peek, catalog rows, and some payment output. Examples include contact/location/event text in `bookings.html` and customer/location text in `calendar.html`.
 
-**Evidence:** [calendar.js](../../js/calendar.js) shows customer-only chips, limits days to three visible bookings, and renders inactive '+ more' text. Data is local without server refresh.
+**Remaining work:** Use text setters or escaping consistently for text and attributes. Review image/link URL handling separately. Preserve line breaks intentionally without inserting raw HTML. Include dialog close labels and icon-button names in the accessibility audit.
 
-**Action:** Show service/status details using text as well as color. Make '+ more' open every booking for that day. Use keyboard-accessible controls. Refresh from the mock data source without resetting the selected month or issuing overlapping operations; indicate mock refresh failures. Refresh the local view after accepted demo edits.
+**Acceptance:** Names, notes, addresses, and catalog text containing quotes, angle brackets, ampersands, or markup render as text and do not execute. Approved image/link URLs render correctly; unsafe URLs are rejected according to the agreed policy.
 
-**Acceptance:** A five-booking sample day exposes all five. Keyboard controls work. Failed mock refresh preserves the last successful view. Changed sample data appears after refresh without resetting the selected month.
+## P2 — Complete interaction coverage and acceptance
 
-### FE-10 — Improve phone layouts and accessibility
+### FE-02 — Return inspection persistence: preserve and expand regression
 
-**Status:** Action required; fresh browser testing needed. **Screens:** Staff forms, calendar, and booking modal.
+[inventory.js](../../js/inventory.js) restores saved quantities, conditions, and notes, including zero. Shortfalls are visible. Focused browser reload/sync checks confirmed zero/Missing/notes persisted, and backend integration rejected incomplete finalization.
 
-**Evidence:** [inventory.js](../../js/inventory.js) uses fixed-width controls and [admin.css](../../css/admin.css) has non-wrapping checklist rows. The September 18 review reported overflow at 375 x 812; this has not been retested.
+**Remaining checks:** Partial quantities, damaged conditions, repeated saves without edits, multiple equipment rows, release/checklist actions, failed saves, and review by another connected client. Preserve saved exceptions. Do not list the old default-reset defect as untouched.
 
-**Action:** Stack/wrap each item's return controls on narrow screens. Associate field labels, quantities, conditions, and notes clearly. Provide keyboard actions, visible focus, and field-level errors. Keep input after validation failure.
+### FE-09 — Calendar navigation and freshness
 
-Map mock validation errors to the correct fields for demonstration.
+[calendar.js](../../js/calendar.js) has service/status text, keyboard-addressable booking buttons, working additional-event expansion, and date indexing. `sync-ui.js` rerenders the calendar when data changes without changing its selected month.
 
-**Acceptance:** At 375 x 812, phone landscape, and desktop widths, staff can inspect/save items without clipped controls. Complete booking/calendar actions by keyboard and verify useful focus behavior around dialogs and errors.
+**Remaining work/checks:** Verify five or more bookings on one date, all three services, preserved month, expand/collapse, focus after rerender, useful month-navigation/close labels, and failed-refresh feedback. Preserve the last available data and identify stale/offline state. Availability must remain based on accepted server decisions; local “Available” is provisional.
 
-### FE-11 — Finish reporting and regression checks
+### FE-10 — Phone layouts and accessibility across all screens
 
-**Status:** Corrected in source — retest; reporting definition needs clarification. **Screens:** Dashboard and Reports.
+Final return-form diagnostics passed at 375×812, 812×375, and 1366×900; manual booking also passed selected label/width checks. Those checks do not certify all pages or real devices.
 
-**Evidence:** [dashboard.html](../../admin/dashboard.html) now uses a local `monthKey()` and sums `amount_paid` without the full-total fallback. It still groups by event date and anchors the six-month window to the latest booking month when records exist.
+**Remaining work:** Audit every staff page at those sizes and on physical phones. Check sidebar navigation, table columns/actions, modal scrolling, calendar readability, payment history, deposit/delivery controls, catalog forms, and reports. Verify keyboard-only completion, visible focus, modal focus/return, labels, icon-button names, error announcements, and usable touch targets. Do not rely on color alone.
 
-**Action:** Preserve those fixes. Ask the project owner for the intended monthly-income label, date basis, and reporting window. Show sample report data with matching filters, labels, currency, loading, empty, and error states. Retain most-booked-service and upcoming-booking views. Document sample assumptions while definitions remain undecided.
+**Acceptance:** Required controls remain reachable and readable without clipping. Staff can create a booking, save amounts, inspect items, and review a conflict using keyboard controls. Validate actual phone browsers and report the device/browser versions.
 
-**Acceptance:** An unpaid sample booking contributes zero receipts in the existing local calculation. Test a month boundary in Asia/Manila and samples with payment/event dates in different months. Compare displayed values with documented fixtures, including an empty period. Do not list the corrected month-shift/unpaid-total bugs as unchanged defects.
+### FE-11 — Reports: definitions, freshness, and states
 
-### FE-12 — Support local offline entry and demonstrate sync states
+[dashboard.html](../../admin/dashboard.html) and [reports.html](../../admin/reports.html) compute figures from cached booking data. The existing unpaid-total and local month-key corrections should be preserved. The dashboard/report pages are not covered by the same data-change rerender handler as calendar/bookings.
 
-**Status:** Action required. **Screens:** Booking entry/edit, deposits, checklist, and sync/conflict feedback.
+**Remaining work:** Refresh metrics/charts when accepted data arrives; identify cached/offline figures and pending local records. Agree whether “monthly income” means receipts by payment date or paid amounts grouped by event date, and agree the reporting window. Label the implemented basis accurately. Show loading, empty, failed, date-range validation, and retry states. Preserve most-booked-service and upcoming-booking views. Coordinate authoritative report integration with the owner rather than assuming cached calculations equal backend report definitions.
 
-**Evidence:** Local storage exists, but no durable operation queue, reconnect sync, or conflict-review workflow was found. Core assets depend on external hosts.
+**Acceptance:** Unpaid contributes zero receipts under the existing basis. Compare filters, counts, amounts, and labels with agreed fixtures; include Asia/Manila month boundaries and payment/event dates in different months. Repeated refresh does not duplicate charts or lose the chosen range. Empty ranges are clear. Printing/export, if retained, uses the same report data and readable layout.
 
-**Action:** Persist supported local offline entries across reloads. Provide offline, Pending Sync, syncing, synced, failed, and conflict views through a clearly labeled sync demonstration. Add retry and conflict-review controls that retain entered values. Make required local assets available so supported screens reopen offline after setup. Real local entries remain Pending Sync while no live connection exists; simulated success must not relabel them as uploaded.
+### FE-16 — Draft recovery and save consistency
 
-**Acceptance:** Create/update local bookings, deposits, and checklist entries offline and verify retention after reload. Reopen supported screens offline after setup. Use separate mock fixtures to demonstrate sync progress, success, failure, retry, and conflict views. Verify that actual local entries remain pending and conflicts retain entered values. Real uploads, reconnect synchronization, and two-device checks are outside this frontend assignment.
+Manual booking saves a draft per signed-in user, but dynamic add-on selections have no stable per-control draft IDs; review whether they actually restore. The current create flow records the booking and initial payment separately, so partial local failures need understandable recovery.
 
-## P3 — Build unavailable-period controls
+**Remaining work:** Preserve customer/event/service/package/add-on choices and agreed amounts through reload and recoverable errors. Prevent an initial-payment failure from encouraging duplicate booking creation. Review all modal reset/close/reopen paths and catalog refreshes for accidental draft loss. Keep user drafts separate from disposable fixtures and other users' drafts.
 
-### FE-13 — Add service/date blockouts
+**Acceptance:** A restored draft matches all selections and amounts. Validation/storage/catalog failures retain editable input. Partial saves expose the existing booking and a payment retry path. Successful completion clears only the relevant draft.
 
-**Status:** Action required. **Screens:** Calendar and staff availability controls.
+### FE-17 — Frontend performance
 
-**Evidence:** No dedicated blockout workflow exists. Deactivating a service is not date-specific availability management.
+Booking pagination (50 rows) and calendar date indexing already exist. The earlier 10,000-booking measurements were API timings; they did not establish complete frontend rendering responsiveness.
 
-**Action:** Add service, unavailable period, and reason controls with client-side required-field and date/time validation. Distinguish blocks from customer bookings and provide local demo create/edit/remove actions. Show mock blocked-period conflict feedback. Do not create fake customer bookings to represent blocks. Obtain intended whole-day/timed form behavior from the project owner.
+**Remaining work:** Measure initial usable render, searching/filtering, pagination, calendar expansion, modal opening, and report generation with representative cached data. Avoid unbounded DOM rows and rebuilding expensive charts on every event. Document data size/device/browser and visible delays. Coordinate server pagination/incremental sync with the owner; the approximately 10.4 MB full bookings refresh is a backend/adapter scaling dependency.
 
-**Acceptance:** Create, reload, edit, and remove a local demo blockout. Verify distinct calendar styling and accessible labels. Simulated booking rejection preserves the draft and explains the conflict. Successful mock outcomes update the local view.
+**Acceptance:** Record measured interaction times against an owner-agreed target. Do not invent a formal peak-performance threshold or claim local API benchmarks certify production phones.
 
-## Frontend handoff materials
+## FE-13 — FR-10 blockouts: skipped
 
-- Document mock fixture fields, sample values, and how to run success/error scenarios.
-- List implemented screens/controls, changed files, and browser test results.
-- List unresolved business content/UI decisions and identify sample assumptions.
-- Explain local draft storage, demo-data setup, and offline behavior.
-- Keep real local drafts separate from disposable mock scenario data.
+The user explicitly confirmed blockouts remain skipped at session close on September 28. No blockout schema, endpoint, queue support, or frontend was implemented. [Fix.md](../../Implementation/Fix.md) is a deferred draft with corrections needed, not an active assignment. Do not add block controls, fake customer bookings, or unavailable-period simulations to this handoff's delivery scope without renewed authorization.
 
-## Delivery and acceptance checklist
+## Developer deliverables and completion checklist
 
-- [ ] P1 interactions fixed; existing calculation corrections regression-tested.
-- [ ] Required forms display saved values and handle catalog failures, rejected input, and failed saves.
-- [ ] Each finished task lists changed files, test steps/results, and remaining UI decisions.
-- [ ] Mock-response checks cover success, empty data, delays, validation errors, conflicts, and session expiry.
-- [ ] Phone and keyboard checks cover booking, calendar, payments, and returns.
-- [ ] Dashboard/report values match documented sample fixtures and labels.
-- [ ] Offline checks cover screen availability, reload retention, pending local entries, and simulated sync/conflict feedback.
-- [ ] Demo behavior is clearly identified and does not claim real authentication, confirmed reservations, verified transactions, or server uploads.
-- [ ] Owners/staff usability and representative-volume performance are reported as unverified until tested.
+- [ ] A field/contract inventory identifying supported fields and backend-owner dependencies.
+- [ ] Delivery controls and other assigned workflows, with saved-value and pending/error behavior.
+- [ ] Package label correction, payment-method agreement, safe text rendering, and truthful save feedback.
+- [ ] Cold-cache/background-refresh/error checks for every staff screen.
+- [ ] Regression evidence for preserved booking, payment, deposit, calendar, return, login, and offline behavior.
+- [ ] Phone/landscape/desktop and keyboard checks, with device/browser, date, results, and unresolved defects.
+- [ ] Reporting assumptions and figures validated against agreed fixtures/owner definitions.
+- [ ] Draft recovery, duplicate-click prevention, partial-save recovery, and stale-conflict review checks.
+- [ ] Public booking paths removed under WONT-01 and approved AKAD branding applied.
+- [ ] Screen list, changed files, test steps, screenshots where useful, and unresolved content/contract decisions.
+- [ ] FR-10 remains skipped; no fixed down-payment/deposit minimum or gateway functionality introduced.
 
-Mark a task **Frontend complete** when its UI, local behavior, and mock-response checks pass. Attach the test date and evidence. The project owner handles database work, backend implementation, live API connection, and integration testing separately; none is required for the frontend developer to complete this handoff.
+Mark a frontend task complete only when its assigned interface behavior and regression checks pass. The frontend developer may demonstrate blocked integration dependencies with explicitly labeled fixtures; live API/schema/backend work remains the project owner's responsibility. Existing live flows must remain intact. Report actual owner/staff usability, physical-device acceptance, and production performance as pending until those checks are performed.

@@ -1,11 +1,7 @@
 /**
  * storage.js
- * The ONLY file that talks to window.localStorage directly.
- * Every collection below is meant to map 1:1 to a future MySQL table.
- * api.js is the layer everything else in the app should call -
- * it currently forwards to STORAGE, but later can forward to PHP endpoints
- * (api/services.php, api/bookings.php, etc.) instead, with zero changes
- * to any page-level JS.
+ * Local drafts and a bounded snapshot use localStorage. Full server snapshots
+ * use IndexedDB; sync.js owns the durable outbox and PHP synchronization.
  */
 
 const STORAGE_KEYS = {
@@ -16,6 +12,8 @@ const STORAGE_KEYS = {
   bookingItems: "er_booking_items",
   customers: "er_customers",
   payments: "er_payments",
+  packages: "er_packages",
+  deposits: "er_deposits",
   gallery: "er_gallery",
   rentalItems: "er_rental_items",
   itemReleases: "er_item_releases",
@@ -28,6 +26,43 @@ const STORAGE_KEYS = {
 };
 
 const STORAGE = {
+  memory: {},
+  cacheDB: null,
+  async openCache() {
+    if(this.cacheDB)return this.cacheDB;
+    if(typeof indexedDB==='undefined')return null;
+    this.cacheDB=new Promise((resolve,reject)=>{
+      const request=indexedDB.open('akad-offline-cache',1);
+      request.onupgradeneeded=()=>request.result.createObjectStore('collections');
+      request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);
+    });
+    return this.cacheDB;
+  },
+  async restoreCache() {
+    const db=await this.openCache();if(!db)return;
+    const user=this._get(STORAGE_KEYS.adminSession,{})?.user?.user_id;if(!user)return;
+    const tx=db.transaction('collections','readonly'),store=tx.objectStore('collections');
+    await Promise.all(Object.keys(STORAGE_KEYS).map(collection=>new Promise((resolve,reject)=>{
+      const request=store.get(user+':'+collection);
+      request.onsuccess=()=>{
+        if(Array.isArray(request.result)){
+          const drafts=this._get(STORAGE_KEYS[collection],[]).filter(r=>r.pending_sync);
+          const field=({bookings:'id',bookingItems:'booking_item_id',deposits:'booking_id',services:'service_id',categories:'category_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id'})[collection];
+          this.memory[collection]=[...request.result.filter(r=>!drafts.some(d=>field&&String(r[field])===String(d[field]))),...drafts];
+        }
+        resolve();
+      };request.onerror=()=>reject(request.error);
+    })));
+  },
+  async saveCache(collection,rows) {
+    const db=await this.openCache();
+    if(!db)return;
+    const user=this._get(STORAGE_KEYS.adminSession,{})?.user?.user_id;if(!user)return;
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('collections','readwrite');tx.objectStore('collections').put(rows,user+':'+collection);
+      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+    });
+  },
   _get(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
@@ -43,13 +78,18 @@ const STORAGE = {
       return true;
     } catch (e) {
       console.error("Storage write error for", key, e);
-      return false;
+      throw new Error("Unable to save on this device. Free browser storage before saving again.");
     }
   },
   getAll(collection) {
-    return this._get(STORAGE_KEYS[collection], []);
+    return this.memory[collection] || this._get(STORAGE_KEYS[collection], []);
   },
   saveAll(collection, arr) {
+    if(this.memory[collection]){
+      this.memory[collection]=arr;
+      const drafts=arr.filter(r=>r.pending_sync),cached=arr.filter(r=>!r.pending_sync).slice(0,300);
+      return this._set(STORAGE_KEYS[collection],[...cached,...drafts]);
+    }
     return this._set(STORAGE_KEYS[collection], arr);
   },
   getOne(collection, keyName) {
