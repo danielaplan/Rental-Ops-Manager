@@ -10,6 +10,8 @@ status: documented
 
 # RENTAL_ITEMS
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The reusable equipment list.** Each record is an equipment template under a service, used to build booking-specific item lists.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -61,22 +63,24 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT ON UPDATE CASCADE`
 
-Parent tables: [[System Understanding/Database/Tables/SERVICES|SERVICES]] via `service_id`
+Parent tables: [SERVICES](SERVICES.md) via `service_id`
 
-Child tables: [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]] via `rental_item_id`, [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]] via `rental_item_id`, [[System Understanding/Database/Tables/ITEM_HISTORY|ITEM_HISTORY]] via `rental_item_id`
+Child tables: [EQUIPMENT_CHECKLIST](EQUIPMENT_CHECKLIST.md) via `rental_item_id`, [BOOKING_ITEMS](BOOKING_ITEMS.md) via `rental_item_id`, [ITEM_HISTORY](ITEM_HISTORY.md) via `rental_item_id`
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/rentalItems.php|rentalItems.php]], [[System Understanding/Backend/Files/bookingItems.php|bookingItems.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[rentalItems.php](../../Backend/Files/rentalItems.php.md), [bookingItems.php](../../Backend/Files/bookingItems.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 quantity is copied to expected_qty during generation. These endpoints do not maintain a physical stock-reservation ledger.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: PAYMENTS](PAYMENTS.md) · [Next table: SERVICES](SERVICES.md) · [Back to Start Here](../../Start%20Here.md)

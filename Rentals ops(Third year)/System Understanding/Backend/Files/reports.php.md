@@ -10,6 +10,8 @@ status: documented
 
 # reports.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The shared-record summary.** This file summarizes accepted database records into booking counts, revenue figures and other report values.
@@ -30,7 +32,7 @@ The owners look at October events and see Ana’s booking and its paid amount in
 
 Income here follows event dates and booking paid summaries, not the dates money was collected. Some inventory figures remain placeholders.
 
-Read [[System Understanding/Workflows/Reports]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Reports](../../Workflows/Reports.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Revenue is based on BOOKINGS.amount_paid and event_date, not payment transaction
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md)
 
-Tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]], [[System Understanding/Database/Tables/CUSTOMERS|CUSTOMERS]], [[System Understanding/Database/Tables/SERVICES|SERVICES]], [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]]
+Tables: [BOOKINGS](../../Database/Tables/BOOKINGS.md), [CUSTOMERS](../../Database/Tables/CUSTOMERS.md), [SERVICES](../../Database/Tables/SERVICES.md), [EQUIPMENT_CHECKLIST](../../Database/Tables/EQUIPMENT_CHECKLIST.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/reports.php](<../../../../api/reports.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: rentalItems.php](rentalItems.php.md) · [Next file: services.php](services.php.md) · [Back to Start Here](../../Start%20Here.md)

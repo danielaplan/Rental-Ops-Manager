@@ -10,6 +10,8 @@ status: documented
 
 # rentalItems.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The reusable-equipment catalog handler.** This file stores the equipment templates used when building a booking’s equipment list.
@@ -30,7 +32,7 @@ A microphone entry belongs to karaoke and has a catalog quantity that can be cop
 
 Catalog quantity is not automatically reduced when a booking is created or an item is released.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Only use filters that correspond to actual columns. See crud.php for default pre
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/crud.php|crud.php]]
+Includes: [crud.php](crud.php.md)
 
-Tables: [[System Understanding/Database/Tables/RENTAL_ITEMS|RENTAL_ITEMS]]
+Tables: [RENTAL_ITEMS](../../Database/Tables/RENTAL_ITEMS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/rentalItems.php](<../../../../api/rentalItems.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: payments.php](payments.php.md) · [Next file: reports.php](reports.php.md) · [Back to Start Here](../../Start%20Here.md)

@@ -10,6 +10,8 @@ status: documented
 
 # SERVICES
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The main offerings.** Each record names one service line. The initial catalog includes karaoke, Sweet Corner and balloon decoration.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -55,20 +57,22 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 
 Parent tables: None.
 
-Child tables: [[System Understanding/Database/Tables/ADDONS|ADDONS]] via `service_id`, [[System Understanding/Database/Tables/RENTAL_ITEMS|RENTAL_ITEMS]] via `service_id`, [[System Understanding/Database/Tables/PACKAGES|PACKAGES]] via `service_id`, [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `service_id`, [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]] via `service_id`
+Child tables: [ADDONS](ADDONS.md) via `service_id`, [RENTAL_ITEMS](RENTAL_ITEMS.md) via `service_id`, [PACKAGES](PACKAGES.md) via `service_id`, [BOOKINGS](BOOKINGS.md) via `service_id`, [BOOKING_ITEMS](BOOKING_ITEMS.md) via `service_id`
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/services.php|services.php]], [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[services.php](../../Backend/Files/services.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [booking_pricing.php](../../Backend/Files/booking_pricing.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Karaoke scheduling and locking depend on service_id=1. No category_id relationship exists.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: RENTAL_ITEMS](RENTAL_ITEMS.md) · [Next table: SESSIONS](SESSIONS.md) · [Back to Start Here](../../Start%20Here.md)

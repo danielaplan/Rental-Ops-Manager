@@ -10,6 +10,8 @@ status: documented
 
 # API Reference
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## What this reference is for
 
 An API is the agreed way the application asks the server to read information or perform an action. This page lists those requests for detailed checking; it is not a list of buttons a user must press.
@@ -30,26 +32,26 @@ Endpoints are relative to the project web root `/api/`. Query selectors use `?do
 
 | Endpoint | Routes / default | Access |
 |---|---|---|
-| [[System Understanding/Backend/Files/addons.php\|addons.php]] | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [[System Understanding/Backend/Files/auth.php\|auth.php]] | POST auth.php: login; POST ?do=logout: logout; GET ?do=me: current user. | Login accepts credentials; me requires a session. requireAuth() and requireRole() are reusable access checks. |
-| [[System Understanding/Backend/Files/bookingItems.php\|bookingItems.php]] | GET forBooking (default) with booking_id; POST generate; POST create, update, delete (id in query where applicable). | Read unauthenticated; generate any session; manual CRUD owner only. |
-| [[System Understanding/Backend/Files/bookings.php\|bookings.php]] | GET all (default), GET ?do=get&id=...; POST create, update&id=..., delete&id=.... | Reads unauthenticated; writes require an owner or staff session. |
-| [[System Understanding/Backend/Files/categories.php\|categories.php]] | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [[System Understanding/Backend/Files/customers.php\|customers.php]] | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [[System Understanding/Backend/Files/delivery.php\|delivery.php]] | GET ?do=get&booking_id=...; POST ?do=upsert. | Reads unauthenticated; upsert any session. |
-| [[System Understanding/Backend/Files/deposits.php\|deposits.php]] | GET ?do=get&booking_id=...; POST ?do=upsert. | Reads unauthenticated; upsert requires any authenticated owner/staff. |
-| [[System Understanding/Backend/Files/equipment.php\|equipment.php]] | GET all (default), forBooking&booking_id=..., get&id=...; POST inspect, finalizeReturn; owner POST create/update/delete. | Reads unauthenticated. inspect/finalizeReturn any session. Manual CRUD owner only. |
-| [[System Understanding/Backend/Files/gallery.php\|gallery.php]] | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [[System Understanding/Backend/Files/itemHistory.php\|itemHistory.php]] | GET forItem (default) with rental_item_id; POST create. | Reads unauthenticated; create owner only. |
-| [[System Understanding/Backend/Files/itemReleases.php\|itemReleases.php]] | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [[System Understanding/Backend/Files/packages.php\|packages.php]] | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [[System Understanding/Backend/Files/payments.php\|payments.php]] | GET all (default), optionally booking_id; POST ?do=create. | Reads unauthenticated; create requires any authenticated owner/staff. |
-| [[System Understanding/Backend/Files/rentalItems.php\|rentalItems.php]] | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [[System Understanding/Backend/Files/reports.php\|reports.php]] | ?do=dashboard; ?do=report&start=YYYY-MM-DD&end=YYYY-MM-DD. Intended usage GET; script branches on do rather than method. | Any authenticated owner/staff, for every route. |
-| [[System Understanding/Backend/Files/services.php\|services.php]] | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [[System Understanding/Backend/Files/settings.php\|settings.php]] | GET get (default); POST ?do=update. | Read unauthenticated; update owner only. |
-| [[System Understanding/Backend/Files/sync.php\|sync.php]] | GET ?do=queue returns {queue: []}; POST ?do=commit accepts {queue: [...]}. | Commit requires session. Owner-only entity group: services, categories, addons, packages, customers, rentalItems, gallery, settings, websiteContent. Other supported operations accept owner/staff. Queue GET unauthenticated. |
-| [[System Understanding/Backend/Files/websiteContent.php\|websiteContent.php]] | GET get (default); POST ?do=update. | Read unauthenticated; update owner only. |
+| [addons.php](Files/addons.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
+| [auth.php](Files/auth.php.md) | POST auth.php: login; POST ?do=logout: logout; GET ?do=me: current user. | Login accepts credentials; me requires a session. requireAuth() and requireRole() are reusable access checks. |
+| [bookingItems.php](Files/bookingItems.php.md) | GET forBooking (default) with booking_id; POST generate; POST create, update, delete (id in query where applicable). | Read unauthenticated; generate any session; manual CRUD owner only. |
+| [bookings.php](Files/bookings.php.md) | GET all (default), GET ?do=get&id=...; POST create, update&id=..., delete&id=.... | Reads unauthenticated; writes require an owner or staff session. |
+| [categories.php](Files/categories.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
+| [customers.php](Files/customers.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
+| [delivery.php](Files/delivery.php.md) | GET ?do=get&booking_id=...; POST ?do=upsert. | Reads unauthenticated; upsert any session. |
+| [deposits.php](Files/deposits.php.md) | GET ?do=get&booking_id=...; POST ?do=upsert. | Reads unauthenticated; upsert requires any authenticated owner/staff. |
+| [equipment.php](Files/equipment.php.md) | GET all (default), forBooking&booking_id=..., get&id=...; POST inspect, finalizeReturn; owner POST create/update/delete. | Reads unauthenticated. inspect/finalizeReturn any session. Manual CRUD owner only. |
+| [gallery.php](Files/gallery.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
+| [itemHistory.php](Files/itemHistory.php.md) | GET forItem (default) with rental_item_id; POST create. | Reads unauthenticated; create owner only. |
+| [itemReleases.php](Files/itemReleases.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
+| [packages.php](Files/packages.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
+| [payments.php](Files/payments.php.md) | GET all (default), optionally booking_id; POST ?do=create. | Reads unauthenticated; create requires any authenticated owner/staff. |
+| [rentalItems.php](Files/rentalItems.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
+| [reports.php](Files/reports.php.md) | ?do=dashboard; ?do=report&start=YYYY-MM-DD&end=YYYY-MM-DD. Intended usage GET; script branches on do rather than method. | Any authenticated owner/staff, for every route. |
+| [services.php](Files/services.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
+| [settings.php](Files/settings.php.md) | GET get (default); POST ?do=update. | Read unauthenticated; update owner only. |
+| [sync.php](Files/sync.php.md) | GET ?do=queue returns {queue: []}; POST ?do=commit accepts {queue: [...]}. | Commit requires session. Owner-only entity group: services, categories, addons, packages, customers, rentalItems, gallery, settings, websiteContent. Other supported operations accept owner/staff. Queue GET unauthenticated. |
+| [websiteContent.php](Files/websiteContent.php.md) | GET get (default); POST ?do=update. | Read unauthenticated; update owner only. |
 
 ### Direct write example
 
@@ -63,7 +65,7 @@ Content-Type: application/json
 {"booking_id":42,"amount_held":350,"deduction_amount":50,"deduction_reason":"Cleaning"}
 ```
 
-The response includes a refund_amount of 300.00. This saves a ledger value, not an actual bank refund. See [[System Understanding/Workflows/Payments and Deposits]].
+The response includes a refund_amount of 300.00. This saves a ledger value, not an actual bank refund. See [Payments and Deposits](../Workflows/Payments%20and%20Deposits.md).
 
 ### Field and ID conventions
 
@@ -74,4 +76,6 @@ Database primary keys are integers. Browser display IDs can be prefixed (for exa
 - [api/config.php](<../../../api/config.php>)
 - [api/sync.php](<../../../api/sync.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Back to Start Here](../Start%20Here.md)

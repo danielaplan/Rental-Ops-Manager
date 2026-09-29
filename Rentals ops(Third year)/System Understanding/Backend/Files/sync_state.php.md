@@ -10,6 +10,8 @@ status: documented
 
 # sync_state.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The accepted-change memory.** This helper remembers which offline actions the server has accepted, so repeating the same action does not save it twice.
@@ -30,7 +32,7 @@ The server saves Ana’s payment, but the reply is lost. Retrying the same queue
 
 This protects the sync path, not every direct request. The accepted-action history grows and needs a future retention approach.
 
-Read [[System Understanding/Workflows/Offline Synchronization]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Offline Synchronization](../../Workflows/Offline%20Synchronization.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -68,12 +70,14 @@ Receipt retention is unbounded and all commits share this locked JSON row. Losin
 
 Includes: No include dependencies; the caller supplies shared helpers/connection.
 
-Tables: [[System Understanding/Database/Tables/APP_SETTINGS|APP_SETTINGS]]
+Tables: [APP_SETTINGS](../../Database/Tables/APP_SETTINGS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/sync_state.php](<../../../../api/sync_state.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: sync.php](sync.php.md) · [Next file: websiteContent.php](websiteContent.php.md) · [Back to Start Here](../../Start%20Here.md)

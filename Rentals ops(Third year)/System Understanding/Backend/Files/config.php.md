@@ -10,6 +10,8 @@ status: documented
 
 # config.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The shared setup.** This file gives the backend the basic tools it needs to answer a request and connect to the database. A database is the organized collection of saved records.
@@ -30,7 +32,7 @@ When staff save Ana’s booking, the booking file uses this setup to reach the s
 
 This is supporting code, so staff do not use it as a booking feature.
 
-Read [[System Understanding/Backend/Request Lifecycle]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Request Lifecycle](../Request%20Lifecycle.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -70,10 +72,12 @@ Includes: No include dependencies; the caller supplies shared helpers/connection
 
 Tables: Shared infrastructure; table depends on caller.
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/config.php](<../../../../api/config.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: categories.php](categories.php.md) · [Next file: crud.php](crud.php.md) · [Back to Start Here](../../Start%20Here.md)

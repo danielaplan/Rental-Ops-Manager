@@ -10,6 +10,8 @@ status: documented
 
 # DELIVERY
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The transport arrangement.** Each booking can have one current record describing delivery and fee responsibility.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -59,22 +61,24 @@ Additional indexes:
 
 - `CREATE INDEX idx_delivery_booking ON DELIVERY(booking_id);`
 
-Parent tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `booking_id`
+Parent tables: [BOOKINGS](BOOKINGS.md) via `booking_id`
 
 Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/delivery.php|delivery.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[delivery.php](../../Backend/Files/delivery.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 UNIQUE booking_id makes this zero-or-one, not many. Delivery fee is separate from BOOKINGS.fees unless caller coordinates it.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: CUSTOMERS](CUSTOMERS.md) · [Next table: DEPOSITS](DEPOSITS.md) · [Back to Start Here](../../Start%20Here.md)

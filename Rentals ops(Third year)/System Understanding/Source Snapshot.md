@@ -10,6 +10,8 @@ status: documented
 
 # Source Snapshot
 
+**Navigate:** [Start Here](Start%20Here.md) · [Reading order](Start%20Here.md#recommended-reading-order) · [Backend files](Backend/File%20Inventory.md) · [Database tables](Database/Database%20Overview.md) · [Glossary](Glossary.md)
+
 ## What this page is for
 
 This page is a developer reference identifying the exact PHP and SQL files reviewed for the guide. A **fingerprint**, or hash, is a calculated identifier for a file’s contents. If its contents change, the fingerprint changes.
@@ -52,4 +54,7 @@ Baseline on 2026-09-29. All 26 PHP files and both SQL scripts are covered.
 | `api/websiteContent.php` | `38619461d8a9b549333445367113cf21d998f604435670eb9db481ed9a71f5f7` |
 | `db/schema.sql` | `aac12d00377b3ea7015c5484bc5db4d702c311b7b8679ed1491bac16abb1a5ed` |
 | `db/seed.sql` | `bd679097b35bd80a45dd2c72e3a5286915ed37591d3975a3fe320b7f36b99fcc` |
-Return to [[System Understanding/Start Here|Start Here]].
+
+## Continue reading
+
+[Back to Start Here](Start%20Here.md)

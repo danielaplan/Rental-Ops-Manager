@@ -10,6 +10,8 @@ status: documented
 
 # Booking and Pricing
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## The purpose
 
 A booking records who is renting, the event details and the selected primary service/package. Its booking number connects the later money, delivery and equipment records.
@@ -41,7 +43,7 @@ The single karaoke set cannot serve overlapping blocking bookings on the same da
 
 “The backend checks the rental details and calculates a price from its saved catalog before accepting the booking.” The direct and offline-save paths have differences described below. A booking saved locally is still awaiting acceptance.
 
-See [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]] and [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]].
+See [bookings.php](../Backend/Files/bookings.php.md), [booking_pricing.php](../Backend/Files/booking_pricing.php.md) and [BOOKINGS](../Database/Tables/BOOKINGS.md).
 
 ## Technical details
 
@@ -67,7 +69,7 @@ Suppose an existing package costs 2,500, selected distinct extras total 300, dis
 
 Intervals overlap when `existing.start_time < requested.end_time` and `existing.end_time > requested.start_time`, on the same event date and primary karaoke service. Adjacent intervals such as 14:00–16:00 and 16:00–18:00 do not overlap. Current code recognizes service id 1 as karaoke; pending bookings do not reserve the slot.
 
-Direct overlap produces HTTP 409. Sync returns an item in conflicts instead, keeping the draft available for review. A sync service-only edit is a documented gap in overlap triggering. See [[System Understanding/Current Implementation Gaps]].
+Direct overlap produces HTTP 409. Sync returns an item in conflicts instead, keeping the draft available for review. A sync service-only edit is a documented gap in overlap triggering. See [Current Implementation Gaps](../Current%20Implementation%20Gaps.md).
 
 ### Further operations
 
@@ -82,4 +84,6 @@ The intended lifecycle is reflected by labels such as pending, confirmed, prepar
 - [api/sync.php](<../../../api/sync.php>)
 - [js/sync.js](<../../../js/sync.js>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Login and Authentication](Login%20and%20Authentication.md) · [Next: Payments and Deposits](Payments%20and%20Deposits.md) · [Back to Start Here](../Start%20Here.md)

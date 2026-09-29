@@ -10,6 +10,8 @@ status: documented
 
 # booking_pricing.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The rental price calculator.** This helper calculates a booking’s rental price using saved package and extra prices, rather than trusting a total typed by the browser.
@@ -30,7 +32,7 @@ Ana selects a ₱2,500 package and a ₱300 extra microphone, with a ₱100 disc
 
 The refundable deposit is separate. Only the primary service/package is priced by this helper.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -68,12 +70,14 @@ Only the primary service/package is priced. Catalog status is not checked for Ac
 
 Includes: No include dependencies; the caller supplies shared helpers/connection.
 
-Tables: [[System Understanding/Database/Tables/PACKAGES|PACKAGES]], [[System Understanding/Database/Tables/ADDONS|ADDONS]]
+Tables: [PACKAGES](../../Database/Tables/PACKAGES.md), [ADDONS](../../Database/Tables/ADDONS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/booking_pricing.php](<../../../../api/booking_pricing.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: bookingItems.php](bookingItems.php.md) · [Next file: bookings.php](bookings.php.md) · [Back to Start Here](../../Start%20Here.md)

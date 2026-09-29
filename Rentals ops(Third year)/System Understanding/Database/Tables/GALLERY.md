@@ -10,6 +10,8 @@ status: documented
 
 # GALLERY
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **Image-record information.** Each record stores an image value, optional title and featured flag.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/System Overview]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [System Overview](../../System%20Overview.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -60,16 +62,18 @@ Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/gallery.php|gallery.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[gallery.php](../../Backend/Files/gallery.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Not a file-upload table with a dedicated backend media pipeline.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: EQUIPMENT_CHECKLIST](EQUIPMENT_CHECKLIST.md) · [Next table: ITEM_HISTORY](ITEM_HISTORY.md) · [Back to Start Here](../../Start%20Here.md)

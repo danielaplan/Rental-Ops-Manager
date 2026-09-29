@@ -10,6 +10,8 @@ status: documented
 
 # equipment_service.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The full-return checker.** This helper checks an entire booking’s returned equipment together so an incomplete inspection is not partly saved.
@@ -30,7 +32,7 @@ If Ana’s list expects two microphones but only one comes back, staff can save 
 
 Fully returned damaged items can complete. This helper does not automatically deduct a deposit or issue a refund.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -66,14 +68,16 @@ Damaged items may complete if all quantities are returned. Completion does not a
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]]
+Includes: [config.php](config.php.md)
 
-Tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]], [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]], [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]], [[System Understanding/Database/Tables/USERS|USERS]]
+Tables: [BOOKINGS](../../Database/Tables/BOOKINGS.md), [BOOKING_ITEMS](../../Database/Tables/BOOKING_ITEMS.md), [EQUIPMENT_CHECKLIST](../../Database/Tables/EQUIPMENT_CHECKLIST.md), [USERS](../../Database/Tables/USERS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/equipment_service.php](<../../../../api/equipment_service.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: equipment.php](equipment.php.md) · [Next file: gallery.php](gallery.php.md) · [Back to Start Here](../../Start%20Here.md)

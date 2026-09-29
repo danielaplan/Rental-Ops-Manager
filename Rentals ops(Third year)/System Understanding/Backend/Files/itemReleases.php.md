@@ -10,6 +10,8 @@ status: documented
 
 # itemReleases.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The release-event recorder.** This file records that equipment was released for a booking, with the releasing person’s name and notes.
@@ -30,7 +32,7 @@ Staff save a release note for Ana’s booking before the equipment leaves.
 
 A release note alone does not change equipment quantities or the booking’s status.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Only use filters that correspond to actual columns. See crud.php for default pre
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/crud.php|crud.php]]
+Includes: [crud.php](crud.php.md)
 
-Tables: [[System Understanding/Database/Tables/ITEM_RELEASES|ITEM_RELEASES]]
+Tables: [ITEM_RELEASES](../../Database/Tables/ITEM_RELEASES.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/itemReleases.php](<../../../../api/itemReleases.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: itemHistory.php](itemHistory.php.md) · [Next file: packages.php](packages.php.md) · [Back to Start Here](../../Start%20Here.md)

@@ -10,6 +10,8 @@ status: documented
 
 # settings.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The application-settings handler.** This file reads or replaces the saved settings object for the application.
@@ -30,7 +32,7 @@ An owner saves application preferences; later requests can read the stored setti
 
 An update replaces the complete settings object. This file does not define how unfinished screens use each setting.
 
-Read [[System Understanding/System Overview]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [System Overview](../../System%20Overview.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ APP_SETTINGS row 2 is private sync state and is not exposed by this settings rou
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md)
 
-Tables: [[System Understanding/Database/Tables/APP_SETTINGS|APP_SETTINGS]]
+Tables: [APP_SETTINGS](../../Database/Tables/APP_SETTINGS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/settings.php](<../../../../api/settings.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: services.php](services.php.md) · [Next file: sync.php](sync.php.md) · [Back to Start Here](../../Start%20Here.md)

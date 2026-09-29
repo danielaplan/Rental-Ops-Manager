@@ -10,6 +10,8 @@ status: documented
 
 # Payments and Deposits
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## The purpose
 
 Rental payments pay for the service. A refundable deposit is held separately for equipment/cleaning and may have a deduction. Mixing these figures would make the remaining rental balance misleading.
@@ -36,7 +38,7 @@ Amounts are negotiated; there is no fixed ₱1,000 minimum. These features recor
 
 “A payment reduces the rental balance. A deposit stays separate and has its own deduction and refund calculation.” The current system keeps one combined deposit deduction/reason rather than itemized charges.
 
-See [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]], [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]] and [[System Understanding/Backend/Files/deposit_service.php|deposit_service.php]].
+See [PAYMENTS](../Database/Tables/PAYMENTS.md), [DEPOSITS](../Database/Tables/DEPOSITS.md) and [deposit_service.php](../Backend/Files/deposit_service.php.md).
 
 ## Technical details
 
@@ -63,7 +65,7 @@ For held 350 and deduction 50 with reason Cleaning, PHP saves one DEPOSITS row a
 
 The upsert replaces the booking's current deposit summary because booking_id is UNIQUE. The system stores one aggregate deduction/reason; it does not yet have an itemized deduction ledger. A full/partial refund_status is a calculated category, not confirmation that money was transferred.
 
-See [[System Understanding/Backend/Files/payments.php|payments.php]], [[System Understanding/Backend/Files/deposit_service.php|deposit_service.php]], [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]] and [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]].
+See [payments.php](../Backend/Files/payments.php.md), [deposit_service.php](../Backend/Files/deposit_service.php.md), [PAYMENTS](../Database/Tables/PAYMENTS.md) and [DEPOSITS](../Database/Tables/DEPOSITS.md).
 
 ## Source files
 
@@ -72,4 +74,6 @@ See [[System Understanding/Backend/Files/payments.php|payments.php]], [[System U
 - [api/sync.php](<../../../api/sync.php>)
 - [Documentation/AKAD_Requirements_Analysis_Documentation.md](<../../../Documentation/AKAD_Requirements_Analysis_Documentation.md>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Booking and Pricing](Booking%20and%20Pricing.md) · [Next: Equipment Release and Return](Equipment%20Release%20and%20Return.md) · [Back to Start Here](../Start%20Here.md)

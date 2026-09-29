@@ -10,6 +10,8 @@ status: documented
 
 # ADDONS
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **Optional priced extras.** Each record describes an extra that can be selected under one service.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -56,22 +58,24 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT ON UPDATE CASCADE`
 
-Parent tables: [[System Understanding/Database/Tables/SERVICES|SERVICES]] via `service_id`
+Parent tables: [SERVICES](SERVICES.md) via `service_id`
 
 Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/addons.php|addons.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[addons.php](../../Backend/Files/addons.php.md), [booking_pricing.php](../../Backend/Files/booking_pricing.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Booking add-on selections live in BOOKINGS.addon_ids JSON, not a join table; JSON values have no foreign-key validation at database level.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Next table: APP_SETTINGS](APP_SETTINGS.md) · [Back to Start Here](../../Start%20Here.md)

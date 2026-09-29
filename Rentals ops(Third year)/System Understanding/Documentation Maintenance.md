@@ -10,6 +10,8 @@ status: documented
 
 # Documentation Maintenance
 
+**Navigate:** [Start Here](Start%20Here.md) · [Reading order](Start%20Here.md#recommended-reading-order) · [Backend files](Backend/File%20Inventory.md) · [Database tables](Database/Database%20Overview.md) · [Glossary](Glossary.md)
+
 ## Keeping the guide accurate
 
 When code changes, its explanation may also need to change. A source file is the actual project file used to check a technical claim.
@@ -36,12 +38,15 @@ This is a manually written explanation supported by a source inventory. It must 
 2. Update affected file notes, table column dictionaries, route reference and workflows together.
 3. Recheck direct and sync paths: they have separate dispatch/validation code.
 4. Keep requirements/design differences explicit. Do not remove a gap just because one path was fixed.
-5. Check all source links and Obsidian links; maintain full vault-relative links under System Understanding to avoid ambiguous filenames.
+5. Check all source links and Obsidian links; maintain relative Markdown links to the actual note files to avoid ambiguous filenames.
 6. Record new verification evidence separately from previously recorded tests. Frontend documentation should be added later under its own folder when authorized/ready.
 
 ### Source snapshot
 
-SHA-256 fingerprints are recorded in [[System Understanding/Source Snapshot]] for every PHP file and SQL script reviewed. They identify this guide's source baseline, not a live database state. A changed fingerprint signals a review is needed.
+SHA-256 fingerprints are recorded in [Source Snapshot](Source%20Snapshot.md) for every PHP file and SQL script reviewed. They identify this guide's source baseline, not a live database state. A changed fingerprint signals a review is needed.
 
-Properties date/status/tags follow the vault's existing convention. Notes use Obsidian wikilinks, regular Markdown source links and Mermaid diagrams; no additional Obsidian plugin or skill is required.
-Return to [[System Understanding/Start Here|Start Here]].
+Properties date/status/tags follow the vault's existing convention. Notes use relative Markdown links with encoded spaces, concise labels and Mermaid diagrams; no additional Obsidian plugin or skill is required.
+
+## Continue reading
+
+[Back to Start Here](Start%20Here.md)

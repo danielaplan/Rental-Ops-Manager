@@ -10,6 +10,8 @@ status: documented
 
 # websiteContent.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The saved-content handler.** This file stores and retrieves the application’s website-content object.
@@ -30,7 +32,7 @@ An owner saves content text, and the backend keeps the supplied object for later
 
 This is backend storage support. It does not establish that a public booking portal is approved or that its screens are finished.
 
-Read [[System Understanding/System Overview]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [System Overview](../../System%20Overview.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Describes a backend content store; it does not establish that the unfinished fro
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md)
 
-Tables: [[System Understanding/Database/Tables/WEBSITE_CONTENT|WEBSITE_CONTENT]]
+Tables: [WEBSITE_CONTENT](../../Database/Tables/WEBSITE_CONTENT.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/websiteContent.php](<../../../../api/websiteContent.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: sync_state.php](sync_state.php.md) · [Back to Start Here](../../Start%20Here.md)

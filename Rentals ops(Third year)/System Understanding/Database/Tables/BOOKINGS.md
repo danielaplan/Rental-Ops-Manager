@@ -10,6 +10,8 @@ status: documented
 
 # BOOKINGS
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The central rental record.** Each record brings together the renter, event, selected primary service/package and payment summary.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -85,22 +87,24 @@ Additional indexes:
 - `CREATE INDEX idx_bookings_status ON BOOKINGS(status);`
 - `CREATE INDEX idx_bookings_service ON BOOKINGS(service_id);`
 
-Parent tables: [[System Understanding/Database/Tables/CUSTOMERS|CUSTOMERS]] via `customer_id`, [[System Understanding/Database/Tables/SERVICES|SERVICES]] via `service_id`, [[System Understanding/Database/Tables/PACKAGES|PACKAGES]] via `package_id`, [[System Understanding/Database/Tables/USERS|USERS]] via `created_by`
+Parent tables: [CUSTOMERS](CUSTOMERS.md) via `customer_id`, [SERVICES](SERVICES.md) via `service_id`, [PACKAGES](PACKAGES.md) via `package_id`, [USERS](USERS.md) via `created_by`
 
-Child tables: [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]] via `booking_id`, [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]] via `booking_id`, [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]] via `booking_id`, [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]] via `booking_id`, [[System Understanding/Database/Tables/ITEM_RELEASES|ITEM_RELEASES]] via `booking_id`, [[System Understanding/Database/Tables/ITEM_HISTORY|ITEM_HISTORY]] via `booking_id`, [[System Understanding/Database/Tables/DELIVERY|DELIVERY]] via `booking_id`
+Child tables: [PAYMENTS](PAYMENTS.md) via `booking_id`, [DEPOSITS](DEPOSITS.md) via `booking_id`, [EQUIPMENT_CHECKLIST](EQUIPMENT_CHECKLIST.md) via `booking_id`, [BOOKING_ITEMS](BOOKING_ITEMS.md) via `booking_id`, [ITEM_RELEASES](ITEM_RELEASES.md) via `booking_id`, [ITEM_HISTORY](ITEM_HISTORY.md) via `booking_id`, [DELIVERY](DELIVERY.md) via `booking_id`
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/payments.php|payments.php]], [[System Understanding/Backend/Files/reports.php|reports.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[bookings.php](../../Backend/Files/bookings.php.md), [payments.php](../../Backend/Files/payments.php.md), [reports.php](../../Backend/Files/reports.php.md), [equipment_service.php](../../Backend/Files/equipment_service.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Primary service and package are relational, while service_ids/addon_ids are JSON selections. Only the first selected service is priced/scheduled. sync_status defaults to pending_sync and is not consistently changed by these write paths; receipt/outbox state is separate.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: APP_SETTINGS](APP_SETTINGS.md) · [Next table: BOOKING_ITEMS](BOOKING_ITEMS.md) · [Back to Start Here](../../Start%20Here.md)

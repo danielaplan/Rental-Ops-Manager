@@ -10,6 +10,8 @@ status: documented
 
 # SESSIONS
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **Temporary login records.** Each record links a login token to a staff/owner account and an expiry time.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Login and Authentication]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Login and Authentication](../../Workflows/Login%20and%20Authentication.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -57,22 +59,24 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 - `KEY idx_sessions_user (user_id)`
 - `CONSTRAINT fk_sessions_user FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON UPDATE CASCADE ON DELETE CASCADE`
 
-Parent tables: [[System Understanding/Database/Tables/USERS|USERS]] via `user_id`
+Parent tables: [USERS](USERS.md) via `user_id`
 
 Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/auth.php|auth.php]]. Relevant read/write behavior is explained in each file note.
+[auth.php](../../Backend/Files/auth.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Created in seed.sql, not schema.sql. Expired sessions remain stored until explicitly cleaned; currentSession only rejects expired tokens.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/seed.sql](<../../../../db/seed.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: SERVICES](SERVICES.md) · [Next table: USERS](USERS.md) · [Back to Start Here](../../Start%20Here.md)

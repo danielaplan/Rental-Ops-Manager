@@ -10,6 +10,8 @@ status: documented
 
 # equipment.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The return-inspection entry point.** This file receives requests to save an equipment return inspection or complete a returned booking.
@@ -30,7 +32,7 @@ Staff count Ana’s returned equipment and record its condition and notes before
 
 A missing item can be saved as missing, but the guarded completion action rejects incomplete returns. Manual item edits have different rules.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Full inspection workflow and manual row CRUD have different invariants. A row-by
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md), [equipment_service.php](equipment_service.php.md)
 
-Tables: [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]], [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]], [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]], [[System Understanding/Database/Tables/USERS|USERS]]
+Tables: [EQUIPMENT_CHECKLIST](../../Database/Tables/EQUIPMENT_CHECKLIST.md), [BOOKING_ITEMS](../../Database/Tables/BOOKING_ITEMS.md), [BOOKINGS](../../Database/Tables/BOOKINGS.md), [USERS](../../Database/Tables/USERS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/equipment.php](<../../../../api/equipment.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: deposits.php](deposits.php.md) · [Next file: equipment_service.php](equipment_service.php.md) · [Back to Start Here](../../Start%20Here.md)

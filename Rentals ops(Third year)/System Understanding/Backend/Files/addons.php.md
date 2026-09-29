@@ -10,6 +10,8 @@ status: documented
 
 # addons.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The optional-extra handler.** This file manages separately priced extras belonging to a service.
@@ -30,7 +32,7 @@ Ana adds an extra microphone priced at ₱300.
 
 An extra is distinct from the base package and from the equipment list expected back.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Only use filters that correspond to actual columns. See crud.php for default pre
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/crud.php|crud.php]]
+Includes: [crud.php](crud.php.md)
 
-Tables: [[System Understanding/Database/Tables/ADDONS|ADDONS]]
+Tables: [ADDONS](../../Database/Tables/ADDONS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/addons.php](<../../../../api/addons.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Next file: auth.php](auth.php.md) · [Back to Start Here](../../Start%20Here.md)

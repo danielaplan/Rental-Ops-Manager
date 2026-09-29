@@ -10,6 +10,8 @@ status: documented
 
 # USERS
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **Staff and owner accounts.** Each record describes a person who can sign in, their account role and the password-checking information.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Login and Authentication]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Login and Authentication](../../Workflows/Login%20and%20Authentication.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -56,20 +58,22 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 
 Parent tables: None.
 
-Child tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `created_by`, [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]] via `checked_by`, [[System Understanding/Database/Tables/SESSIONS|SESSIONS]] via `user_id`
+Child tables: [BOOKINGS](BOOKINGS.md) via `created_by`, [EQUIPMENT_CHECKLIST](EQUIPMENT_CHECKLIST.md) via `checked_by`, [SESSIONS](SESSIONS.md) via `user_id`
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/auth.php|auth.php]], [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/equipment.php|equipment.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[auth.php](../../Backend/Files/auth.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [equipment.php](../../Backend/Files/equipment.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 No account registration/user-management endpoint exists. Contact number is not UNIQUE in the schema; login selects the first matching account.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: SESSIONS](SESSIONS.md) · [Next table: WEBSITE_CONTENT](WEBSITE_CONTENT.md) · [Back to Start Here](../../Start%20Here.md)

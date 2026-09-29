@@ -10,6 +10,8 @@ status: documented
 
 # deposits.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The refundable-deposit handler.** This file lets the system read or save the deposit held for equipment or cleaning, separately from rental payments.
@@ -30,7 +32,7 @@ Ana has a ₱350 deposit. A ₱50 cleaning deduction with a reason leaves a calc
 
 One current deposit summary is stored per booking. A calculated refund does not prove money has been sent back.
 
-Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Payments and Deposits](../../Workflows/Payments%20and%20Deposits.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ refund_amount is computed, not a database column. refund_status describes the ca
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]], [[System Understanding/Backend/Files/deposit_service.php|deposit_service.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md), [deposit_service.php](deposit_service.php.md)
 
-Tables: [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]], [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]]
+Tables: [DEPOSITS](../../Database/Tables/DEPOSITS.md), [BOOKINGS](../../Database/Tables/BOOKINGS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/deposits.php](<../../../../api/deposits.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: deposit_service.php](deposit_service.php.md) · [Next file: equipment.php](equipment.php.md) · [Back to Start Here](../../Start%20Here.md)

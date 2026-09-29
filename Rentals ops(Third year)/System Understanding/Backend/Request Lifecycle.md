@@ -10,6 +10,8 @@ status: documented
 
 # Request Lifecycle
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## What “request lifecycle” means
 
 It is the journey of one action from the page to the server and back. A **request** asks the server to do something. A **response** is the server’s answer.
@@ -70,7 +72,7 @@ For a direct write such as `POST /api/bookings.php?do=create`:
 | 409 | Direct karaoke overlap |
 | 500 | Handled server/database failure |
 
-There is no central handler guaranteeing that every exception becomes that JSON shape. Some CRUD/FK SQL errors are uncaught. Not all branch dispatchers strictly enforce method on reads. See [[System Understanding/Backend/Files/crud.php|crud.php]] and [[System Understanding/Current Implementation Gaps]].
+There is no central handler guaranteeing that every exception becomes that JSON shape. Some CRUD/FK SQL errors are uncaught. Not all branch dispatchers strictly enforce method on reads. See [crud.php](Files/crud.php.md) and [Current Implementation Gaps](../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
@@ -79,4 +81,6 @@ There is no central handler guaranteeing that every exception becomes that JSON 
 - [api/bookings.php](<../../../api/bookings.php>)
 - [api/sync.php](<../../../api/sync.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Backend Overview](Backend%20Overview.md) · [Next: Database Overview](../Database/Database%20Overview.md) · [Back to Start Here](../Start%20Here.md)

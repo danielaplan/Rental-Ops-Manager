@@ -10,6 +10,8 @@ status: documented
 
 # customers.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The renter-directory handler.** This file keeps contact details for people who rent services.
@@ -30,7 +32,7 @@ Ana’s name and contact are stored once and can be linked to her booking.
 
 Customer records are not owner/staff login accounts. Booking creation has its own customer-handling path.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Only use filters that correspond to actual columns. See crud.php for default pre
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/crud.php|crud.php]]
+Includes: [crud.php](crud.php.md)
 
-Tables: [[System Understanding/Database/Tables/CUSTOMERS|CUSTOMERS]]
+Tables: [CUSTOMERS](../../Database/Tables/CUSTOMERS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/customers.php](<../../../../api/customers.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: crud.php](crud.php.md) · [Next file: delivery.php](delivery.php.md) · [Back to Start Here](../../Start%20Here.md)

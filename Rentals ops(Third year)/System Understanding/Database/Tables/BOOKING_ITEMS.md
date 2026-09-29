@@ -10,6 +10,8 @@ status: documented
 
 # BOOKING_ITEMS
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The equipment assigned to one rental.** Each record describes an assigned item and its expected, released and returned quantities.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -65,22 +67,24 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 - `FOREIGN KEY (rental_item_id) REFERENCES RENTAL_ITEMS(rental_item_id) ON DELETE SET NULL ON UPDATE CASCADE`
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE SET NULL ON UPDATE CASCADE`
 
-Parent tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `booking_id`, [[System Understanding/Database/Tables/RENTAL_ITEMS|RENTAL_ITEMS]] via `rental_item_id`, [[System Understanding/Database/Tables/SERVICES|SERVICES]] via `service_id`
+Parent tables: [BOOKINGS](BOOKINGS.md) via `booking_id`, [RENTAL_ITEMS](RENTAL_ITEMS.md) via `rental_item_id`, [SERVICES](SERVICES.md) via `service_id`
 
 Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/bookingItems.php|bookingItems.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[bookingItems.php](../../Backend/Files/bookingItems.php.md), [equipment_service.php](../../Backend/Files/equipment_service.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Separate from EQUIPMENT_CHECKLIST: assignment/release vs saved inspection. Generation replaces these rows. No UNIQUE booking+item key.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: BOOKINGS](BOOKINGS.md) · [Next table: CATEGORIES](CATEGORIES.md) · [Back to Start Here](../../Start%20Here.md)

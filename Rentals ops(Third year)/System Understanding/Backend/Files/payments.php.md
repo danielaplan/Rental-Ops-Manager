@@ -10,6 +10,8 @@ status: documented
 
 # payments.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The rental payment recorder.** This file records money paid toward the rental and updates how much of the booking has been paid.
@@ -30,7 +32,7 @@ Ana pays ₱250 toward the ₱2,750 rental. The payment is saved, the booking be
 
 Recording a payment does not transfer money through GCash or MariBank. Refundable deposits use a different record. Negative amounts are not explicitly rejected by this route today.
 
-Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Payments and Deposits](../../Workflows/Payments%20and%20Deposits.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ No edit/delete route or gateway integration. Amount validation is numeric format
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md)
 
-Tables: [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]], [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]]
+Tables: [PAYMENTS](../../Database/Tables/PAYMENTS.md), [BOOKINGS](../../Database/Tables/BOOKINGS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/payments.php](<../../../../api/payments.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: packages.php](packages.php.md) · [Next file: rentalItems.php](rentalItems.php.md) · [Back to Start Here](../../Start%20Here.md)

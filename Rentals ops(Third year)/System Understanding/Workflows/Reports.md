@@ -10,6 +10,8 @@ status: documented
 
 # Reports
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## The purpose
 
 Reports summarize accepted shared records so the owners can see bookings, recorded rental revenue and outstanding balances. Unsynced local drafts do not contribute yet.
@@ -31,7 +33,7 @@ An October report here follows October events, even if money was collected earli
 
 “These reports summarize the saved booking records, with event dates as the date-filter basis.” Explain that basis beside the figures rather than calling every number a complete accounting report.
 
-See [[System Understanding/Backend/Files/reports.php|reports.php]] and [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]].
+See [reports.php](../Backend/Files/reports.php.md) and [BOOKINGS](../Database/Tables/BOOKINGS.md).
 
 ## Technical details
 
@@ -47,10 +49,12 @@ For a booking scheduled in October whose payment was collected in September, an 
 
 Invalid date filters are ignored after asDate() returns null. The route does not supply a dedicated payment-date report, CSV export or true inventory aggregation. Other devices see newly synced records after read/refresh; there is no server push channel in these PHP scripts.
 
-See [[System Understanding/Backend/Files/reports.php|reports.php]], [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] and [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]].
+See [reports.php](../Backend/Files/reports.php.md), [BOOKINGS](../Database/Tables/BOOKINGS.md) and [PAYMENTS](../Database/Tables/PAYMENTS.md).
 
 ## Source files
 
 - [api/reports.php](<../../../api/reports.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Offline Synchronization](Offline%20Synchronization.md) · [Next: Current Implementation Gaps](../Current%20Implementation%20Gaps.md) · [Back to Start Here](../Start%20Here.md)

@@ -10,6 +10,8 @@ status: documented
 
 # ITEM_HISTORY
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **Explicit equipment event entries.** Each record stores an equipment action that somebody or a caller explicitly logged.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -59,22 +61,24 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 - `FOREIGN KEY (rental_item_id) REFERENCES RENTAL_ITEMS(rental_item_id) ON DELETE SET NULL ON UPDATE CASCADE`
 - `FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE SET NULL ON UPDATE CASCADE`
 
-Parent tables: [[System Understanding/Database/Tables/RENTAL_ITEMS|RENTAL_ITEMS]] via `rental_item_id`, [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `booking_id`
+Parent tables: [RENTAL_ITEMS](RENTAL_ITEMS.md) via `rental_item_id`, [BOOKINGS](BOOKINGS.md) via `booking_id`
 
 Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/itemHistory.php|itemHistory.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[itemHistory.php](../../Backend/Files/itemHistory.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Deletion sets references NULL to preserve history. Not a complete automatic audit of every write.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: GALLERY](GALLERY.md) · [Next table: ITEM_RELEASES](ITEM_RELEASES.md) · [Back to Start Here](../../Start%20Here.md)

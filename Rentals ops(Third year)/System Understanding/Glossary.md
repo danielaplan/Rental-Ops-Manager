@@ -10,6 +10,8 @@ status: documented
 
 # Glossary
 
+**Navigate:** [Start Here](Start%20Here.md) · [Reading order](Start%20Here.md#recommended-reading-order) · [Backend files](Backend/File%20Inventory.md) · [Database tables](Database/Database%20Overview.md) · [Glossary](Glossary.md)
+
 ## Core terms
 
 | Word | Plain meaning | Example |
@@ -71,4 +73,7 @@ This section records exact file behavior, field names and implementation details
 | Snapshot | Cached copy of shared records on the device |
 | Source of truth | Official requirements/design control intended scope; current code demonstrates implementation |
 | FR / NFR | Functional requirement / non-functional quality or constraint |
-Return to [[System Understanding/Start Here|Start Here]].
+
+## Continue reading
+
+[Back to Start Here](Start%20Here.md)

@@ -10,6 +10,8 @@ status: documented
 
 # APP_SETTINGS
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **Settings and accepted-sync memory.** Record 1 stores application settings. Reserved record 2 remembers accepted offline actions and their real record numbers.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Offline Synchronization]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Offline Synchronization](../../Workflows/Offline%20Synchronization.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -58,16 +60,18 @@ Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/settings.php|settings.php]], [[System Understanding/Backend/Files/sync_state.php|sync_state.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[settings.php](../../Backend/Files/settings.php.md), [sync_state.php](../../Backend/Files/sync_state.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Row 1 stores settings; row 2 stores receipts and ids, initialized on commit. This internal state is not a new table. See Offline Synchronization.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: ADDONS](ADDONS.md) · [Next table: BOOKINGS](BOOKINGS.md) · [Back to Start Here](../../Start%20Here.md)

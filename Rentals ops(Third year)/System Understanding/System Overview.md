@@ -10,6 +10,8 @@ status: documented
 
 # System Overview
 
+**Navigate:** [Start Here](Start%20Here.md) · [Reading order](Start%20Here.md#recommended-reading-order) · [Backend files](Backend/File%20Inventory.md) · [Database tables](Database/Database%20Overview.md) · [Glossary](Glossary.md)
+
 ## What the system is for
 
 AKAD needs a shared place for owners and staff to keep track of rentals. The business offers karaoke, Sweet Corner and balloon-decoration services. Staff enter the information; the backend checks and saves it so accepted records can be retrieved by other connected staff devices.
@@ -43,7 +45,7 @@ The booking is the central rental record. Its reference number connects customer
 
 If the server cannot be reached, supported changes can stay on the device as Pending Sync. They become shared records only after the server accepts them. That process is called synchronization.
 
-Start with [[System Understanding/Workflows/Booking and Pricing]] for the booking story. Keep [[System Understanding/Current Implementation Gaps]] in mind when writing about what is finished.
+Start with [Booking and Pricing](Workflows/Booking%20and%20Pricing.md) for the booking story. Keep [Current Implementation Gaps](Current%20Implementation%20Gaps.md) in mind when writing about what is finished.
 
 ## Technical details
 
@@ -66,9 +68,9 @@ The PHP files are individual HTTP entry points, rather than routes in a framewor
 
 BOOKINGS is the center: it links a customer, primary service, package and creating user. Payments, deposit, delivery and equipment data attach to that booking. Catalog tables supply services, prices and reusable item templates. Configuration/content tables hold JSON. SESSIONS holds login tokens; APP_SETTINGS row 2 holds replay receipts.
 
-Offline entry does not run PHP or MySQL on the device. A supported local action is queued and later validated by the server. Other devices learn about accepted records by reads/refresh, not by direct access to another device's queue. See [[System Understanding/Workflows/Offline Synchronization]].
+Offline entry does not run PHP or MySQL on the device. A supported local action is queued and later validated by the server. Other devices learn about accepted records by reads/refresh, not by direct access to another device's queue. See [Offline Synchronization](Workflows/Offline%20Synchronization.md).
 
-The official design describes nine core entities; the current SQL scripts define 19 tables including support/catalog tables and SESSIONS. See [[System Understanding/Database/Database Overview]] and [[System Understanding/Current Implementation Gaps]].
+The official design describes nine core entities; the current SQL scripts define 19 tables including support/catalog tables and SESSIONS. See [Database Overview](Database/Database%20Overview.md) and [Current Implementation Gaps](Current%20Implementation%20Gaps.md).
 
 ## Source files
 
@@ -76,4 +78,6 @@ The official design describes nine core entities; the current SQL scripts define
 - [api/config.php](<../../api/config.php>)
 - [api/sync.php](<../../api/sync.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Start Here](Start%20Here.md) · [Next: Backend Overview](Backend/Backend%20Overview.md) · [Back to Start Here](Start%20Here.md)

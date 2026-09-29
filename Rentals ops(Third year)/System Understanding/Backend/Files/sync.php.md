@@ -10,6 +10,8 @@ status: documented
 
 # sync.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The offline-change receiver.** Synchronization means bringing changes stored on a device into the shared database once the server is reachable.
@@ -30,7 +32,7 @@ Staff save Ana’s supported booking changes during an outage. Later, this file 
 
 A successful batch reply can still contain rejected actions. The server checks each action separately; it does not accept the whole batch as one unit.
 
-Read [[System Understanding/Workflows/Offline Synchronization]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Offline Synchronization](../../Workflows/Offline%20Synchronization.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -66,14 +68,16 @@ A batch is not one all-or-nothing transaction. HTTP 200 ok:true can contain fail
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]], [[System Understanding/Backend/Files/sync_state.php|sync_state.php]], [[System Understanding/Backend/Files/deposit_service.php|deposit_service.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md), [equipment_service.php](equipment_service.php.md), [booking_pricing.php](booking_pricing.php.md), [sync_state.php](sync_state.php.md), [deposit_service.php](deposit_service.php.md)
 
-Tables: [[System Understanding/Database/Tables/APP_SETTINGS|APP_SETTINGS]], [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]], [[System Understanding/Database/Tables/CUSTOMERS|CUSTOMERS]], [[System Understanding/Database/Tables/SERVICES|SERVICES]], [[System Understanding/Database/Tables/PACKAGES|PACKAGES]], [[System Understanding/Database/Tables/ADDONS|ADDONS]], [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]], [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]], [[System Understanding/Database/Tables/DELIVERY|DELIVERY]], [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]], [[System Understanding/Database/Tables/RENTAL_ITEMS|RENTAL_ITEMS]], [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]], [[System Understanding/Database/Tables/CATEGORIES|CATEGORIES]], [[System Understanding/Database/Tables/GALLERY|GALLERY]], [[System Understanding/Database/Tables/WEBSITE_CONTENT|WEBSITE_CONTENT]], [[System Understanding/Database/Tables/ITEM_RELEASES|ITEM_RELEASES]], [[System Understanding/Database/Tables/ITEM_HISTORY|ITEM_HISTORY]]
+Tables: [APP_SETTINGS](../../Database/Tables/APP_SETTINGS.md), [BOOKINGS](../../Database/Tables/BOOKINGS.md), [CUSTOMERS](../../Database/Tables/CUSTOMERS.md), [SERVICES](../../Database/Tables/SERVICES.md), [PACKAGES](../../Database/Tables/PACKAGES.md), [ADDONS](../../Database/Tables/ADDONS.md), [PAYMENTS](../../Database/Tables/PAYMENTS.md), [DEPOSITS](../../Database/Tables/DEPOSITS.md), [DELIVERY](../../Database/Tables/DELIVERY.md), [BOOKING_ITEMS](../../Database/Tables/BOOKING_ITEMS.md), [RENTAL_ITEMS](../../Database/Tables/RENTAL_ITEMS.md), [EQUIPMENT_CHECKLIST](../../Database/Tables/EQUIPMENT_CHECKLIST.md), [CATEGORIES](../../Database/Tables/CATEGORIES.md), [GALLERY](../../Database/Tables/GALLERY.md), [WEBSITE_CONTENT](../../Database/Tables/WEBSITE_CONTENT.md), [ITEM_RELEASES](../../Database/Tables/ITEM_RELEASES.md), [ITEM_HISTORY](../../Database/Tables/ITEM_HISTORY.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/sync.php](<../../../../api/sync.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: settings.php](settings.php.md) · [Next file: sync_state.php](sync_state.php.md) · [Back to Start Here](../../Start%20Here.md)

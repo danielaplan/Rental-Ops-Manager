@@ -10,6 +10,8 @@ status: documented
 
 # Supporting Files and Evidence
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## What “evidence” means here
 
 An explanation describes feature behavior. Evidence records the checks performed, their environment and their results. This page distinguishes those two types of information.
@@ -68,6 +70,10 @@ Initial guide validation on 2026-09-29 passed: 65 notes, all 26 PHP files, all 1
 
 All 65 notes were revised with their filenames/folders retained. The 26 PHP file notes, 19 table notes and 127 column entries remain covered. All 600 wikilinks and 114 source links resolved before this validation summary was added. Table widths, code-fence closure and trailing whitespace passed. All PHP/SQL source fingerprints were unchanged. Visual rendering inside Obsidian was not tested. An editorial review can assess the clarity of the explanations.
 
+### Navigation validation
+
+The navigation revision converted 600 note references to relative Markdown links across all 65 notes. Checks passed for 1,150 link targets and 65 reading-order heading links. Each note has a navigation bar and a return link; the main reading sequence and file/table references also have Previous/Next links. Filenames, diagrams and all 127 database column entries are retained. Link destinations were checked on disk; visual interaction inside Obsidian was not tested.
+
 ## Source files
 
 - [db/schema.sql](<../../../db/schema.sql>)
@@ -82,4 +88,6 @@ All 65 notes were revised with their filenames/folders retained. The 26 PHP file
 - [js/storage.js](<../../../js/storage.js>)
 - [sw.js](<../../../sw.js>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Back to Start Here](../Start%20Here.md)

@@ -10,6 +10,8 @@ status: documented
 
 # Backend Overview
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## Overview
 
 The backend is the part that works behind the screens. It receives a request, checks what is allowed, reads or changes saved records, then sends a result back. This project uses PHP files as the server instructions.
@@ -29,7 +31,7 @@ For Ana’s booking, different files have different jobs: one checks staff login
 
 ## File organization
 
-There are 26 PHP files, including shared helpers. Workflow notes link to the files involved in each process. [[System Understanding/Backend/File Inventory]] lists every file and its responsibility.
+There are 26 PHP files, including shared helpers. Workflow notes link to the files involved in each process. [File Inventory](File%20Inventory.md) lists every file and its responsibility.
 
 Each file may have its own access rules. “Internal staff tool” is the intended scope, but current code does not require login for every read request. Check the exact behavior before making a claim about permissions.
 
@@ -41,19 +43,19 @@ There are 26 PHP source files in `api/`: 20 HTTP endpoint files and six shared h
 
 | Area | Main files | Responsibility |
 |---|---|---|
-| Connection / shared CRUD | [[System Understanding/Backend/Files/config.php\|config.php]], [[System Understanding/Backend/Files/crud.php\|crud.php]] | PDO, request decoding, responses, allowed-field CRUD |
-| Login | [[System Understanding/Backend/Files/auth.php\|auth.php]] | Credentials, tokens, owner/staff checks |
-| Booking | [[System Understanding/Backend/Files/bookings.php\|bookings.php]], [[System Understanding/Backend/Files/booking_pricing.php\|booking_pricing.php]] | Customer/event linkage, price, karaoke slots |
-| Finance | [[System Understanding/Backend/Files/payments.php\|payments.php]], [[System Understanding/Backend/Files/deposits.php\|deposits.php]], [[System Understanding/Backend/Files/deposit_service.php\|deposit_service.php]] | Rental payments and separate refundable deposit |
-| Equipment | [[System Understanding/Backend/Files/bookingItems.php\|bookingItems.php]], [[System Understanding/Backend/Files/equipment.php\|equipment.php]], [[System Understanding/Backend/Files/equipment_service.php\|equipment_service.php]] | Assignment, inspection, guarded return completion |
-| Logistics | [[System Understanding/Backend/Files/delivery.php\|delivery.php]], [[System Understanding/Backend/Files/itemReleases.php\|itemReleases.php]], [[System Understanding/Backend/Files/itemHistory.php\|itemHistory.php]] | Delivery and explicitly written release/history records |
+| Connection / shared CRUD | [config.php](Files/config.php.md), [crud.php](Files/crud.php.md) | PDO, request decoding, responses, allowed-field CRUD |
+| Login | [auth.php](Files/auth.php.md) | Credentials, tokens, owner/staff checks |
+| Booking | [bookings.php](Files/bookings.php.md), [booking_pricing.php](Files/booking_pricing.php.md) | Customer/event linkage, price, karaoke slots |
+| Finance | [payments.php](Files/payments.php.md), [deposits.php](Files/deposits.php.md), [deposit_service.php](Files/deposit_service.php.md) | Rental payments and separate refundable deposit |
+| Equipment | [bookingItems.php](Files/bookingItems.php.md), [equipment.php](Files/equipment.php.md), [equipment_service.php](Files/equipment_service.php.md) | Assignment, inspection, guarded return completion |
+| Logistics | [delivery.php](Files/delivery.php.md), [itemReleases.php](Files/itemReleases.php.md), [itemHistory.php](Files/itemHistory.php.md) | Delivery and explicitly written release/history records |
 | Catalog / content | Simple CRUD endpoints, settings and websiteContent | Owner-managed records and JSON documents |
-| Reports | [[System Understanding/Backend/Files/reports.php\|reports.php]] | Summary queries |
-| Offline replay | [[System Understanding/Backend/Files/sync.php\|sync.php]], [[System Understanding/Backend/Files/sync_state.php\|sync_state.php]] | Operation dispatch, references, receipts, conflicts |
+| Reports | [reports.php](Files/reports.php.md) | Summary queries |
+| Offline replay | [sync.php](Files/sync.php.md), [sync_state.php](Files/sync_state.php.md) | Operation dispatch, references, receipts, conflicts |
 
 Most reads do not require a session in current code. Writes usually require either any logged-in staff/owner or owner role; the exact rule appears in each file note. Reports require a session. Direct routes and sync implement some rules differently, so do not infer a route's permissions from its feature name.
 
-Start with [[System Understanding/Backend/Request Lifecycle]], then use [[System Understanding/Backend/File Inventory]] for individual files.
+Start with [Request Lifecycle](Request%20Lifecycle.md), then use [File Inventory](File%20Inventory.md) for individual files.
 
 ## Source files
 
@@ -62,4 +64,6 @@ Start with [[System Understanding/Backend/Request Lifecycle]], then use [[System
 - [api/auth.php](<../../../api/auth.php>)
 - [api/sync.php](<../../../api/sync.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: System Overview](../System%20Overview.md) · [Next: Request Lifecycle](Request%20Lifecycle.md) · [Back to Start Here](../Start%20Here.md)

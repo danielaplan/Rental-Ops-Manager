@@ -10,6 +10,8 @@ status: documented
 
 # bookingItems.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The assigned-equipment handler.** This file prepares and edits the equipment list for a particular booking. It copies item names and expected quantities from the reusable catalog.
@@ -30,7 +32,7 @@ Ana’s karaoke booking gets a list of the catalog items staff expect to release
 
 Generating the list again replaces its previous progress. This action does not automatically reserve or reduce catalog stock.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Generate replaces saved release/return progress. No unique booking/item constrai
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md)
 
-Tables: [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]], [[System Understanding/Database/Tables/RENTAL_ITEMS|RENTAL_ITEMS]]
+Tables: [BOOKING_ITEMS](../../Database/Tables/BOOKING_ITEMS.md), [RENTAL_ITEMS](../../Database/Tables/RENTAL_ITEMS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/bookingItems.php](<../../../../api/bookingItems.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: auth.php](auth.php.md) · [Next file: booking_pricing.php](booking_pricing.php.md) · [Back to Start Here](../../Start%20Here.md)

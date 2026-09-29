@@ -10,6 +10,8 @@ status: documented
 
 # gallery.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The gallery-record handler.** This file stores image references or image text plus titles and featured flags.
@@ -30,7 +32,7 @@ An owner adds a gallery record with a title and image value.
 
 It stores information about images; it does not itself implement a file-upload service.
 
-Read [[System Understanding/System Overview]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [System Overview](../../System%20Overview.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Only use filters that correspond to actual columns. See crud.php for default pre
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/crud.php|crud.php]]
+Includes: [crud.php](crud.php.md)
 
-Tables: [[System Understanding/Database/Tables/GALLERY|GALLERY]]
+Tables: [GALLERY](../../Database/Tables/GALLERY.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/gallery.php](<../../../../api/gallery.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: equipment_service.php](equipment_service.php.md) · [Next file: itemHistory.php](itemHistory.php.md) · [Back to Start Here](../../Start%20Here.md)

@@ -10,6 +10,8 @@ status: documented
 
 # bookings.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The booking record handler.** This file handles the main rental record: who is renting, what service/package they chose, and where and when the event happens.
@@ -30,7 +32,7 @@ Ana wants karaoke on October 20 from 2 PM to 6 PM. Staff enter her contact, even
 
 A new booking starts unpaid. Equipment assignment and payment recording are separate actions. Completion checks are not enforced on every booking-edit path.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -66,14 +68,16 @@ Not a status-transition state machine: arbitrary status strings and direct compl
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md), [booking_pricing.php](booking_pricing.php.md)
 
-Tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]], [[System Understanding/Database/Tables/CUSTOMERS|CUSTOMERS]], [[System Understanding/Database/Tables/SERVICES|SERVICES]], [[System Understanding/Database/Tables/PACKAGES|PACKAGES]], [[System Understanding/Database/Tables/ADDONS|ADDONS]], [[System Understanding/Database/Tables/USERS|USERS]]
+Tables: [BOOKINGS](../../Database/Tables/BOOKINGS.md), [CUSTOMERS](../../Database/Tables/CUSTOMERS.md), [SERVICES](../../Database/Tables/SERVICES.md), [PACKAGES](../../Database/Tables/PACKAGES.md), [ADDONS](../../Database/Tables/ADDONS.md), [USERS](../../Database/Tables/USERS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/bookings.php](<../../../../api/bookings.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: booking_pricing.php](booking_pricing.php.md) · [Next file: categories.php](categories.php.md) · [Back to Start Here](../../Start%20Here.md)

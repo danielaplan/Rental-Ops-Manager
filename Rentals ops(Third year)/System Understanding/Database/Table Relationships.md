@@ -10,6 +10,8 @@ status: documented
 
 # Table Relationships
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## Why records are connected
 
 A booking needs to point to the correct customer, service and package. Its payments and equipment records need to point back to the same rental. A relationship is that connection between saved records.
@@ -72,26 +74,26 @@ erDiagram
 
 | Child column | Parent column |
 |---|---|
-| [[System Understanding/Database/Tables/ADDONS\|ADDONS]] `service_id` | [[System Understanding/Database/Tables/SERVICES\|SERVICES]] `service_id` |
-| [[System Understanding/Database/Tables/RENTAL_ITEMS\|RENTAL_ITEMS]] `service_id` | [[System Understanding/Database/Tables/SERVICES\|SERVICES]] `service_id` |
-| [[System Understanding/Database/Tables/PACKAGES\|PACKAGES]] `service_id` | [[System Understanding/Database/Tables/SERVICES\|SERVICES]] `service_id` |
-| [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `customer_id` | [[System Understanding/Database/Tables/CUSTOMERS\|CUSTOMERS]] `customer_id` |
-| [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `service_id` | [[System Understanding/Database/Tables/SERVICES\|SERVICES]] `service_id` |
-| [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `package_id` | [[System Understanding/Database/Tables/PACKAGES\|PACKAGES]] `package_id` |
-| [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `created_by` | [[System Understanding/Database/Tables/USERS\|USERS]] `user_id` |
-| [[System Understanding/Database/Tables/PAYMENTS\|PAYMENTS]] `booking_id` | [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `booking_id` |
-| [[System Understanding/Database/Tables/DEPOSITS\|DEPOSITS]] `booking_id` | [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `booking_id` |
-| [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST\|EQUIPMENT_CHECKLIST]] `booking_id` | [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `booking_id` |
-| [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST\|EQUIPMENT_CHECKLIST]] `rental_item_id` | [[System Understanding/Database/Tables/RENTAL_ITEMS\|RENTAL_ITEMS]] `rental_item_id` |
-| [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST\|EQUIPMENT_CHECKLIST]] `checked_by` | [[System Understanding/Database/Tables/USERS\|USERS]] `user_id` |
-| [[System Understanding/Database/Tables/BOOKING_ITEMS\|BOOKING_ITEMS]] `booking_id` | [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `booking_id` |
-| [[System Understanding/Database/Tables/BOOKING_ITEMS\|BOOKING_ITEMS]] `rental_item_id` | [[System Understanding/Database/Tables/RENTAL_ITEMS\|RENTAL_ITEMS]] `rental_item_id` |
-| [[System Understanding/Database/Tables/BOOKING_ITEMS\|BOOKING_ITEMS]] `service_id` | [[System Understanding/Database/Tables/SERVICES\|SERVICES]] `service_id` |
-| [[System Understanding/Database/Tables/ITEM_RELEASES\|ITEM_RELEASES]] `booking_id` | [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `booking_id` |
-| [[System Understanding/Database/Tables/ITEM_HISTORY\|ITEM_HISTORY]] `rental_item_id` | [[System Understanding/Database/Tables/RENTAL_ITEMS\|RENTAL_ITEMS]] `rental_item_id` |
-| [[System Understanding/Database/Tables/ITEM_HISTORY\|ITEM_HISTORY]] `booking_id` | [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `booking_id` |
-| [[System Understanding/Database/Tables/DELIVERY\|DELIVERY]] `booking_id` | [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `booking_id` |
-| [[System Understanding/Database/Tables/SESSIONS\|SESSIONS]] `user_id` | [[System Understanding/Database/Tables/USERS\|USERS]] `user_id` |
+| [ADDONS](Tables/ADDONS.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
+| [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
+| [PACKAGES](Tables/PACKAGES.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
+| [BOOKINGS](Tables/BOOKINGS.md) `customer_id` | [CUSTOMERS](Tables/CUSTOMERS.md) `customer_id` |
+| [BOOKINGS](Tables/BOOKINGS.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
+| [BOOKINGS](Tables/BOOKINGS.md) `package_id` | [PACKAGES](Tables/PACKAGES.md) `package_id` |
+| [BOOKINGS](Tables/BOOKINGS.md) `created_by` | [USERS](Tables/USERS.md) `user_id` |
+| [PAYMENTS](Tables/PAYMENTS.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
+| [DEPOSITS](Tables/DEPOSITS.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
+| [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
+| [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md) `rental_item_id` | [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) `rental_item_id` |
+| [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md) `checked_by` | [USERS](Tables/USERS.md) `user_id` |
+| [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
+| [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md) `rental_item_id` | [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) `rental_item_id` |
+| [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
+| [ITEM_RELEASES](Tables/ITEM_RELEASES.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
+| [ITEM_HISTORY](Tables/ITEM_HISTORY.md) `rental_item_id` | [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) `rental_item_id` |
+| [ITEM_HISTORY](Tables/ITEM_HISTORY.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
+| [DELIVERY](Tables/DELIVERY.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
+| [SESSIONS](Tables/SESSIONS.md) `user_id` | [USERS](Tables/USERS.md) `user_id` |
 
 ### What deletion does
 
@@ -112,4 +114,6 @@ The official design's narrative calls deposits and delivery one-to-many. Current
 - [db/seed.sql](<../../../db/seed.sql>)
 - [Documentation/AKAD_System_Design.md](<../../../Documentation/AKAD_System_Design.md>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Database Overview](Database%20Overview.md) · [Next: Login and Authentication](../Workflows/Login%20and%20Authentication.md) · [Back to Start Here](../Start%20Here.md)

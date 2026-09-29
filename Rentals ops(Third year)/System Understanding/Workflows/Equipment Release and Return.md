@@ -10,6 +10,8 @@ status: documented
 
 # Equipment Release and Return
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## The purpose
 
 Equipment tracking connects the reusable item catalog, the items assigned to a rental, and the inspection saved when they return.
@@ -36,7 +38,7 @@ If two microphones were expected and only one returned, the missing quantity can
 
 “The assigned list says what should return; the saved inspection records what actually returned.” Generating the list again replaces its progress. Catalog stock is not automatically reduced, and the guarded completion check is not enforced on every direct booking-status edit.
 
-See [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]], [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]] and [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]].
+See [BOOKING_ITEMS](../Database/Tables/BOOKING_ITEMS.md), [EQUIPMENT_CHECKLIST](../Database/Tables/EQUIPMENT_CHECKLIST.md) and [equipment_service.php](../Backend/Files/equipment_service.php.md).
 
 ## Technical details
 
@@ -69,7 +71,7 @@ finalizeReturn reloads the saved inspections, revalidates the full checklist and
 
 This guard belongs to finalizeReturn. A direct booking update can set completed without it, so teaching material must not claim every completion path enforces inspection. Nullable/unlinked manual rows and duplicate assignments can also prevent full inspection.
 
-See [[System Understanding/Backend/Files/bookingItems.php|bookingItems.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]] and [[System Understanding/Current Implementation Gaps]].
+See [bookingItems.php](../Backend/Files/bookingItems.php.md), [equipment_service.php](../Backend/Files/equipment_service.php.md) and [Current Implementation Gaps](../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
@@ -79,4 +81,6 @@ See [[System Understanding/Backend/Files/bookingItems.php|bookingItems.php]], [[
 - [api/itemReleases.php](<../../../api/itemReleases.php>)
 - [api/itemHistory.php](<../../../api/itemHistory.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Payments and Deposits](Payments%20and%20Deposits.md) · [Next: Offline Synchronization](Offline%20Synchronization.md) · [Back to Start Here](../Start%20Here.md)

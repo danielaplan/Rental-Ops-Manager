@@ -10,6 +10,8 @@ status: documented
 
 # itemHistory.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The item-history recorder.** This file records equipment actions that are explicitly logged and lets someone read those past entries.
@@ -30,7 +32,7 @@ Staff add a history entry for a microphone after noting its condition.
 
 This is not an automatic record of every change in the system. Some changes have no history entry unless one is separately written.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Entries are explicitly written. A generic rental-item update, release, or return
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md)
 
-Tables: [[System Understanding/Database/Tables/ITEM_HISTORY|ITEM_HISTORY]]
+Tables: [ITEM_HISTORY](../../Database/Tables/ITEM_HISTORY.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/itemHistory.php](<../../../../api/itemHistory.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: gallery.php](gallery.php.md) · [Next file: itemReleases.php](itemReleases.php.md) · [Back to Start Here](../../Start%20Here.md)

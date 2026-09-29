@@ -10,6 +10,8 @@ status: documented
 
 # Database Overview
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## Overview
 
 The database is the shared organized storage for accepted records. Think of it as a collection of connected spreadsheets: customers in one table, bookings in another, payments in another. MySQL is the software that manages this storage.
@@ -30,7 +32,7 @@ Ana’s contact details are in CUSTOMERS. Her event details are in BOOKINGS. Her
 | Equipment records | Assigned items, saved inspections, release events and history |
 | Supporting information | Settings, accepted-sync memory, content and image records |
 
-The source scripts define 19 tables. [[System Understanding/Database/Table Relationships]] explains their connections, and the linked table notes describe each table’s fields and role in its workflow.
+The source scripts define 19 tables. [Table Relationships](Table%20Relationships.md) explains their connections, and the linked table notes describe each table’s fields and role in its workflow.
 
 ## Technical details
 
@@ -42,31 +44,31 @@ The checked-in scripts define 18 tables in schema.sql and SESSIONS in seed.sql: 
 
 | Table | Purpose | Defined in |
 |---|---|---|
-| [[System Understanding/Database/Tables/USERS\|USERS]] | Owner/staff accounts. Customers do not log in through this table. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/CUSTOMERS\|CUSTOMERS]] | People renting services; one customer can have many bookings. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/SERVICES\|SERVICES]] | The service catalog: seed id 1 Karaoke, id 2 Sweet Corner, id 3 Balloon Decoration. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/CATEGORIES\|CATEGORIES]] | Independent category labels. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/ADDONS\|ADDONS]] | Separately priced optional extras belonging to one service. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/RENTAL_ITEMS\|RENTAL_ITEMS]] | Reusable item catalog by service, used as the template for booking checklists. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/GALLERY\|GALLERY]] | Image text and featured metadata. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/WEBSITE_CONTENT\|WEBSITE_CONTENT]] | A JSON content document at content_id=1. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/APP_SETTINGS\|APP_SETTINGS]] | JSON configuration row 1 and reserved sync-state row 2. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/PACKAGES\|PACKAGES]] | Fixed price choices belonging to a service. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] | Central rental record linking customer, primary service/package, and creating account. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/PAYMENTS\|PAYMENTS]] | One row per rental payment; many payments can belong to a booking. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/DEPOSITS\|DEPOSITS]] | One current refundable deposit summary per booking. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST\|EQUIPMENT_CHECKLIST]] | Saved inspection rows: outgoing/incoming condition, return result and inspecting user. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/BOOKING_ITEMS\|BOOKING_ITEMS]] | Per-booking equipment assignment snapshot and release/return progress. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/ITEM_RELEASES\|ITEM_RELEASES]] | Explicit release-event metadata linked to a booking. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/ITEM_HISTORY\|ITEM_HISTORY]] | Explicit equipment action log retaining nullable booking/item references. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/DELIVERY\|DELIVERY]] | One current delivery arrangement per booking. | `db/schema.sql` |
-| [[System Understanding/Database/Tables/SESSIONS\|SESSIONS]] | Database-backed login tokens and expiration timestamps. | `db/seed.sql` |
+| [USERS](Tables/USERS.md) | Owner/staff accounts. Customers do not log in through this table. | `db/schema.sql` |
+| [CUSTOMERS](Tables/CUSTOMERS.md) | People renting services; one customer can have many bookings. | `db/schema.sql` |
+| [SERVICES](Tables/SERVICES.md) | The service catalog: seed id 1 Karaoke, id 2 Sweet Corner, id 3 Balloon Decoration. | `db/schema.sql` |
+| [CATEGORIES](Tables/CATEGORIES.md) | Independent category labels. | `db/schema.sql` |
+| [ADDONS](Tables/ADDONS.md) | Separately priced optional extras belonging to one service. | `db/schema.sql` |
+| [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) | Reusable item catalog by service, used as the template for booking checklists. | `db/schema.sql` |
+| [GALLERY](Tables/GALLERY.md) | Image text and featured metadata. | `db/schema.sql` |
+| [WEBSITE_CONTENT](Tables/WEBSITE_CONTENT.md) | A JSON content document at content_id=1. | `db/schema.sql` |
+| [APP_SETTINGS](Tables/APP_SETTINGS.md) | JSON configuration row 1 and reserved sync-state row 2. | `db/schema.sql` |
+| [PACKAGES](Tables/PACKAGES.md) | Fixed price choices belonging to a service. | `db/schema.sql` |
+| [BOOKINGS](Tables/BOOKINGS.md) | Central rental record linking customer, primary service/package, and creating account. | `db/schema.sql` |
+| [PAYMENTS](Tables/PAYMENTS.md) | One row per rental payment; many payments can belong to a booking. | `db/schema.sql` |
+| [DEPOSITS](Tables/DEPOSITS.md) | One current refundable deposit summary per booking. | `db/schema.sql` |
+| [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md) | Saved inspection rows: outgoing/incoming condition, return result and inspecting user. | `db/schema.sql` |
+| [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md) | Per-booking equipment assignment snapshot and release/return progress. | `db/schema.sql` |
+| [ITEM_RELEASES](Tables/ITEM_RELEASES.md) | Explicit release-event metadata linked to a booking. | `db/schema.sql` |
+| [ITEM_HISTORY](Tables/ITEM_HISTORY.md) | Explicit equipment action log retaining nullable booking/item references. | `db/schema.sql` |
+| [DELIVERY](Tables/DELIVERY.md) | One current delivery arrangement per booking. | `db/schema.sql` |
+| [SESSIONS](Tables/SESSIONS.md) | Database-backed login tokens and expiration timestamps. | `db/seed.sql` |
 
 ### How to read a table note
 
 Each note has a column dictionary, exact type/default/nullability declarations, keys, parent/child links, API consumers and behavioral caveats. A foreign key protects record references, but does not implement a business workflow. A JSON column validates JSON structure at the storage level, not references inside it.
 
-See [[System Understanding/Database/Table Relationships]], [[System Understanding/Database/Schema and Seed Setup]] and [[System Understanding/Glossary]].
+See [Table Relationships](Table%20Relationships.md), [Schema and Seed Setup](Schema%20and%20Seed%20Setup.md) and [Glossary](../Glossary.md).
 
 ## Source files
 
@@ -75,4 +77,6 @@ See [[System Understanding/Database/Table Relationships]], [[System Understandin
 - [api/config.php](<../../../api/config.php>)
 - [api/sync.php](<../../../api/sync.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Request Lifecycle](../Backend/Request%20Lifecycle.md) · [Next: Table Relationships](Table%20Relationships.md) · [Back to Start Here](../Start%20Here.md)

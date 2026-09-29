@@ -10,6 +10,8 @@ status: documented
 
 # auth.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The login checker.** This file checks owner/staff login details and gives a successful login a temporary session: permission to make protected requests for a period of time.
@@ -30,7 +32,7 @@ A staff member signs in before recording Ana’s payment. The payment request ca
 
 A customer record is separate from a staff account. The logout request needs the token in its message body with the current implementation.
 
-Read [[System Understanding/Workflows/Login and Authentication]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Login and Authentication](../../Workflows/Login%20and%20Authentication.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -66,14 +68,16 @@ The logout fallback reads session_token from currentSession(), but its SELECT do
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]]
+Includes: [config.php](config.php.md)
 
-Tables: [[System Understanding/Database/Tables/USERS|USERS]], [[System Understanding/Database/Tables/SESSIONS|SESSIONS]]
+Tables: [USERS](../../Database/Tables/USERS.md), [SESSIONS](../../Database/Tables/SESSIONS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/auth.php](<../../../../api/auth.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: addons.php](addons.php.md) · [Next file: bookingItems.php](bookingItems.php.md) · [Back to Start Here](../../Start%20Here.md)

@@ -10,6 +10,8 @@ status: documented
 
 # categories.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The category-label handler.** This file manages standalone labels such as Entertainment or Decorations.
@@ -30,7 +32,7 @@ The catalog contains an Entertainment label alongside other category labels.
 
 The current database does not connect categories to services with a saved relationship. Do not describe automatic grouping as implemented.
 
-Read [[System Understanding/Database/Table Relationships]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Table Relationships](../../Database/Table%20Relationships.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Only use filters that correspond to actual columns. See crud.php for default pre
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/crud.php|crud.php]]
+Includes: [crud.php](crud.php.md)
 
-Tables: [[System Understanding/Database/Tables/CATEGORIES|CATEGORIES]]
+Tables: [CATEGORIES](../../Database/Tables/CATEGORIES.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/categories.php](<../../../../api/categories.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: bookings.php](bookings.php.md) · [Next file: config.php](config.php.md) · [Back to Start Here](../../Start%20Here.md)

@@ -10,6 +10,8 @@ status: documented
 
 # Current Implementation Gaps
 
+**Navigate:** [Start Here](Start%20Here.md) · [Reading order](Start%20Here.md#recommended-reading-order) · [Backend files](Backend/File%20Inventory.md) · [Database tables](Database/Database%20Overview.md) · [Glossary](Glossary.md)
+
 ## Why this page matters
 
 This page distinguishes current behavior from intended features. A gap is a difference, limitation or unfinished implementation detail.
@@ -61,7 +63,7 @@ These findings come from source inspection on 2026-09-29. They are explanation l
 
 No fixed minimum for down payment or held deposit is a current approved decision, not a gap. Existing focused runtime evidence remains valid within the documented test scope; it does not certify every path above.
 
-See [[System Understanding/Backend/File Inventory]] and [[System Understanding/Backend/Supporting Files and Evidence]].
+See [File Inventory](Backend/File%20Inventory.md) and [Supporting Files and Evidence](Backend/Supporting%20Files%20and%20Evidence.md).
 
 ## Source files
 
@@ -76,4 +78,6 @@ See [[System Understanding/Backend/File Inventory]] and [[System Understanding/B
 - [db/seed.sql](<../../db/seed.sql>)
 - [Documentation/AKAD_System_Design.md](<../../Documentation/AKAD_System_Design.md>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Reports](Workflows/Reports.md) · [Back to Start Here](Start%20Here.md)

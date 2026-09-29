@@ -10,6 +10,8 @@ status: documented
 
 # PACKAGES
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **Fixed choices and prices.** Each record describes a package under one service.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -54,22 +56,24 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 - `PRIMARY KEY (package_id)`
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON UPDATE CASCADE ON DELETE RESTRICT`
 
-Parent tables: [[System Understanding/Database/Tables/SERVICES|SERVICES]] via `service_id`
+Parent tables: [SERVICES](SERVICES.md) via `service_id`
 
-Child tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `package_id`
+Child tables: [BOOKINGS](BOOKINGS.md) via `package_id`
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/packages.php|packages.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]], [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[packages.php](../../Backend/Files/packages.php.md), [booking_pricing.php](../../Backend/Files/booking_pricing.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Package/service compatibility is checked in pricing; separate booking foreign keys do not enforce that pairing alone.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: ITEM_RELEASES](ITEM_RELEASES.md) · [Next table: PAYMENTS](PAYMENTS.md) · [Back to Start Here](../../Start%20Here.md)

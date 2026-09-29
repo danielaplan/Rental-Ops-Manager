@@ -110,9 +110,14 @@ PHP + MySQL + Bootstrap + jQuery + AJAX + localStorage/IndexedDB (offline queue)
 
 ## System understanding guide — 2026-09-29
 
-The user authorized a system explanation and handover guide for the current backend and database. Frontend documentation is deferred because the frontend is unfinished. Entry point: [[System Understanding/Start Here|System Understanding — Start Here]]. The guide covers all 26 PHP files, 19 SQL-defined tables (including SESSIONS in seed.sql), API contracts, workflows, source fingerprints and implementation gaps. It describes source behavior without changing application code or claiming new runtime acceptance. FR-10 remains skipped.
+The user authorized a system explanation and handover guide for the current backend and database. Frontend documentation is deferred because the frontend is unfinished. Entry point: [System Understanding — Start Here](System%20Understanding/Start%20Here.md). The guide covers all 26 PHP files, 19 SQL-defined tables (including SESSIONS in seed.sql), API contracts, workflows, source fingerprints and implementation gaps. It describes source behavior without changing application code or claiming new runtime acceptance. FR-10 remains skipped.
 
 
 ## Guide structure revision — 2026-09-29
 
-The user requested a guide organized from system overviews and examples to detailed implementation references, with every existing filename and folder name retained. All 65 System Understanding notes follow that structure. Wording throughout the guide is neutral and does not characterize the audience’s knowledge or coding experience. The example follows Ana’s karaoke rental with a ₱2,750 rental total, ₱250 payment, separate ₱350 deposit and ₱50 deduction (₱300 calculated refund). Source/file/table coverage and links were checked; no application code or database behavior changed. Frontend documentation remains deferred. Entry: [[System Understanding/Start Here]].
+The user requested a guide organized from system overviews and examples to detailed implementation references, with every existing filename and folder name retained. All 65 System Understanding notes follow that structure. Wording throughout the guide is neutral and does not characterize the audience’s knowledge or coding experience. The example follows Ana’s karaoke rental with a ₱2,750 rental total, ₱250 payment, separate ₱350 deposit and ₱50 deduction (₱300 calculated refund). Source/file/table coverage and links were checked; no application code or database behavior changed. Frontend documentation remains deferred. Entry: [Start Here](System%20Understanding/Start%20Here.md).
+
+
+## Guide navigation update — 2026-09-29
+
+The guide now uses relative Markdown note links with concise labels, navigation bars, and Previous/Next links for the main reading sequence and file/table references. Filenames and folders are retained. Entry: [Start Here](System%20Understanding/Start%20Here.md).

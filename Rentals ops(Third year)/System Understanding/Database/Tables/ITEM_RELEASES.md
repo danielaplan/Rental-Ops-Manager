@@ -10,6 +10,8 @@ status: documented
 
 # ITEM_RELEASES
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **Equipment handover events.** Each record stores release information for a booking, including the person’s name and remarks.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -56,22 +58,24 @@ Required/default/nullability rules above reproduce the declaration. Columns with
 
 - `FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE CASCADE ON UPDATE CASCADE`
 
-Parent tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `booking_id`
+Parent tables: [BOOKINGS](BOOKINGS.md) via `booking_id`
 
 Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/itemReleases.php|itemReleases.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[itemReleases.php](../../Backend/Files/itemReleases.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 released_by is text, not a USERS foreign key. A release row does not itself change booking/item status.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: ITEM_HISTORY](ITEM_HISTORY.md) · [Next table: PACKAGES](PACKAGES.md) · [Back to Start Here](../../Start%20Here.md)

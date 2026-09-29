@@ -10,6 +10,8 @@ status: documented
 
 # Offline Synchronization
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## The purpose
 
 Offline support lets a previously prepared device keep supported changes while the server cannot be reached. Synchronization sends those changes to the shared database later.
@@ -39,7 +41,7 @@ Suppose Ana’s queued payment is saved but the reply is lost. Repeating the sam
 
 “Saved on this device” and “accepted into shared records” are different stages. Pending Sync does not promise acceptance. The device must first have an authenticated/cached setup; conflicts, expired logins or an unreachable server can delay upload.
 
-See [[System Understanding/Backend/Files/sync.php|sync.php]], [[System Understanding/Backend/Files/sync_state.php|sync_state.php]] and [[System Understanding/Database/Tables/APP_SETTINGS|APP_SETTINGS]].
+See [sync.php](../Backend/Files/sync.php.md), [sync_state.php](../Backend/Files/sync_state.php.md) and [APP_SETTINGS](../Database/Tables/APP_SETTINGS.md).
 
 ## Technical details
 
@@ -108,7 +110,7 @@ APP_SETTINGS row 2 holds receipts and ids. This single locked JSON row serialize
 
 ### Evidence and practical bounds
 
-Existing 2026-09-28 evidence records 14 integration checks and an actual backend-outage browser workflow. This guide does not rerun those tests. Offline setup needs a previously authenticated/cached session, HTTPS or localhost and available storage. Conflicts, expired tokens, suspended browsers and unreachable servers prevent guaranteed reconnect timing. See [[System Understanding/Backend/Supporting Files and Evidence]] and [[System Understanding/Current Implementation Gaps]].
+Existing 2026-09-28 evidence records 14 integration checks and an actual backend-outage browser workflow. This guide does not rerun those tests. Offline setup needs a previously authenticated/cached session, HTTPS or localhost and available storage. Conflicts, expired tokens, suspended browsers and unreachable servers prevent guaranteed reconnect timing. See [Supporting Files and Evidence](../Backend/Supporting%20Files%20and%20Evidence.md) and [Current Implementation Gaps](../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
@@ -117,4 +119,6 @@ Existing 2026-09-28 evidence records 14 integration checks and an actual backend
 - [js/sync.js](<../../../js/sync.js>)
 - [Implementation/Offline-Sync-Verification-2026-09-28.md](<../../../Implementation/Offline-Sync-Verification-2026-09-28.md>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Equipment Release and Return](Equipment%20Release%20and%20Return.md) · [Next: Reports](Reports.md) · [Back to Start Here](../Start%20Here.md)

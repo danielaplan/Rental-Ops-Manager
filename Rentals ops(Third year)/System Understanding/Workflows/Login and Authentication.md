@@ -10,6 +10,8 @@ status: documented
 
 # Login and Authentication
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## The purpose
 
 Login identifies the owner or staff member making a protected request. Authentication means checking who they are. Authorization means checking what they are allowed to do.
@@ -31,7 +33,7 @@ The accounts use owner or staff roles. Customer contact records are separate and
 
 An already-prepared device can hold supported offline drafts, but reconnecting still needs a valid server login. First-time offline login is unavailable.
 
-See [[System Understanding/Backend/Files/auth.php|auth.php]] and [[System Understanding/Database/Tables/SESSIONS|SESSIONS]].
+See [auth.php](../Backend/Files/auth.php.md) and [SESSIONS](../Database/Tables/SESSIONS.md).
 
 ## Technical details
 
@@ -59,7 +61,7 @@ sequenceDiagram
 
 Logout should send `{ "session_token": "<token>" }` in its JSON body, because the header-only fallback does not obtain a token field from currentSession(). Expiration rejects a token without deleting its row.
 
-An offline local session enables already-authorized cached entry but does not bypass server validation when reconnecting. First-time offline login is not supported. See [[System Understanding/Backend/Files/auth.php|auth.php]], [[System Understanding/Database/Tables/SESSIONS|SESSIONS]] and [[System Understanding/Current Implementation Gaps]].
+An offline local session enables already-authorized cached entry but does not bypass server validation when reconnecting. First-time offline login is not supported. See [auth.php](../Backend/Files/auth.php.md), [SESSIONS](../Database/Tables/SESSIONS.md) and [Current Implementation Gaps](../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
@@ -67,4 +69,6 @@ An offline local session enables already-authorized cached entry but does not by
 - [js/sync.js](<../../../js/sync.js>)
 - [Implementation/Offline-Sync-Verification-2026-09-28.md](<../../../Implementation/Offline-Sync-Verification-2026-09-28.md>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous: Table Relationships](../Database/Table%20Relationships.md) · [Next: Booking and Pricing](Booking%20and%20Pricing.md) · [Back to Start Here](../Start%20Here.md)

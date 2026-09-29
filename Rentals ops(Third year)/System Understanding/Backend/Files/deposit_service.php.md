@@ -10,6 +10,8 @@ status: documented
 
 # deposit_service.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The deposit rule checker.** This helper checks held and deducted amounts and works out how much is refundable.
@@ -30,7 +32,7 @@ For Ana’s ₱350 deposit, a deduction of ₱50 needs a reason. A deduction of 
 
 There is no fixed minimum deposit. The system stores one combined deduction and reason, rather than a separate row for each charge.
 
-Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Payments and Deposits](../../Workflows/Payments%20and%20Deposits.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -68,12 +70,14 @@ No fixed amount or minimum. One aggregate deduction and reason, not an itemized 
 
 Includes: No include dependencies; the caller supplies shared helpers/connection.
 
-Tables: [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]], [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]]
+Tables: [DEPOSITS](../../Database/Tables/DEPOSITS.md), [BOOKINGS](../../Database/Tables/BOOKINGS.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/deposit_service.php](<../../../../api/deposit_service.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: delivery.php](delivery.php.md) · [Next file: deposits.php](deposits.php.md) · [Back to Start Here](../../Start%20Here.md)

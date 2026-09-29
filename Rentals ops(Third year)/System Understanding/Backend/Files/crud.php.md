@@ -10,6 +10,8 @@ status: documented
 
 # crud.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The reusable record handler.** CRUD means create, read, update and delete. This helper supplies those common actions so simple catalog files can share the same routine.
@@ -30,7 +32,7 @@ An owner adds an extra microphone to the catalog. The add-ons file tells this he
 
 Sharing this routine does not mean every type of record has the same business rules. Some creation defaults override the supplied values; exact details are below.
 
-Read [[System Understanding/Backend/Backend Overview]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Backend Overview](../Backend%20Overview.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -66,14 +68,16 @@ The filters argument is unused. List/get branches do not restrict HTTP method. P
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md)
 
 Tables: Shared infrastructure; table depends on caller.
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/crud.php](<../../../../api/crud.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: config.php](config.php.md) · [Next file: customers.php](customers.php.md) · [Back to Start Here](../../Start%20Here.md)

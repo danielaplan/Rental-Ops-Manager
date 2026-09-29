@@ -10,6 +10,8 @@ status: documented
 
 # delivery.php
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The delivery-arrangement handler.** This file records how equipment will travel and who shoulders the delivery fee.
@@ -30,7 +32,7 @@ Ana’s booking uses Lalamove and the renter shoulders the fee. Staff record tha
 
 It does not book a Lalamove driver or automatically add the fee to the rental price.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
+Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
 
 ## Technical details
 
@@ -62,14 +64,16 @@ Records logistics only, with no Lalamove integration. Fee is not automatically a
 
 ### Connections
 
-Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
+Includes: [config.php](config.php.md), [auth.php](auth.php.md)
 
-Tables: [[System Understanding/Database/Tables/DELIVERY|DELIVERY]]
+Tables: [DELIVERY](../../Database/Tables/DELIVERY.md)
 
-See [[System Understanding/Backend/API Reference|API Reference]] and [[System Understanding/Current Implementation Gaps|Current Implementation Gaps]].
+See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
 
 ## Source files
 
 - [api/delivery.php](<../../../../api/delivery.php>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous file: customers.php](customers.php.md) · [Next file: deposit_service.php](deposit_service.php.md) · [Back to Start Here](../../Start%20Here.md)

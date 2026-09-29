@@ -10,6 +10,8 @@ status: documented
 
 # Schema and Seed Setup
 
+**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](Database%20Overview.md) · [Glossary](../Glossary.md)
+
 ## What these files do
 
 A **schema** describes how saved information is organized: table names, columns and relationship rules. A **seed** supplies starting/demo records so a developer can try the application.
@@ -52,7 +54,7 @@ The seed comments claim a demo password, but the checked-in hash must be verifie
 
 SQL defines uppercase table names and PHP queries lowercase names. Verify MySQL table-name case behavior when moving from Windows to a case-sensitive host. SQL CREATE DATABASE/USE statements specify akad_rentals independently of PHP environment variables; selecting a different PHP DB name does not retarget those scripts automatically.
 
-The isolated verification setup substitutes the database name with `akad_verify_20260928` and starts local PHP processes on ports 8017/8018. Its data, credentials and logs are test fixtures. See [[System Understanding/Backend/Supporting Files and Evidence]].
+The isolated verification setup substitutes the database name with `akad_verify_20260928` and starts local PHP processes on ports 8017/8018. Its data, credentials and logs are test fixtures. See [Supporting Files and Evidence](../Backend/Supporting%20Files%20and%20Evidence.md).
 
 ## Source files
 
@@ -61,4 +63,6 @@ The isolated verification setup substitutes the database name with `akad_verify_
 - [api/config.php](<../../../api/config.php>)
 - [tests/start_verification.py](<../../../tests/start_verification.py>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Back to Start Here](../Start%20Here.md)

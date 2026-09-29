@@ -10,6 +10,8 @@ status: documented
 
 # EQUIPMENT_CHECKLIST
 
+**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+
 ## Overview
 
 **The saved return inspection.** Each record stores an item’s condition and return outcome, with the inspecting account.
@@ -28,7 +30,7 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
+Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
 ## Technical details
 
@@ -68,22 +70,24 @@ Additional indexes:
 
 - `CREATE INDEX idx_equipment_booking ON EQUIPMENT_CHECKLIST(booking_id);`
 
-Parent tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `booking_id`, [[System Understanding/Database/Tables/RENTAL_ITEMS|RENTAL_ITEMS]] via `rental_item_id`, [[System Understanding/Database/Tables/USERS|USERS]] via `checked_by`
+Parent tables: [BOOKINGS](BOOKINGS.md) via `booking_id`, [RENTAL_ITEMS](RENTAL_ITEMS.md) via `rental_item_id`, [USERS](USERS.md) via `checked_by`
 
 Child tables: None.
 
 ### Where it is used
 
-[[System Understanding/Backend/Files/equipment.php|equipment.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]], [[System Understanding/Backend/Files/reports.php|reports.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
+[equipment.php](../../Backend/Files/equipment.php.md), [equipment_service.php](../../Backend/Files/equipment_service.php.md), [reports.php](../../Backend/Files/reports.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
 
 ### Important behavior
 
 Unique booking+item enables inspection upsert; nullable rental_item_id means the unique key does not prevent multiple NULL item rows. Full inspection requires all catalog-linked booking items.
 
-See [[System Understanding/Database/Table Relationships|Table Relationships]].
+See [Table Relationships](../Table%20Relationships.md).
 
 ## Source files
 
 - [db/schema.sql](<../../../../db/schema.sql>)
 
-Return to [[System Understanding/Start Here|Start Here]].
+## Continue reading
+
+[Previous table: DEPOSITS](DEPOSITS.md) · [Next table: GALLERY](GALLERY.md) · [Back to Start Here](../../Start%20Here.md)
