@@ -106,3 +106,8 @@ PHP + MySQL + Bootstrap + jQuery + AJAX + localStorage/IndexedDB (offline queue)
 ---
 
 > This index is auto-maintained. Update when memory files change.
+
+
+## System understanding guide — 2026-09-29
+
+The user authorized a teaching/handover guide for the current backend and database. Frontend documentation is deferred because the frontend is unfinished. Entry point: [[System Understanding/Start Here|System Understanding — Start Here]]. The guide covers all 26 PHP files, 19 SQL-defined tables (including SESSIONS in seed.sql), API contracts, workflows, source fingerprints and implementation gaps. It describes source behavior without changing application code or claiming new runtime acceptance. FR-10 remains skipped.
