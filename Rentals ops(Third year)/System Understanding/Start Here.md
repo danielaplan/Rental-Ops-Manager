@@ -5,42 +5,59 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # System Understanding — Start Here
 
-This guide explains the existing PHP backend and MySQL database for AKAD Sweet Party Rental Operations & Booking Management System. It is written for someone joining the project who needs to understand what each part does, where it lives, and how data moves.
+## Who this guide is for
 
-> [!note] Scope and review date
-> Reviewed on 2026-09-29 against source files. Frontend documentation is deferred until the frontend is finished. Browser files are mentioned only to explain the server boundary and offline protocol. This guide is a source-based explanation, not new runtime certification or approval of all backend behavior.
+This guide is for a documentation team with limited knowledge of the system and coding. You do not need to write PHP or SQL to follow the main explanations.
 
-## Recommended reading order
+By the end, you should be able to explain what a part does, what information it handles, and how it connects to the rest of the system.
 
-1. [[System Understanding/System Overview]] — purpose, layers and vocabulary.
-2. [[System Understanding/Backend/Backend Overview]] and [[System Understanding/Backend/Request Lifecycle]] — PHP entry points, shared helpers and HTTP/JSON.
-3. [[System Understanding/Database/Database Overview]] and [[System Understanding/Database/Table Relationships]] — how records connect.
-4. [[System Understanding/Workflows/Booking and Pricing]] — a concrete transaction from input to saved record.
-5. [[System Understanding/Workflows/Payments and Deposits]], [[System Understanding/Workflows/Equipment Release and Return]] and [[System Understanding/Workflows/Offline Synchronization]].
-6. [[System Understanding/Backend/API Reference]] — route catalog and accepted fields in the linked file notes.
-7. [[System Understanding/Current Implementation Gaps]] — limits and differences to keep in mind when explaining the system.
+## How to read each note
 
-## Reference indexes
+Read the plain explanation and example first. The section **Technical reference (optional)** contains exact field names, code behavior and storage rules for later checking. You can skip that section on your first pass.
 
-- [[System Understanding/Backend/File Inventory]] — every PHP file, including helpers.
-- [[System Understanding/Database/Database Overview]] — every table and its purpose.
-- [[System Understanding/Database/Schema and Seed Setup]] — database creation, seed data and sessions.
-- [[System Understanding/Backend/Supporting Files and Evidence]] — related SQL, tests and integration files.
-- [[System Understanding/Workflows/Login and Authentication]] and [[System Understanding/Workflows/Reports]].
-- [[System Understanding/Glossary]] and [[System Understanding/Documentation Maintenance]].
+File notes explain server instructions. Table notes explain saved information. Workflow notes explain how several parts work together. A filename is a location in the project, not a screen the user operates.
 
-## Authority and evidence
+## First-pass reading order
 
-Official requirements/design remain in the repository's `Documentation/` folder. These notes describe the current implementation and explicitly flag mismatches; they do not revise requirements. Existing project memory records decisions, including negotiable payments/deposits and the skipped FR-10 blockouts. Some older memory paragraphs are marked historical and contain superseded completion claims.
+1. [[System Understanding/System Overview]] — understand the purpose and follow the example customer, Ana.
+2. [[System Understanding/Backend/Backend Overview]] and [[System Understanding/Backend/Request Lifecycle]] — learn what happens behind an action.
+3. [[System Understanding/Database/Database Overview]] and [[System Understanding/Database/Table Relationships]] — learn how saved information connects.
+4. [[System Understanding/Workflows/Login and Authentication]] — understand staff access.
+5. [[System Understanding/Workflows/Booking and Pricing]] — follow a rental from details to calculated price.
+6. [[System Understanding/Workflows/Payments and Deposits]] — separate rental money from held refundable money.
+7. [[System Understanding/Workflows/Equipment Release and Return]] — follow the assigned items and return inspection.
+8. [[System Understanding/Workflows/Offline Synchronization]] — learn when a local draft becomes a shared record.
+9. [[System Understanding/Workflows/Reports]] — understand what the summaries count.
+10. [[System Understanding/Current Implementation Gaps]] — check the limits before describing a feature as complete.
 
-Related vault notes: [[MEMORY]], [[AKAD Project State Engine]], [[AKAD Requirements Analysis Changes]], [[AKAD Requirements Analysis Ideas and Concepts]], [[AKAD Requirements Analysis Approval]].
+Use [[System Understanding/Glossary]] whenever a word is unfamiliar. After the first pass, open the file and table notes linked from the topic you are documenting. You do not need to memorize all 26 PHP filenames or 127 database columns.
 
-No frontend or backend behavior is changed by this documentation. FR-10 has no blockout table/endpoint and remains skipped.
+## A simple task for your documentation team
+
+For each topic, write four short answers: what it is for, what the staff member supplies, what the system saves or returns, and what currently needs checking or remains unfinished. Support technical claims with the linked file/table note and have a developer review them.
+
+For example: “The booking record connects the customer, event and chosen service. Its number lets the system find related payments and equipment records.”
+
+## Where to look up details
+
+- [[System Understanding/Backend/File Inventory]] and [[System Understanding/Backend/API Reference]] — find the file or request you need.
+- [[System Understanding/Database/Schema and Seed Setup]] — understand how the initial database is prepared.
+- [[System Understanding/Backend/Supporting Files and Evidence]] — find existing verification and its limits.
+- [[System Understanding/Documentation Maintenance]] and [[System Understanding/Source Snapshot]] — keep the explanations tied to the code they describe.
+
+## Scope and authority
+
+This guide describes the reviewed implementation, including its gaps. The official requirements and design in `Documentation/` describe intended scope; these notes do not change them. Previously recorded tests are evidence within their recorded environments, not proof that every feature is finished.
+
+Frontend documentation is deferred. FR-10 service/date blockouts remain skipped. Code and database behavior are unchanged by this guide revision. Every filename and folder name is retained.
+
+Related memory: [[MEMORY]], [[AKAD Project State Engine]], [[AKAD Requirements Analysis Changes]], [[AKAD Requirements Analysis Ideas and Concepts]], [[AKAD Requirements Analysis Approval]].
 
 ## Source files
 

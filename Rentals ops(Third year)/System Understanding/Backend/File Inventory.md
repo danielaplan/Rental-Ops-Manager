@@ -5,10 +5,23 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Backend File Inventory
+
+## How to use this list
+
+This is a directory of the backend files already explained in the guide. Each file name is clickable and opens its own plain-language explanation.
+
+Start with the responsibility you need, rather than trying to memorize names. For example, to document Ana’s rental price, open [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]]; to document saved rental payments, open [[System Understanding/Backend/Files/payments.php|payments.php]].
+
+The list includes helper files as well as request handlers. A helper performs a job for another file; it may not offer a staff-facing action by itself.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 Every PHP file present on the review date is listed below. Helpers are included because endpoints depend on them.
 
@@ -40,5 +53,4 @@ Every PHP file present on the review date is listed below. Helpers are included 
 | [[System Understanding/Backend/Files/sync.php\|sync.php]] | Validates and commits offline operations with per-operation receipts. |
 | [[System Understanding/Backend/Files/sync_state.php\|sync_state.php]] | Receipt ledger and temporary-to-server ID mapping for replay safety. |
 | [[System Understanding/Backend/Files/websiteContent.php\|websiteContent.php]] | Reads/replaces the website content object. |
-
 Return to [[System Understanding/Start Here|Start Here]].

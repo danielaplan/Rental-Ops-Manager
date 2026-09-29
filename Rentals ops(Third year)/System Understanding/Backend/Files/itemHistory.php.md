@@ -5,36 +5,63 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # itemHistory.php
 
+## In plain language
+
+**The item-history recorder.** This file records equipment actions that are explicitly logged and lets someone read those past entries.
+
+**Where it lives:** `api/itemHistory.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+
+## Example
+
+Staff add a history entry for a microphone after noting its condition.
+
+## What happens
+
+1. Accept an item, action, quantity and optional booking link.
+2. Store the event with a time.
+3. Show the item’s newest history entries first.
+
+## What the documentation team should remember
+
+This is not an automatic record of every change in the system. Some changes have no history entry unless one is separately written.
+
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 **Location:** `api/itemHistory.php`
 
 Reads and appends equipment history entries.
 
-## Routes or callable helpers
+### Routes or callable helpers
 
 GET forItem (default) with rental_item_id; POST create.
 
-## Access
+### Access
 
 Reads unauthenticated; create owner only.
 
-## Inputs
+### Inputs
 
 rental_item_id, booking_id, action (default Updated), qty (default 0), condition.
 
-## How it works
+### How it works
 
 Selects newest events first and aliases event_date to date. Creates a row with database timestamp and returns history_id with 201.
 
-## Current limits and details
+### Current limits and details
 
 Entries are explicitly written. A generic rental-item update, release, or return does not automatically append server history.
 
-## Connections
+### Connections
 
 Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
 

@@ -111,3 +111,8 @@ PHP + MySQL + Bootstrap + jQuery + AJAX + localStorage/IndexedDB (offline queue)
 ## System understanding guide — 2026-09-29
 
 The user authorized a teaching/handover guide for the current backend and database. Frontend documentation is deferred because the frontend is unfinished. Entry point: [[System Understanding/Start Here|System Understanding — Start Here]]. The guide covers all 26 PHP files, 19 SQL-defined tables (including SESSIONS in seed.sql), API contracts, workflows, source fingerprints and implementation gaps. It describes source behavior without changing application code or claiming new runtime acceptance. FR-10 remains skipped.
+
+
+## Documentation-team reading revision — 2026-09-29
+
+The user requested explanations suitable for a documentation team with limited system/coding knowledge, with every existing filename and folder name retained. All 65 System Understanding notes now lead with plain explanations, examples and reading guidance; exact technical reference remains afterward. The example follows Ana’s karaoke rental with a ₱2,750 rental total, ₱250 payment, separate ₱350 deposit and ₱50 deduction (₱300 calculated refund). Source/file/table coverage and links were checked; no application code or database behavior changed. Frontend documentation remains deferred. Entry: [[System Understanding/Start Here]].

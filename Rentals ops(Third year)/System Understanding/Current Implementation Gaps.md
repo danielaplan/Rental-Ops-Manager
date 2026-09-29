@@ -5,10 +5,35 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Current Implementation Gaps
+
+## Why this page matters
+
+Your team needs to describe what works today without presenting every intended feature as complete. A gap is a difference, limitation or unfinished detail that affects the explanation.
+
+## Read these cautions first
+
+- The intended tool is for staff/owners, but some current data-reading requests do not require login.
+- The dedicated return action checks full returns, but another booking-edit path can set Completed without that check.
+- Rental payments and refunds are recorded/calculated; the backend does not move the money through payment providers.
+- Price calculations use one primary service/package. Multiple service selections do not mean full multi-service pricing is implemented.
+- Reports use event-date booking summaries; some inventory figures are placeholders.
+- Offline drafts need server acceptance. Different save paths have some different permission/checking rules.
+- Service/date blockouts remain skipped, and frontend documentation is deferred.
+
+## How to word documentation responsibly
+
+Prefer “The return-completion action checks the saved inspection” to “Every completed booking is guaranteed to have a full inspection.” The first sentence names the checked behavior; the second overstates it.
+
+Use the exact findings below when checking a technical claim. A developer should review explanations affected by these gaps. This page records source-inspection findings, not newly fixed behavior or new test failures.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 These findings come from source inspection on 2026-09-29. They are explanation limits and possible follow-up work, not changes made by this guide or a claim that existing tests failed. They help the next person distinguish intended rules from what every code path currently enforces.
 

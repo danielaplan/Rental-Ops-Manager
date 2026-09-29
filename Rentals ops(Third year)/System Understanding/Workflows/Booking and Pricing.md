@@ -5,14 +5,52 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Booking and Pricing
 
+## The purpose
+
+A booking records who is renting, the event details and the selected primary service/package. Its booking number connects the later money, delivery and equipment records.
+
+## Follow Ana’s booking
+
+1. Staff identify Ana and enter October 20, 2 PM to 6 PM, with a venue.
+2. They select karaoke and a package.
+3. The backend checks the details and relevant karaoke availability.
+4. It reads the saved package/extra prices and calculates the rental total.
+5. Accepted information is saved with the staff account that created it. The new booking starts unpaid.
+
+```mermaid
+flowchart LR
+    A[Customer and event details] --> B[Check time and selections]
+    B --> C[Calculate rental price]
+    C --> D[Save accepted booking]
+```
+
+## Price in ordinary numbers
+
+Ana’s example: ₱2,500 package + ₱300 extra − ₱100 discount + ₱50 fee = **₱2,750 rental total**. A refundable deposit is separate. Delivery charges are not automatically added by the delivery-record handler.
+
+## What a time conflict means
+
+The single karaoke set cannot serve overlapping blocking bookings on the same date. If one blocking karaoke booking runs from 2 PM to 6 PM, another blocking karaoke booking from 4 PM to 7 PM conflicts. One ending exactly when another starts does not overlap. A pending booking does not reserve the slot under current code.
+
+## What to explain to another person
+
+“The backend checks the rental details and calculates a price from its saved catalog before accepting the booking.” The direct and offline-save paths have differences described below. A booking saved locally is still awaiting acceptance.
+
+See [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]] and [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]].
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 A booking ties together a renter, an event date/time/location, a primary service/package, prices and the staff account that created it. These are not separate disconnected calendar entries: the saved booking ID links finance, logistics and equipment.
 
-## Direct create/update
+### Direct create/update
 
 1. Authenticate the writer and start a transaction. Lock service row 1 to serialize competing karaoke writes.
 2. Resolve the customer. Direct create accepts an existing customer ID or name/contact; it may reuse a contact and update that customer.
@@ -22,17 +60,17 @@ A booking ties together a renter, an event date/time/location, a primary service
 6. Validate package/add-ons against that service and calculate totals from current database prices.
 7. Insert/update BOOKINGS and commit. New bookings start with amount_paid=0 and payment_status=Unpaid. Creation records the authenticated account as created_by.
 
-## Price example
+### Price example
 
 Suppose an existing package costs 2,500, selected distinct extras total 300, discount is 100 and fees are 50. The rental total is `max(2500 + 300 - 100 + 50, 0) = 2750`. A held deposit is separate and does not raise this rental total. Delivery fee is also not automatically copied into BOOKINGS.fees.
 
-## Karaoke conflict rule
+### Karaoke conflict rule
 
 Intervals overlap when `existing.start_time < requested.end_time` and `existing.end_time > requested.start_time`, on the same event date and primary karaoke service. Adjacent intervals such as 14:00–16:00 and 16:00–18:00 do not overlap. Current code recognizes service id 1 as karaoke; pending bookings do not reserve the slot.
 
 Direct overlap produces HTTP 409. Sync returns an item in conflicts instead, keeping the draft available for review. A sync service-only edit is a documented gap in overlap triggering. See [[System Understanding/Current Implementation Gaps]].
 
-## Further operations
+### Further operations
 
 The direct booking endpoint does not automatically create its equipment assignment. The current browser sync adapter queues bookingItems.generate after a booking create; callers using direct HTTP must arrange checklist generation separately.
 

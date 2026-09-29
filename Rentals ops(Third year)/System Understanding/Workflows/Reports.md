@@ -5,10 +5,38 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Reports
+
+## The purpose
+
+Reports summarize accepted shared records so the owners can see bookings, recorded rental revenue and outstanding balances. Unsynced local drafts do not contribute yet.
+
+## Follow Ana’s booking into a report
+
+Ana’s event is in October. Her recorded ₱250 rental payment contributes through the booking’s paid summary when that booking is included in the event-date report. Her refundable deposit is separate from rental revenue.
+
+1. The server reads accepted bookings and related records.
+2. Where supported, it filters bookings by event date.
+3. It counts bookings/customers, summarizes paid amounts and calculates remaining balances.
+4. It returns figures that the application can display.
+
+## What the figures do and do not mean
+
+An October report here follows October events, even if money was collected earlier. It is not a payment-date cash ledger. Some dashboard inventory figures remain zero placeholders, and the damaged/missing count is global even when the booking report uses a date range.
+
+## What to explain to another person
+
+“These reports summarize the saved booking records, with event dates as the date-filter basis.” Explain that basis beside the figures rather than calling every number a complete accounting report.
+
+See [[System Understanding/Backend/Files/reports.php|reports.php]] and [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]].
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 reports.php requires authentication and uses SQL aggregation, rather than reading a browser's local drafts. Only accepted database records contribute.
 

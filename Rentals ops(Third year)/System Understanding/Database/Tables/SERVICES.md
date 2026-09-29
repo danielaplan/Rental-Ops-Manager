@@ -5,16 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # SERVICES
 
+## In plain language
+
+**The main offerings.** Each record names one service line. The initial catalog includes karaoke, Sweet Corner and balloon decoration.
+
+A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `SERVICES` is the label used by the code.
+
+## Example
+
+Ana selects karaoke as her service.
+
+## Details to recognize first
+
+service_name names the offering; service_id links packages, extras and bookings to it.
+
+A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+
+## How to use this note
+
+Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 The service catalog: seed id 1 Karaoke, id 2 Sweet Corner, id 3 Balloon Decoration.
 
 **Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
 
-## Column dictionary
+### Column dictionary
 
 | Column | SQL type | Declaration rules | Meaning |
 |---|---|---|---|
@@ -25,7 +50,7 @@ The service catalog: seed id 1 Karaoke, id 2 Sweet Corner, id 3 Balloon Decorati
 
 Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
 
-## Keys and relationships
+### Keys and relationships
 
 - `PRIMARY KEY (service_id)`
 
@@ -33,11 +58,11 @@ Parent tables: None.
 
 Child tables: [[System Understanding/Database/Tables/ADDONS|ADDONS]] via `service_id`, [[System Understanding/Database/Tables/RENTAL_ITEMS|RENTAL_ITEMS]] via `service_id`, [[System Understanding/Database/Tables/PACKAGES|PACKAGES]] via `service_id`, [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `service_id`, [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]] via `service_id`
 
-## Where it is used
+### Where it is used
 
 [[System Understanding/Backend/Files/services.php|services.php]], [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
 
-## Important behavior
+### Important behavior
 
 Karaoke scheduling and locking depend on service_id=1. No category_id relationship exists.
 

@@ -5,16 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # RENTAL_ITEMS
 
+## In plain language
+
+**The reusable equipment list.** Each record is an equipment template under a service, used to build booking-specific item lists.
+
+A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `RENTAL_ITEMS` is the label used by the code.
+
+## Example
+
+A microphone template supplies its name and quantity when Ana’s assigned list is generated.
+
+## Details to recognize first
+
+name identifies the item; quantity supplies the copied expected count; service_id links it to a service.
+
+A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+
+## How to use this note
+
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 Reusable item catalog by service, used as the template for booking checklists.
 
 **Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
 
-## Column dictionary
+### Column dictionary
 
 | Column | SQL type | Declaration rules | Meaning |
 |---|---|---|---|
@@ -31,7 +56,9 @@ Reusable item catalog by service, used as the template for booking checklists.
 
 Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
 
-## Keys and relationships
+### Keys and relationships
+
+- Primary key declared in the column definition: `rental_item_id`.
 
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT ON UPDATE CASCADE`
 
@@ -39,11 +66,11 @@ Parent tables: [[System Understanding/Database/Tables/SERVICES|SERVICES]] via `s
 
 Child tables: [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]] via `rental_item_id`, [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]] via `rental_item_id`, [[System Understanding/Database/Tables/ITEM_HISTORY|ITEM_HISTORY]] via `rental_item_id`
 
-## Where it is used
+### Where it is used
 
 [[System Understanding/Backend/Files/rentalItems.php|rentalItems.php]], [[System Understanding/Backend/Files/bookingItems.php|bookingItems.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
 
-## Important behavior
+### Important behavior
 
 quantity is copied to expected_qty during generation. These endpoints do not maintain a physical stock-reservation ledger.
 

@@ -5,16 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # DEPOSITS
 
+## In plain language
+
+**The refundable-money summary.** Each booking can have one current deposit summary, separate from its rental payments.
+
+A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `DEPOSITS` is the label used by the code.
+
+## Example
+
+Ana’s held ₱350 minus a ₱50 cleaning deduction leaves a calculated ₱300 refund.
+
+## Details to recognize first
+
+amount_held is the deposit; deduction_amount reduces it; deduction_reason explains why. The refund amount is calculated, not stored as a column.
+
+A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+
+## How to use this note
+
+Read [[System Understanding/Workflows/Payments and Deposits]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 One current refundable deposit summary per booking.
 
 **Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
 
-## Column dictionary
+### Column dictionary
 
 | Column | SQL type | Declaration rules | Meaning |
 |---|---|---|---|
@@ -27,7 +52,7 @@ One current refundable deposit summary per booking.
 
 Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
 
-## Keys and relationships
+### Keys and relationships
 
 - `PRIMARY KEY (deposit_id)`
 - `FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON UPDATE CASCADE ON DELETE CASCADE`
@@ -40,11 +65,11 @@ Parent tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `b
 
 Child tables: None.
 
-## Where it is used
+### Where it is used
 
 [[System Understanding/Backend/Files/deposits.php|deposits.php]], [[System Understanding/Backend/Files/deposit_service.php|deposit_service.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
 
-## Important behavior
+### Important behavior
 
 UNIQUE booking_id means zero or one deposit, despite older design text describing one-to-many. refund_amount is computed by PHP and is not a column. No itemized deductions or refund transfer timestamp.
 

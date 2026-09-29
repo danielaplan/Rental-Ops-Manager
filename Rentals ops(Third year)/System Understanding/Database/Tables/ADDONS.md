@@ -5,16 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # ADDONS
 
+## In plain language
+
+**Optional priced extras.** Each record describes an extra that can be selected under one service.
+
+A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `ADDONS` is the label used by the code.
+
+## Example
+
+Ana selects an extra microphone costing ₱300.
+
+## Details to recognize first
+
+name and price describe the extra; service_id links it to the service.
+
+A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+
+## How to use this note
+
+Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 Separately priced optional extras belonging to one service.
 
 **Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
 
-## Column dictionary
+### Column dictionary
 
 | Column | SQL type | Declaration rules | Meaning |
 |---|---|---|---|
@@ -26,7 +51,9 @@ Separately priced optional extras belonging to one service.
 
 Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
 
-## Keys and relationships
+### Keys and relationships
+
+- Primary key declared in the column definition: `addon_id`.
 
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT ON UPDATE CASCADE`
 
@@ -34,11 +61,11 @@ Parent tables: [[System Understanding/Database/Tables/SERVICES|SERVICES]] via `s
 
 Child tables: None.
 
-## Where it is used
+### Where it is used
 
 [[System Understanding/Backend/Files/addons.php|addons.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
 
-## Important behavior
+### Important behavior
 
 Booking add-on selections live in BOOKINGS.addon_ids JSON, not a join table; JSON values have no foreign-key validation at database level.
 

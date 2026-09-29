@@ -5,16 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # CUSTOMERS
 
+## In plain language
+
+**Renter contact records.** Each record describes someone renting a service. A customer can be linked to more than one booking.
+
+A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `CUSTOMERS` is the label used by the code.
+
+## Example
+
+Ana’s name and contact are saved here, and her booking uses that customer reference.
+
+## Details to recognize first
+
+full_name and contact_number describe the renter; customer_id identifies the record.
+
+A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+
+## How to use this note
+
+Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 People renting services; one customer can have many bookings.
 
 **Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
 
-## Column dictionary
+### Column dictionary
 
 | Column | SQL type | Declaration rules | Meaning |
 |---|---|---|---|
@@ -25,7 +50,7 @@ People renting services; one customer can have many bookings.
 
 Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
 
-## Keys and relationships
+### Keys and relationships
 
 - `PRIMARY KEY (customer_id)`
 
@@ -33,11 +58,11 @@ Parent tables: None.
 
 Child tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `customer_id`
 
-## Where it is used
+### Where it is used
 
 [[System Understanding/Backend/Files/customers.php|customers.php]], [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
 
-## Important behavior
+### Important behavior
 
 contact_number is not UNIQUE. Booking creation may reuse a contact; name/contact edits affect shared customer data.
 

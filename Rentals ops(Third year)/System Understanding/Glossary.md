@@ -5,10 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Glossary
+
+## Start with these words
+
+| Word | Plain meaning | Example |
+|---|---|---|
+| System | The connected pages, server rules and saved records used to manage rentals | Record and track Ana’s rental |
+| Frontend | The pages and controls people see | A staff form |
+| Backend | Instructions running on the server behind the pages | Check a booking and calculate its price |
+| Server | The computer/service answering application requests | Accept a submitted booking |
+| Database | Organized shared storage | Saved customers and bookings |
+| Table | A collection of one kind of saved information | PAYMENTS holds rental payment records |
+| Row / record | One entry in a table | Ana’s individual payment |
+| Column / field | One detail in a record | The payment amount |
+| ID / reference number | A value identifying a record or linking to it | A payment points to its booking number |
+| Request / response | A message asking for an action and the reply | Ask to save a deposit; receive its saved result |
+| API | The agreed way application code asks the backend for information or actions | Submit booking details in an expected format |
+| PHP | The language used for this backend’s instructions | bookings.php handles booking requests |
+| SQL / MySQL | SQL asks for database actions; MySQL manages the storage | Read payments belonging to a booking |
+| Workflow | The connected steps for one task | Create booking, record payment, inspect returns |
+| Login session | Temporary permission associated with a signed-in account | Staff can make protected requests |
+| Pending Sync | Stored on the device, awaiting acceptance into shared records | A supported offline draft |
+| Acknowledgement | The server’s confirmation that an action succeeded | Remove an accepted action from the waiting list |
+
+## How to use the technical words below
+
+You do not need to memorize these terms. Look one up when you reach it. For example, a primary key is a record’s own number; a foreign key is a rule linking a reference to another record. A transaction means related changes are saved or cancelled together. An upsert saves a new record or replaces matching saved information.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 | Term | Meaning in this system |
 |---|---|
@@ -41,5 +72,4 @@ status: documented
 | Snapshot | Cached copy of shared records on the device |
 | Source of truth | Official requirements/design control intended scope; current code demonstrates implementation |
 | FR / NFR | Functional requirement / non-functional quality or constraint |
-
 Return to [[System Understanding/Start Here|Start Here]].

@@ -5,10 +5,38 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Backend Overview
+
+## In plain language
+
+The backend is the part that works behind the screens. It receives a request, checks what is allowed, reads or changes saved records, then sends a result back. This project uses PHP files as the server instructions.
+
+For Ana’s booking, different files have different jobs: one checks staff login, another calculates the rental price, and another saves the booking. Shared helper files supply tools that several feature files need.
+
+## The main responsibilities
+
+| Responsibility | Question it answers |
+|---|---|
+| Login and permissions | Who is making the request, and may they do this? |
+| Booking and pricing | Who is renting, when, and what is the price? |
+| Money records | What rental payments and deposits were recorded? |
+| Equipment and delivery | What is assigned, released, returned or transported? |
+| Synchronization | Which device changes can be accepted into shared records? |
+| Reporting | What do the saved records tell the owners? |
+
+## Learn the structure first
+
+There are 26 PHP files, including helpers. You do not need to read them alphabetically. Start with the workflow you are documenting, then open its linked file notes. [[System Understanding/Backend/File Inventory]] is the directory of responsibilities.
+
+Each file may have its own access rules. “Internal staff tool” is the intended scope, but current code does not require login for every read request. Check the exact behavior before making a claim about permissions.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 There are 26 PHP source files in `api/`: 20 HTTP endpoint files and six shared helper/bootstrap files (`config.php`, `crud.php`, `booking_pricing.php`, `deposit_service.php`, `equipment_service.php`, `sync_state.php`). `auth.php` is both an endpoint and a reusable authentication module.
 

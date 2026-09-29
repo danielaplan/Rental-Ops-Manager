@@ -5,10 +5,21 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Source Snapshot
+
+## What this page is for
+
+This page is a developer reference identifying the exact PHP and SQL files reviewed for the guide. A **fingerprint**, or hash, is a calculated identifier for a file’s contents. If its contents change, the fingerprint changes.
+
+Your documentation team does not need to read these long values to understand the system. A developer can use them to notice that the guide’s source baseline needs review. They describe checked-in files, not the current contents of a live database.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 Baseline on 2026-09-29. All 26 PHP files and both SQL scripts are covered.
 
@@ -42,5 +53,4 @@ Baseline on 2026-09-29. All 26 PHP files and both SQL scripts are covered.
 | `api/websiteContent.php` | `38619461d8a9b549333445367113cf21d998f604435670eb9db481ed9a71f5f7` |
 | `db/schema.sql` | `aac12d00377b3ea7015c5484bc5db4d702c311b7b8679ed1491bac16abb1a5ed` |
 | `db/seed.sql` | `bd679097b35bd80a45dd2c72e3a5286915ed37591d3975a3fe320b7f36b99fcc` |
-
 Return to [[System Understanding/Start Here|Start Here]].

@@ -5,10 +5,50 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # System Overview
+
+## What the system is for
+
+AKAD needs a shared place for owners and staff to keep track of rentals. The business offers karaoke, Sweet Corner and balloon-decoration services. Staff enter the information; the backend checks and saves it so accepted records can be retrieved by other connected staff devices.
+
+Three parts work together:
+
+| Part | Plain meaning | Example |
+|---|---|---|
+| Frontend | The pages and controls people use | Staff enter event details |
+| Backend | The server instructions that check and process requests | Check a karaoke time and calculate the price |
+| Database | The organized saved records | Keep the booking, payments and equipment information |
+
+The frontend is still being finished. This guide teaches the backend and database.
+
+```mermaid
+flowchart LR
+    A[Staff enter information] --> B[Server checks the request]
+    B --> C[Shared records are saved]
+    C --> D[Server replies with the result]
+```
+
+## One example throughout the guide
+
+Ana wants karaoke on October 20, 2026, from 2 PM to 6 PM. In our example, the selected package costs ₱2,500, an extra microphone costs ₱300, the discount is ₱100 and the additional fee is ₱50. The rental total is ₱2,750. Ana pays ₱250 toward it, leaving ₱2,500. A separate ₱350 deposit with a ₱50 cleaning deduction leaves a calculated ₱300 refund.
+
+These are teaching values, not a request sent to the system or a claim about a real customer. The example helps you follow the same booking through different records.
+
+## How the records fit
+
+The booking is the central rental record. Its reference number connects customer details, payments, deposit, delivery and equipment records. Catalog records supply the service choices, package prices and equipment templates.
+
+If the server cannot be reached, supported changes can stay on the device as Pending Sync. They become shared records only after the server accepts them. That process is called synchronization.
+
+Start with [[System Understanding/Workflows/Booking and Pricing]] for the booking story. Keep [[System Understanding/Current Implementation Gaps]] in mind when writing about what is finished.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 AKAD uses an internal staff/owner tool to organize karaoke, Sweet Corner and balloon-decoration bookings. PHP handles server requests; MySQL holds shared business records. Customers are rental contacts in the database, not authenticated application users.
 

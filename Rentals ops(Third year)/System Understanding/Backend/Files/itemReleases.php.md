@@ -5,36 +5,63 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # itemReleases.php
 
+## In plain language
+
+**The release-event recorder.** This file records that equipment was released for a booking, with the releasing person’s name and notes.
+
+**Where it lives:** `api/itemReleases.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+
+## Example
+
+Staff save a release note for Ana’s booking before the equipment leaves.
+
+## What happens
+
+1. Receive the booking link, releasing person and notes.
+2. Save or retrieve the release record.
+3. Keep the event available as part of the booking’s records.
+
+## What the documentation team should remember
+
+A release note alone does not change equipment quantities or the booking’s status.
+
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 **Location:** `api/itemReleases.php`
 
 Records a release event; this endpoint does not itself update item quantities or booking status.
 
-## Routes or callable helpers
+### Routes or callable helpers
 
 Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=....
 
-## Access
+### Access
 
 Reads are unauthenticated. Every POST requires owner via authWrite().
 
-## Inputs
+### Inputs
 
 Primary key: release_id. Accepted JSON fields: booking_id, released_by, notes, released_at. Create defaults: none.
 
-## How it works
+### How it works
 
 Includes crud.php and dispatches tableCrud() with a fixed table/field allowlist. Records a release event; this endpoint does not itself update item quantities or booking status.
 
-## Current limits and details
+### Current limits and details
 
 Only use filters that correspond to actual columns. See crud.php for default precedence and limited field validation. Foreign-key constraints can reject referenced deletions.
 
-## Connections
+### Connections
 
 Includes: [[System Understanding/Backend/Files/crud.php|crud.php]]
 

@@ -5,16 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # EQUIPMENT_CHECKLIST
 
+## In plain language
+
+**The saved return inspection.** Each record stores an item’s condition and return outcome, with the inspecting account.
+
+A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `EQUIPMENT_CHECKLIST` is the label used by the code.
+
+## Example
+
+Staff record that Ana’s microphone returned in Good condition, or save a missing item and notes.
+
+## Details to recognize first
+
+condition_in describes the return; returned_qty records the count; checked_by identifies the inspector.
+
+A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+
+## How to use this note
+
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 Saved inspection rows: outgoing/incoming condition, return result and inspecting user.
 
 **Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
 
-## Column dictionary
+### Column dictionary
 
 | Column | SQL type | Declaration rules | Meaning |
 |---|---|---|---|
@@ -32,7 +57,7 @@ Saved inspection rows: outgoing/incoming condition, return result and inspecting
 
 Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
 
-## Keys and relationships
+### Keys and relationships
 
 - `PRIMARY KEY (checklist_id)`
 - `UNIQUE KEY uq_equipment_booking_item (booking_id, rental_item_id)`
@@ -48,11 +73,11 @@ Parent tables: [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]] via `b
 
 Child tables: None.
 
-## Where it is used
+### Where it is used
 
 [[System Understanding/Backend/Files/equipment.php|equipment.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]], [[System Understanding/Backend/Files/reports.php|reports.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
 
-## Important behavior
+### Important behavior
 
 Unique booking+item enables inspection upsert; nullable rental_item_id means the unique key does not prevent multiple NULL item rows. Full inspection requires all catalog-linked booking items.
 

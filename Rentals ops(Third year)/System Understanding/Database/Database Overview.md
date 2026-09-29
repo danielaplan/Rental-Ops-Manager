@@ -5,10 +5,37 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Database Overview
+
+## In plain language
+
+The database is the shared organized storage for accepted records. Think of it as a collection of connected spreadsheets: customers in one table, bookings in another, payments in another. MySQL is the software that manages this storage.
+
+Each table stores one kind of information. A row is one record; a column is one detail, such as a customer name or event date. Reference numbers connect the records.
+
+## Example: Ana’s records
+
+Ana’s contact details are in CUSTOMERS. Her event details are in BOOKINGS. Her ₱250 rental payment is in PAYMENTS. Her held ₱350 deposit is in DEPOSITS. The payment and deposit each refer to the booking number, so the system can find the right rental without copying every event detail into each record.
+
+## Learn these groups first
+
+| Group | What it keeps |
+|---|---|
+| People and login | Customers, staff/owner accounts and temporary logins |
+| Catalog | Services, packages, extras, categories and equipment templates |
+| Rental records | Bookings, rental payments, deposits and delivery |
+| Equipment records | Assigned items, saved inspections, release events and history |
+| Supporting information | Settings, accepted-sync memory, content and image records |
+
+The source scripts define 19 tables. You can learn their purposes before studying every field. Read [[System Understanding/Database/Table Relationships]] next, then open the table linked from the workflow you are documenting.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 MySQL is the central shared record store. `api/config.php` chooses the database connection; default name is `akad_rentals`. PDO queries use prepared values. The schema uses InnoDB, utf8mb4 and utf8mb4_unicode_ci.
 
@@ -36,7 +63,7 @@ The checked-in scripts define 18 tables in schema.sql and SESSIONS in seed.sql: 
 | [[System Understanding/Database/Tables/DELIVERY\|DELIVERY]] | One current delivery arrangement per booking. | `db/schema.sql` |
 | [[System Understanding/Database/Tables/SESSIONS\|SESSIONS]] | Database-backed login tokens and expiration timestamps. | `db/seed.sql` |
 
-## How to read a table note
+### How to read a table note
 
 Each note has a column dictionary, exact type/default/nullability declarations, keys, parent/child links, API consumers and behavioral caveats. A foreign key protects record references, but does not implement a business workflow. A JSON column validates JSON structure at the storage level, not references inside it.
 

@@ -5,10 +5,43 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Table Relationships
+
+## Why records are connected
+
+A booking needs to point to the correct customer, service and package. Its payments and equipment records need to point back to the same rental. A relationship is that connection between saved records.
+
+A reference number works like writing a receipt number on a related payment note. You can use the number to find the full rental instead of copying all its details.
+
+## Start with this simplified view
+
+```mermaid
+flowchart TD
+    A[Customer details] --> B[Booking record]
+    C[Service and package] --> B
+    B --> D[Rental payments]
+    B --> E[Refundable deposit]
+    B --> F[Equipment records]
+    B --> G[Delivery arrangement]
+```
+
+The arrows show how to follow the story. The full technical diagram below shows the exact database links, including accounts and optional references.
+
+## Example
+
+Ana can have more than one booking over time. One booking can have several rental payments. In the current database, one booking can have one current deposit summary and one current delivery arrangement.
+
+A **foreign key** is a storage rule that connects one record’s reference to another record. A **primary key** is the record’s own identifying number. Exact deletion rules matter: deleting a booking can also delete attached financial/equipment records, while some history keeps the entry with its booking link removed.
+
+For the first pass, explain which records connect. Use the full diagram and constraints only when you need precise technical wording.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 BOOKINGS is the central transaction; catalog/account/customer records are its parents. The diagram reflects current SQL constraints. A required parent means exactly one parent for each child; nullable links can be absent. `o{` means zero or many children; `o|` means zero or one.
 
@@ -36,7 +69,7 @@ erDiagram
     USERS ||--o{ SESSIONS : user_id
 ```
 
-## Foreign-key map
+### Foreign-key map
 
 | Child column | Parent column |
 |---|---|
@@ -61,7 +94,7 @@ erDiagram
 | [[System Understanding/Database/Tables/DELIVERY\|DELIVERY]] `booking_id` | [[System Understanding/Database/Tables/BOOKINGS\|BOOKINGS]] `booking_id` |
 | [[System Understanding/Database/Tables/SESSIONS\|SESSIONS]] `user_id` | [[System Understanding/Database/Tables/USERS\|USERS]] `user_id` |
 
-## What deletion does
+### What deletion does
 
 - Deleting a booking cascades to its payments, deposit, delivery, assigned booking items, saved inspections and release events. ITEM_HISTORY keeps the row but its booking reference becomes NULL.
 - Deleting a customer, service, package or creating user can be blocked while required references exist (`RESTRICT`). Deleting a user cascades its sessions and sets inspection checked_by to NULL where applicable.
@@ -70,7 +103,7 @@ erDiagram
 
 Check each table note for exact constraints. The database does not enforce package_id and service_id as a matching pair on BOOKINGS; PHP pricing does. JSON service/add-on selections have no SQL foreign keys. CATEGORIES, GALLERY, WEBSITE_CONTENT and APP_SETTINGS have no relational parents/children.
 
-## Design text versus current cardinality
+### Design text versus current cardinality
 
 The official design's narrative calls deposits and delivery one-to-many. Current schema has UNIQUE booking_id in each, making them zero-or-one records per booking. This guide shows current storage; it does not revise the official design.
 

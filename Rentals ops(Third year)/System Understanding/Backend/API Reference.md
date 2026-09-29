@@ -5,10 +5,27 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # API Reference
+
+## What this reference is for
+
+An API is the agreed way the application asks the server to read information or perform an action. This page lists those requests for detailed checking; it is not a list of buttons a user must press.
+
+## Read one entry slowly
+
+In `POST /api/deposits.php?do=upsert`, `api/deposits.php` identifies the receiving file. `do=upsert` selects the save-or-replace action. POST means information is being submitted. The booking number and amounts travel in the request message. The reply contains the saved result or a problem.
+
+For Ana’s deposit, the message includes the booking number, held ₱350, deduction ₱50 and reason Cleaning. The returned calculated refund is ₱300. This records an amount; it does not transfer the money.
+
+Read the relevant workflow first, then use the entries below to confirm request names, permitted accounts and accepted fields.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 Endpoints are relative to the project web root `/api/`. Query selectors use `?do=...`; do not assume REST PUT/DELETE routes from the CORS header. Fields and validation are in the linked notes.
 
@@ -35,7 +52,7 @@ Endpoints are relative to the project web root `/api/`. Query selectors use `?do
 | [[System Understanding/Backend/Files/sync.php\|sync.php]] | GET ?do=queue returns {queue: []}; POST ?do=commit accepts {queue: [...]}. | Commit requires session. Owner-only entity group: services, categories, addons, packages, customers, rentalItems, gallery, settings, websiteContent. Other supported operations accept owner/staff. Queue GET unauthenticated. |
 | [[System Understanding/Backend/Files/websiteContent.php\|websiteContent.php]] | GET get (default); POST ?do=update. | Read unauthenticated; update owner only. |
 
-## Direct write example
+### Direct write example
 
 This is an illustrative request, not an executed operation. IDs must exist in the target database.
 
@@ -49,7 +66,7 @@ Content-Type: application/json
 
 The response includes a refund_amount of 300.00. This saves a ledger value, not an actual bank refund. See [[System Understanding/Workflows/Payments and Deposits]].
 
-## Field and ID conventions
+### Field and ID conventions
 
 Database primary keys are integers. Browser display IDs can be prefixed (for example SVC-001); only routes/helpers that explicitly parse these accept them. Most direct `id` query parameters use asInt(), so send numeric IDs. Sync resolves supported prefixed and LOCAL- references. JSON amounts may return as decimal strings through PDO, and boolean-like SQL columns are numeric flags.
 

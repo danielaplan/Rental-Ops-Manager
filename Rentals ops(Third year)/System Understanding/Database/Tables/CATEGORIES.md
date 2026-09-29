@@ -5,16 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # CATEGORIES
 
+## In plain language
+
+**Standalone catalog labels.** Each record stores a category label. The current database has no saved link assigning a service to a category.
+
+A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `CATEGORIES` is the label used by the code.
+
+## Example
+
+Entertainment is a label here, but the backend does not automatically connect it to karaoke.
+
+## Details to recognize first
+
+name holds the label; status holds its status text.
+
+A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+
+## How to use this note
+
+Read [[System Understanding/Database/Table Relationships]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 Independent category labels.
 
 **Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
 
-## Column dictionary
+### Column dictionary
 
 | Column | SQL type | Declaration rules | Meaning |
 |---|---|---|---|
@@ -24,19 +49,20 @@ Independent category labels.
 
 Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
 
-## Keys and relationships
+### Keys and relationships
 
+- Primary key declared in the column definition: `category_id`.
 
 
 Parent tables: None.
 
 Child tables: None.
 
-## Where it is used
+### Where it is used
 
 [[System Understanding/Backend/Files/categories.php|categories.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
 
-## Important behavior
+### Important behavior
 
 No foreign key connects this table to SERVICES or other catalog tables.
 

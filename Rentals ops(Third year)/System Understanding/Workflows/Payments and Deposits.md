@@ -5,10 +5,43 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # Payments and Deposits
+
+## The purpose
+
+Rental payments pay for the service. A refundable deposit is held separately for equipment/cleaning and may have a deduction. Mixing these figures would make the remaining rental balance misleading.
+
+## Follow Ana’s money
+
+| Item | Example amount | What it means |
+|---|---|---|
+| Rental total | ₱2,750 | Service price |
+| Rental payment | ₱250 | Paid toward that price |
+| Rental balance | ₱2,500 | Rental total minus payments so far |
+| Deposit held | ₱350 | Separate refundable money |
+| Cleaning deduction | ₱50 | Explained charge against deposit |
+| Calculated refund | ₱300 | Held deposit minus deduction |
+
+1. Staff record the payment; the backend saves it and updates the booking’s paid amount/status.
+2. Staff separately record the negotiated deposit.
+3. A positive deduction needs a reason and cannot exceed the held amount.
+4. The backend calculates the refundable amount.
+
+Amounts are negotiated; there is no fixed ₱1,000 minimum. These features record money. They do not collect money through a gateway or send a bank refund. A full/partial refund label is a calculation category.
+
+## What to explain to another person
+
+“A payment reduces the rental balance. A deposit stays separate and has its own deduction and refund calculation.” The current system keeps one combined deposit deduction/reason rather than itemized charges.
+
+See [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]], [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]] and [[System Understanding/Backend/Files/deposit_service.php|deposit_service.php]].
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
 
 Rental payments and refundable deposits are separate records because they represent different money.
 
@@ -19,13 +52,13 @@ Rental payments and refundable deposits are separate records because they repres
 
 Amounts are negotiated between owner and client. There is no fixed amount or mandatory 1,000 minimum. PHP records money; it does not call GCash/MariBank gateways or send refunds.
 
-## Rental payment
+### Rental payment
 
 For rental total 2,800, a recorded payment of 250 creates a paid PAYMENTS row, increments BOOKINGS.amount_paid to 250 and changes aggregate status to Partial. Outstanding balance is 2,550. Once paid reaches/exceeds total the aggregate becomes Fully Paid. A single payment row's paid enum is different from the whole booking's status.
 
 The insert and summary increment occur in the same transaction. Sync receipts protect acknowledged replay; direct payment POST does not have that protection. Neither path currently rejects negative numeric payment amounts explicitly.
 
-## Refundable deposit
+### Refundable deposit
 
 For held 350 and deduction 50 with reason Cleaning, PHP saves one DEPOSITS row and returns refund_amount=300.00, refund_status=partial. A positive deduction requires a reason and cannot exceed the held amount. Held/deduction values must be non-negative.
 

@@ -5,36 +5,63 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # equipment.php
 
+## In plain language
+
+**The return-inspection entry point.** This file receives requests to save an equipment return inspection or complete a returned booking.
+
+**Where it lives:** `api/equipment.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+
+## Example
+
+Staff count Ana’s returned equipment and record its condition and notes before requesting completion.
+
+## What happens
+
+1. Receive the booking number and inspected items.
+2. Ask the equipment service helper to check and save the inspection.
+3. Use the same helper for the guarded completion action.
+
+## What the documentation team should remember
+
+A missing item can be saved as missing, but the guarded completion action rejects incomplete returns. Manual item edits have different rules.
+
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 **Location:** `api/equipment.php`
 
 HTTP routes for return inspections and finalizing returns.
 
-## Routes or callable helpers
+### Routes or callable helpers
 
 GET all (default), forBooking&booking_id=..., get&id=...; POST inspect, finalizeReturn; owner POST create/update/delete.
 
-## Access
+### Access
 
 Reads unauthenticated. inspect/finalizeReturn any session. Manual CRUD owner only.
 
-## Inputs
+### Inputs
 
 inspect: booking_id, items[{rental_item_id, returned_qty, condition, notes}]. finalizeReturn: booking_id. Manual CRUD accepts equipment checklist fields and validates quantities/status/condition.
 
-## How it works
+### How it works
 
 Delegates full inspection to saveReturnInspection() and finalization to finalizeBookingReturn(). Manual edits stamp checked_by on create or inspection-field update, reject returned > expected, and return 201 on create. Catches inspection/finalization failures as 400/500.
 
-## Current limits and details
+### Current limits and details
 
 Full inspection workflow and manual row CRUD have different invariants. A row-by-row manual edit is not equivalent to a complete saved inspection; see the service helper.
 
-## Connections
+### Connections
 
 Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]]
 

@@ -5,16 +5,41 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # BOOKINGS
 
+## In plain language
+
+**The central rental record.** Each record brings together the renter, event, selected primary service/package and payment summary.
+
+A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `BOOKINGS` is the label used by the code.
+
+## Example
+
+Ana’s karaoke booking has a date, time and location; its number links her payment, deposit and equipment records.
+
+## Details to recognize first
+
+booking_id is the booking number; customer_id links the renter; event_date schedules it; total and amount_paid summarize rental money.
+
+A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+
+## How to use this note
+
+Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 Central rental record linking customer, primary service/package, and creating account.
 
 **Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
 
-## Column dictionary
+### Column dictionary
 
 | Column | SQL type | Declaration rules | Meaning |
 |---|---|---|---|
@@ -47,7 +72,7 @@ Central rental record linking customer, primary service/package, and creating ac
 
 Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
 
-## Keys and relationships
+### Keys and relationships
 
 - `PRIMARY KEY (booking_id)`
 - `FOREIGN KEY (customer_id) REFERENCES CUSTOMERS(customer_id) ON UPDATE CASCADE ON DELETE RESTRICT`
@@ -65,11 +90,11 @@ Parent tables: [[System Understanding/Database/Tables/CUSTOMERS|CUSTOMERS]] via 
 
 Child tables: [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]] via `booking_id`, [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]] via `booking_id`, [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]] via `booking_id`, [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]] via `booking_id`, [[System Understanding/Database/Tables/ITEM_RELEASES|ITEM_RELEASES]] via `booking_id`, [[System Understanding/Database/Tables/ITEM_HISTORY|ITEM_HISTORY]] via `booking_id`, [[System Understanding/Database/Tables/DELIVERY|DELIVERY]] via `booking_id`
 
-## Where it is used
+### Where it is used
 
 [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/payments.php|payments.php]], [[System Understanding/Backend/Files/reports.php|reports.php]], [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]], [[System Understanding/Backend/Files/sync.php|sync.php]]. Relevant read/write behavior is explained in each file note.
 
-## Important behavior
+### Important behavior
 
 Primary service and package are relational, while service_ids/addon_ids are JSON selections. Only the first selected service is priced/scheduled. sync_status defaults to pending_sync and is not consistently changed by these write paths; receipt/outbox state is separate.
 

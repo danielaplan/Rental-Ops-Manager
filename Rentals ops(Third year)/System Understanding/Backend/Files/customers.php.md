@@ -5,36 +5,63 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # customers.php
 
+## In plain language
+
+**The renter-directory handler.** This file keeps contact details for people who rent services.
+
+**Where it lives:** `api/customers.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+
+## Example
+
+Ana’s name and contact are stored once and can be linked to her booking.
+
+## What happens
+
+1. Save or retrieve customer contact records.
+2. Search names or contact numbers.
+3. Allow an owner to maintain the customer directory.
+
+## What the documentation team should remember
+
+Customer records are not owner/staff login accounts. Booking creation has its own customer-handling path.
+
+Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 **Location:** `api/customers.php`
 
 Customer contact directory. Additional ?do=search&q=... matches name/contact using LIKE.
 
-## Routes or callable helpers
+### Routes or callable helpers
 
 Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=....
 
-## Access
+### Access
 
 Reads are unauthenticated. Every POST requires owner via authWrite().
 
-## Inputs
+### Inputs
 
 Primary key: customer_id. Accepted JSON fields: full_name, contact_number, messenger_handle. Create defaults: none.
 
-## How it works
+### How it works
 
 Includes crud.php and dispatches tableCrud() with a fixed table/field allowlist. Customer contact directory. Additional ?do=search&q=... matches name/contact using LIKE.
 
-## Current limits and details
+### Current limits and details
 
 Only use filters that correspond to actual columns. See crud.php for default precedence and limited field validation. Foreign-key constraints can reject referenced deletions.
 
-## Connections
+### Connections
 
 Includes: [[System Understanding/Backend/Files/crud.php|crud.php]]
 

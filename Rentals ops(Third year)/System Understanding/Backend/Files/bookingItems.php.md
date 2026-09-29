@@ -5,36 +5,63 @@ tags:
   - akad
   - system-understanding
   - backend-database
+audience: documentation-team
 status: documented
 ---
 
 # bookingItems.php
 
+## In plain language
+
+**The assigned-equipment handler.** This file prepares and edits the equipment list for a particular booking. It copies item names and expected quantities from the reusable catalog.
+
+**Where it lives:** `api/bookingItems.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+
+## Example
+
+Ana’s karaoke booking gets a list of the catalog items staff expect to release and receive back.
+
+## What happens
+
+1. Read the items belonging to the selected service.
+2. Create a booking-specific list with expected quantities.
+3. Allow release/return progress to be recorded on those assigned items.
+
+## What the documentation team should remember
+
+Generating the list again replaces its previous progress. This action does not automatically reserve or reduce catalog stock.
+
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+
+## Technical reference (optional)
+
+Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+
 **Location:** `api/bookingItems.php`
 
 Maintains the equipment checklist snapshot assigned to a booking.
 
-## Routes or callable helpers
+### Routes or callable helpers
 
 GET forBooking (default) with booking_id; POST generate; POST create, update, delete (id in query where applicable).
 
-## Access
+### Access
 
 Read unauthenticated; generate any session; manual CRUD owner only.
 
-## Inputs
+### Inputs
 
 Generate: booking_id, service_ids array of numeric service IDs. Create uses BOOKING_ITEMS fields; update expected_qty, released_qty, returned_qty, required, checked_released, condition, notes by id or body booking_id+rental_item_id.
 
-## How it works
+### How it works
 
 generate deletes existing checklist rows and copies RENTAL_ITEMS for each service into BOOKING_ITEMS in one transaction. Initializes quantities/flags to zero except expected_qty from catalog quantity and required from catalog. Manual update preserves omitted fields; create requires booking and name.
 
-## Current limits and details
+### Current limits and details
 
 Generate replaces saved release/return progress. No unique booking/item constraint here; duplicate selections can create duplicates. Generation does not filter inactive/unavailable items or decrement inventory. Nullable rental_item_id is allowed by schema, but complete return inspection requires valid catalog IDs.
 
-## Connections
+### Connections
 
 Includes: [[System Understanding/Backend/Files/config.php|config.php]], [[System Understanding/Backend/Files/auth.php|auth.php]]
 
