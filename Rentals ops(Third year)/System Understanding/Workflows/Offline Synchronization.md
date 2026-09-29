@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -36,15 +35,15 @@ flowchart TD
 
 Suppose Ana’s queued payment is saved but the reply is lost. Repeating the same queued action should not create another payment. The server remembers its acknowledgement, called a receipt, and returns the earlier result. This protection applies to the sync route.
 
-## What to explain to another person
+## Key points
 
 “Saved on this device” and “accepted into shared records” are different stages. Pending Sync does not promise acceptance. The device must first have an authenticated/cached setup; conflicts, expired logins or an unreachable server can delay upload.
 
 See [[System Understanding/Backend/Files/sync.php|sync.php]], [[System Understanding/Backend/Files/sync_state.php|sync_state.php]] and [[System Understanding/Database/Tables/APP_SETTINGS|APP_SETTINGS]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 A device first saves a supported local operation. On reconnect it submits that operation to PHP, which validates and writes MySQL. A local draft is not yet an accepted shared record. This note explains the server protocol; the frontend guide remains deferred.
 

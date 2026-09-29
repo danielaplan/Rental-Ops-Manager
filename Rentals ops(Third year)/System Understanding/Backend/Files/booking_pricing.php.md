@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # booking_pricing.php
 
-## In plain language
+## Overview
 
 **The rental price calculator.** This helper calculates a booking’s rental price using saved package and extra prices, rather than trusting a total typed by the browser.
 
@@ -27,15 +26,15 @@ Ana selects a ₱2,500 package and a ₱300 extra microphone, with a ₱100 disc
 2. Add the package and selected extras, subtract the discount and add fees.
 3. Return the total without letting it fall below zero.
 
-## What the documentation team should remember
+## Key points
 
 The refundable deposit is separate. Only the primary service/package is priced by this helper.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/booking_pricing.php`
 

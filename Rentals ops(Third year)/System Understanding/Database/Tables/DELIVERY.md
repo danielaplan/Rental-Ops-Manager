@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # DELIVERY
 
-## In plain language
+## Overview
 
 **The transport arrangement.** Each booking can have one current record describing delivery and fee responsibility.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 Ana’s equipment travels by Lalamove and the renter shoulders the fee.
 
-## Details to recognize first
+## Main fields
 
 delivery_method describes transport; delivery_fee records the charge; fee_shouldered_by records responsibility.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 One current delivery arrangement per booking.
 

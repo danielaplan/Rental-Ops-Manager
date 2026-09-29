@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # deposits.php
 
-## In plain language
+## Overview
 
 **The refundable-deposit handler.** This file lets the system read or save the deposit held for equipment or cleaning, separately from rental payments.
 
@@ -27,15 +26,15 @@ Ana has a ₱350 deposit. A ₱50 cleaning deduction with a reason leaves a calc
 2. Send new amounts to the deposit-checking helper.
 3. Return the saved deposit and calculated refundable amount.
 
-## What the documentation team should remember
+## Key points
 
 One current deposit summary is stored per booking. A calculated refund does not prove money has been sent back.
 
-Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/deposits.php`
 

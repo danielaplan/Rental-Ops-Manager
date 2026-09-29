@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # CATEGORIES
 
-## In plain language
+## Overview
 
 **Standalone catalog labels.** Each record stores a category label. The current database has no saved link assigning a service to a category.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 Entertainment is a label here, but the backend does not automatically connect it to karaoke.
 
-## Details to recognize first
+## Main fields
 
 name holds the label; status holds its status text.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Database/Table Relationships]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Database/Table Relationships]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 Independent category labels.
 

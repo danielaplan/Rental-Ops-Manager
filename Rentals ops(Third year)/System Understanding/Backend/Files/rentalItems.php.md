@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # rentalItems.php
 
-## In plain language
+## Overview
 
 **The reusable-equipment catalog handler.** This file stores the equipment templates used when building a booking’s equipment list.
 
@@ -27,15 +26,15 @@ A microphone entry belongs to karaoke and has a catalog quantity that can be cop
 2. Allow an owner to maintain the catalog.
 3. Supply templates for booking-specific equipment lists.
 
-## What the documentation team should remember
+## Key points
 
 Catalog quantity is not automatically reduced when a booking is created or an item is released.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/rentalItems.php`
 

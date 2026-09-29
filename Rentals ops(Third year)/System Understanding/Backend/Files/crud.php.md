@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # crud.php
 
-## In plain language
+## Overview
 
 **The reusable record handler.** CRUD means create, read, update and delete. This helper supplies those common actions so simple catalog files can share the same routine.
 
@@ -27,15 +26,15 @@ An owner adds an extra microphone to the catalog. The add-ons file tells this he
 2. Carry out the requested add, view, edit or delete action.
 3. Return the saved record or an error.
 
-## What the documentation team should remember
+## Key points
 
 Sharing this routine does not mean every type of record has the same business rules. Some creation defaults override the supplied values; exact details are below.
 
-Read [[System Understanding/Backend/Backend Overview]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Backend/Backend Overview]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/crud.php`
 

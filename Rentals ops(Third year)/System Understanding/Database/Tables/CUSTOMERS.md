@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # CUSTOMERS
 
-## In plain language
+## Overview
 
 **Renter contact records.** Each record describes someone renting a service. A customer can be linked to more than one booking.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 Ana’s name and contact are saved here, and her booking uses that customer reference.
 
-## Details to recognize first
+## Main fields
 
 full_name and contact_number describe the renter; customer_id identifies the record.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 People renting services; one customer can have many bookings.
 

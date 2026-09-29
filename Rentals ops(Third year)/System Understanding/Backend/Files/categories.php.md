@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # categories.php
 
-## In plain language
+## Overview
 
 **The category-label handler.** This file manages standalone labels such as Entertainment or Decorations.
 
@@ -27,15 +26,15 @@ The catalog contains an Entertainment label alongside other category labels.
 2. Allow an owner to add, edit or delete them.
 3. Return the resulting category record.
 
-## What the documentation team should remember
+## Key points
 
 The current database does not connect categories to services with a saved relationship. Do not describe automatic grouping as implemented.
 
-Read [[System Understanding/Database/Table Relationships]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Database/Table Relationships]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/categories.php`
 

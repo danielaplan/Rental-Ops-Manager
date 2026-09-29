@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # Glossary
 
-## Start with these words
+## Core terms
 
 | Word | Plain meaning | Example |
 |---|---|---|
@@ -33,13 +32,13 @@ status: documented
 | Pending Sync | Stored on the device, awaiting acceptance into shared records | A supported offline draft |
 | Acknowledgement | The server’s confirmation that an action succeeded | Remove an accepted action from the waiting list |
 
-## How to use the technical words below
+## Technical terms
 
-You do not need to memorize these terms. Look one up when you reach it. For example, a primary key is a record’s own number; a foreign key is a rule linking a reference to another record. A transaction means related changes are saved or cancelled together. An upsert saves a new record or replaces matching saved information.
+These terms describe record structure and processing. A primary key is a record’s identifying value; a foreign key links a reference to another record. A transaction saves or cancels related changes together. An upsert saves a new record or updates matching saved information.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 | Term | Meaning in this system |
 |---|---|

@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # Database Overview
 
-## In plain language
+## Overview
 
 The database is the shared organized storage for accepted records. Think of it as a collection of connected spreadsheets: customers in one table, bookings in another, payments in another. MySQL is the software that manages this storage.
 
@@ -21,7 +20,7 @@ Each table stores one kind of information. A row is one record; a column is one 
 
 Ana’s contact details are in CUSTOMERS. Her event details are in BOOKINGS. Her ₱250 rental payment is in PAYMENTS. Her held ₱350 deposit is in DEPOSITS. The payment and deposit each refer to the booking number, so the system can find the right rental without copying every event detail into each record.
 
-## Learn these groups first
+## Table groups
 
 | Group | What it keeps |
 |---|---|
@@ -31,11 +30,11 @@ Ana’s contact details are in CUSTOMERS. Her event details are in BOOKINGS. Her
 | Equipment records | Assigned items, saved inspections, release events and history |
 | Supporting information | Settings, accepted-sync memory, content and image records |
 
-The source scripts define 19 tables. You can learn their purposes before studying every field. Read [[System Understanding/Database/Table Relationships]] next, then open the table linked from the workflow you are documenting.
+The source scripts define 19 tables. [[System Understanding/Database/Table Relationships]] explains their connections, and the linked table notes describe each table’s fields and role in its workflow.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 MySQL is the central shared record store. `api/config.php` chooses the database connection; default name is `akad_rentals`. PDO queries use prepared values. The schema uses InnoDB, utf8mb4 and utf8mb4_unicode_ci.
 

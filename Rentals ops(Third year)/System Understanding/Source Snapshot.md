@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -15,11 +14,11 @@ status: documented
 
 This page is a developer reference identifying the exact PHP and SQL files reviewed for the guide. A **fingerprint**, or hash, is a calculated identifier for a file’s contents. If its contents change, the fingerprint changes.
 
-Your documentation team does not need to read these long values to understand the system. A developer can use them to notice that the guide’s source baseline needs review. They describe checked-in files, not the current contents of a live database.
+These fingerprints support comparison between the reviewed source baseline and later file changes. They identify checked-in files, not the contents of a live database.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 Baseline on 2026-09-29. All 26 PHP files and both SQL scripts are covered.
 

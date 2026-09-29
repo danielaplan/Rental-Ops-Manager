@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # itemReleases.php
 
-## In plain language
+## Overview
 
 **The release-event recorder.** This file records that equipment was released for a booking, with the releasing person’s name and notes.
 
@@ -27,15 +26,15 @@ Staff save a release note for Ana’s booking before the equipment leaves.
 2. Save or retrieve the release record.
 3. Keep the event available as part of the booking’s records.
 
-## What the documentation team should remember
+## Key points
 
 A release note alone does not change equipment quantities or the booking’s status.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/itemReleases.php`
 

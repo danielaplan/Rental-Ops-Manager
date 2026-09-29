@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -26,7 +25,7 @@ A staff member signs in before recording Ana’s payment. The backend checks the
 
 The accounts use owner or staff roles. Customer contact records are separate and do not create customer login access here. Some reads currently do not require login.
 
-## What to explain to another person
+## Key points
 
 “Signing in lets the backend identify a staff member and check protected actions. It uses a temporary session rather than trusting a flag on the page.”
 
@@ -34,9 +33,9 @@ An already-prepared device can hold supported offline drafts, but reconnecting s
 
 See [[System Understanding/Backend/Files/auth.php|auth.php]] and [[System Understanding/Database/Tables/SESSIONS|SESSIONS]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 An owner or staff member sends a contact number and password to auth.php. PHP retrieves the account, calls password_verify(), creates a random bearer token, and inserts it into SESSIONS with an expiry. The returned user omits the password hash.
 

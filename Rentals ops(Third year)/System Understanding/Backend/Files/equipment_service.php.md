@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # equipment_service.php
 
-## In plain language
+## Overview
 
 **The full-return checker.** This helper checks an entire booking’s returned equipment together so an incomplete inspection is not partly saved.
 
@@ -27,15 +26,15 @@ If Ana’s list expects two microphones but only one comes back, staff can save 
 2. Save quantities, conditions, notes and the inspecting staff account together.
 3. Complete through this action only when all quantities are returned and none is marked Missing.
 
-## What the documentation team should remember
+## Key points
 
 Fully returned damaged items can complete. This helper does not automatically deduct a deposit or issue a refund.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/equipment_service.php`
 

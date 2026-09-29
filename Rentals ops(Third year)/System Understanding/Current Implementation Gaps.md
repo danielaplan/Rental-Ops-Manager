@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -13,9 +12,9 @@ status: documented
 
 ## Why this page matters
 
-Your team needs to describe what works today without presenting every intended feature as complete. A gap is a difference, limitation or unfinished detail that affects the explanation.
+This page distinguishes current behavior from intended features. A gap is a difference, limitation or unfinished implementation detail.
 
-## Read these cautions first
+## Key limitations
 
 - The intended tool is for staff/owners, but some current data-reading requests do not require login.
 - The dedicated return action checks full returns, but another booking-edit path can set Completed without that check.
@@ -31,9 +30,9 @@ Prefer “The return-completion action checks the saved inspection” to “Ever
 
 Use the exact findings below when checking a technical claim. A developer should review explanations affected by these gaps. This page records source-inspection findings, not newly fixed behavior or new test failures.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 These findings come from source inspection on 2026-09-29. They are explanation limits and possible follow-up work, not changes made by this guide or a claim that existing tests failed. They help the next person distinguish intended rules from what every code path currently enforces.
 

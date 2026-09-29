@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -38,15 +37,15 @@ Ana’s example: ₱2,500 package + ₱300 extra − ₱100 discount + ₱50 fee
 
 The single karaoke set cannot serve overlapping blocking bookings on the same date. If one blocking karaoke booking runs from 2 PM to 6 PM, another blocking karaoke booking from 4 PM to 7 PM conflicts. One ending exactly when another starts does not overlap. A pending booking does not reserve the slot under current code.
 
-## What to explain to another person
+## Key points
 
 “The backend checks the rental details and calculates a price from its saved catalog before accepting the booking.” The direct and offline-save paths have differences described below. A booking saved locally is still awaiting acceptance.
 
 See [[System Understanding/Backend/Files/bookings.php|bookings.php]], [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]] and [[System Understanding/Database/Tables/BOOKINGS|BOOKINGS]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 A booking ties together a renter, an event date/time/location, a primary service/package, prices and the staff account that created it. These are not separate disconnected calendar entries: the saved booking ID links finance, logistics and equipment.
 

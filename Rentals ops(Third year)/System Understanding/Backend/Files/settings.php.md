@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # settings.php
 
-## In plain language
+## Overview
 
 **The application-settings handler.** This file reads or replaces the saved settings object for the application.
 
@@ -27,15 +26,15 @@ An owner saves application preferences; later requests can read the stored setti
 2. Allow the owner to replace its saved contents.
 3. Keep internal synchronization history in a separate reserved record.
 
-## What the documentation team should remember
+## Key points
 
 An update replaces the complete settings object. This file does not define how unfinished screens use each setting.
 
-Read [[System Understanding/System Overview]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/System Overview]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/settings.php`
 

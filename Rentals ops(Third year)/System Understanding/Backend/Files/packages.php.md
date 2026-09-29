@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # packages.php
 
-## In plain language
+## Overview
 
 **The fixed-package handler.** This file manages priced package choices belonging to a service.
 
@@ -27,15 +26,15 @@ Ana selects a ₱2,500 karaoke package rather than entering an unrelated price.
 2. Let an owner maintain the package name and price.
 3. Provide those records to booking pricing.
 
-## What the documentation team should remember
+## Key points
 
 The price calculator checks that a selected package belongs to the booking’s primary service.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/packages.php`
 

@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # DEPOSITS
 
-## In plain language
+## Overview
 
 **The refundable-money summary.** Each booking can have one current deposit summary, separate from its rental payments.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 Ana’s held ₱350 minus a ₱50 cleaning deduction leaves a calculated ₱300 refund.
 
-## Details to recognize first
+## Main fields
 
 amount_held is the deposit; deduction_amount reduces it; deduction_reason explains why. The refund amount is calculated, not stored as a column.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Payments and Deposits]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Workflows/Payments and Deposits]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 One current refundable deposit summary per booking.
 

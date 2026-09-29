@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # SESSIONS
 
-## In plain language
+## Overview
 
 **Temporary login records.** Each record links a login token to a staff/owner account and an expiry time.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 The staff member handling Ana’s booking receives a token after signing in.
 
-## Details to recognize first
+## Main fields
 
 user_id identifies the account; session_token is temporary proof of login; expires_at says when it stops being valid.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Login and Authentication]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Workflows/Login and Authentication]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 Database-backed login tokens and expiration timestamps.
 

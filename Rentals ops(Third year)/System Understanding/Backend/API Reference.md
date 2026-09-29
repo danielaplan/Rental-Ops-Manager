@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -15,7 +14,7 @@ status: documented
 
 An API is the agreed way the application asks the server to read information or perform an action. This page lists those requests for detailed checking; it is not a list of buttons a user must press.
 
-## Read one entry slowly
+## Request example
 
 In `POST /api/deposits.php?do=upsert`, `api/deposits.php` identifies the receiving file. `do=upsert` selects the save-or-replace action. POST means information is being submitted. The booking number and amounts travel in the request message. The reply contains the saved result or a problem.
 
@@ -23,9 +22,9 @@ For Ana’s deposit, the message includes the booking number, held ₱350, deduc
 
 Read the relevant workflow first, then use the entries below to confirm request names, permitted accounts and accepted fields.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 Endpoints are relative to the project web root `/api/`. Query selectors use `?do=...`; do not assume REST PUT/DELETE routes from the CORS header. Fields and validation are in the linked notes.
 

@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # addons.php
 
-## In plain language
+## Overview
 
 **The optional-extra handler.** This file manages separately priced extras belonging to a service.
 
@@ -27,15 +26,15 @@ Ana adds an extra microphone priced at ₱300.
 2. Allow an owner to maintain their names, prices and status.
 3. Provide selected extras to the booking price calculator.
 
-## What the documentation team should remember
+## Key points
 
 An extra is distinct from the base package and from the equipment list expected back.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/addons.php`
 

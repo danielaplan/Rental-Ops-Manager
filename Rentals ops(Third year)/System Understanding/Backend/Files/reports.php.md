@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # reports.php
 
-## In plain language
+## Overview
 
 **The shared-record summary.** This file summarizes accepted database records into booking counts, revenue figures and other report values.
 
@@ -27,15 +26,15 @@ The owners look at October events and see Ana’s booking and its paid amount in
 2. Apply event-date filters where the report supports them.
 3. Calculate counts, paid amounts and outstanding balances.
 
-## What the documentation team should remember
+## Key points
 
 Income here follows event dates and booking paid summaries, not the dates money was collected. Some inventory figures remain placeholders.
 
-Read [[System Understanding/Workflows/Reports]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Reports]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/reports.php`
 

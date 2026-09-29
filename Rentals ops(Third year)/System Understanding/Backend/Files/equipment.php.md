@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # equipment.php
 
-## In plain language
+## Overview
 
 **The return-inspection entry point.** This file receives requests to save an equipment return inspection or complete a returned booking.
 
@@ -27,15 +26,15 @@ Staff count Ana’s returned equipment and record its condition and notes before
 2. Ask the equipment service helper to check and save the inspection.
 3. Use the same helper for the guarded completion action.
 
-## What the documentation team should remember
+## Key points
 
 A missing item can be saved as missing, but the guarded completion action rejects incomplete returns. Manual item edits have different rules.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/equipment.php`
 

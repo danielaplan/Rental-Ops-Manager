@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # config.php
 
-## In plain language
+## Overview
 
 **The shared setup.** This file gives the backend the basic tools it needs to answer a request and connect to the database. A database is the organized collection of saved records.
 
@@ -27,15 +26,15 @@ When staff save Ana’s booking, the booking file uses this setup to reach the s
 2. Provide helpers that read incoming information and format the reply.
 3. Let the file handling the booking decide which business rules to apply.
 
-## What the documentation team should remember
+## Key points
 
 This is supporting code, so staff do not use it as a booking feature.
 
-Read [[System Understanding/Backend/Request Lifecycle]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Backend/Request Lifecycle]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/config.php`
 

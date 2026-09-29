@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -33,15 +32,15 @@ Rental payments pay for the service. A refundable deposit is held separately for
 
 Amounts are negotiated; there is no fixed ₱1,000 minimum. These features record money. They do not collect money through a gateway or send a bank refund. A full/partial refund label is a calculation category.
 
-## What to explain to another person
+## Key points
 
 “A payment reduces the rental balance. A deposit stays separate and has its own deduction and refund calculation.” The current system keeps one combined deposit deduction/reason rather than itemized charges.
 
 See [[System Understanding/Database/Tables/PAYMENTS|PAYMENTS]], [[System Understanding/Database/Tables/DEPOSITS|DEPOSITS]] and [[System Understanding/Backend/Files/deposit_service.php|deposit_service.php]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 Rental payments and refundable deposits are separate records because they represent different money.
 

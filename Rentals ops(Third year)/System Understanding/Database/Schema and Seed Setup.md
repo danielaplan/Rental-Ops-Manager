@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -21,15 +20,15 @@ In this project, schema.sql builds the main database structure. seed.sql adds de
 
 The starting catalog includes karaoke, Sweet Corner and balloon decoration, with sample packages. Ana’s teaching example uses catalog choices to explain pricing; it does not add a real booking.
 
-## What your team needs to know
+## Setup considerations
 
 Database setup is a developer task. These scripts are not daily staff actions. Re-running the seed can overwrite matching demo records, and the schema script is not a complete system for upgrading existing databases. Equipment catalog items also need to be supplied before meaningful assigned equipment lists can be generated.
 
-For documentation, explain what each setup file provides and its order. Consult a developer before describing a command as safe for an existing live database.
+Setup documentation should state what each file provides and its execution order. Commands affecting an existing live database require technical review.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 The initialization order is `db/schema.sql`, then `db/seed.sql`. This page explains the scripts; no database initialization was run while writing the guide.
 

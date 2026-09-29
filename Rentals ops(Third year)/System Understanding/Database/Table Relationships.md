@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -15,9 +14,9 @@ status: documented
 
 A booking needs to point to the correct customer, service and package. Its payments and equipment records need to point back to the same rental. A relationship is that connection between saved records.
 
-A reference number works like writing a receipt number on a related payment note. You can use the number to find the full rental instead of copying all its details.
+A reference number works like a receipt number on a related payment note: it locates the full rental without repeating all its details.
 
-## Start with this simplified view
+## Relationship overview
 
 ```mermaid
 flowchart TD
@@ -37,11 +36,11 @@ Ana can have more than one booking over time. One booking can have several renta
 
 A **foreign key** is a storage rule that connects one record’s reference to another record. A **primary key** is the record’s own identifying number. Exact deletion rules matter: deleting a booking can also delete attached financial/equipment records, while some history keeps the entry with its booking link removed.
 
-For the first pass, explain which records connect. Use the full diagram and constraints only when you need precise technical wording.
+The overview shows how records connect. The full diagram and constraints specify the database relationships.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 BOOKINGS is the central transaction; catalog/account/customer records are its parents. The diagram reflects current SQL constraints. A required parent means exactly one parent for each child; nullable links can be absent. `o{` means zero or many children; `o|` means zero or one.
 

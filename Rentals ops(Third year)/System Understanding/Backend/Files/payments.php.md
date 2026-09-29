@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # payments.php
 
-## In plain language
+## Overview
 
 **The rental payment recorder.** This file records money paid toward the rental and updates how much of the booking has been paid.
 
@@ -27,15 +26,15 @@ Ana pays ₱250 toward the ₱2,750 rental. The payment is saved, the booking be
 2. Increase the booking’s paid amount.
 3. Calculate the booking’s Unpaid, Partial or Fully Paid label.
 
-## What the documentation team should remember
+## Key points
 
 Recording a payment does not transfer money through GCash or MariBank. Refundable deposits use a different record. Negative amounts are not explicitly rejected by this route today.
 
-Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/payments.php`
 

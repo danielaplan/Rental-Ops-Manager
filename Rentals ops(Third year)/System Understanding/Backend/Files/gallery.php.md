@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # gallery.php
 
-## In plain language
+## Overview
 
 **The gallery-record handler.** This file stores image references or image text plus titles and featured flags.
 
@@ -27,15 +26,15 @@ An owner adds a gallery record with a title and image value.
 2. Use the shared record handler to add, read, edit or remove them.
 3. Return the record.
 
-## What the documentation team should remember
+## Key points
 
 It stores information about images; it does not itself implement a file-upload service.
 
-Read [[System Understanding/System Overview]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/System Overview]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/gallery.php`
 

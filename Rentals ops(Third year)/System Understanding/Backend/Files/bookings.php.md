@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # bookings.php
 
-## In plain language
+## Overview
 
 **The booking record handler.** This file handles the main rental record: who is renting, what service/package they chose, and where and when the event happens.
 
@@ -27,15 +26,15 @@ Ana wants karaoke on October 20 from 2 PM to 6 PM. Staff enter her contact, even
 2. Check the event time, chosen package, price and relevant karaoke conflicts.
 3. Save the booking and link it to the staff account that created it.
 
-## What the documentation team should remember
+## Key points
 
 A new booking starts unpaid. Equipment assignment and payment recording are separate actions. Completion checks are not enforced on every booking-edit path.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/bookings.php`
 

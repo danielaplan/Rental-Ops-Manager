@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # EQUIPMENT_CHECKLIST
 
-## In plain language
+## Overview
 
 **The saved return inspection.** Each record stores an item’s condition and return outcome, with the inspecting account.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 Staff record that Ana’s microphone returned in Good condition, or save a missing item and notes.
 
-## Details to recognize first
+## Main fields
 
 condition_in describes the return; returned_qty records the count; checked_by identifies the inspector.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 Saved inspection rows: outgoing/incoming condition, return result and inspecting user.
 

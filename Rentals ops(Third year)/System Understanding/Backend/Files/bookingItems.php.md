@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # bookingItems.php
 
-## In plain language
+## Overview
 
 **The assigned-equipment handler.** This file prepares and edits the equipment list for a particular booking. It copies item names and expected quantities from the reusable catalog.
 
@@ -27,15 +26,15 @@ Ana’s karaoke booking gets a list of the catalog items staff expect to release
 2. Create a booking-specific list with expected quantities.
 3. Allow release/return progress to be recorded on those assigned items.
 
-## What the documentation team should remember
+## Key points
 
 Generating the list again replaces its previous progress. This action does not automatically reserve or reduce catalog stock.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/bookingItems.php`
 

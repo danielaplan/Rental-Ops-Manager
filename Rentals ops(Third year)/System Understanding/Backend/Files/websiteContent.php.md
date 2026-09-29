@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # websiteContent.php
 
-## In plain language
+## Overview
 
 **The saved-content handler.** This file stores and retrieves the application’s website-content object.
 
@@ -27,15 +26,15 @@ An owner saves content text, and the backend keeps the supplied object for later
 2. Allow the owner to replace the content object.
 3. Return the saved result.
 
-## What the documentation team should remember
+## Key points
 
 This is backend storage support. It does not establish that a public booking portal is approved or that its screens are finished.
 
-Read [[System Understanding/System Overview]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/System Overview]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/websiteContent.php`
 

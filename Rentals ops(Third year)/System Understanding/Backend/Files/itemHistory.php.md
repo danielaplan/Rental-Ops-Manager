@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # itemHistory.php
 
-## In plain language
+## Overview
 
 **The item-history recorder.** This file records equipment actions that are explicitly logged and lets someone read those past entries.
 
@@ -27,15 +26,15 @@ Staff add a history entry for a microphone after noting its condition.
 2. Store the event with a time.
 3. Show the item’s newest history entries first.
 
-## What the documentation team should remember
+## Key points
 
 This is not an automatic record of every change in the system. Some changes have no history entry unless one is separately written.
 
-Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Equipment Release and Return]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/itemHistory.php`
 

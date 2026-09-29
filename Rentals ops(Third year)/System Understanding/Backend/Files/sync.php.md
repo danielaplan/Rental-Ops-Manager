@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # sync.php
 
-## In plain language
+## Overview
 
 **The offline-change receiver.** Synchronization means bringing changes stored on a device into the shared database once the server is reachable.
 
@@ -27,15 +26,15 @@ Staff save Ana’s supported booking changes during an outage. Later, this file 
 2. Check whether an action already succeeded and whether its data is valid.
 3. Save accepted changes and return separate lists of accepted, conflicting and failed actions.
 
-## What the documentation team should remember
+## Key points
 
 A successful batch reply can still contain rejected actions. The server checks each action separately; it does not accept the whole batch as one unit.
 
-Read [[System Understanding/Workflows/Offline Synchronization]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Offline Synchronization]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/sync.php`
 

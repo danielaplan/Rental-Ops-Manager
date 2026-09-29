@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # sync_state.php
 
-## In plain language
+## Overview
 
 **The accepted-change memory.** This helper remembers which offline actions the server has accepted, so repeating the same action does not save it twice.
 
@@ -27,15 +26,15 @@ The server saves Ana’s payment, but the reply is lost. Retrying the same queue
 2. Translate temporary device numbers into real database numbers when a prior create succeeded.
 3. Save the acknowledgement alongside the business change.
 
-## What the documentation team should remember
+## Key points
 
 This protects the sync path, not every direct request. The accepted-action history grows and needs a future retention approach.
 
-Read [[System Understanding/Workflows/Offline Synchronization]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Offline Synchronization]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/sync_state.php`
 

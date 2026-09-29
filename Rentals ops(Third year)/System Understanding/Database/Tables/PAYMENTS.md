@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # PAYMENTS
 
-## In plain language
+## Overview
 
 **Rental-money entries.** Each record is one payment toward a booking. Several payments can belong to the same booking.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 Ana pays ₱250 now and can pay more toward the remaining rental balance later.
 
-## Details to recognize first
+## Main fields
 
 booking_id identifies the rental; amount records this payment; payment_date records its time.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Payments and Deposits]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Workflows/Payments and Deposits]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 One row per rental payment; many payments can belong to a booking.
 

@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # auth.php
 
-## In plain language
+## Overview
 
 **The login checker.** This file checks owner/staff login details and gives a successful login a temporary session: permission to make protected requests for a period of time.
 
@@ -27,15 +26,15 @@ A staff member signs in before recording Ana’s payment. The payment request ca
 2. Check its password and issue a temporary login token.
 3. Check the token and account role when protected actions are requested.
 
-## What the documentation team should remember
+## Key points
 
 A customer record is separate from a staff account. The logout request needs the token in its message body with the current implementation.
 
-Read [[System Understanding/Workflows/Login and Authentication]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Login and Authentication]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/auth.php`
 

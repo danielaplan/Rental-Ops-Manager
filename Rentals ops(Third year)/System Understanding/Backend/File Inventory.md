@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -15,13 +14,13 @@ status: documented
 
 This is a directory of the backend files already explained in the guide. Each file name is clickable and opens its own plain-language explanation.
 
-Start with the responsibility you need, rather than trying to memorize names. For example, to document Ana’s rental price, open [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]]; to document saved rental payments, open [[System Understanding/Backend/Files/payments.php|payments.php]].
+Files are organized by responsibility. For example, Ana’s rental price is explained in [[System Understanding/Backend/Files/booking_pricing.php|booking_pricing.php]]; saved rental payments are explained in [[System Understanding/Backend/Files/payments.php|payments.php]].
 
 The list includes helper files as well as request handlers. A helper performs a job for another file; it may not offer a staff-facing action by itself.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 Every PHP file present on the review date is listed below. Helpers are included because endpoints depend on them.
 

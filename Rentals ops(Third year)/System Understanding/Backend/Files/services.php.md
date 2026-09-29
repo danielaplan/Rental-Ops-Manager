@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # services.php
 
-## In plain language
+## Overview
 
 **The service-catalog handler.** This file manages the service lines offered by AKAD.
 
@@ -27,15 +26,15 @@ Ana chooses Karaoke Rental, one of the service entries alongside Sweet Corner an
 2. Allow an owner to maintain names, descriptions and status.
 3. Provide service records used by packages and bookings.
 
-## What the documentation team should remember
+## Key points
 
 A service describes an offering; a package describes a particular priced choice under that offering.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/services.php`
 

@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # APP_SETTINGS
 
-## In plain language
+## Overview
 
 **Settings and accepted-sync memory.** Record 1 stores application settings. Reserved record 2 remembers accepted offline actions and their real record numbers.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 Record 2 helps recognize a repeated queued payment for Ana, so the same accepted action is not saved again.
 
-## Details to recognize first
+## Main fields
 
 settings_id selects the record; settings contains the structured information stored inside it.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Offline Synchronization]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Workflows/Offline Synchronization]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 JSON configuration row 1 and reserved sync-state row 2.
 

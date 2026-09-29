@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # customers.php
 
-## In plain language
+## Overview
 
 **The renter-directory handler.** This file keeps contact details for people who rent services.
 
@@ -27,15 +26,15 @@ Ana’s name and contact are stored once and can be linked to her booking.
 2. Search names or contact numbers.
 3. Allow an owner to maintain the customer directory.
 
-## What the documentation team should remember
+## Key points
 
 Customer records are not owner/staff login accounts. Booking creation has its own customer-handling path.
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/customers.php`
 

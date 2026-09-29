@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -13,7 +12,7 @@ status: documented
 
 ## What “evidence” means here
 
-An explanation says how a feature works. Evidence records what was actually checked, in which environment, and with what result. Your team should keep those separate.
+An explanation describes feature behavior. Evidence records the checks performed, their environment and their results. This page distinguishes those two types of information.
 
 ## Where to look
 
@@ -21,13 +20,13 @@ Official requirements describe intended scope. Source files show the implemented
 
 For example, the recorded backend-outage check supports a tested offline workflow. It does not prove every possible offline action always uploads within a fixed time.
 
-## For your documentation team
+## Evidence references
 
 When claiming a feature was tested, name the check and its limits. When explaining a feature, link to the relevant workflow/file note. Ask a developer to confirm commands before running setup/test scripts, because some create or alter test data.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 These files are relevant to backend/database understanding even though they are outside api/. They are not a complete frontend guide.
 
@@ -65,9 +64,9 @@ The 2026-09-28 implementation report records 14 live integration checks, an actu
 This documentation task checks file/table/column coverage, source links, Obsidian links and repository whitespace. It does not provision databases, rerun fixtures or change application behavior. Use the linked report for existing test procedures and isolation notes before running its scripts.
 
 Initial guide validation on 2026-09-29 passed: 65 notes, all 26 PHP files, all 19 tables and 127 declared columns, and all 20 foreign-key relationships. All 507 wikilinks and 114 source links resolved. Markdown table column counts, code-fence closure and note properties were checked. Visual rendering inside Obsidian was not inspected.
-### Beginner-reading revision checks
+### Guide revision checks
 
-All 65 notes were revised with their filenames/folders retained. The 26 PHP file notes, 19 table notes and 127 column entries remain covered. All 600 wikilinks and 114 source links resolved before this validation summary was added. Table widths, code-fence closure and trailing whitespace passed. All PHP/SQL source fingerprints were unchanged. Visual rendering inside Obsidian and reader usability were not tested; a teammate read-through remains the way to assess whether the explanations are clear.
+All 65 notes were revised with their filenames/folders retained. The 26 PHP file notes, 19 table notes and 127 column entries remain covered. All 600 wikilinks and 114 source links resolved before this validation summary was added. Table widths, code-fence closure and trailing whitespace passed. All PHP/SQL source fingerprints were unchanged. Visual rendering inside Obsidian was not tested. An editorial review can assess the clarity of the explanations.
 
 ## Source files
 

@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # deposit_service.php
 
-## In plain language
+## Overview
 
 **The deposit rule checker.** This helper checks held and deducted amounts and works out how much is refundable.
 
@@ -27,15 +26,15 @@ For Ana’s ₱350 deposit, a deduction of ₱50 needs a reason. A deduction of 
 2. Require a reason for a positive deduction and keep it within the deposit.
 3. Save the current summary and calculate the amount left.
 
-## What the documentation team should remember
+## Key points
 
 There is no fixed minimum deposit. The system stores one combined deduction and reason, rather than a separate row for each charge.
 
-Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Use [[System Understanding/Glossary]] whenever a technical word below is unfamiliar.
+Read [[System Understanding/Workflows/Payments and Deposits]] for the wider story. Definitions are available in [[System Understanding/Glossary]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 **Location:** `api/deposit_service.php`
 

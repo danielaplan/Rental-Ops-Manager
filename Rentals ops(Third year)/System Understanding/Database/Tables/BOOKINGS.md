@@ -5,13 +5,12 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
 # BOOKINGS
 
-## In plain language
+## Overview
 
 **The central rental record.** Each record brings together the renter, event, selected primary service/package and payment summary.
 
@@ -21,7 +20,7 @@ A database **table** is like a spreadsheet for one type of information. A **row*
 
 Ana’s karaoke booking has a date, time and location; its number links her payment, deposit and equipment records.
 
-## Details to recognize first
+## Main fields
 
 booking_id is the booking number; customer_id links the renter; event_date schedules it; total and amount_paid summarize rental money.
 
@@ -29,11 +28,11 @@ A number ending in `_id` usually identifies a record or points to another one. I
 
 ## How to use this note
 
-Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. For your first pass, explain what this table stores and how it is used. Return to the column dictionary when you need an exact field name or storage rule.
+Read [[System Understanding/Workflows/Booking and Pricing]] for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 Central rental record linking customer, primary service/package, and creating account.
 

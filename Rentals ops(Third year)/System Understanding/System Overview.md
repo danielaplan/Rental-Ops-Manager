@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -36,7 +35,7 @@ flowchart LR
 
 Ana wants karaoke on October 20, 2026, from 2 PM to 6 PM. In our example, the selected package costs ₱2,500, an extra microphone costs ₱300, the discount is ₱100 and the additional fee is ₱50. The rental total is ₱2,750. Ana pays ₱250 toward it, leaving ₱2,500. A separate ₱350 deposit with a ₱50 cleaning deduction leaves a calculated ₱300 refund.
 
-These are teaching values, not a request sent to the system or a claim about a real customer. The example helps you follow the same booking through different records.
+These illustrative values follow one booking through its related records. No example request was sent to the system, and no actual customer record is implied.
 
 ## How the records fit
 
@@ -46,9 +45,9 @@ If the server cannot be reached, supported changes can stay on the device as Pen
 
 Start with [[System Understanding/Workflows/Booking and Pricing]] for the booking story. Keep [[System Understanding/Current Implementation Gaps]] in mind when writing about what is finished.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 AKAD uses an internal staff/owner tool to organize karaoke, Sweet Corner and balloon-decoration bookings. PHP handles server requests; MySQL holds shared business records. Customers are rental contacts in the database, not authenticated application users.
 

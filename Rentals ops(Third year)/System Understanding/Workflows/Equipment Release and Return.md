@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -33,15 +32,15 @@ flowchart LR
 
 If two microphones were expected and only one returned, the missing quantity can be saved. That short return prevents completion through the guarded return action. Fully returned damaged items may complete, but a deposit deduction is a separate decision/action.
 
-## What to explain to another person
+## Key points
 
 “The assigned list says what should return; the saved inspection records what actually returned.” Generating the list again replaces its progress. Catalog stock is not automatically reduced, and the guarded completion check is not enforced on every direct booking-status edit.
 
 See [[System Understanding/Database/Tables/BOOKING_ITEMS|BOOKING_ITEMS]], [[System Understanding/Database/Tables/EQUIPMENT_CHECKLIST|EQUIPMENT_CHECKLIST]] and [[System Understanding/Backend/Files/equipment_service.php|equipment_service.php]].
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 There are four related stores with different jobs:
 

@@ -5,7 +5,6 @@ tags:
   - akad
   - system-understanding
   - backend-database
-audience: documentation-team
 status: documented
 ---
 
@@ -32,15 +31,15 @@ flowchart TD
     C -->|No| F[Reply with a problem]
 ```
 
-## Words you will see in file notes
+## Terms used in file notes
 
 An **API** is the agreed way the application asks the backend for data or actions. An **endpoint** is the server entry point receiving that request. **JSON** is the structured message format used to carry the information. **HTTP status codes** are numbers that summarize the result; for example, 401 means a login is needed and 409 can mean a direct booking time conflict.
 
 Several related database changes can be saved together in a **transaction**. If that transaction fails and is rolled back, its changes are cancelled together. The exact protection depends on the route used; some errors are not handled uniformly.
 
-## Technical reference (optional)
+## Technical details
 
-Read this part when you need exact file behavior, field names or developer details. The explanation above is the first-pass reading.
+This section records exact file behavior, field names and implementation details.
 
 For a direct write such as `POST /api/bookings.php?do=create`:
 
