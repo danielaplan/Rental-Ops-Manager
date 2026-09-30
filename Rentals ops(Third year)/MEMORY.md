@@ -124,4 +124,8 @@ The guide now uses relative Markdown note links with concise labels, navigation 
 
 ## Tester login setup — 2026-09-30
 
-The seeded owner contact is `0917-123-4567`; the checked-in hash verifies with password `password`, not the old `demo123` comment/prefill. The login form and seed comments were aligned, and a root README now explains PHP/MySQL setup for repository testers. Login requires a PHP-enabled server and an initialized MySQL database; static-only hosting cannot execute `api/auth.php`. Existing database accounts may differ from the seed. Frontend changes in this entry are limited to correcting the demo login prefill.
+The seeded owner contact is `0917-123-4567`; the checked-in hash verifies with password `password`, not the old `demo123` comment/prefill. The login form and seed comments were aligned at that point, and a root README explains PHP/MySQL setup for repository testers. Login requires a PHP-enabled server and an initialized MySQL database; static-only hosting cannot execute `api/auth.php`. Existing database accounts may differ from the seed.
+
+## Login merge resolution — 2026-09-30
+
+During the merge of `origin/main` into local `main`, the single conflict in `admin/login.html` was resolved in favor of blank contact/password inputs and password-manager autocomplete. The seeded demo credentials remain documented in README and the setup note. The merge commit was not created as part of this conflict resolution; staged incoming files still require review.

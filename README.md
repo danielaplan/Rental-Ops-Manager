@@ -15,7 +15,7 @@ This repository contains a PHP/MySQL backend. The admin login sends its credenti
    Alternatively, place the repository under a PHP-enabled Apache document root and open it through that server. The site URL must reach PHP files under `/api/`.
 4. Open `http://127.0.0.1:8000/admin/login.html` (or the equivalent URL on the PHP host).
 
-The seeded **demo owner** account is contact number `0917-123-4567` with password `password`. The login form prefills these values. The other seeded users are staff accounts. These are test credentials; replace them before a non-test deployment. An existing database may contain different account details if it was changed after seeding.
+The seeded **demo owner** account is contact number `0917-123-4567` with password `password`. Enter both values on the login form; its fields are intentionally blank. The other seeded users are staff accounts. These are test credentials; replace them before a non-test deployment. An existing database may contain different account details if it was changed after seeding.
 
 The backend defaults to MySQL host `localhost`, database `akad_rentals`, user `root`, and an empty password. If the tester's database differs, set `AKAD_DB_HOST`, `AKAD_DB_NAME`, `AKAD_DB_USER`, and `AKAD_DB_PASS` in the PHP server environment before starting it. The SQL scripts themselves select `akad_rentals`, so a different database name requires importing them for that database as well.
 

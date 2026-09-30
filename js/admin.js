@@ -61,13 +61,32 @@ const ADMIN_NAV = [
   { label: "Settings", href: "settings.html", icon: "bi-gear" }
 ];
 
+const OWNER_ONLY_ADMIN_PAGES = new Set([
+  'services.html', 'categories.html', 'addons.html', 'gallery.html',
+  'content.html', 'settings.html'
+]);
+
+function isOwnerAdmin() {
+  const session = STORAGE._get(STORAGE_KEYS.adminSession, {});
+  return String(session?.user?.role || '').toLowerCase() === 'owner';
+}
+
 function renderAdminSidebar(activeHref) {
   const settings = API.getSettings();
-  let html = `<div class="brand">${escapeHtmlA(settings.business_name || CONFIG.businessNameFallback)}<div class="small fw-normal" style="color:rgba(255,255,255,0.5);">Admin Panel</div></div><nav class="nav flex-column pt-2">`;
-  ADMIN_NAV.forEach(item => {
+  const savedName = settings.business_name || '';
+  const businessName = !savedName || savedName.startsWith('Fiesta & Co.')
+    ? CONFIG.businessNameFallback
+    : savedName;
+  let html = `<div class="brand">${escapeHtmlA(businessName)}<div class="small fw-normal" style="color:rgba(255,255,255,0.5);">Admin Panel</div></div><nav class="nav flex-column pt-2">`;
+  ADMIN_NAV.forEach((item, index) => {
     if (item.section) {
-      html += `<div class="nav-section-label">${item.section}</div>`;
+      const visibleInSection = ADMIN_NAV.slice(index + 1).some(next => {
+        if (next.section) return false;
+        return !OWNER_ONLY_ADMIN_PAGES.has(next.href) || isOwnerAdmin();
+      });
+      if (visibleInSection) html += `<div class="nav-section-label">${item.section}</div>`;
     } else {
+      if (OWNER_ONLY_ADMIN_PAGES.has(item.href) && !isOwnerAdmin()) return;
       const active = item.href === activeHref ? 'active' : '';
       html += `<a class="nav-link ${active}" href="${item.href}"><i class="bi ${item.icon}"></i> ${item.label}</a>`;
     }
@@ -82,6 +101,12 @@ function renderAdminSidebar(activeHref) {
 
 function initAdminChrome(activeHref, pageTitle) {
   AdminAuth.requireLogin();
+  if (OWNER_ONLY_ADMIN_PAGES.has(activeHref) && !isOwnerAdmin()) {
+    const main = document.querySelector('.admin-main');
+    if (main) main.hidden = true;
+    window.location.replace('dashboard.html');
+    return;
+  }
   renderAdminSidebar(activeHref);
   $('#adminPageTitle').text(pageTitle);
   initAdminSpaNavigation();

@@ -28,7 +28,7 @@
     <div class="panel-title">All Payments</div>
     <div class="table-wrap">
       <table class="admin-table">
-        <thead><tr><th>Payment ID</th><th>Booking</th><th>Customer</th><th>Amount</th><th>Method</th><th>Date</th><th>Notes</th></tr></thead>
+        <thead><tr><th>Payment ID</th><th>Booking</th><th>Customer</th><th>Amount</th><th>Method</th><th>Date</th><th>Notes</th><th>Sync</th></tr></thead>
         <tbody id="paymentsBody"></tbody>
       </table>
     </div>
@@ -66,14 +66,17 @@ $(async function () {
 function renderPayments() {
   const payments = API.getPayments().slice().sort((a, b) => (a.date < b.date ? 1 : -1));
   const bookings = API.getBookings();
+  const pendingPaymentIndex = PaymentsHelper.pendingAmountsByBooking();
 
-  const totalCollected = payments.reduce((s, p) => s + Number(p.amount), 0);
-  const totalOutstanding = bookings.reduce((s, b) => s + PaymentsHelper.remainingBalance(b), 0);
-  const fullyPaidCount = bookings.filter(b => b.payment_status === 'Fully Paid').length;
+  const totalCollected = payments.filter(p => !p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
+  const pendingAmount = payments.filter(p => p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
+  const totalOutstanding = bookings.reduce((s, b) => s + PaymentsHelper.remainingBalance(b, pendingPaymentIndex), 0);
+  const fullyPaidCount = bookings.filter(b => PaymentsHelper.paymentStatus(b, pendingPaymentIndex) === 'Fully Paid').length;
 
   const $stats = $('#payStatsRow').empty();
   [
     { label: "Total Collected", value: BookingCalc.formatCurrency(totalCollected), icon: "bi-cash-stack" },
+    { label: "Pending Sync", value: BookingCalc.formatCurrency(pendingAmount), icon: "bi-cloud-arrow-up", cls: pendingAmount > 0 ? "warn" : "" },
     { label: "Outstanding Balance", value: BookingCalc.formatCurrency(totalOutstanding), icon: "bi-hourglass-split", cls: "warn" },
     { label: "Fully Paid Bookings", value: fullyPaidCount, icon: "bi-check2-circle" },
     { label: "Total Payments Logged", value: payments.length, icon: "bi-receipt" }
@@ -89,33 +92,34 @@ function renderPayments() {
   });
 
   const $body = $('#paymentsBody').empty();
-  if (!payments.length) $body.append('<tr><td colspan="7" class="text-center text-muted py-4">No payments recorded yet.</td></tr>');
+  if (!payments.length) $body.append('<tr><td colspan="8" class="text-center text-muted py-4">No payments recorded yet.</td></tr>');
   payments.forEach(p => {
     const b = bookings.find(x => x.id === p.booking_id);
     $body.append(`
       <tr>
-        <td>${p.payment_id}</td>
-        <td>${p.booking_id}</td>
-        <td>${b ? b.customer_name : '—'}</td>
+        <td>${escapeHtmlA(p.payment_id)}</td>
+        <td>${escapeHtmlA(p.booking_id)}</td>
+        <td>${b ? escapeHtmlA(b.customer_name) : '—'}</td>
         <td>${BookingCalc.formatCurrency(p.amount)}</td>
-        <td>${p.method}</td>
+        <td>${escapeHtmlA(PaymentsHelper.methodLabel(p.method))}</td>
         <td>${BookingCalc.formatDate(p.date)}</td>
-        <td class="text-muted">${p.notes || ''}</td>
+        <td class="text-muted">${escapeHtmlA(p.notes || '')}</td>
+        <td>${p.pending_sync ? '<span class="badge bg-warning text-dark">Pending Sync</span>' : '<span class="badge bg-success">Recorded</span>'}</td>
       </tr>`);
   });
 
-  const outstanding = bookings.filter(b => PaymentsHelper.remainingBalance(b) > 0);
+  const outstanding = bookings.filter(b => PaymentsHelper.remainingBalance(b, pendingPaymentIndex) > 0);
   const $out = $('#outstandingBody').empty();
-  if (!outstanding.length) $out.append('<tr><td colspan="6" class="text-center text-muted py-4">No outstanding balances. 🎉</td></tr>');
+  if (!outstanding.length) $out.append('<tr><td colspan="6" class="text-center text-muted py-4">No outstanding balances.</td></tr>');
   outstanding.forEach(b => {
     $out.append(`
       <tr>
-        <td>${b.id}</td>
-        <td>${b.customer_name}</td>
+        <td>${escapeHtmlA(b._server_id || b.id)}</td>
+        <td>${escapeHtmlA(b.customer_name)}</td>
         <td>${BookingCalc.formatCurrency(b.total)}</td>
-        <td>${BookingCalc.formatCurrency(b.amount_paid)}</td>
-        <td class="fw-bold text-danger">${BookingCalc.formatCurrency(PaymentsHelper.remainingBalance(b))}</td>
-        <td>${badgeStatus(b.payment_status, CONFIG.paymentStatusColors)}</td>
+        <td>${BookingCalc.formatCurrency(PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex))}</td>
+        <td class="fw-bold text-danger">${BookingCalc.formatCurrency(PaymentsHelper.remainingBalance(b, pendingPaymentIndex))}</td>
+        <td>${badgeStatus(PaymentsHelper.paymentStatus(b, pendingPaymentIndex), CONFIG.paymentStatusColors)}</td>
       </tr>`);
   });
 }

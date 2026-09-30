@@ -74,13 +74,13 @@ function showBookingPeek(bookingId) {
   const b = API.getBooking(bookingId);
   if (!b) return;
   const services = API.getServices();
-  const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name).join(', ');
+  const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name).filter(Boolean).join(', ');
   $('#calBookingBody').html(`
-    <p class="mb-1"><strong>${b.id}</strong> — ${badgeStatus(b.status, CONFIG.bookingStatusColors)}</p>
-    <p class="mb-1">${b.customer_name} — ${b.contact}</p>
+    <p class="mb-1"><strong>${escapeHtmlA(b._server_id || b.id)}</strong> — ${badgeStatus(escapeHtmlA(b.status), CONFIG.bookingStatusColors)}</p>
+    <p class="mb-1">${escapeHtmlA(b.customer_name)} — ${escapeHtmlA(b.contact)}</p>
     <p class="mb-1">${BookingCalc.formatDate(b.event_date)}, ${BookingCalc.formatTime(b.start_time)}–${BookingCalc.formatTime(b.end_time)}</p>
-    <p class="mb-1">${b.location}</p>
-    <p class="mb-0 text-muted">${svcNames}</p>
+    <p class="mb-1">${escapeHtmlA(b.location)}</p>
+    <p class="mb-0 text-muted">${escapeHtmlA(svcNames)}</p>
   `);
   new bootstrap.Modal('#calBookingModal').show();
 }

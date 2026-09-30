@@ -48,7 +48,7 @@ RENTAL_ITEMS is not populated by seed.sql. A real catalog must be created before
 
 ### Demo authentication caveat
 
-The seeded demo owner account uses contact number `0917-123-4567` and password `password`. PHP `password_verify()` confirmed that password matches the checked-in hash; `demo123` does not. The login form now prefills the matching demo values. Existing databases may have different credentials if their accounts were changed after seeding. The test provisioning script explicitly generates a separate password hash and replaces the synthetic owner's credentials.
+The seeded demo owner account uses contact number `0917-123-4567` and password `password`. PHP `password_verify()` confirmed that password matches the checked-in hash; `demo123` does not. The login fields are intentionally blank; testers enter both values. Existing databases may have different credentials if their accounts were changed after seeding. The test provisioning script explicitly generates a separate password hash and replaces the synthetic owner's credentials.
 
 ### Deployment differences
 

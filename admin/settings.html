@@ -112,11 +112,15 @@
 $(async function () {
   await API.ready;
   initAdminChrome('settings.html', 'Settings');
+  await API.refreshSettings();
+  renderAdminSidebar('settings.html');
   loadSettings();
 
   $('#settingsForm').on('submit', function (e) {
     e.preventDefault();
-    API.updateSettings({
+    const submit = $(this).find('[type="submit"]').prop('disabled', true);
+    try {
+      API.updateSettings({
       business_name: $('#sBusinessName').val().trim(),
       logo: $('#sLogo').val().trim(),
       phone: $('#sPhone').val().trim(),
@@ -129,15 +133,21 @@ $(async function () {
       booking_hours_close: $('#sHoursClose').val(),
       cancellation_policy: $('#sCancelPolicy').val().trim(),
       primary_color: $('#sPrimaryColor').val(),
-      accent_color: $('#sAccentColor').val()
-    });
-    showAdminToast('Settings saved');
+        accent_color: $('#sAccentColor').val()
+      });
+      showAdminToast(API.savedMessage());
+    } catch (error) {
+      showAdminToast(error.message, 'danger');
+    } finally {
+      submit.prop('disabled', false);
+    }
   });
 });
 
 function loadSettings() {
   const s = API.getSettings();
-  $('#sBusinessName').val(s.business_name);
+  const savedName = s.business_name || '';
+  $('#sBusinessName').val(!savedName || savedName.startsWith('Fiesta & Co.') ? CONFIG.businessNameFallback : savedName);
   $('#sLogo').val(s.logo);
   $('#sPhone').val(s.phone);
   $('#sEmail').val(s.email);

@@ -27,7 +27,7 @@
     <div class="table-wrap">
       <table class="admin-table">
         <thead><tr>
-          <th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Featured</th><th>Status</th><th>Actions</th>
+          <th>Service</th><th>Description</th><th>Status</th><th>Actions</th>
         </tr></thead>
         <tbody id="servicesBody"></tbody>
       </table>
@@ -37,7 +37,7 @@
 
 <!-- ADD/EDIT MODAL -->
 <div class="modal fade" id="serviceFormModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable">
     <form class="modal-content" id="serviceForm">
       <div class="modal-header">
         <h5 class="modal-title" id="serviceFormTitle">Add Service</h5>
@@ -46,39 +46,13 @@
       <div class="modal-body">
         <input type="hidden" id="svcId">
         <div class="row g-3">
-          <div class="col-md-6">
+          <div class="col-12">
             <label class="form-label" for="svcName">Service Name</label>
             <input type="text" class="form-control" id="svcName" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="svcCategory">Category</label>
-            <select class="form-select" id="svcCategory" required></select>
           </div>
           <div class="col-12">
             <label class="form-label" for="svcDescription">Description</label>
             <textarea class="form-control" id="svcDescription" rows="2" required></textarea>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label" for="svcPrice">Price (₱)</label>
-            <input type="number" min="0" class="form-control" id="svcPrice" required>
-          </div>
-          <div class="col-md-8">
-            <label class="form-label" for="svcPriceLabel">Price Label</label>
-            <input type="text" class="form-control" id="svcPriceLabel" placeholder="e.g. per event (up to 4 hrs)">
-          </div>
-          <div class="col-12">
-            <label class="form-label" for="svcImage">Image URL</label>
-            <input type="text" class="form-control" id="svcImage" placeholder="https://...">
-          </div>
-          <div class="col-12">
-            <label class="form-label" for="svcInclusions">Inclusions (one per line)</label>
-            <textarea class="form-control" id="svcInclusions" rows="3" placeholder="Karaoke machine&#10;2 wireless microphones"></textarea>
-          </div>
-          <div class="col-md-6">
-            <div class="form-check mt-4">
-              <input class="form-check-input" type="checkbox" id="svcFeatured">
-              <label class="form-check-label" for="svcFeatured">Mark as Featured / Popular</label>
-            </div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="svcStatus">Status</label>
@@ -111,7 +85,6 @@
 $(async function () {
   await API.ready;
   initAdminChrome('services.html', 'Services');
-  populateCategorySelect();
   renderServicesTable();
 
   $('#addServiceBtn').on('click', function () {
@@ -126,13 +99,7 @@ $(async function () {
     if (!s) return;
     $('#svcId').val(s.service_id);
     $('#svcName').val(s.name);
-    $('#svcCategory').val(s.category_id);
     $('#svcDescription').val(s.description);
-    $('#svcPrice').val(s.price);
-    $('#svcPriceLabel').val(s.price_label);
-    $('#svcImage').val(s.image);
-    $('#svcInclusions').val((s.inclusions || []).join('\n'));
-    $('#svcFeatured').prop('checked', !!s.featured);
     $('#svcStatus').val(s.status);
     $('#serviceFormTitle').text('Edit Service');
     new bootstrap.Modal('#serviceFormModal').show();
@@ -140,70 +107,67 @@ $(async function () {
 
   $(document).on('click', '.js-delete-service', function () {
     const id = $(this).data('id');
-    confirmDelete('Delete this service? Its add-ons and rental items will remain but be unlinked.', function () {
-      API.deleteService(id);
-      renderServicesTable();
-      showAdminToast('Service deleted', 'danger');
+    confirmDelete('Delete this service? Existing bookings and inventory may still refer to it.', function () {
+      try {
+        API.deleteService(id);
+        renderServicesTable();
+        showAdminToast(API.savedMessage());
+      } catch (error) {
+        showAdminToast(error.message, 'danger');
+      }
     });
   });
 
   $(document).on('change', '.js-toggle-service-status', function () {
     const id = $(this).data('id');
-    API.updateService(id, { status: this.checked ? 'Active' : 'Inactive' });
-    showAdminToast('Service status updated');
+    try {
+      API.updateService(id, { status: this.checked ? 'Active' : 'Inactive' });
+      showAdminToast(API.savedMessage());
+    } catch (error) {
+      this.checked = !this.checked;
+      showAdminToast(error.message, 'danger');
+    }
   });
 
   $('#serviceForm').on('submit', function (e) {
     e.preventDefault();
     const id = $('#svcId').val();
-    const data = {
-      name: $('#svcName').val().trim(),
-      category_id: $('#svcCategory').val(),
-      description: $('#svcDescription').val().trim(),
-      price: Number($('#svcPrice').val()),
-      price_label: $('#svcPriceLabel').val().trim(),
-      image: $('#svcImage').val().trim() || 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80',
-      inclusions: $('#svcInclusions').val().split('\n').map(s => s.trim()).filter(Boolean),
-      featured: $('#svcFeatured').is(':checked'),
-      status: $('#svcStatus').val()
-    };
-    if (id) { API.updateService(id, data); showAdminToast('Service updated'); }
-    else { API.createService(data); showAdminToast('Service added'); }
-    bootstrap.Modal.getInstance(document.getElementById('serviceFormModal')).hide();
-    renderServicesTable();
+    const data = { name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val() };
+    const submit = $(this).find('[type="submit"]').prop('disabled', true);
+    try {
+      if (id) API.updateService(id, data);
+      else API.createService(data);
+      bootstrap.Modal.getInstance(document.getElementById('serviceFormModal')).hide();
+      renderServicesTable();
+      showAdminToast(API.savedMessage());
+    } catch (error) {
+      showAdminToast(error.message, 'danger');
+    } finally {
+      submit.prop('disabled', false);
+    }
   });
 });
 
-function populateCategorySelect() {
-  const $sel = $('#svcCategory').empty();
-  API.getCategories().forEach(c => $sel.append(`<option value="${c.category_id}">${c.name}</option>`));
-}
-
 function renderServicesTable() {
   const services = API.getServices();
-  const categories = API.getCategories();
   const $body = $('#servicesBody').empty();
   if (!services.length) {
-    $body.append('<tr><td colspan="7" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
+    $body.append('<tr><td colspan="4" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
     return;
   }
   services.forEach(s => {
-    const cat = categories.find(c => c.category_id === s.category_id);
     $body.append(`
       <tr>
-        <td><img src="${s.image}" style="width:56px;height:40px;object-fit:cover;border-radius:4px;"></td>
-        <td class="fw-semibold">${s.name}</td>
-        <td>${cat ? cat.name : '<span class="text-muted">Uncategorized</span>'}</td>
-        <td>${BookingCalc.formatCurrency(s.price)}</td>
-        <td>${s.featured ? '<span class="badge bg-warning text-dark">Featured</span>' : '—'}</td>
+        <td class="fw-semibold">${escapeHtmlA(s.name)}${s.pending_sync ? '<span class="badge bg-warning text-dark ms-2">Pending Sync</span>' : ''}</td>
+        <td>${escapeHtmlA(s.description || '')}</td>
         <td>
           <div class="form-check form-switch">
-            <input class="form-check-input js-toggle-service-status" type="checkbox" data-id="${s.service_id}" ${s.status === 'Active' ? 'checked' : ''}>
+            <input class="form-check-input js-toggle-service-status" type="checkbox" aria-label="Service active status" data-id="${escapeHtmlA(s.service_id)}" ${s.status === 'Active' ? 'checked' : ''}>
           </div>
         </td>
         <td>
-          <button class="btn btn-sm btn-outline-secondary js-edit-service" data-id="${s.service_id}"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-outline-danger js-delete-service" data-id="${s.service_id}"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm btn-outline-secondary js-edit-service" data-id="${escapeHtmlA(s.service_id)}" aria-label="Edit ${escapeHtmlA(s.name)}"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger js-delete-service" data-id="${escapeHtmlA(s.service_id)}" aria-label="Delete ${escapeHtmlA(s.name)}"><i class="bi bi-trash"></i></button>
         </td>
       </tr>`);
   });

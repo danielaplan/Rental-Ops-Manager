@@ -82,6 +82,9 @@
                 <p class="mb-1" id="dEventLocation"></p>
                 <p class="mb-1 text-muted" id="dEventGuests"></p>
                 <p class="mb-0 text-muted" id="dSpecialRequests"></p>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="editBookingBtn">
+                  <i class="bi bi-pencil me-1"></i> Edit event details
+                </button>
               </div>
               <div class="col-md-6">
                 <h6>Services &amp; Add-ons</h6>
@@ -98,6 +101,7 @@
                   <div class="summary-row"><span>Paid</span><span id="dPaid"></span></div>
                   <div class="summary-row total"><span>Balance</span><span id="dBalance"></span></div>
                 </div>
+                <p class="small text-muted mt-2 mb-0" id="dPaymentPendingNote" hidden></p>
               </div>
               <div class="col-12">
                 <div class="p-3 border rounded bg-light">
@@ -133,6 +137,35 @@
             </div><div id="depositError" role="alert" tabindex="-1" class="text-danger my-2" hidden></div>
             <button type="button" class="btn btn-outline-secondary mt-2" id="saveDepositBtn">Save deposit</button>
           </div>
+            <div class="border rounded p-3 my-3">
+              <h6>Delivery arrangement</h6>
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <label class="form-label" for="deliveryMethod">Delivery method</label>
+                  <select class="form-select" id="deliveryMethod">
+                    <option value="self_pickup">Self-pickup</option>
+                    <option value="lalamove">Lalamove</option>
+                    <option value="owner_delivered">Owner-delivered</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="deliveryFee">Delivery fee (₱)</label>
+                  <input class="form-control" id="deliveryFee" type="number" min="0" step="0.01" value="0">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="deliveryResponsibility">Fee arrangement</label>
+                  <select class="form-select" id="deliveryResponsibility">
+                    <option value="renter">Paid by renter</option>
+                    <option value="owner">Included / paid by AKAD</option>
+                  </select>
+                </div>
+              </div>
+              <div id="deliverySaveError" class="text-danger small mt-2" role="alert" tabindex="-1" hidden></div>
+              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mt-2">
+                <span id="deliverySaveState" class="small text-muted" aria-live="polite"></span>
+                <button type="button" class="btn btn-outline-secondary" id="saveDeliveryBtn">Save delivery arrangement</button>
+              </div>
+            </div>
           <!-- CHECKLIST / RELEASE TAB -->
           <div class="tab-pane fade" id="tabChecklist">
             <p class="text-muted small">Auto-generated from this booking's selected services. Check each item before release.</p>
@@ -192,18 +225,27 @@
                 <div class="panel mb-0">
                   <div class="panel-title">Record Payment</div>
                   <div class="mb-2">
-                    <label class="form-label" for="payAmount">Amount (₱)</label>
-                    <input type="number" min="1" class="form-control" id="payAmount">
+                    <label class="form-label" for="payAmount">Payment amount (₱)</label>
+                    <input type="number" min="0.01" step="0.01" class="form-control" id="payAmount" required>
                   </div>
                   <div class="mb-2">
                     <label class="form-label" for="payMethod">Method</label>
                     <select class="form-select" id="payMethod"></select>
                   </div>
                   <div class="mb-2">
-                    <label class="form-label" for="payNotes">Notes</label>
+                    <label class="form-label" for="payPurpose">Payment purpose</label>
+                    <select class="form-select" id="payPurpose">
+                      <option>Down payment / reservation fee</option>
+                      <option>Balance payment</option>
+                      <option>Other agreed payment</option>
+                    </select>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label" for="payNotes">Additional notes</label>
                     <input type="text" class="form-control" id="payNotes">
                   </div>
-                  <button class="btn btn-admin-primary w-100" id="recordPaymentBtn">Record Payment</button>
+                  <div id="paySaveError" class="text-danger small mb-2" role="alert" tabindex="-1" hidden></div>
+                  <button type="button" class="btn btn-admin-primary w-100" id="recordPaymentBtn">Record Payment</button>
                 </div>
               </div>
               <div class="col-md-7">
@@ -221,6 +263,43 @@
   </div>
 </div>
 
+<div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" id="editBookingForm" novalidate>
+      <div class="modal-header">
+        <h5 class="modal-title" id="editBookingTitle">Edit event details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="editEventDate">Event date</label>
+            <input class="form-control" type="date" id="editEventDate" required>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label" for="editEventStart">Start time</label>
+            <input class="form-control" type="time" id="editEventStart" required>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label" for="editEventEnd">End time</label>
+            <input class="form-control" type="time" id="editEventEnd" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="editEventLocation">Event location</label>
+            <input class="form-control" type="text" id="editEventLocation" required>
+          </div>
+        </div>
+        <div id="editBookingError" class="alert alert-danger mt-3 mb-0" role="alert" tabindex="-1" hidden></div>
+        <p class="text-muted small mt-3 mb-0">Changes remain Pending Sync until the server accepts them. Confirmed karaoke bookings are checked again when synced.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-admin-primary" id="saveBookingEditBtn">Save event details</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="../vendor/jquery-3.7.1.min.js"></script>
 <script src="../vendor/bootstrap-5.3.3.bundle.min.js"></script>
 <script src="../js/config.js"></script>
@@ -235,6 +314,8 @@
 <script src="../js/offline.js"></script>
 <script>
 let currentBookingId = null;
+let deliveryFormRevision = 0;
+let returnToBookingDetails = false;
 
 $(async function () {
   await API.ready;
@@ -246,8 +327,6 @@ $(async function () {
   CONFIG.paymentMethods.forEach(m => $('#payMethod').append(`<option>${m}</option>`));
   $('#dStatusSelect').empty();
   CONFIG.bookingStatuses.forEach(s => $('#dStatusSelect').append(`<option>${s}</option>`));
-  $('#dPaymentStatusSelect').empty();
-  CONFIG.paymentStatuses.forEach(ps => $('#dPaymentStatusSelect').append(`<option>${ps}</option>`));
 
   renderBookingsTable();
 
@@ -258,6 +337,74 @@ $(async function () {
   $(document).on('click', '.js-view-booking', function (e) {
     e.preventDefault();
     openBookingDetail($(this).data('id'));
+  });
+
+  $('#editBookingBtn').on('click', function () {
+    const booking = API.getBooking(currentBookingId);
+    if (!booking) return;
+    $('#editEventDate').val(booking.event_date || '');
+    $('#editEventStart').val(String(booking.start_time || '').slice(0, 5));
+    $('#editEventEnd').val(String(booking.end_time || '').slice(0, 5));
+    $('#editEventLocation').val(booking.location || '');
+    $('#editBookingError').prop('hidden', true).text('');
+    returnToBookingDetails = true;
+    const detailsModal = document.getElementById('bookingDetailModal');
+    const detailsInstance = bootstrap.Modal.getInstance(detailsModal);
+    if (detailsInstance) {
+      $(detailsModal).one('hidden.bs.modal', () => new bootstrap.Modal('#editBookingModal').show());
+      detailsInstance.hide();
+    } else {
+      new bootstrap.Modal('#editBookingModal').show();
+    }
+  });
+
+  $('#editBookingModal').on('hidden.bs.modal', function () {
+    if (!returnToBookingDetails || !currentBookingId) return;
+    returnToBookingDetails = false;
+    openBookingDetail(currentBookingId);
+  });
+
+  $('#editBookingForm').on('submit', function (e) {
+    e.preventDefault();
+    const booking = API.getBooking(currentBookingId);
+    const eventDate = $('#editEventDate').val();
+    const startTime = $('#editEventStart').val();
+    const endTime = $('#editEventEnd').val();
+    const location = $('#editEventLocation').val().trim();
+    const error = $('#editBookingError');
+    const button = $('#saveBookingEditBtn');
+
+    if (!booking || !eventDate || !startTime || !endTime || !location) {
+      error.text('Enter an event date, start and end time, and location.').prop('hidden', false).trigger('focus');
+      return;
+    }
+    if (startTime >= endTime) {
+      error.text('End time must be after start time.').prop('hidden', false).trigger('focus');
+      $('#editEventEnd').trigger('focus');
+      return;
+    }
+    if (['Confirmed', 'Reserved', 'Preparing', 'Released'].includes(booking.status)) {
+      const conflicts = (booking.service_ids || []).filter(serviceId =>
+        !API.checkAvailability(serviceId, eventDate, startTime, endTime, booking.id).available
+      );
+      if (conflicts.length) {
+        error.text('This time overlaps another active booking. Change the date or time; the server will also check before accepting the edit.')
+          .prop('hidden', false).trigger('focus');
+        return;
+      }
+    }
+
+    button.prop('disabled', true);
+    try {
+      API.updateBooking(currentBookingId, { event_date: eventDate, start_time: startTime, end_time: endTime, location });
+      bootstrap.Modal.getInstance(document.getElementById('editBookingModal'))?.hide();
+      renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+      showAdminToast(API.savedMessage());
+    } catch (saveError) {
+      error.text(saveError.message).prop('hidden', false).trigger('focus');
+    } finally {
+      button.prop('disabled', false);
+    }
   });
 
   $('#dSaveBookingBtn').on('click', function () {
@@ -284,13 +431,14 @@ $(async function () {
     }
 
     $('#dSaveConflictMsg').hide();
-    API.updateBooking(currentBookingId, {
-      status: newStatus,
-
-    });
-    bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
-    showAdminToast(API.savedMessage());
-    renderBookingsTable();
+    try {
+      API.updateBooking(currentBookingId, { status: newStatus });
+      bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
+      showAdminToast(API.savedMessage());
+      renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+    } catch (error) {
+      $('#dSaveConflictMsg').text(error.message).show();
+    }
   });
 
   $(document).on('change', '.js-release-check', function () {
@@ -343,15 +491,51 @@ $(async function () {
       $('#depositError').prop('hidden',true);showAdminToast(API.savedMessage());
     }catch(error){$('#depositError').prop('hidden',false).text(error.message).trigger('focus');}
   });
+  $('#deliveryMethod, #deliveryFee, #deliveryResponsibility').on('input change', function () {
+    deliveryFormRevision++;
+    $('#deliverySaveState').text('Unsaved changes');
+  });
+  $('#saveDeliveryBtn').on('click', function () {
+    try {
+      API.upsertDelivery(currentBookingId, {
+        delivery_method: $('#deliveryMethod').val(),
+        delivery_fee: $('#deliveryFee').val(),
+        fee_shouldered_by: $('#deliveryResponsibility').val()
+      });
+      $('#deliverySaveError').prop('hidden', true).text('');
+      $('#deliverySaveState').text(API.savedMessage());
+      deliveryFormRevision++;
+    } catch (error) {
+      $('#deliverySaveError').text(error.message).prop('hidden', false).trigger('focus');
+    }
+  });
   $('#depositHeld,#depositDeduction').on('input',function(){$('#depositRefund').val(Math.max(Number($('#depositHeld').val())-Number($('#depositDeduction').val()),0).toFixed(2));});
   $('#recordPaymentBtn').on('click', function () {
     const amount = Number($('#payAmount').val());
-    if (!amount || amount <= 0) { alert('Enter a valid amount.'); return; }
-    PaymentsHelper.recordPayment(currentBookingId, amount, $('#payMethod').val(), $('#payNotes').val());
-    $('#payAmount, #payNotes').val('');
-    showAdminToast(API.savedMessage());
-    renderBookingsTable();
-    loadBookingDetail(currentBookingId);
+    const error = $('#paySaveError');
+    const button = $(this);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      error.text('Enter a finite payment amount greater than zero.').prop('hidden', false).trigger('focus');
+      $('#payAmount').trigger('focus');
+      return;
+    }
+    button.prop('disabled', true);
+    try {
+      const purpose = $('#payPurpose').val();
+      const additionalNotes = $('#payNotes').val().trim();
+      const notes = [purpose, additionalNotes].filter(Boolean).join(' — ');
+      const payment = PaymentsHelper.recordPayment(currentBookingId, amount, $('#payMethod').val(), notes);
+      if (!payment) throw new Error('The payment was not recorded. Check the amount and try again.');
+      error.prop('hidden', true).text('');
+      $('#payAmount, #payNotes').val('');
+      showAdminToast(API.savedMessage());
+      renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+      loadBookingDetail(currentBookingId);
+    } catch (saveError) {
+      error.text(saveError.message).prop('hidden', false).trigger('focus');
+    } finally {
+      button.prop('disabled', false);
+    }
   });
 });
 
@@ -359,6 +543,7 @@ let bookingPage=0;
 function renderBookingsTable(statusFilter, search) {
   let bookings = API.getBookings().slice().sort((a, b) => (a.event_date < b.event_date ? 1 : -1));
   const services = API.getServices();
+  const pendingPaymentIndex = PaymentsHelper.pendingAmountsByBooking();
 
   if (statusFilter) bookings = bookings.filter(b => b.status === statusFilter);
   if (search) {
@@ -390,7 +575,7 @@ function renderBookingsTable(statusFilter, search) {
           <div class="text-truncate" style="max-width:170px;" title="${escapeHtmlA(svcNames)}">${escapeHtmlA(svcNames)}</div>
         </td>
         <td class="fw-bold">${BookingCalc.formatCurrency(b.total)}</td>
-        <td>${badgeStatus(b.payment_status || 'Unpaid', CONFIG.paymentStatusColors)}</td>
+        <td>${badgeStatus(PaymentsHelper.paymentStatus(b, pendingPaymentIndex), CONFIG.paymentStatusColors)}</td>
         <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}${b.pending_sync?'<span class="badge bg-warning text-dark">Pending Sync</span>':''}</td>
         <td class="text-center">
           <button class="btn btn-sm btn-outline-secondary py-1 px-2 js-view-booking" data-id="${b.id}" title="View Details">
@@ -419,13 +604,13 @@ function loadBookingDetail(id) {
 
   $('#detailBookingId').text(b._server_id || (String(b.id).startsWith('LOCAL-')?'Offline draft':b.id));
   $('#dCustName').text(b.customer_name);
-  $('#dCustContact').html(`<i class="bi bi-telephone"></i> ${b.contact}`);
-  $('#dCustEmail').html(b.email ? `<i class="bi bi-envelope"></i> ${b.email}` : '<span class="text-muted">No email provided</span>');
+  $('#dCustContact').text(b.contact ? `Phone: ${b.contact}` : '');
+  $('#dCustEmail').text(b.email || 'No email provided');
   $('#dCustType').text(b.customer_type);
 
-  $('#dEventType').html(`<strong>${b.event_type}</strong>`);
-  $('#dEventDateTime').html(`<i class="bi bi-calendar3"></i> ${BookingCalc.formatDate(b.event_date)}, ${BookingCalc.formatTime(b.start_time)}–${BookingCalc.formatTime(b.end_time)}`);
-  $('#dEventLocation').html(`<i class="bi bi-geo-alt"></i> ${b.location}`);
+  $('#dEventType').text(b.event_type || '');
+  $('#dEventDateTime').text(`${BookingCalc.formatDate(b.event_date)}, ${BookingCalc.formatTime(b.start_time)}–${BookingCalc.formatTime(b.end_time)}`);
+  $('#dEventLocation').text(b.location || '');
   $('#dEventGuests').text(`${b.guests || 0} guests`);
   $('#dSpecialRequests').text(b.special_requests || 'No special requests.');
 
@@ -433,11 +618,11 @@ function loadBookingDetail(id) {
   (b.service_ids || []).forEach(sid => {
     const s = services.find(x => x.service_id === sid);
     const pack=API.getPackages().find(p=>String(p.package_id)===String(b.package_id));
-    if (s) $svcList.append(`<li>${escapeHtmlA(s.name)}${pack?' — '+escapeHtmlA(pack.name)+' — '+BookingCalc.formatCurrency(pack.price):''}</li>`);
+    if (s) $svcList.append(`<li>${escapeHtmlA(s.name)}${pack?' — '+escapeHtmlA(pack.package_name)+' — '+BookingCalc.formatCurrency(pack.price):''}</li>`);
   });
   (b.addon_ids || []).forEach(aid => {
     const a = addons.find(x => x.addon_id === aid);
-    if (a) $svcList.append(`<li class="text-muted">+ ${a.name} — ${BookingCalc.formatCurrency(a.price)}</li>`);
+    if (a) $svcList.append(`<li class="text-muted">+ ${escapeHtmlA(a.name)} — ${BookingCalc.formatCurrency(a.price)}</li>`);
   });
 
   $('#dSubtotal').text(BookingCalc.formatCurrency(b.subtotal));
@@ -445,10 +630,13 @@ function loadBookingDetail(id) {
   $('#dDiscount').text(BookingCalc.formatCurrency(b.discount));
   $('#dFees').text(BookingCalc.formatCurrency(b.fees));
   $('#dTotal').text(BookingCalc.formatCurrency(b.total));
-  $('#dPaid').text(BookingCalc.formatCurrency(b.amount_paid));
-  $('#dBalance').text(BookingCalc.formatCurrency(PaymentsHelper.remainingBalance(b)));
+  const pendingPaymentIndex = PaymentsHelper.pendingAmountsByBooking();
+  const pendingPaymentAmount = pendingPaymentIndex.get(String(id)) || 0;
+  $('#dPaid').text(BookingCalc.formatCurrency(PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex)));
+  $('#dBalance').text(BookingCalc.formatCurrency(PaymentsHelper.remainingBalance(b, pendingPaymentIndex)));
   $('#dStatusSelect').val(b.status);
-  $('#dPaymentStatusSelect').val(b.payment_status || 'Unpaid');
+  $('#dPaymentStatusSelect').val(PaymentsHelper.paymentStatus(b, pendingPaymentIndex));
+  $('#dPaymentPendingNote').text(pendingPaymentAmount > 0 ? `${BookingCalc.formatCurrency(pendingPaymentAmount)} is Pending Sync and is not included as accepted payment yet.` : '').prop('hidden', pendingPaymentAmount <= 0);
 
   InventoryHelper.renderChecklist(id, '#releaseChecklistWrap', 'release');
   InventoryHelper.renderChecklist(id, '#returnChecklistWrap', 'return');
@@ -458,7 +646,20 @@ function loadBookingDetail(id) {
   const deposit=API.getDeposit(id);
   $('#depositHeld').val(deposit.amount_held||0);$('#depositDeduction').val(deposit.deduction_amount||0);
   $('#depositReason').val(deposit.deduction_reason||'');$('#depositRefund').val((Number(deposit.amount_held||0)-Number(deposit.deduction_amount||0)).toFixed(2));
+  setDeliveryForm(API.getDelivery(id));
+  const deliveryRevision=deliveryFormRevision;
+  API.refreshDelivery(id).then(saved=>{
+    if(currentBookingId===id&&deliveryFormRevision===deliveryRevision)setDeliveryForm(saved);
+  });
 
+}
+
+function setDeliveryForm(delivery) {
+  $('#deliveryMethod').val(delivery.delivery_method || 'self_pickup');
+  $('#deliveryFee').val(Number(delivery.delivery_fee || 0));
+  $('#deliveryResponsibility').val(delivery.fee_shouldered_by || 'renter');
+  $('#deliverySaveState').text(delivery.pending_sync ? API.savedMessage() : '');
+  $('#deliverySaveError').prop('hidden', true).text('');
 }
 </script>
 </body>

@@ -109,15 +109,14 @@ $(async function () {
   $(document).on('click', '.js-delete-addon', function () {
     const id = $(this).data('id');
     confirmDelete('Delete this add-on?', function () {
-      API.deleteAddon(id);
-      renderAddonsTable();
-      showAdminToast('Add-on deleted', 'danger');
+      try { API.deleteAddon(id); renderAddonsTable(); showAdminToast(API.savedMessage()); }
+      catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
   $(document).on('change', '.js-toggle-addon-status', function () {
-    API.updateAddon($(this).data('id'), { status: this.checked ? 'Active' : 'Inactive' });
-    showAdminToast('Add-on status updated');
+    try { API.updateAddon($(this).data('id'), { status: this.checked ? 'Active' : 'Inactive' }); showAdminToast(API.savedMessage()); }
+    catch (error) { this.checked = !this.checked; showAdminToast(error.message, 'danger'); }
   });
 
   $('#addonForm').on('submit', function (e) {
@@ -129,16 +128,21 @@ $(async function () {
       price: Number($('#addonPrice').val()),
       status: $('#addonStatus').val()
     };
-    if (id) { API.updateAddon(id, data); showAdminToast('Add-on updated'); }
-    else { API.createAddon(data); showAdminToast('Add-on added'); }
-    bootstrap.Modal.getInstance(document.getElementById('addonFormModal')).hide();
-    renderAddonsTable();
+    const submit = $(this).find('[type="submit"]').prop('disabled', true);
+    try {
+      if (id) API.updateAddon(id, data);
+      else API.createAddon(data);
+      bootstrap.Modal.getInstance(document.getElementById('addonFormModal')).hide();
+      renderAddonsTable();
+      showAdminToast(API.savedMessage());
+    } catch (error) { showAdminToast(error.message, 'danger'); }
+    finally { submit.prop('disabled', false); }
   });
 });
 
 function populateServiceSelect() {
   const $sel = $('#addonService').empty();
-  API.getServices().forEach(s => $sel.append(`<option value="${s.service_id}">${s.name}</option>`));
+  API.getServices().forEach(s => $sel.append(`<option value="${escapeHtmlA(s.service_id)}">${escapeHtmlA(s.name)}</option>`));
 }
 
 function renderAddonsTable() {
@@ -153,17 +157,17 @@ function renderAddonsTable() {
     const svc = services.find(s => s.service_id === a.service_id);
     $body.append(`
       <tr>
-        <td class="fw-semibold">${a.name}</td>
-        <td>${svc ? svc.name : '<span class="text-muted">Unknown</span>'}</td>
+        <td class="fw-semibold">${escapeHtmlA(a.name)}</td>
+        <td>${svc ? escapeHtmlA(svc.name) : '<span class="text-muted">Unknown</span>'}</td>
         <td>${BookingCalc.formatCurrency(a.price)}</td>
         <td>
           <div class="form-check form-switch">
-            <input class="form-check-input js-toggle-addon-status" type="checkbox" data-id="${a.addon_id}" ${a.status === 'Active' ? 'checked' : ''}>
+            <input class="form-check-input js-toggle-addon-status" type="checkbox" aria-label="Add-on active status" data-id="${escapeHtmlA(a.addon_id)}" ${a.status === 'Active' ? 'checked' : ''}>
           </div>
         </td>
         <td>
-          <button class="btn btn-sm btn-outline-secondary js-edit-addon" data-id="${a.addon_id}"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-outline-danger js-delete-addon" data-id="${a.addon_id}"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm btn-outline-secondary js-edit-addon" data-id="${escapeHtmlA(a.addon_id)}" aria-label="Edit ${escapeHtmlA(a.name)}"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger js-delete-addon" data-id="${escapeHtmlA(a.addon_id)}" aria-label="Delete ${escapeHtmlA(a.name)}"><i class="bi bi-trash"></i></button>
         </td>
       </tr>`);
   });

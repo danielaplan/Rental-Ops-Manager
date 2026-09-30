@@ -62,10 +62,10 @@ function renderCustomers(query) {
   customers.forEach(c => {
     $body.append(`
       <tr>
-        <td class="fw-semibold">${c.name}</td>
-        <td>${c.contact}</td>
-        <td>${c.email || '<span class="text-muted">—</span>'}</td>
-        <td><span class="badge bg-light text-dark border">${c.type}</span></td>
+        <td class="fw-semibold">${escapeHtmlA(c.name)}</td>
+        <td>${escapeHtmlA(c.contact)}</td>
+        <td>${c.email ? escapeHtmlA(c.email) : '<span class="text-muted">—</span>'}</td>
+        <td><span class="badge bg-light text-dark border">${escapeHtmlA(c.type)}</span></td>
         <td>${c.bookings_count}</td>
         <td>${BookingCalc.formatCurrency(c.total_spent)}</td>
       </tr>`);
