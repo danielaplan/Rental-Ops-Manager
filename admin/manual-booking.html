@@ -46,8 +46,8 @@
             <div class="col-12">
               <label class="form-label" for="mCustType">Customer Type</label>
               <select class="form-select" id="mCustType">
-                <option>Guest / No Account</option>
-                <option>Registered</option>
+                <option>First-time client</option>
+                <option>Returning client</option>
               </select>
             </div>
             <div class="col-12">
@@ -122,15 +122,15 @@
           <div class="row g-3 mb-3">
             <div class="col-6">
               <label class="form-label" for="mDiscount">Discount (₱)</label>
-              <input type="number" min="0" class="form-control" id="mDiscount" value="0">
+                <input type="number" min="0" step="0.01" class="form-control" id="mDiscount" value="0">
             </div>
             <div class="col-6">
               <label class="form-label" for="mFees">Additional Fees (₱)</label>
-              <input type="number" min="0" class="form-control" id="mFees" value="0">
+                <input type="number" min="0" step="0.01" class="form-control" id="mFees" value="0">
             </div>
             <div class="col-6">
               <label class="form-label" for="mAmountPaid">Agreed down payment paid now (₱)</label>
-              <input type="number" min="0" class="form-control" id="mAmountPaid" value="0">
+                <input type="number" min="0" step="0.01" class="form-control" id="mAmountPaid" value="0">
             </div>
             <div class="col-6">
               <label class="form-label" for="mPayMethod">Payment Method</label>
@@ -203,8 +203,8 @@ function populateForm() {
     $wrap.append(`
       <div class="col-md-6">
         <label class="service-check-card d-flex align-items-center gap-2 mb-0">
-          <input type="radio" name="service" class="js-m-service form-check-input mt-0" value="${s.service_id}">
-          <span class="flex-fill"><strong>${s.name}</strong><br><small class="text-muted">Select a package below</small></span>
+          <input type="radio" name="service" class="js-m-service form-check-input mt-0" value="${escapeHtmlA(s.service_id)}">
+          <span class="flex-fill"><strong>${escapeHtmlA(s.name)}</strong><br><small class="text-muted">Select a package below</small></span>
         </label>
       </div>`);
   });
@@ -219,7 +219,7 @@ function populateForm() {
 function renderPackages() {
   const service=getMSelectedServices()[0];
   const packages=API.getPackages().filter(p=>p.service_id===service);
-  $('#mPackage').html('<option value="">Choose a package</option>'+packages.map(p=>'<option value="'+p.package_id+'">'+escapeHtmlA(p.package_name)+' — '+BookingCalc.formatCurrency(p.price)+'</option>').join(''));
+  $('#mPackage').html('<option value="">Choose a package</option>'+packages.map(p=>'<option value="'+escapeHtmlA(p.package_id)+'">'+escapeHtmlA(p.package_name)+' — '+BookingCalc.formatCurrency(p.price)+'</option>').join(''));
 }
 function manualTotals(addonIds,discount,fees) {
   const p=API.getPackages().find(p=>String(p.package_id)===$('#mPackage').val());
@@ -230,10 +230,12 @@ function manualDraftKey(){return 'er_manual_draft_'+STORAGE._get(STORAGE_KEYS.ad
 function restoreManualDraft(){
  const draft=STORAGE._get(manualDraftKey(),{});
  if(draft.service){$('.js-m-service').filter((i,el)=>el.value===draft.service).prop('checked',true);renderPackages();renderAddons();}
- Object.entries(draft).forEach(([id,value])=>{if(id!=='service')$('#'+id).val(value);});updateSummary();checkAvailability();
+ Object.entries(draft).forEach(([id,value])=>{if(!['service','addonIds'].includes(id))$('#'+id).val(value);});
+ $('.js-m-addon').each(function(){this.checked=(draft.addonIds||[]).includes(this.value);});
+ updateSummary();checkAvailability();
 }
 $(document).off('input.manualDraft change.manualDraft','#manualBookingForm :input').on('input.manualDraft change.manualDraft','#manualBookingForm :input',()=>{
- const draft={service:getMSelectedServices()[0]};$('#manualBookingForm [id]').each(function(){if(this.matches('input,select,textarea'))draft[this.id]=$(this).val();});STORAGE._set(manualDraftKey(),draft);
+ const draft={service:getMSelectedServices()[0],addonIds:getMSelectedAddons()};$('#manualBookingForm [id]').each(function(){if(this.matches('input,select,textarea'))draft[this.id]=$(this).val();});STORAGE._set(manualDraftKey(),draft);
 });
 function getMSelectedServices() { return $('.js-m-service:checked').map(function () { return this.value; }).get(); }
 function getMSelectedAddons() { return $('.js-m-addon:checked').map(function () { return this.value; }).get(); }
@@ -250,7 +252,7 @@ function renderAddons() {
       <div class="col-md-6">
         <label class="d-flex align-items-center gap-2">
           <input type="checkbox" class="js-m-addon form-check-input mt-0" value="${a.addon_id}">
-          <span>${a.name} — ${BookingCalc.formatCurrency(a.price)}</span>
+          <span>${escapeHtmlA(a.name)} — ${BookingCalc.formatCurrency(a.price)}</span>
         </label>
       </div>`);
   });
@@ -282,10 +284,10 @@ function checkAvailability() {
   }
   const conflicts = serviceIds.filter(id => !API.checkAvailability(id, date, start, end).available);
   if (conflicts.length) {
-    $status.html('<span class="availability-pill unavailable"><i class="bi bi-x-circle"></i> Already Booked / Unavailable</span>');
+    $status.html('<span class="availability-pill unavailable"><i class="bi bi-exclamation-circle"></i> Possible conflict in the currently loaded schedule</span>');
     $('#mSubmitBtn').prop('disabled', true);
   } else {
-    $status.html('<span class="availability-pill available"><i class="bi bi-check-circle"></i> Available</span>');
+    $status.html('<span class="availability-pill available"><i class="bi bi-info-circle"></i> No conflict in loaded data; the server verifies when saved</span>');
     $('#mSubmitBtn').prop('disabled', false);
   }
 }
@@ -300,6 +302,7 @@ function validateBookingTimes(date, start, end) {
 }
 
 function createManualBooking() {
+  let createdBooking = null;
   const serviceIds = getMSelectedServices();
   if (serviceIds.length!==1 || !$('#mPackage').val()) { showFieldError('#mPackage','Select one service and its package.'); return; }
   const date = $('#mDate').val(), start = $('#mStart').val(), end = $('#mEnd').val();
@@ -309,17 +312,31 @@ function createManualBooking() {
   clearFieldError('#mEnd');
 
   const conflicts = serviceIds.filter(id => !API.checkAvailability(id, date, start, end).available);
-  if (conflicts.length) { alert('One of the selected services is unavailable for that date/time.'); return; }
+  if (conflicts.length) {
+    $('#manualSaveError').text('The currently loaded schedule shows a possible conflict. Review the date and time before trying again.').prop('hidden', false).trigger('focus');
+    return;
+  }
 
   const addonIds = getMSelectedAddons();
   const discount = Number($('#mDiscount').val() || 0);
   const fees = Number($('#mFees').val() || 0);
   const { subtotal, addonsTotal, total } = manualTotals(addonIds, discount, fees);
   const amountPaid = Number($('#mAmountPaid').val() || 0);
+  for (const [selector, value, label] of [
+    ['#mDiscount', discount, 'Discount'],
+    ['#mFees', fees, 'Additional fees'],
+    ['#mAmountPaid', amountPaid, 'Down payment']
+  ]) {
+    if (!Number.isFinite(value) || value < 0) {
+      showFieldError(selector, `${label} must be a non-negative amount.`);
+      return;
+    }
+    clearFieldError(selector);
+  }
 
   $('#mSubmitBtn').prop('disabled',true);
   try {
-  const booking = API.createBooking({
+  createdBooking = API.createBooking({
     customer_name: $('#mCustName').val().trim(),
     contact: $('#mCustContact').val().trim(),
     email: $('#mCustEmail').val().trim(),
@@ -339,13 +356,23 @@ function createManualBooking() {
   });
 
   if (amountPaid > 0) {
-    PaymentsHelper.recordPayment(booking.id, amountPaid, $('#mPayMethod').val(), 'Negotiated down payment at booking creation');
+    const payment = PaymentsHelper.recordPayment(createdBooking.id, amountPaid, $('#mPayMethod').val(), 'Down payment / reservation fee');
+    if (!payment) throw new Error('The initial payment could not be recorded.');
   }
 
   localStorage.removeItem(manualDraftKey());
   showAdminToast(API.savedMessage());
   window.location.href = 'bookings.html';
-  } catch(error) { $('#manualSaveError').prop('hidden',false).text(error.message).trigger('focus'); $('#mSubmitBtn').prop('disabled',false); }
+  } catch(error) {
+    if (createdBooking) {
+      localStorage.removeItem(manualDraftKey());
+      $('#mSubmitBtn').prop('disabled', true).text('Booking saved; payment needs attention');
+      $('#manualSaveError').html(`Booking ${escapeHtmlA(createdBooking.id)} was saved locally, but the initial payment was not recorded. Avoid creating it again; open the booking and retry payment from its Payments tab. <a href="bookings.html">Open Bookings</a>`).prop('hidden', false).trigger('focus');
+      return;
+    }
+    $('#manualSaveError').text(error.message).prop('hidden',false).trigger('focus');
+    $('#mSubmitBtn').prop('disabled',false);
+  }
 }
 </script>
 </body>

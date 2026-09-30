@@ -6,7 +6,7 @@
 (() => {
   const prefix = 'er_sync_op_';
   const base = new URL('../api/',document.currentScript.src).href;
-  const fields = {bookings:'id',categories:'category_id',services:'service_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id',bookingItems:'booking_item_id',itemReleases:'release_id',itemHistory:'history_id'};
+  const fields = {bookings:'id',categories:'category_id',services:'service_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id',bookingItems:'booking_item_id',itemReleases:'release_id',itemHistory:'history_id',delivery:'booking_id'};
   let localDepth = 0, flushing = null;
   const reads = new Map();
   const uuid = () => crypto.randomUUID();
@@ -157,6 +157,34 @@
   });
   const methods={getCategories:'categories',getServices:'services',getAddons:'addons',getBookings:'bookings',getCustomers:'customers',getPayments:'payments',getRentalItems:'rentalItems',getGallery:'gallery'};
   Object.entries(methods).forEach(([name,entity])=>{const local=API[name].bind(API);API[name]=function(...args){if(!localDepth)read(entity);return local(...args);};});
+  const refreshObject=entity=>read(entity,'get').then(data=>{
+    if(!data||typeof data!=='object'||Array.isArray(data)||queue().some(op=>op.entity===entity))return data;
+    STORAGE.setOne(entity,data);emit('api-data-changed',{entity});return data;
+  });
+  API.refreshSettings=()=>refreshObject('settings');
+  API.refreshWebsiteContent=()=>refreshObject('websiteContent');
+  [['getSettings','settings'],['getWebsiteContent','websiteContent']].forEach(([name,entity])=>{
+    const local=API[name].bind(API);
+    API[name]=function(...args){if(!localDepth)refreshObject(entity);return local(...args);};
+  });
+  const wrapSingletonUpdate=(name,entity,relatedGetter,relatedEntity)=>{
+    const local=API[name].bind(API);
+    API[name]=function(data){
+      if(localDepth)return local(data);
+      if(!owner())throw new Error('Sign in before saving.');
+      localDepth++;let result;try{result=local(data);}finally{localDepth--;}
+      enqueue(entity,'update',result,entity+'-singleton');
+      const related=API[relatedGetter]();
+      enqueue(relatedEntity,'update',related,relatedEntity+'-singleton');
+      return result;
+    };
+  };
+  wrapSingletonUpdate('updateSettings','settings','getWebsiteContent','websiteContent');
+  wrapSingletonUpdate('updateWebsiteContent','websiteContent','getSettings','settings');
+  API.refreshSharedData=()=>owner()?Promise.all([
+    ...['services','packages','addons','rentalItems','bookings','payments'].map(entity=>read(entity)),
+    refreshObject('settings'),refreshObject('websiteContent')
+  ]):Promise.resolve([]);
   ['getBookingItems','getPaymentsForBooking'].forEach(name=>{
     const entity=name==='getBookingItems'?'bookingItems':'payments',local=API[name].bind(API);
     API[name]=id=>{if(!localDepth&&!String(ref('bookings',id)).startsWith('LOCAL-'))read(entity,name==='getBookingItems'?'forBooking':'all','&booking_id='+encodeURIComponent(ref('bookings',id)),id);return local(id);};
@@ -193,6 +221,27 @@
     const held=Number(data.amount_held),ded=Number(data.deduction_amount);
     if(!Number.isFinite(held)||!Number.isFinite(ded)||held<0||ded<0||ded>held||(ded>0&&!String(data.deduction_reason||'').trim()))throw new Error('Enter non-negative amounts, keep deductions within the deposit, and give a reason for deductions.');
     const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));const result={...data,booking_id:id,refund_amount:held-ded,pending_sync:true};rows.push(result);STORAGE.saveAll('deposits',rows);enqueue('deposits','upsert',result,id);return result;
+  };
+  API.getDelivery=id=>STORAGE.getAll('delivery').find(r=>String(r.booking_id)===String(id))||{booking_id:id,delivery_method:'self_pickup',delivery_fee:0,fee_shouldered_by:'renter'};
+  API.refreshDelivery=async id=>{
+    if(String(ref('bookings',id)).startsWith('LOCAL-')||!navigator.onLine)return API.getDelivery(id);
+    try{
+      const saved=await request('delivery','get',undefined,'&booking_id='+encodeURIComponent(ref('bookings',id)));
+      if(dirty('delivery',id))return API.getDelivery(id);
+      const rows=STORAGE.getAll('delivery').filter(r=>String(r.booking_id)!==String(id));
+      if(saved)rows.push({...saved,booking_id:id,delivery_fee:Number(saved.delivery_fee||0),pending_sync:false});
+      STORAGE.saveAll('delivery',rows);emit('api-data-changed',{entity:'delivery'});
+      return API.getDelivery(id);
+    }catch(error){emit('api-read-error',{entity:'delivery',message:error.message});return API.getDelivery(id);}
+  };
+  API.upsertDelivery=(id,data)=>{
+    const fee=Number(data.delivery_fee);
+    if(!['self_pickup','lalamove','owner_delivered'].includes(data.delivery_method)||!['renter','owner'].includes(data.fee_shouldered_by)||!Number.isFinite(fee)||fee<0)throw new Error('Choose a delivery method and fee arrangement, and enter a non-negative delivery fee.');
+    if(!owner())throw new Error('Sign in before saving delivery details.');
+    const record={booking_id:id,delivery_method:data.delivery_method,delivery_fee:fee,fee_shouldered_by:data.fee_shouldered_by,pending_sync:true};
+    const rows=STORAGE.getAll('delivery').filter(r=>String(r.booking_id)!==String(id));rows.push(record);STORAGE.saveAll('delivery',rows);
+    enqueue('delivery','upsert',{booking_id:id,delivery_method:record.delivery_method,delivery_fee:fee,fee_shouldered_by:record.fee_shouldered_by},id);
+    return record;
   };
   API.getSyncQueue=queue;
   API.ready=STORAGE.restoreCache().catch(error=>{emit('api-read-error',{entity:'offline cache',message:error.message});});
@@ -246,7 +295,6 @@
     flushing=(navigator.locks?navigator.locks.request('akad-outbox',flush):flush()).finally(()=>{flushing=null;});
     return flushing;
   };
-  API.refreshSharedData=()=>owner()?Promise.all(['services','packages','addons','rentalItems','bookings','payments'].map(entity=>read(entity))):Promise.resolve([]);
   API.savedMessage=()=>navigator.onLine?'Saved on this device. Pending Sync until accepted.':'Saved offline. Pending Sync.';
   // Upgrade old queue entries without removing any failed or conflicting draft.
   const legacy=STORAGE._get('er_sync_queue',[]);

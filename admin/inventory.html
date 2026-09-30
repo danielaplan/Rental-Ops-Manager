@@ -140,6 +140,7 @@
 $(async function () {
   await API.ready;
   initAdminChrome('inventory.html', 'Inventory');
+  if (!isOwnerAdmin()) $('#addItemBtn').prop('hidden', true);
   populateItemSelects();
   renderInventory();
 
@@ -172,9 +173,8 @@ $(async function () {
   $(document).on('click', '.js-delete-item', function () {
     const id = $(this).data('id');
     confirmDelete('Delete this rental item from the catalog?', function () {
-      API.deleteRentalItem(id);
-      renderInventory();
-      showAdminToast('Rental item deleted', 'danger');
+      try { API.deleteRentalItem(id); renderInventory(); showAdminToast(API.savedMessage()); }
+      catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
@@ -182,14 +182,14 @@ $(async function () {
     const id = $(this).data('id');
     const item = API.getRentalItems().find(x => x.rental_item_id === id);
     const history = API.getItemHistory(id);
-    let html = `<h6>${item ? item.name : ''}</h6>`;
+    let html = `<h6>${escapeHtmlA(item ? item.name : '')}</h6>`;
     if (!history.length) {
       html += '<p class="text-muted">No rental/return history yet.</p>';
     } else {
       html += '<ul class="list-unstyled">' + history.map(h => `
         <li class="border-bottom py-2">
-          <strong>${new Date(h.date).toLocaleDateString('en-PH')}</strong> — ${h.booking_id} —
-          ${h.action} <span class="badge bg-secondary">${h.condition || ''}</span>
+          <strong>${new Date(h.date).toLocaleDateString('en-PH')}</strong> — ${escapeHtmlA(h.booking_id)} —
+          ${escapeHtmlA(h.action)} <span class="badge bg-secondary">${escapeHtmlA(h.condition || '')}</span>
         </li>`).join('') + '</ul>';
     }
     $('#historyBody').html(html);
@@ -210,16 +210,21 @@ $(async function () {
       required: $('#itemRequired').is(':checked'),
       notes: $('#itemNotes').val().trim()
     };
-    if (id) { API.updateRentalItem(id, data); showAdminToast('Item updated'); }
-    else { API.createRentalItem(data); showAdminToast('Item added'); }
-    bootstrap.Modal.getInstance(document.getElementById('itemFormModal')).hide();
-    renderInventory();
+    const submit = $(this).find('[type="submit"]').prop('disabled', true);
+    try {
+      if (id) API.updateRentalItem(id, data);
+      else API.createRentalItem(data);
+      bootstrap.Modal.getInstance(document.getElementById('itemFormModal')).hide();
+      renderInventory();
+      showAdminToast(API.savedMessage());
+    } catch (error) { showAdminToast(error.message, 'danger'); }
+    finally { submit.prop('disabled', false); }
   });
 });
 
 function populateItemSelects() {
   const $svc = $('#itemService').empty();
-  API.getServices().forEach(s => $svc.append(`<option value="${s.service_id}">${s.name}</option>`));
+  API.getServices().forEach(s => $svc.append(`<option value="${escapeHtmlA(s.service_id)}">${escapeHtmlA(s.name)}</option>`));
 
   const $status = $('#itemStatus').empty();
   CONFIG.inventoryStatuses.forEach(s => $status.append(`<option>${s}</option>`));
@@ -272,16 +277,16 @@ function renderInventory(search) {
     const activeBI = bookingItems.find(bi => bi.rental_item_id === i.rental_item_id && bi.checked_released && bi.returned_qty === 0);
     $body.append(`
       <tr>
-        <td class="fw-semibold">${i.name} ${i.required ? '<span class="text-danger" title="Required">*</span>' : ''}</td>
-        <td>${i.item_code}</td>
-        <td>${svc ? svc.name : '<span class="text-muted">Unassigned</span>'}</td>
+        <td class="fw-semibold">${escapeHtmlA(i.name)} ${i.required ? '<span class="text-danger" title="Required">*</span>' : ''}</td>
+        <td>${escapeHtmlA(i.item_code)}</td>
+        <td>${svc ? escapeHtmlA(svc.name) : '<span class="text-muted">Unassigned</span>'}</td>
         <td>${i.quantity}</td>
         <td>${badgeStatus(i.status, CONFIG.inventoryStatusColors)}</td>
-        <td>${i.condition}</td>
+        <td>${escapeHtmlA(i.condition)}</td>
         <td>
-          <button class="btn btn-sm btn-outline-secondary js-edit-item" data-id="${i.rental_item_id}"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-outline-primary js-view-history" data-id="${i.rental_item_id}"><i class="bi bi-clock-history"></i></button>
-          <button class="btn btn-sm btn-outline-danger js-delete-item" data-id="${i.rental_item_id}"><i class="bi bi-trash"></i></button>
+          ${isOwnerAdmin() ? `<button class="btn btn-sm btn-outline-secondary js-edit-item" data-id="${escapeHtmlA(i.rental_item_id)}" aria-label="Edit ${escapeHtmlA(i.name)}"><i class="bi bi-pencil"></i></button>` : ''}
+          <button class="btn btn-sm btn-outline-primary js-view-history" data-id="${escapeHtmlA(i.rental_item_id)}" aria-label="View ${escapeHtmlA(i.name)} history"><i class="bi bi-clock-history"></i></button>
+          ${isOwnerAdmin() ? `<button class="btn btn-sm btn-outline-danger js-delete-item" data-id="${escapeHtmlA(i.rental_item_id)}" aria-label="Delete ${escapeHtmlA(i.name)}"><i class="bi bi-trash"></i></button>` : ''}
         </td>
       </tr>`);
   });
@@ -294,10 +299,10 @@ function renderInventory(search) {
   attention.forEach(i => {
     $att.append(`
       <tr>
-        <td class="fw-semibold">${i.name}</td>
-        <td>${i.item_code}</td>
+        <td class="fw-semibold">${escapeHtmlA(i.name)}</td>
+        <td>${escapeHtmlA(i.item_code)}</td>
         <td>${badgeStatus(i.status, CONFIG.inventoryStatusColors)}</td>
-        <td class="text-muted">${i.notes || ''}</td>
+        <td class="text-muted">${escapeHtmlA(i.notes || '')}</td>
       </tr>`);
   });
 }

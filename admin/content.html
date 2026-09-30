@@ -117,11 +117,15 @@
 $(async function () {
   await API.ready;
   initAdminChrome('content.html', 'Website Content');
+  await API.refreshWebsiteContent();
+  renderAdminSidebar('content.html');
   loadContent();
 
   $('#contentForm').on('submit', function (e) {
     e.preventDefault();
-    API.updateWebsiteContent({
+    const submit = $(this).find('[type="submit"]').prop('disabled', true);
+    try {
+      API.updateWebsiteContent({
       business_name: $('#cBusinessName').val().trim(),
       logo: $('#cLogo').val().trim(),
       hero_title: $('#cHeroTitle').val().trim(),
@@ -134,15 +138,21 @@ $(async function () {
       contact_email: $('#cEmail').val().trim(),
       contact_address: $('#cAddress').val().trim(),
       contact_facebook: $('#cFacebook').val().trim(),
-      contact_instagram: $('#cInstagram').val().trim()
-    });
-    showAdminToast('Website content updated. Changes are live on the public site.');
+        contact_instagram: $('#cInstagram').val().trim()
+      });
+      showAdminToast(API.savedMessage());
+    } catch (error) {
+      showAdminToast(error.message, 'danger');
+    } finally {
+      submit.prop('disabled', false);
+    }
   });
 });
 
 function loadContent() {
   const c = API.getWebsiteContent();
-  $('#cBusinessName').val(c.business_name);
+  const savedName = c.business_name || '';
+  $('#cBusinessName').val(!savedName || savedName.startsWith('Fiesta & Co.') ? CONFIG.businessNameFallback : savedName);
   $('#cLogo').val(c.logo);
   $('#cHeroTitle').val(c.hero_title);
   $('#cHeroDesc').val(c.hero_description);

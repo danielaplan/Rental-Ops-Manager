@@ -6,7 +6,7 @@
  * that references them.
  */
 const CONFIG = {
-  businessNameFallback: "Fiesta & Co. Event Rentals",
+  businessNameFallback: "AKAD Sweet Party Rentals",
 
   bookingStatuses: [
     "Pending", "Confirmed", "Reserved", "Preparing", "Released",
@@ -36,7 +36,7 @@ const CONFIG = {
     "Fully Paid": "success"
   },
 
-  paymentMethods: ["Cash", "GCash", "Bank Transfer", "Other"],
+  paymentMethods: ["GCash", "MariBank"],
 
   customerTypes: ["Guest / No Account", "Registered"],
 

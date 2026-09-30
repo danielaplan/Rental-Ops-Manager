@@ -99,9 +99,8 @@ $(async function () {
     const inUse = API.getServices().some(s => s.category_id === id);
     if (inUse) { alert('This category is used by one or more services. Reassign those services first.'); return; }
     confirmDelete('Delete this category?', function () {
-      API.deleteCategory(id);
-      renderCategoriesTable();
-      showAdminToast('Category deleted', 'danger');
+      try { API.deleteCategory(id); renderCategoriesTable(); showAdminToast(API.savedMessage()); }
+      catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
@@ -109,10 +108,15 @@ $(async function () {
     e.preventDefault();
     const id = $('#catId').val();
     const data = { name: $('#catName').val().trim(), status: $('#catStatus').val() };
-    if (id) { API.updateCategory(id, data); showAdminToast('Category updated'); }
-    else { API.createCategory(data); showAdminToast('Category added'); }
-    bootstrap.Modal.getInstance(document.getElementById('categoryFormModal')).hide();
-    renderCategoriesTable();
+    const submit = $(this).find('[type="submit"]').prop('disabled', true);
+    try {
+      if (id) API.updateCategory(id, data);
+      else API.createCategory(data);
+      bootstrap.Modal.getInstance(document.getElementById('categoryFormModal')).hide();
+      renderCategoriesTable();
+      showAdminToast(API.savedMessage());
+    } catch (error) { showAdminToast(error.message, 'danger'); }
+    finally { submit.prop('disabled', false); }
   });
 });
 
@@ -128,12 +132,12 @@ function renderCategoriesTable() {
     const count = services.filter(s => s.category_id === c.category_id).length;
     $body.append(`
       <tr>
-        <td class="fw-semibold">${c.name}</td>
+        <td class="fw-semibold">${escapeHtmlA(c.name)}</td>
         <td>${count}</td>
         <td>${badgeStatus(c.status, { Active: 'success', Inactive: 'secondary' })}</td>
         <td>
-          <button class="btn btn-sm btn-outline-secondary js-edit-cat" data-id="${c.category_id}"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-outline-danger js-delete-cat" data-id="${c.category_id}"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm btn-outline-secondary js-edit-cat" data-id="${escapeHtmlA(c.category_id)}" aria-label="Edit ${escapeHtmlA(c.name)}"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger js-delete-cat" data-id="${escapeHtmlA(c.category_id)}" aria-label="Delete ${escapeHtmlA(c.name)}"><i class="bi bi-trash"></i></button>
         </td>
       </tr>`);
   });

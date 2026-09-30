@@ -14,6 +14,7 @@ const STORAGE_KEYS = {
   payments: "er_payments",
   packages: "er_packages",
   deposits: "er_deposits",
+  delivery: "er_delivery",
   gallery: "er_gallery",
   rentalItems: "er_rental_items",
   itemReleases: "er_item_releases",
@@ -313,29 +314,29 @@ function seedDatabase(force) {
   ];
 
   const websiteContent = {
-    business_name: "Fiesta & Co. Event Rentals",
+    business_name: "AKAD Sweet Party Rentals",
     logo: "",
     hero_title: "Celebrations, fully set up for you.",
     hero_description: "Karaoke, sweet corners, and balloon styling for birthdays, debuts, christenings, and everything worth celebrating around Metro Manila.",
     hero_image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=80",
-    hero_button_text: "Check Availability",
+    hero_button_text: "Contact us",
     about_title: "We handle the set-up, you host the party",
-    about_description: "Fiesta & Co. has been styling and equipping local celebrations for years. From a single karaoke unit to a full dessert and balloon package, we deliver, set up, and pick up - so you can actually enjoy your own event instead of running it.",
-    contact_phone: "0917-123-4567",
-    contact_email: "hello@fiestaandco.ph",
-    contact_address: "123 Rizal Avenue, Caloocan City, Metro Manila",
-    contact_facebook: "https://facebook.com/fiestaandco",
-    contact_instagram: "https://instagram.com/fiestaandco"
+    about_description: "We provide karaoke rental, Sweet Corner packages, and balloon decorations. Contact our team to discuss preferred dates and delivery arrangements.",
+    contact_phone: "",
+    contact_email: "",
+    contact_address: "",
+    contact_facebook: "",
+    contact_instagram: ""
   };
 
   const settings = {
-    business_name: "Fiesta & Co. Event Rentals",
+    business_name: "AKAD Sweet Party Rentals",
     logo: "",
-    phone: "0917-123-4567",
-    email: "hello@fiestaandco.ph",
-    address: "123 Rizal Avenue, Caloocan City, Metro Manila",
-    facebook: "https://facebook.com/fiestaandco",
-    instagram: "https://instagram.com/fiestaandco",
+    phone: "",
+    email: "",
+    address: "",
+    facebook: "",
+    instagram: "",
     min_booking_notice_days: 2,
     booking_hours_open: "08:00",
     booking_hours_close: "22:00",
