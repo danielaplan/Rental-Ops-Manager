@@ -53,7 +53,9 @@ Baseline on 2026-09-29. All 26 PHP files and both SQL scripts are covered.
 | `api/sync_state.php` | `364d05a89eb03d03a9b830543854c68245d649721831c57530bcc78d5f4a2008` |
 | `api/websiteContent.php` | `38619461d8a9b549333445367113cf21d998f604435670eb9db481ed9a71f5f7` |
 | `db/schema.sql` | `aac12d00377b3ea7015c5484bc5db4d702c311b7b8679ed1491bac16abb1a5ed` |
-| `db/seed.sql` | `bd679097b35bd80a45dd2c72e3a5286915ed37591d3975a3fe320b7f36b99fcc` |
+| `db/seed.sql` | `6ba803d2b3f4df6af2dfc226c77e095ad1a35bfcec22a18c30fef0a09688f94c` |
+
+The `db/seed.sql` fingerprint was refreshed on 2026-09-30 after correcting the documented demo password and rerun warning. Other source fingerprints remain from the original guide review.
 
 ## Continue reading
 

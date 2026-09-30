@@ -60,7 +60,7 @@ Looks up USERS by contact number and verifies password_hash. Creates a 32-byte r
 
 ### Current limits and details
 
-The logout fallback reads session_token from currentSession(), but its SELECT does not return that field. Pass the token in the logout JSON body. Expired rows are rejected, not automatically deleted. The seed password comment is unverified; see the setup note.
+The logout fallback reads session_token from currentSession(), but its SELECT does not return that field. Pass the token in the logout JSON body. Expired rows are rejected, not automatically deleted. The seeded demo password is `password`, verified against its stored hash; see the setup note.
 
 ### Functions defined
 

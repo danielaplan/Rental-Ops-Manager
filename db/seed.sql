@@ -2,12 +2,12 @@
 -- AKAD Sweet Party Rental's
 -- Seed data: SESSIONS table + demo users, services, packages, customers.
 --
--- Run AFTER schema.sql. Safe to re-run (uses INSERT ... ON DUPLICATE KEY
--- UPDATE / INSERT IGNORE) so the demo dataset is idempotent.
+-- Run AFTER schema.sql. Re-running updates matching demo rows (including
+-- account passwords and bookings); do not run on operational data.
 --
--- Demo password for every user below: "demo123"
---   (SHA-256 of the bcrypt placeholder below is the real bcrypt hash of
---    "demo123"; regenerate with password_hash() if you change it.)
+-- Demo password for every user below: "password".
+--   The stored bcrypt hash verifies with PHP password_verify().
+--   Replace these demo credentials before a non-test deployment.
 -- ============================================================================
 
 USE akad_rentals;
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS SESSIONS (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- Demo users. Password hash is bcrypt of "demo123".
+-- Demo users. Password hash is bcrypt of "password".
 -- ----------------------------------------------------------------------------
 INSERT INTO USERS (user_id, full_name, role, contact_number, password_hash) VALUES
     (1, 'Maria Santos',  'owner', '0917-123-4567', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
