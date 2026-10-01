@@ -13,6 +13,10 @@ aliases:
 status: active
 ---
 
+## Frontend handoff source verification — 2026-10-02
+
+The [frontend requirements review](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md) was checked against current `main` (`6ff2b52`) and its cited result files. No new browser or live database suite ran, and application code was not changed. Four concrete source findings were added: booking rows are limited to 50 while pagination controls fail to mount (`.table-responsive` target versus `.table-wrap`); the general booking status path can set Completed without the dedicated return inspection check; generic CRUD create defaults override a submitted Inactive service status; and deposit/delivery controls sit outside the detail modal's tab panes. The 2026-09-28 verification report now clarifies the return and pagination claims. FR-10 remains skipped and the prior frontend code boundary remains in effect.
+
 ## Current frontend handoff — 2026-09-30
 
 The merged frontend on `main` (`cf29fd1`, also pushed to `origin/main`) adds an ordinary booking event-edit form, removes public booking creation, applies AKAD page/login titles, displays `package_name` in booking details, restricts payment choices to GCash/MariBank, adds delivery controls with cache/queued save, refreshes dashboard/reports after data changes, surfaces read errors, narrows the service form to persisted fields, escapes key rendered values, and restores add-on draft selections. The seeded owner login fields are blank; testers enter contact `0917-123-4567` and password `password`. The root README has PHP/MySQL setup steps.

@@ -2,6 +2,8 @@
 
 Date: 2026-09-28. Authorized by the user: implement the remaining engineering work, verify it, report results, and update Markdown documentation and project memory.
 
+**October 2, 2026 source clarification:** The focused `finalizeReturn` test and browser outage check remain valid, but incomplete inspections are blocked from completion only through the dedicated return action. `admin/bookings.html` also exposes a general status update, and `api/bookings.php` / `api/sync.php` allow it to set `Completed` without inspecting returns. Likewise, the booking table caps rendering at 50 rows, but its pagination controls do not mount because it targets `.table-responsive` while the page uses `.table-wrap`. See [the current frontend handoff](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md). This clarification is a source review, not a new runtime test.
+
 ## Requirements and current status
 
 | Requirement | Documentation says | Result |
@@ -21,8 +23,8 @@ Source: `Documentation/AKAD_Requirements_Analysis_Documentation.md`, requirement
 - `sw.js`, `js/offline.js`, and `vendor/`: cache 46 staff app files, including pinned Bootstrap, jQuery, Chart.js, icons, and fonts. API responses and writes use the network. Native page navigation works from the cached shell when the backend is unavailable.
 - `js/sync-ui.js`: Pending Sync count, offline setup readiness, retry controls, and editable booking dates/times for conflicts. Unsynced drafts are retained for review.
 - Manual booking: actual service/package pricing, time-range checks, preserved form drafts, accessible errors, and admin-entered negotiated down payments. New bookings start Pending.
-- Booking detail: negotiated deposit, deduction reason, computed refund, server-calculated payment status, and saved return quantities/conditions/notes. A saved zero quantity remains zero after reload. Incomplete inspections cannot mark the booking Completed.
-- Calendar/table: date indexing, accessible calendar actions, working expansion for additional events, 50-row booking pagination, and filter preservation during refresh. Return controls adapt to phone layouts.
+- Booking detail: negotiated deposit, deduction reason, computed refund, payment status, and saved return quantities/conditions/notes. A saved zero quantity remains zero after reload. The dedicated `finalizeReturn` action rejects an incomplete inspection; the general status path does not enforce that rule.
+- Calendar/table: date indexing, accessible calendar actions, working expansion for additional events, a 50-row booking render limit, and filter preservation during refresh. The pagination control mount is broken as clarified above. Return controls adapt to phone layouts.
 - Authentication: offline entry uses an existing authenticated session; the former fake offline login path was removed. PHP enforces write authorization.
 
 Down payments and refundable deposits have no fixed amount or mandatory ₱1,000 minimum. Admins record the amount negotiated by the owner and client, separately for each booking. Deposit deductions cannot exceed the held amount and require a reason.
