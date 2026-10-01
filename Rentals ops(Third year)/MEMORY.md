@@ -1,6 +1,6 @@
 ---
 title: Rental-Ops-Manager Memory Index
-date: 2026-09-28
+date: 2026-09-30
 tags:
   - rental-ops-manager
   - akad
@@ -12,6 +12,12 @@ aliases:
   - Vault Index
 status: active
 ---
+
+## Current frontend handoff — 2026-09-30
+
+The merged frontend on `main` (`cf29fd1`, also pushed to `origin/main`) adds an ordinary booking event-edit form, removes public booking creation, applies AKAD page/login titles, displays `package_name` in booking details, restricts payment choices to GCash/MariBank, adds delivery controls with cache/queued save, refreshes dashboard/reports after data changes, surfaces read errors, narrows the service form to persisted fields, escapes key rendered values, and restores add-on draft selections. The seeded owner login fields are blank; testers enter contact `0917-123-4567` and password `password`. The root README has PHP/MySQL setup steps.
+
+These are **source-code findings, not end-to-end acceptance**. The developer handoff is [AKAD Frontend Requirements Review](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md), updated with the remaining FE-01–FE-17 fixes and checks. Priorities include live booking-edit/delivery/payment/package save-and-reload tests; consistent loading, pending, error and retry states; field-contract and safe-rendering audits; full server-versus-local conflict review; report definitions; device/keyboard testing; and frontend performance measurements. Earlier statements that authentication is mock, public booking still exists, delivery controls are absent, or the frontend is simply “~50%” are historical and superseded. Completing frontend tasks alone does not certify the PHP API, MySQL persistence, or offline end-to-end flows. The September 30 review did not run a new browser or live database suite; MySQL was not running during the preceding merge validation. FR-10 remains skipped.
 
 ## Latest session decision ? 2026-09-28: FR-10 remains skipped
 
@@ -128,4 +134,4 @@ The seeded owner contact is `0917-123-4567`; the checked-in hash verifies with p
 
 ## Login merge resolution — 2026-09-30
 
-During the merge of `origin/main` into local `main`, the single conflict in `admin/login.html` was resolved in favor of blank contact/password inputs and password-manager autocomplete. The seeded demo credentials remain documented in README and the setup note. The merge commit was not created as part of this conflict resolution; staged incoming files still require review.
+During the merge of `origin/main` into local `main`, the single conflict in `admin/login.html` was resolved in favor of blank contact/password inputs and password-manager autocomplete. The seeded demo credentials remain documented in README and the setup note. The merge was completed as `cf29fd1` and pushed to `origin/main`; the working tree was clean at the September 30 source review. The incoming `event-rental/` copies and `stat` file were preserved because they were already in the teammate's remote commit.

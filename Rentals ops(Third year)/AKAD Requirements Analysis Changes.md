@@ -5,8 +5,14 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 029bc4ed-f6f8-48e9-afa4-819cfc579d61
-  modified: 2026-09-28T05:56:42.260Z
+  modified: 2026-09-30
 ---
+
+## Current frontend gap review — 2026-09-30
+
+The merged frontend at `cf29fd1` addresses several earlier gaps in source: booking event editing, public booking removal, AKAD titles, package-name display, GCash/MariBank selection, delivery controls with queued save, dashboard/report data-change refresh, read-error display, basic service-field contract, key output escaping, and add-on draft restoration. See the [frontend developer handoff](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md) for FE-01–FE-17 status, source links, remaining fixes, and acceptance checks. The historical table below is a September 28 snapshot; its “Missing,” “mock authentication,” and “Fiesta & Co.” frontend findings do not describe the current merged source.
+
+The source review did not run new browser or live PHP/MySQL tests. Do not mark an FE item fully accepted solely because its form or handler exists. Backend persistence, role behavior, offline replay, reload, physical-device accessibility, and report definitions still need end-to-end verification. FR-10 remains skipped; negotiated down payments and deposits have no fixed or mandatory ₱1,000 minimum.
 
 ## Latest session decision ? 2026-09-28: FR-10 remains skipped
 
