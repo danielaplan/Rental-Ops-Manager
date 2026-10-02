@@ -49,24 +49,24 @@
 </main>
 
 <!-- BOOKING DETAIL MODAL -->
-<div class="modal fade" id="bookingDetailModal" tabindex="-1">
+<div class="modal fade" id="bookingDetailModal" tabindex="-1" aria-labelledby="bookingDetailTitle" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Booking <span id="detailBookingId"></span></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="bookingDetailTitle">Booking <span id="detailBookingId"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close booking details"></button>
       </div>
       <div class="modal-body">
         <ul class="nav nav-tabs mb-3" role="tablist">
-          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabDetails">Details</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabChecklist">Checklist &amp; Release</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabReturn">Return Inspection</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabPayments">Payments</button></li>
+          <li class="nav-item"><button class="nav-link active" id="detailsTabButton" role="tab" aria-controls="tabDetails" aria-selected="true" data-bs-toggle="tab" data-bs-target="#tabDetails">Details</button></li>
+          <li class="nav-item"><button class="nav-link" id="checklistTabButton" role="tab" aria-controls="tabChecklist" aria-selected="false" data-bs-toggle="tab" data-bs-target="#tabChecklist">Checklist &amp; Release</button></li>
+          <li class="nav-item"><button class="nav-link" id="returnTabButton" role="tab" aria-controls="tabReturn" aria-selected="false" data-bs-toggle="tab" data-bs-target="#tabReturn">Return Inspection</button></li>
+          <li class="nav-item"><button class="nav-link" id="paymentsTabButton" role="tab" aria-controls="tabPayments" aria-selected="false" data-bs-toggle="tab" data-bs-target="#tabPayments">Payments</button></li>
         </ul>
         <div class="tab-content">
 
           <!-- DETAILS TAB -->
-          <div class="tab-pane fade show active" id="tabDetails">
+          <div class="tab-pane fade show active" id="tabDetails" role="tabpanel" aria-labelledby="detailsTabButton" tabindex="0">
             <div class="row g-4">
               <div class="col-md-6">
                 <h6>Customer</h6>
@@ -120,7 +120,7 @@
                         <i class="bi bi-check2 me-1"></i> Save Status Changes
                       </button>
                     </div>
-                    <div class="col-12" id="dSaveConflictMsg" style="display:none;"></div>
+                    <div class="col-12" id="dSaveConflictMsg" role="alert" aria-live="assertive" tabindex="-1" style="display:none;"></div>
                   </div>
                 </div>
               </div>
@@ -131,8 +131,10 @@
                   <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0" step="0.01"></div>
                   <div class="col-sm-6"><label for="depositDeduction">Deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01"></div>
                   <div class="col-sm-6"><label for="depositReason">Deduction reason</label><input id="depositReason" class="form-control" type="text"></div>
-                  <div class="col-sm-6"><label for="depositRefund">Refund preview (₱)</label><input id="depositRefund" class="form-control" readonly></div>
+                  <div class="col-sm-6"><label for="depositRefund">Refundable amount (₱)</label><input id="depositRefund" class="form-control" readonly></div>
                 </div><div id="depositError" role="alert" tabindex="-1" class="text-danger my-2" hidden></div>
+                <div class="small mt-2" id="depositRefundState" role="status" aria-live="polite">Refund status has not been loaded.</div>
+                <div class="small text-muted">This status records the agreed refund amount; it does not confirm a money transfer.</div>
                 <button type="button" class="btn btn-outline-secondary mt-2" id="saveDepositBtn">Save deposit</button>
                 </div>
               </div>
@@ -170,7 +172,7 @@
             </div>
           </div>
           <!-- CHECKLIST / RELEASE TAB -->
-          <div class="tab-pane fade" id="tabChecklist">
+          <div class="tab-pane fade" id="tabChecklist" role="tabpanel" aria-labelledby="checklistTabButton" tabindex="0">
             <p class="text-muted small">Auto-generated from this booking's selected services. Check each item before release.</p>
             <div id="releaseChecklistWrap"></div>
             <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
@@ -193,7 +195,7 @@
           </div>
 
           <!-- RETURN TAB -->
-          <div class="tab-pane fade" id="tabReturn">
+          <div class="tab-pane fade" id="tabReturn" role="tabpanel" aria-labelledby="returnTabButton" tabindex="0">
             <p class="text-muted small">Inspect returned items and record their condition.</p>
             <div id="returnSaveError" class="alert alert-danger" role="alert" tabindex="-1" hidden></div><div id="returnChecklistWrap"></div>
             <div class="row g-2 mt-2">
@@ -222,7 +224,7 @@
           </div>
 
           <!-- PAYMENTS TAB -->
-          <div class="tab-pane fade" id="tabPayments">
+          <div class="tab-pane fade" id="tabPayments" role="tabpanel" aria-labelledby="paymentsTabButton" tabindex="0">
             <div class="row g-3">
               <div class="col-md-5">
                 <div class="panel mb-0">
@@ -414,6 +416,10 @@ $(async function () {
     const newStatus = $('#dStatusSelect').val();
     const booking = API.getBooking(currentBookingId);
     if (!booking) return;
+    if (newStatus === 'Completed' && booking.status !== 'Completed') {
+      $('#dSaveConflictMsg').text('Use Save Return Inspection to request completion after recording the returned items.').show().trigger('focus');
+      return;
+    }
 
     // Confirming / re-confirming / rescheduling must re-check availability.
     // A status change that activates the booking's time slot needs the same
@@ -490,7 +496,8 @@ $(async function () {
   });
   $('#saveDepositBtn').on('click',function(){
     try{
-      API.upsertDeposit(currentBookingId,{amount_held:Number($('#depositHeld').val()),deduction_amount:Number($('#depositDeduction').val()),deduction_reason:$('#depositReason').val()});
+      const saved=API.upsertDeposit(currentBookingId,{amount_held:Number($('#depositHeld').val()),deduction_amount:Number($('#depositDeduction').val()),deduction_reason:$('#depositReason').val()});
+      renderDepositRefundState(saved);
       $('#depositError').prop('hidden',true);showAdminToast(API.savedMessage());
     }catch(error){$('#depositError').prop('hidden',false).text(error.message).trigger('focus');}
   });
@@ -512,7 +519,11 @@ $(async function () {
       $('#deliverySaveError').text(error.message).prop('hidden', false).trigger('focus');
     }
   });
-  $('#depositHeld,#depositDeduction').on('input',function(){$('#depositRefund').val(Math.max(Number($('#depositHeld').val())-Number($('#depositDeduction').val()),0).toFixed(2));});
+  $('#depositHeld,#depositDeduction,#depositReason').on('input',function(){
+    $('#depositHeld').data('revision',(Number($('#depositHeld').data('revision')||0)+1));
+    $('#depositRefund').val(Math.max(Number($('#depositHeld').val())-Number($('#depositDeduction').val()),0).toFixed(2));
+    $('#depositRefundState').text('Unsaved changes');
+  });
   $('#recordPaymentBtn').on('click', function () {
     const amount = Number($('#payAmount').val());
     const error = $('#paySaveError');
@@ -558,7 +569,7 @@ function renderBookingsTable(statusFilter, search) {
   const $body = $('#bookingsBody').empty();
   if (!bookings.length) {
     $body.append('<tr><td colspan="8" class="text-center text-muted py-4">No bookings found.</td></tr>');
-    $('#bookingPagination').remove();
+    $('#bookingPagination').empty().prop('hidden', true);
     return;
   }
   const total=bookings.length;
@@ -589,6 +600,7 @@ function renderBookingsTable(statusFilter, search) {
       </tr>`);
   });
   if(!$('#bookingPagination').length)$('<div id="bookingPagination" class="d-flex align-items-center flex-wrap gap-2 mt-3"></div>').insertAfter($('#bookingsBody').closest('.table-wrap'));
+  $('#bookingPagination').prop('hidden', false);
   const firstShown=total?bookingPage*50+1:0;
   $('#bookingPagination').html('<button type="button" id="bookingPrev" class="btn btn-sm btn-outline-secondary" '+(bookingPage===0?'disabled':'')+'>Previous</button><span aria-live="polite">Showing '+firstShown+'–'+Math.min((bookingPage+1)*50,total)+' of '+total+'</span><button type="button" id="bookingNext" class="btn btn-sm btn-outline-secondary" '+((bookingPage+1)*50>=total?'disabled':'')+'>Next</button>');
   $('#bookingPrev').on('click',()=>{bookingPage--;renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());});
@@ -649,14 +661,36 @@ function loadBookingDetail(id) {
 
   PaymentsHelper.renderHistory(id, '#paymentHistoryWrap');
   const deposit=API.getDeposit(id);
-  $('#depositHeld').val(deposit.amount_held||0);$('#depositDeduction').val(deposit.deduction_amount||0);
-  $('#depositReason').val(deposit.deduction_reason||'');$('#depositRefund').val((Number(deposit.amount_held||0)-Number(deposit.deduction_amount||0)).toFixed(2));
+  setDepositForm(deposit);
+  const depositRevision=Number($('#depositHeld').data('revision')||0);
+  API.refreshDeposit(id).then(saved=>{
+    if(currentBookingId===id&&depositRevision===Number($('#depositHeld').data('revision')||0))setDepositForm(saved);
+  });
   setDeliveryForm(API.getDelivery(id));
   const deliveryRevision=deliveryFormRevision;
   API.refreshDelivery(id).then(saved=>{
     if(currentBookingId===id&&deliveryFormRevision===deliveryRevision)setDeliveryForm(saved);
   });
 
+}
+
+function setDepositForm(deposit) {
+  $('#depositHeld').val(deposit.amount_held||0);
+  $('#depositDeduction').val(deposit.deduction_amount||0);
+  $('#depositReason').val(deposit.deduction_reason||'');
+  $('#depositRefund').val(Number(deposit.refund_amount ?? (Number(deposit.amount_held||0)-Number(deposit.deduction_amount||0))).toFixed(2));
+  renderDepositRefundState(deposit);
+}
+
+function renderDepositRefundState(deposit) {
+  const labels={pending:'Pending',partial:'Partially refundable',full:'Fully refundable',none:'No refund due'};
+  const label=labels[deposit.refund_status]||'Not recorded';
+  const operation=API.getSyncQueue().find(item=>item.entity==='deposits'&&String(item.local_id)===String(deposit.booking_id));
+  if(operation?.status==='failed'||operation?.status==='conflict'){
+    $('#depositRefundState').text(`${label} · ${operation.status==='conflict'?'Needs review':'Save failed'}: ${operation.reason||'Retry from the sync panel.'}`);
+    return;
+  }
+  $('#depositRefundState').text(deposit.pending_sync?`${label} · Pending Sync`:label);
 }
 
 function setDeliveryForm(delivery) {

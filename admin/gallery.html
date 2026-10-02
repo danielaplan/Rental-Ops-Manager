@@ -28,12 +28,12 @@
   </div>
 </main>
 
-<div class="modal fade" id="imageFormModal" tabindex="-1">
+<div class="modal fade" id="imageFormModal" tabindex="-1" aria-labelledby="imageFormTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <form class="modal-content" id="imageForm">
       <div class="modal-header">
           <h5 class="modal-title" id="imageFormTitle">Add Image</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close image form"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="imgId">
@@ -43,13 +43,15 @@
           </div>
           <div class="mb-3">
             <label class="form-label" for="imgUrl">Image URL</label>
-            <input type="text" class="form-control" id="imgUrl" placeholder="https://..." required>
+            <input type="text" inputmode="url" class="form-control" id="imgUrl" placeholder="https://... or /images/setup.jpg" required>
+            <div class="form-text">Use an HTTP(S) URL or a path on this site.</div>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="imgFeatured">
             <label class="form-check-label" for="imgFeatured">Featured (shown on homepage)</label>
           </div>
         </div>
+        <div id="imageFormError" class="alert alert-danger mx-3 mb-0" role="alert" hidden></div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-admin-primary">Save</button>
@@ -76,6 +78,7 @@ $(async function () {
   $('#addImageBtn').on('click', function () {
     $('#imageForm')[0].reset();
     $('#imgId').val('');
+    $('#imageFormError').prop('hidden', true).text('');
     $('#imageFormTitle').text('Add Image');
     new bootstrap.Modal('#imageFormModal').show();
   });
@@ -87,6 +90,7 @@ $(async function () {
     $('#imgTitle').val(img.title);
     $('#imgUrl').val(img.image);
     $('#imgFeatured').prop('checked', !!img.featured);
+    $('#imageFormError').prop('hidden', true).text('');
     $('#imageFormTitle').text('Edit Image');
     new bootstrap.Modal('#imageFormModal').show();
   });
@@ -104,12 +108,30 @@ $(async function () {
     e.preventDefault();
     const id = $('#imgId').val();
     const data = { title: $('#imgTitle').val().trim(), image: $('#imgUrl').val().trim(), featured: $('#imgFeatured').is(':checked') };
-    if (id) { API.updateGalleryImage(id, data); showAdminToast('Image updated'); }
-    else { API.createGalleryImage(data); showAdminToast('Image added'); }
-    bootstrap.Modal.getInstance(document.getElementById('imageFormModal')).hide();
-    renderGallery();
+    if (!safeGalleryImageUrl(data.image)) {
+      $('#imageFormError').text('Enter a valid HTTP or HTTPS image URL.').prop('hidden', false).trigger('focus');
+      return;
+    }
+    try {
+      if (id) { API.updateGalleryImage(id, data); showAdminToast(API.savedMessage()); }
+      else { API.createGalleryImage(data); showAdminToast(API.savedMessage()); }
+      bootstrap.Modal.getInstance(document.getElementById('imageFormModal')).hide();
+      renderGallery();
+    } catch (error) {
+      $('#imageFormError').text(error.message).prop('hidden', false).trigger('focus');
+    }
   });
 });
+
+function safeGalleryImageUrl(value) {
+  if (typeof value !== 'string' || !value.trim()) return '';
+  try {
+    const url = new URL(value.trim(), window.location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch (error) {
+    return '';
+  }
+}
 
 function renderGallery() {
   const images = API.getGallery();
@@ -122,15 +144,15 @@ function renderGallery() {
     $wrap.append(`
       <div class="col-md-4 col-sm-6">
         <div class="border rounded overflow-hidden">
-          <img src="${img.image}" style="width:100%;height:160px;object-fit:cover;">
+          <img src="${escapeHtmlA(safeGalleryImageUrl(img.image))}" alt="${escapeHtmlA(img.title)}" style="width:100%;height:160px;object-fit:cover;">
           <div class="p-2">
             <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-semibold small">${img.title}</span>
+              <span class="fw-semibold small">${escapeHtmlA(img.title)}</span>
               ${img.featured ? '<span class="badge bg-warning text-dark">Featured</span>' : ''}
             </div>
             <div class="mt-2 d-flex gap-1">
-              <button class="btn btn-sm btn-outline-secondary js-edit-img" data-id="${img.image_id}"><i class="bi bi-pencil"></i></button>
-              <button class="btn btn-sm btn-outline-danger js-delete-img" data-id="${img.image_id}"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-sm btn-outline-secondary js-edit-img" data-id="${escapeHtmlA(img.image_id)}" aria-label="Edit ${escapeHtmlA(img.title)}"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-outline-danger js-delete-img" data-id="${escapeHtmlA(img.image_id)}" aria-label="Delete ${escapeHtmlA(img.title)}"><i class="bi bi-trash"></i></button>
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@
 (() => {
   const prefix = 'er_sync_op_';
   const base = new URL('../api/',document.currentScript.src).href;
-  const fields = {bookings:'id',categories:'category_id',services:'service_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id',bookingItems:'booking_item_id',itemReleases:'release_id',itemHistory:'history_id',delivery:'booking_id'};
+  const fields = {bookings:'id',categories:'category_id',services:'service_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id',bookingItems:'booking_item_id',itemReleases:'release_id',itemHistory:'history_id',delivery:'booking_id',deposits:'booking_id'};
   let localDepth = 0, flushing = null;
   const reads = new Map();
   const uuid = () => crypto.randomUUID();
@@ -133,6 +133,9 @@
     API[name]=function(...args){
       if(localDepth)return local(...args);
       if(!owner())throw new Error('Sign in before saving.');
+      if(entity==='bookings'&&action==='update'&&args[1]?.status==='Completed'){
+        throw new Error('Complete a return inspection before marking this booking Completed.');
+      }
       const old=action!=='create'?STORAGE.getAll(entity).find(r=>String(r[fields[entity]])===String(args[0])):null;
       localDepth++;let result;try{result=local(...args);}finally{localDepth--;}
       const data=payload(entity,action==='update'?args[1]||{}:action==='create'?args[0]||{}:{});
@@ -214,13 +217,24 @@
   API.finalizeReturn=id=>enqueue('equipment','finalizeReturn',{booking_id:id},id);
   API.getPackages=()=>{read('packages');return STORAGE.getAll('packages');};
   API.getDeposit=id=>{
-    if(!String(ref('bookings',id)).startsWith('LOCAL-'))read('deposits','get','&booking_id='+encodeURIComponent(ref('bookings',id))).then(row=>{if(row&&!dirty('deposits',id))merge('deposits',[row],id);});
     return STORAGE.getAll('deposits').find(r=>String(r.booking_id)===String(id))||{amount_held:0,deduction_amount:0,deduction_reason:''};
+  };
+  API.refreshDeposit=async id=>{
+    if(String(ref('bookings',id)).startsWith('LOCAL-')||!navigator.onLine)return API.getDeposit(id);
+    try{
+      const saved=await request('deposits','get',undefined,'&booking_id='+encodeURIComponent(ref('bookings',id)));
+      if(dirty('deposits',id))return API.getDeposit(id);
+      const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));
+      if(saved)rows.push({...saved,booking_id:id,amount_held:Number(saved.amount_held||0),deduction_amount:Number(saved.deduction_amount||0),refund_amount:Number(saved.refund_amount||0),pending_sync:false});
+      STORAGE.saveAll('deposits',rows);emit('api-data-changed',{entity:'deposits'});
+      return API.getDeposit(id);
+    }catch(error){emit('api-read-error',{entity:'deposits',message:error.message});return API.getDeposit(id);}
   };
   API.upsertDeposit=(id,data)=>{
     const held=Number(data.amount_held),ded=Number(data.deduction_amount);
     if(!Number.isFinite(held)||!Number.isFinite(ded)||held<0||ded<0||ded>held||(ded>0&&!String(data.deduction_reason||'').trim()))throw new Error('Enter non-negative amounts, keep deductions within the deposit, and give a reason for deductions.');
-    const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));const result={...data,booking_id:id,refund_amount:held-ded,pending_sync:true};rows.push(result);STORAGE.saveAll('deposits',rows);enqueue('deposits','upsert',result,id);return result;
+    const refundStatus=held<=0?'pending':ded<=0?'full':ded<held?'partial':'none';
+    const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));const result={...data,booking_id:id,refund_amount:held-ded,refund_status:refundStatus,pending_sync:true};rows.push(result);STORAGE.saveAll('deposits',rows);enqueue('deposits','upsert',result,id);return result;
   };
   API.getDelivery=id=>STORAGE.getAll('delivery').find(r=>String(r.booking_id)===String(id))||{booking_id:id,delivery_method:'self_pickup',delivery_fee:0,fee_shouldered_by:'renter'};
   API.refreshDelivery=async id=>{
