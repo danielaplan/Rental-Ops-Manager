@@ -5,8 +5,14 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 029bc4ed-f6f8-48e9-afa4-819cfc579d61
-  modified: 2026-09-30
+  modified: 2026-10-02
 ---
+
+## Frontend update — 2026-10-02
+
+The current FE-01–FE-17 report is the [frontend developer handoff](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md). It compares commit `e5f3b1f` with the requirements and records focused browser/PHP/MySQL results. Pagination reached rows 51–63 and returned to rows 1–50. A no-match search exposed stale controls; the user-authorized local `admin/bookings.html` fix removed them, and a 12-booking browser check confirmed removal and restoration after clearing the search. One isolated deposit/delivery save/reload, Details-tab visibility, Active-service create/Inactive edit and reload, and literal special-character rendering passed. Seeded local owner login passed. The temporary database/server were removed.
+
+These are selected results, not full frontend acceptance. The other developer's raw PHP login response still requires a PHP-enabled server on that laptop; its environment was not tested. CRUD create-default precedence, universal return-completion enforcement, non-JSON login guidance, and phone/offline/keyboard/performance checks remain open. FR-10 remains skipped. The older September 28 table below is historical.
 
 ## Current frontend gap review — 2026-09-30
 

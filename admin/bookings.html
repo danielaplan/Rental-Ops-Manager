@@ -558,6 +558,7 @@ function renderBookingsTable(statusFilter, search) {
   const $body = $('#bookingsBody').empty();
   if (!bookings.length) {
     $body.append('<tr><td colspan="8" class="text-center text-muted py-4">No bookings found.</td></tr>');
+    $('#bookingPagination').remove();
     return;
   }
   const total=bookings.length;

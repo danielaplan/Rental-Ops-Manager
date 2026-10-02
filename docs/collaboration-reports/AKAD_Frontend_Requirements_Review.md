@@ -1,12 +1,12 @@
 # AKAD frontend requirements review and developer handoff
 
-Updated: October 2, 2026. Source review of current `main` at `6ff2b52` (application code unchanged since the September 30 handoff); earlier findings are superseded where they differ below.
+Updated: October 2, 2026. Source review of `main` at `e5f3b1f` (the 1:34 PM Asia/Manila frontend commit), plus the local zero-result pagination fix described below. Earlier findings are superseded where they differ below.
 
 ## Purpose and assignment boundary
 
 Complete the internal staff interface using HTML, CSS, JavaScript, Bootstrap, and jQuery. This document is the current frontend work list, including remaining defects, missing workflows, completed work to preserve, and acceptance checks.
 
-**Frontend developer:** screens, styling, interactions, accessible forms, client validation, retained drafts, loading/error feedback, and frontend regression checks. The project owner handles database/PHP changes and live API integration and backend verification. Coordinate interface contracts with the owner; identify dependency gaps instead of inventing backend behavior. Labeled fixtures may demonstrate missing interfaces, but do not replace existing live authentication or synchronization with mock implementations.
+**Frontend developer:** screens, styling, interactions, accessible forms, client validation, retained drafts, loading/error feedback, and reproducible test steps for changed behavior. The project owner performs acceptance testing, database/PHP changes, live API integration, and backend verification. Coordinate interface contracts with the owner; identify dependency gaps instead of inventing backend behavior. Labeled fixtures may demonstrate missing interfaces, but do not replace existing live authentication or synchronization with mock implementations.
 
 **Scope decision:** FR-10 blockouts remain **skipped**, including their frontend. This document does not assign blockout implementation. The September 30 update changes documentation only; it does not certify or alter application behavior.
 
@@ -19,16 +19,19 @@ Payments are recorded after staff receive them externally. Payment gateways, tra
 - [Integration results](../../tests/offline-sync-results.json): 14 live PHP/MySQL checks.
 - [Browser outage results](../../tests/browser-outage-results.json) and [layout results](../../tests/browser-layout-results.json): focused browser workflow and viewport checks.
 
-This update inspected source after the frontend merge; it did not run a new browser or live PHP/MySQL regression suite. Earlier September 28 results establish selected workflows only. The source review confirms that controls and handlers exist, not that every save, reload, conflict, role, or device path passes. Physical phones, all screens, full keyboard behavior, production peak load, and two-owner/one-staff usability are not certified.
+This update inspected source after the frontend merge and the October 2 afternoon commit. A focused browser/PHP/MySQL smoke test was then run on October 2; it is recorded below and is not a full regression or acceptance suite. Earlier September 28 results establish other selected workflows only. Physical phones, all screens, full keyboard behavior, production peak load, and two-owner/one-staff usability are not certified. The afternoon commit changed `admin/bookings.html`, `admin/services.html`, `js/admin.js`, and `js/calendar.js`; it did not change the API, login form, tests, or requirements.
 
-**October 2 source verification:** The cited requirements, implementation report, and JSON result files exist; `tests/offline-sync-results.json` records 14 passed checks and `tests/browser-outage-results.json` records a passed focused browser workflow. No new runtime acceptance was performed. The following source findings refine this handoff:
+**October 2 source verification:** The cited requirements, implementation report, and JSON result files exist; `tests/offline-sync-results.json` records 14 passed checks and `tests/browser-outage-results.json` records a passed focused browser workflow. The afternoon commit addresses four earlier source findings; the unchanged return-completion blocker is also listed for context:
 
-| Area | Verified code behavior | Consequence |
+| Area | `e5f3b1f` and local follow-up | Status and remaining work |
 |---|---|---|
-| Booking pagination | `renderBookingsTable` slices to 50 rows, but inserts `#bookingPagination` after `.table-responsive`; the actual wrapper is `.table-wrap` ([bookings.html](../../admin/bookings.html)). | Page controls do not mount, so rows after the first 50 are inaccessible from this table. FE-17 pagination is incomplete. |
+| Booking pagination | `renderBookingsTable` inserts `#bookingPagination` after `.table-wrap` and now removes it when there are no matches ([bookings.html](../../admin/bookings.html)). | A 63-booking browser test reached page 2 and returned to page 1. A subsequent local fix was browser-checked with 12 bookings: a no-match search removed the old controls, and clearing the search restored them. Refresh/filter edge cases and performance acceptance remain. |
 | Return completion | `finalizeReturn` validates a complete inspection, but the ordinary booking status update can set `Completed` without that validation ([bookings.html](../../admin/bookings.html), [bookings.php](../../api/bookings.php), [sync.php](../../api/sync.php)). | The focused return-action check does not establish a universal completion rule. Coordinate a backend state-rule fix with the owner. |
-| Service create status | The form submits `status`, but generic create merges defaults before supplied values; `services.php` defaults it to `Active` ([services.html](../../admin/services.html), [crud.php](../../api/crud.php)). | Creating a service as Inactive can persist as Active. The same default precedence affects other generic catalog creates. |
-| Delivery placement | Deposit and delivery blocks sit directly under `.tab-content`, outside any `.tab-pane` ([bookings.html](../../admin/bookings.html)). | Verify and correct their placement/visibility during the booking-detail UI audit. |
+| Service create status | The Add Service form now disables Inactive and explains that new services are created Active ([services.html](../../admin/services.html)). Generic create still merges defaults before submitted values ([crud.php](../../api/crud.php)). | In the isolated browser test, Active creation and subsequent Inactive editing survived reload; text containing `<`, `&`, and quotes rendered literally. The backend default-precedence defect and other catalog contracts remain. FE-14 acceptance is pending. |
+| Deposit and delivery placement | Both blocks are now inside the booking Details tab pane ([bookings.html](../../admin/bookings.html)). | Browser tab switching hid and restored the controls. In isolated PHP/MySQL testing, a ₱350 deposit with ₱50 deduction reloaded with a ₱300 preview; Lalamove, ₱250 fee, and AKAD-paid responsibility also survived reload. Phone, offline, conflict, and failure behavior remain open. FE-08 acceptance is pending. |
+| Known unsafe rendering examples | `badgeStatus` now escapes status text; booking action and calendar `data-id` values are escaped ([admin.js](../../js/admin.js), [bookings.html](../../admin/bookings.html), [calendar.js](../../js/calendar.js)). | The isolated service-row test rendered literal `<b>` text, quotes, and ampersands. The specific changed status and booking-ID paths still need targeted special-character cases, and the full text/attribute/URL audit remains open under FE-15. |
+
+**Focused smoke-test environment and limits:** The seeded owner signed in through PHP on `127.0.0.1:8000`; `api/auth.php?do=me` returned JSON rather than raw PHP. Data-changing checks used a temporary isolated MySQL database and PHP server on port 8020 with 63 bookings. The test server and database were removed afterward. The checks did not exercise a physical phone, keyboard-only use, offline sync, failed server responses, staff-role access, or the full regression list. These results demonstrate only the listed scenarios.
 
 ## Work order
 
@@ -41,16 +44,16 @@ This update inspected source after the frontend merge; it did not run a new brow
 | FE-05 Internal scope, branding, and staff access | P1 | Public booking creation removed; AKAD titles and real login exist; audit content, roles, and auth errors | WONT-01, NFR-03 |
 | FE-06 Service/package selection and display | P1 | Selector and `package_name` detail display implemented; verify catalogs and reload | FR-01, FR-05 |
 | FE-07 Negotiated payments and history | P1 | Down-payment entry and GCash/MariBank choices implemented; verify history and failures | FR-04 |
-| FE-08 Deposit and delivery workflows | P1 | Deposit and delivery controls plus local/sync adapter implemented; verify persistence and refund status | FR-06, FR-08 |
+| FE-08 Deposit and delivery workflows | P1 | Details-tab visibility and one isolated save/reload scenario passed; phone, offline, error, and refund-status checks remain | FR-06, FR-08 |
 | FE-09 Calendar navigation and freshness | P2 | Labels/expansion/refresh implemented; complete regression and feedback | FR-02, FR-03 |
 | FE-10 Phone and keyboard accessibility | P2 | Return layout checks passed; full interface/device audit remains | NFR-02, NFR-03 |
 | FE-11 Reporting definitions and freshness | P2 | Event-date basis labeled and refresh handling added; validate figures, states, and owner definitions | FR-07 |
 | FE-12 Offline and conflict feedback | P1/Preserve | Real queue/cache/sync and read-error display implemented; complete stale-record comparison and coverage | NFR-01 |
 | FE-13 Service/date blockouts | Skipped | Explicitly deferred; do not implement | FR-10 |
-| FE-14 Catalog/settings field contracts | P1 | Service form narrowed to supported fields; inactive create is overridden by backend default; inventory remaining screens | Supporting workflows |
-| FE-15 Safe rendering of user-entered values | P1 | Escaping added in key views; complete text, attribute, and URL audit | All relevant screens |
+| FE-14 Catalog/settings field contracts | P1 | Isolated Active create and Inactive edit survived reload; backend default precedence and remaining screen contracts need review | Supporting workflows |
+| FE-15 Safe rendering of user-entered values | P1 | Additional status and booking-ID examples are escaped; one service-row special-character check passed; complete text, attribute, and URL audit | All relevant screens |
 | FE-16 Draft recovery and save consistency | P2 | Add-on draft restoration and partial-payment recovery added; test failure/reload paths | FR-01, NFR-01 |
-| FE-17 Frontend performance | P1/P2 | Booking rows are capped at 50 but page controls fail to mount; calendar date indexing exists; broader measurement remains | NFR-04 |
+| FE-17 Frontend performance | P1/P2 | Page 2 of 63 bookings works; zero-result controls now clear and return with results; test refresh/filter edge cases and measure responsiveness | NFR-04 |
 
 Start with end-to-end verification of the newly added booking edit, delivery, payment, package, draft, and refresh paths. Fix failures found there, complete the field-contract and save/error audits, then finish device, accessibility, reporting, and performance acceptance. Preserve implemented controls rather than rebuilding them because an earlier review called them missing.
 
@@ -86,9 +89,9 @@ Start with end-to-end verification of the newly added booking edit, delivery, pa
 
 **Implemented in source:** [index.html](../../index.html) and [app.js](../../js/app.js) no longer expose a public booking submission path. [config.js](../../js/config.js) and [login.html](../../admin/login.html) use AKAD titles. [admin.js](../../js/admin.js) signs in through PHP and uses a cached authenticated session for offline entry. Some prototype/customer-account terms and historical content may still need review.
 
-**Remaining work:** Audit all public links and scripts to ensure no alternate customer booking path remains. Confirm owner-approved logo, contact details, service wording, and brochure content; do not invent content. Remove remaining customer-account terminology from staff workflows without deleting historical records. Test invalid credentials, expired session, first-use offline login, access denial, and owner/staff catalog visibility. Coordinate server session revocation with the owner: current logout clears the local marker.
+**Remaining work:** Audit all public links and scripts to ensure no alternate customer booking path remains. Confirm owner-approved logo, contact details, service wording, and brochure content; do not invent content. Remove remaining customer-account terminology from staff workflows without deleting historical records. Test invalid credentials, expired session, first-use offline login, access denial, and owner/staff catalog visibility. Make the login form show a useful message if `api/auth.php` returns empty, HTML, or raw PHP instead of JSON; the current unconditional `response.json()` exposes a parser error to staff. A raw `<?php` response means the site is being served without PHP execution and must be corrected in the tester's server setup. Coordinate server session revocation with the owner: current logout clears the local marker.
 
-**Acceptance:** Public controls cannot create local or live bookings. Staff booking entry remains available. Authentication is described accurately; first-time login requires connectivity. Expiry/access errors preserve pending records. Role visibility matches the server contract. No fabricated branding/contact content.
+**Acceptance:** Public controls cannot create local or live bookings. Staff booking entry remains available. Authentication is described accurately; first-time login requires connectivity. Non-JSON server responses produce actionable login guidance rather than a JSON parser exception. Expiry/access errors preserve pending records. Role visibility matches the server contract. No fabricated branding/contact content.
 
 ### FE-06 — Service/package selection and display
 
@@ -118,7 +121,7 @@ Start with end-to-end verification of the newly added booking edit, delivery, pa
 
 **Implemented delivery workflow in source:** [bookings.html](../../admin/bookings.html) now has delivery method (self-pickup, Lalamove, owner-delivered), fee, and fee responsibility controls. [sync.js](../../js/sync.js) includes a delivery cache, API read, validation, and queued save using the backend `delivery_method`, `delivery_fee`, and `fee_shouldered_by` fields. This path still needs live save/reload, offline, conflict, and role/error checks.
 
-**Known UI defect:** The deposit and delivery controls are outside the booking detail tab panes. Move them into the intended visible pane as part of the frontend work and check that tab switching, focus, and scrolling remain usable.
+**October 2 focused result:** The controls are inside the Details tab; browser tab switching hid and restored them. One isolated save/reload passed for the deposit and delivery values listed in the evidence table. Verify keyboard focus, scrolling, phone widths, additional records, offline, conflict, and role/error behavior before acceptance.
 
 **Acceptance:** Deduction above held amount or without a reason is rejected. Preview is not labeled as an executed refund. Delivery fields survive save/reload and remain separate from general pricing. Pending/failed delivery saves never claim acceptance. No payment/refund transfer is initiated.
 
@@ -134,7 +137,9 @@ Start with end-to-end verification of the newly added booking edit, delivery, pa
 
 **Implemented in source:** [services.html](../../admin/services.html) now edits service name, description, and status, matching the fields persisted by [services.php](../../api/services.php). The earlier unsupported category/price/image/inclusions/featured service fields are no longer submitted by that form. Package pricing remains a separate contract.
 
-**Remaining work:** Verify the simplified service form after live save/reload. Creating a service as Inactive currently submits that value but `crud.php` applies the `Active` default first; the owner must correct default precedence or the interface must clearly prevent that choice until it persists. Check the same behavior for categories, add-ons, inventory defaults, and gallery `featured`. Inventory every other editable screen field against its current backend contract: categories, add-ons, inventory, customers, gallery, website content, and settings. Identify unsupported fields in a contract checklist and coordinate whether to remove/disable them or have the owner extend persistence. Review identifier/type mappings, saved select values, Active/Inactive labels, refresh behavior, and deletion messages against actual database behavior.
+**October 2 source change:** Add Service disables the Inactive option and explains that new services must be Active. Edit Service re-enables the option. This is the handoff's allowed frontend containment of the create defect, not a backend correction. The note should be removed or revised when the owner fixes create behavior.
+
+**Focused result and remaining work:** Active service creation and subsequent Inactive editing survived reload in one isolated browser/PHP/MySQL scenario. `crud.php` still applies `Active` through `$defaults + $vals`, overriding a submitted create status; coordinate a default-precedence fix with the owner. Check the same behavior for categories, add-ons, inventory defaults, and gallery `featured`. Inventory every other editable screen field against its current backend contract: categories, add-ons, inventory, customers, gallery, website content, and settings. Identify unsupported fields in a contract checklist and coordinate whether to remove/disable them or have the owner extend persistence. Review identifier/type mappings, saved select values, Active/Inactive labels, refresh behavior, and deletion messages against actual database behavior.
 
 **Acceptance:** Each field is either supported and verified after reload or explicitly identified as local/demo/unsupported. No success message falsely promises central persistence. Do not alter schema, add payment rules, or expand public-portal scope to satisfy a screen contract.
 
@@ -144,7 +149,7 @@ Start with end-to-end verification of the newly added booking edit, delivery, pa
 
 **Remaining work:** Audit every remaining user-entered value in text, attributes, and URLs; fix any raw interpolation found. Review image/link URL handling separately. Preserve line breaks intentionally without inserting raw HTML. Include dialog close labels and icon-button names in the accessibility audit.
 
-**Known source examples for that audit:** `badgeStatus` inserts its status argument as raw HTML ([admin.js](../../js/admin.js)); calendar booking `data-id` is interpolated without escaping ([calendar.js](../../js/calendar.js)). Check whether values can be controlled through server records, local drafts, or imports before treating either path as safe.
+**October 2 source change and focused result:** `badgeStatus` now escapes its status text; calendar booking and booking-action `data-id` attributes now escape their values ([admin.js](../../js/admin.js), [calendar.js](../../js/calendar.js), [bookings.html](../../admin/bookings.html)). A service-row name and description with quotes, angle brackets, and ampersands rendered literally after reload in the isolated browser test. Test the changed status and booking-ID paths separately and continue the broader audit; this result does not establish that all records, links, and images are safe.
 
 **Acceptance:** Names, notes, addresses, and catalog text containing quotes, angle brackets, ampersands, or markup render as text and do not execute. Approved image/link URLs render correctly; unsafe URLs are rejected according to the agreed policy.
 
@@ -188,9 +193,9 @@ Manual booking saves a draft per signed-in user and now explicitly stores/restor
 
 ### FE-17 — Frontend performance
 
-Booking rendering is capped at 50 rows, but the pagination control is inserted against a nonexistent `.table-responsive` wrapper, so later pages cannot be reached. Calendar date indexing exists. The earlier 10,000-booking measurements were API timings; they did not establish complete frontend rendering responsiveness.
+Booking rendering is capped at 50 rows, and the October 2 commit mounts pagination after the actual `.table-wrap`. In a 63-booking isolated browser test, Next showed rows 51–63 and Previous restored rows 1–50. That test found stale controls after a no-match search. The local follow-up removes pagination in the empty branch; a browser check with 12 bookings confirmed the controls disappear for no matches and return when the search is cleared. Calendar date indexing exists. The earlier 10,000-booking measurements were API timings; they did not establish complete frontend rendering responsiveness.
 
-**Remaining work:** Fix the pagination mount target and verify navigation beyond 50 bookings before measuring initial usable render, searching/filtering, pagination, calendar expansion, modal opening, and report generation with representative cached data. Avoid unbounded DOM rows and rebuilding expensive charts on every event. Document data size/device/browser and visible delays. Coordinate server pagination/incremental sync with the owner; the approximately 10.4 MB full bookings refresh is a backend/adapter scaling dependency.
+**Remaining work:** Verify page and range behavior after background refresh, when filters narrow a list from more than 50 rows, and when an empty result becomes nonempty. Then measure initial usable render, searching/filtering, pagination, calendar expansion, modal opening, and report generation with representative cached data. Avoid unbounded DOM rows and rebuilding expensive charts on every event. Document data size/device/browser and visible delays. Coordinate server pagination/incremental sync with the owner; the approximately 10.4 MB full bookings refresh is a backend/adapter scaling dependency.
 
 **Acceptance:** Record measured interaction times against an owner-agreed target. Do not invent a formal peak-performance threshold or claim local API benchmarks certify production phones.
 
@@ -199,6 +204,15 @@ Booking rendering is capped at 50 rows, but the pagination control is inserted a
 The user explicitly confirmed blockouts remain skipped at session close on September 28. No blockout schema, endpoint, queue support, or frontend was implemented. [Fix.md](../../Implementation/Fix.md) is a deferred draft with corrections needed, not an active assignment. Do not add block controls, fake customer bookings, or unavailable-period simulations to this handoff's delivery scope without renewed authorization.
 
 ## Developer deliverables and completion checklist
+
+### Next frontend work after `e5f3b1f`
+
+1. **Prepare broader owner acceptance for the changed areas.** The focused browser checks passed for page navigation, booking tabs, one deposit/delivery save/reload, Active-create/Inactive-edit service persistence, and the local empty-result pagination fix. Supply reproducible steps and safe test data for refresh behavior, phone layouts, offline/failure paths, and changed escaping paths. State the expected result and server dependency for each. The owner runs the remaining acceptance checks and records results.
+2. **Complete pagination edge cases.** Check page selection and range text after filters and background refresh, including transitions from empty to nonempty results. The previously reproduced stale-control defect was fixed locally and browser-checked.
+3. **Complete the P1 handoff checks.** Work through booking edit/conflict/retry (FE-01), return status integrity with the owner (FE-02), payment state and history (FE-03/07), truthful loading/save/error feedback (FE-04), login and role errors (FE-05), package persistence (FE-06), deposit/delivery persistence (FE-08), offline conflicts (FE-12), catalog field contracts (FE-14), and the wider rendering audit (FE-15). Preserve existing queue and live authentication behavior.
+4. **Prepare the remaining screens for acceptance.** Calendar (FE-09), phone/keyboard accessibility (FE-10), reporting definitions and refresh (FE-11), draft recovery (FE-16), and representative frontend timings (FE-17) still need the specific checks described above. Give the owner concise expected results and setup notes. Record known code defects and dependencies explicitly; do not mark source presence as acceptance.
+
+**Owner dependencies:** The project owner handles the `crud.php` default-precedence fix, universal return-completion enforcement in the booking API, PHP/MySQL deployment, and any agreed API/schema contract changes. The frontend developer should report those dependencies with reproducible steps and keep the interface honest about pending or rejected saves. FR-10 blockouts remain skipped.
 
 - [ ] A field/contract inventory identifying supported fields and backend-owner dependencies.
 - [ ] Delivery controls verified after live save/reload and offline sync, with saved-value and pending/error behavior.
@@ -212,4 +226,4 @@ The user explicitly confirmed blockouts remain skipped at session close on Septe
 - [ ] Screen list, changed files, test steps, screenshots where useful, and unresolved content/contract decisions.
 - [ ] FR-10 remains skipped; no fixed down-payment/deposit minimum or gateway functionality introduced.
 
-Mark a frontend task complete only when its assigned interface behavior and regression checks pass. The frontend developer may demonstrate blocked integration dependencies with explicitly labeled fixtures; live API/schema/backend work remains the project owner's responsibility. Existing live flows must remain intact. Report actual owner/staff usability, physical-device acceptance, and production performance as pending until those checks are performed.
+Mark a frontend task complete only after the project owner confirms its assigned interface behavior and regression checks pass. The frontend developer supplies the implementation, changed-file list, expected results, and reproducible steps; the owner executes acceptance tests. The frontend developer may demonstrate blocked integration dependencies with explicitly labeled fixtures; live API/schema/backend work remains the project owner's responsibility. Existing live flows must remain intact. Report actual owner/staff usability, physical-device acceptance, and production performance as pending until the owner performs those checks.

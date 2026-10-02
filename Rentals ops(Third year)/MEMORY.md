@@ -13,6 +13,14 @@ aliases:
 status: active
 ---
 
+## Frontend review, smoke test, and pagination fix — 2026-10-02
+
+The afternoon GitHub commit `e5f3b1f` addressed booking pagination placement, deposit/delivery tab placement, an Inactive-service-create workaround, and identified escaping examples. The tracked [frontend handoff](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md) now compares that commit with FE-01–FE-17 and records the remaining work. The user owns overall acceptance but authorized the assistant to run a focused smoke test and later to fix the no-match pagination bug.
+
+Local PHP/MySQL owner login passed. An isolated browser/PHP/MySQL test with 63 bookings reached page 2 and back; booking Details controls hid and returned on tab switch; ₱350 deposit minus ₱50 deduction displayed ₱300 after reload; Lalamove with ₱250 fee and AKAD-paid responsibility survived reload; Active service creation and Inactive editing survived reload; service text with `<`, `&`, and quotes rendered literally. The test found stale pagination after a no-match search. The local `admin/bookings.html` fix removes the controls for empty results; a browser test with 12 bookings confirmed the controls disappear and return after clearing the search. The temporary database and test server were removed.
+
+The other developer's raw `<?php`/JSON error indicates PHP was not executing on that laptop; this machine's login success does not verify the other setup. Non-JSON login feedback, the CRUD default-precedence bug, the general Completed-status bypass, and broader phone/offline/keyboard/performance checks remain open. FR-10 remains skipped. No assistant staging, commit, or push.
+
 ## Frontend handoff source verification — 2026-10-02
 
 The [frontend requirements review](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md) was checked against current `main` (`6ff2b52`) and its cited result files. No new browser or live database suite ran, and application code was not changed. Four concrete source findings were added: booking rows are limited to 50 while pagination controls fail to mount (`.table-responsive` target versus `.table-wrap`); the general booking status path can set Completed without the dedicated return inspection check; generic CRUD create defaults override a submitted Inactive service status; and deposit/delivery controls sit outside the detail modal's tab panes. The 2026-09-28 verification report now clarifies the return and pagination claims. FR-10 remains skipped and the prior frontend code boundary remains in effect.
