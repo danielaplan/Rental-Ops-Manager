@@ -157,7 +157,7 @@ function showAdminToast(message, type) {
 
 function badgeStatus(status, map) {
   const color = (map && map[status]) || 'secondary';
-  return `<span class="badge bg-${color}">${status}</span>`;
+  return `<span class="badge bg-${color}">${escapeHtmlA(status)}</span>`;
 }
 
 /* Field-level validation error display. Attaches a small red message

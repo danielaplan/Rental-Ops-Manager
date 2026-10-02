@@ -124,48 +124,51 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div class="border rounded p-3 my-3">
-            <h6>Negotiated refundable deposit</h6><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
-            <div class="row g-2">
-              <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0" step="0.01"></div>
-              <div class="col-sm-6"><label for="depositDeduction">Deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01"></div>
-              <div class="col-sm-6"><label for="depositReason">Deduction reason</label><input id="depositReason" class="form-control" type="text"></div>
-              <div class="col-sm-6"><label for="depositRefund">Refund preview (₱)</label><input id="depositRefund" class="form-control" readonly></div>
-            </div><div id="depositError" role="alert" tabindex="-1" class="text-danger my-2" hidden></div>
-            <button type="button" class="btn btn-outline-secondary mt-2" id="saveDepositBtn">Save deposit</button>
-          </div>
-            <div class="border rounded p-3 my-3">
-              <h6>Delivery arrangement</h6>
-              <div class="row g-2">
-                <div class="col-md-4">
-                  <label class="form-label" for="deliveryMethod">Delivery method</label>
-                  <select class="form-select" id="deliveryMethod">
-                    <option value="self_pickup">Self-pickup</option>
-                    <option value="lalamove">Lalamove</option>
-                    <option value="owner_delivered">Owner-delivered</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="deliveryFee">Delivery fee (₱)</label>
-                  <input class="form-control" id="deliveryFee" type="number" min="0" step="0.01" value="0">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="deliveryResponsibility">Fee arrangement</label>
-                  <select class="form-select" id="deliveryResponsibility">
-                    <option value="renter">Paid by renter</option>
-                    <option value="owner">Included / paid by AKAD</option>
-                  </select>
+              <div class="col-12">
+                <div class="border rounded p-3">
+                <h6>Negotiated refundable deposit</h6><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
+                <div class="row g-2">
+                  <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0" step="0.01"></div>
+                  <div class="col-sm-6"><label for="depositDeduction">Deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01"></div>
+                  <div class="col-sm-6"><label for="depositReason">Deduction reason</label><input id="depositReason" class="form-control" type="text"></div>
+                  <div class="col-sm-6"><label for="depositRefund">Refund preview (₱)</label><input id="depositRefund" class="form-control" readonly></div>
+                </div><div id="depositError" role="alert" tabindex="-1" class="text-danger my-2" hidden></div>
+                <button type="button" class="btn btn-outline-secondary mt-2" id="saveDepositBtn">Save deposit</button>
                 </div>
               </div>
-              <div id="deliverySaveError" class="text-danger small mt-2" role="alert" tabindex="-1" hidden></div>
-              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mt-2">
-                <span id="deliverySaveState" class="small text-muted" aria-live="polite"></span>
-                <button type="button" class="btn btn-outline-secondary" id="saveDeliveryBtn">Save delivery arrangement</button>
+              <div class="col-12">
+                <div class="border rounded p-3">
+                <h6>Delivery arrangement</h6>
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <label class="form-label" for="deliveryMethod">Delivery method</label>
+                    <select class="form-select" id="deliveryMethod">
+                      <option value="self_pickup">Self-pickup</option>
+                      <option value="lalamove">Lalamove</option>
+                      <option value="owner_delivered">Owner-delivered</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="deliveryFee">Delivery fee (₱)</label>
+                    <input class="form-control" id="deliveryFee" type="number" min="0" step="0.01" value="0">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="deliveryResponsibility">Fee arrangement</label>
+                    <select class="form-select" id="deliveryResponsibility">
+                      <option value="renter">Paid by renter</option>
+                      <option value="owner">Included / paid by AKAD</option>
+                    </select>
+                  </div>
+                </div>
+                <div id="deliverySaveError" class="text-danger small mt-2" role="alert" tabindex="-1" hidden></div>
+                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mt-2">
+                  <span id="deliverySaveState" class="small text-muted" aria-live="polite"></span>
+                  <button type="button" class="btn btn-outline-secondary" id="saveDeliveryBtn">Save delivery arrangement</button>
+                </div>
+                </div>
               </div>
             </div>
+          </div>
           <!-- CHECKLIST / RELEASE TAB -->
           <div class="tab-pane fade" id="tabChecklist">
             <p class="text-muted small">Auto-generated from this booking's selected services. Check each item before release.</p>
@@ -578,14 +581,15 @@ function renderBookingsTable(statusFilter, search) {
         <td>${badgeStatus(PaymentsHelper.paymentStatus(b, pendingPaymentIndex), CONFIG.paymentStatusColors)}</td>
         <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}${b.pending_sync?'<span class="badge bg-warning text-dark">Pending Sync</span>':''}</td>
         <td class="text-center">
-          <button class="btn btn-sm btn-outline-secondary py-1 px-2 js-view-booking" data-id="${b.id}" title="View Details">
+          <button class="btn btn-sm btn-outline-secondary py-1 px-2 js-view-booking" data-id="${escapeHtmlA(b.id)}" title="View Details">
             <i class="bi bi-eye"></i> View
           </button>
         </td>
       </tr>`);
   });
-  if(!$('#bookingPagination').length)$('<div id="bookingPagination" class="d-flex align-items-center flex-wrap gap-2 mt-3"></div>').insertAfter($('#bookingsBody').closest('.table-responsive'));
-  $('#bookingPagination').html('<button type="button" id="bookingPrev" class="btn btn-sm btn-outline-secondary" '+(bookingPage===0?'disabled':'')+'>Previous</button><span>Showing '+(bookingPage*50+1)+'–'+Math.min((bookingPage+1)*50,total)+' of '+total+'</span><button type="button" id="bookingNext" class="btn btn-sm btn-outline-secondary" '+((bookingPage+1)*50>=total?'disabled':'')+'>Next</button>');
+  if(!$('#bookingPagination').length)$('<div id="bookingPagination" class="d-flex align-items-center flex-wrap gap-2 mt-3"></div>').insertAfter($('#bookingsBody').closest('.table-wrap'));
+  const firstShown=total?bookingPage*50+1:0;
+  $('#bookingPagination').html('<button type="button" id="bookingPrev" class="btn btn-sm btn-outline-secondary" '+(bookingPage===0?'disabled':'')+'>Previous</button><span aria-live="polite">Showing '+firstShown+'–'+Math.min((bookingPage+1)*50,total)+' of '+total+'</span><button type="button" id="bookingNext" class="btn btn-sm btn-outline-secondary" '+((bookingPage+1)*50>=total?'disabled':'')+'>Next</button>');
   $('#bookingPrev').on('click',()=>{bookingPage--;renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());});
   $('#bookingNext').on('click',()=>{bookingPage++;renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());});
 }

@@ -57,9 +57,10 @@
           <div class="col-md-6">
             <label class="form-label" for="svcStatus">Status</label>
             <select class="form-select" id="svcStatus">
-              <option>Active</option>
-              <option>Inactive</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
             </select>
+            <div class="form-text" id="svcInactiveCreateNote" hidden>New services must be created as Active until the server reliably saves an Inactive status.</div>
           </div>
         </div>
       </div>
@@ -91,6 +92,9 @@ $(async function () {
     $('#serviceForm')[0].reset();
     $('#svcId').val('');
     $('#serviceFormTitle').text('Add Service');
+    $('#svcStatus option[value="Inactive"]').prop('disabled', true);
+    $('#svcStatus').val('Active');
+    $('#svcInactiveCreateNote').prop('hidden', false);
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
@@ -100,6 +104,8 @@ $(async function () {
     $('#svcId').val(s.service_id);
     $('#svcName').val(s.name);
     $('#svcDescription').val(s.description);
+    $('#svcStatus option[value="Inactive"]').prop('disabled', false);
+    $('#svcInactiveCreateNote').prop('hidden', true);
     $('#svcStatus').val(s.status);
     $('#serviceFormTitle').text('Edit Service');
     new bootstrap.Modal('#serviceFormModal').show();

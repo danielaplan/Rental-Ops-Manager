@@ -34,7 +34,7 @@ const CalendarHelper = {
       dayBookings.forEach((b,index) => {
         const color = CONFIG.bookingStatusColors[b.status] || 'secondary';
         const service=(b.service_ids||[]).map(id=>services.get(id)||id).join(', ');
-        html += `<button type="button" class="js-cal-booking badge bg-${color} d-block text-truncate mb-1 w-100 border-0 ${index>=3?'cal-extra':''}" ${index>=3?'hidden':''} style="font-weight:400;text-align:left;" data-date="${dateStr}" data-id="${b.id}" aria-label="${escapeHtmlA(b.customer_name+', '+service+', '+b.status+', '+b.start_time)}">${escapeHtmlA(b.customer_name)}<br>${escapeHtmlA(service)} · ${escapeHtmlA(b.status)}</button>`;
+        html += `<button type="button" class="js-cal-booking badge bg-${color} d-block text-truncate mb-1 w-100 border-0 ${index>=3?'cal-extra':''}" ${index>=3?'hidden':''} style="font-weight:400;text-align:left;" data-date="${dateStr}" data-id="${escapeHtmlA(b.id)}" aria-label="${escapeHtmlA(b.customer_name+', '+service+', '+b.status+', '+b.start_time)}">${escapeHtmlA(b.customer_name)}<br>${escapeHtmlA(service)} · ${escapeHtmlA(b.status)}</button>`;
       });
       if (dayBookings.length > 3) html += `<button type="button" class="js-cal-more btn btn-sm p-0" data-date="${dateStr}" aria-expanded="false">+${dayBookings.length - 3} more</button>`;
       html += `</div>`;
