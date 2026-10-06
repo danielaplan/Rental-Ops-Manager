@@ -59,19 +59,28 @@
 <script>
 $(async function () {
   await API.ready;
-  initAdminChrome('payments.html', 'Payments');
-  renderPayments();
+  await initAdminChrome('payments.html', 'Payments');
+  await renderPayments();
 });
 
-function renderPayments() {
-  const payments = API.getPayments().slice().sort((a, b) => (a.date < b.date ? 1 : -1));
-  const bookings = API.getBookings();
-  const pendingPaymentIndex = PaymentsHelper.pendingAmountsByBooking();
+async function renderPayments() {
+  const [payments, bookings, pendingPaymentIndex] = await Promise.all([
+    API.getPayments(),
+    API.getBookings(),
+    PaymentsHelper.pendingAmountsByBooking()
+  ]);
+  const sortedPayments = payments.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
 
-  const totalCollected = payments.filter(p => !p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
-  const pendingAmount = payments.filter(p => p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
-  const totalOutstanding = bookings.reduce((s, b) => s + PaymentsHelper.remainingBalance(b, pendingPaymentIndex), 0);
-  const fullyPaidCount = bookings.filter(b => PaymentsHelper.paymentStatus(b, pendingPaymentIndex) === 'Fully Paid').length;
+  const totalCollected = sortedPayments.filter(p => !p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
+  const pendingAmount = sortedPayments.filter(p => p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
+  const totalOutstanding = await bookings.reduce(async (sumPromise, b) => {
+    const sum = await sumPromise;
+    return sum + await PaymentsHelper.remainingBalance(b, pendingPaymentIndex);
+  }, Promise.resolve(0));
+  const fullyPaidCount = (await Promise.all(bookings.map(async b => ({
+    booking: b,
+    status: await PaymentsHelper.paymentStatus(b, pendingPaymentIndex)
+  })))).filter(item => item.status === 'Fully Paid').length;
 
   const $stats = $('#payStatsRow').empty();
   [
@@ -79,7 +88,7 @@ function renderPayments() {
     { label: "Pending Sync", value: BookingCalc.formatCurrency(pendingAmount), icon: "bi-cloud-arrow-up", cls: pendingAmount > 0 ? "warn" : "" },
     { label: "Outstanding Balance", value: BookingCalc.formatCurrency(totalOutstanding), icon: "bi-hourglass-split", cls: "warn" },
     { label: "Fully Paid Bookings", value: fullyPaidCount, icon: "bi-check2-circle" },
-    { label: "Total Payments Logged", value: payments.length, icon: "bi-receipt" }
+    { label: "Total Payments Logged", value: sortedPayments.length, icon: "bi-receipt" }
   ].forEach(s => {
     $stats.append(`
       <div class="col-6 col-md-3">
@@ -92,8 +101,8 @@ function renderPayments() {
   });
 
   const $body = $('#paymentsBody').empty();
-  if (!payments.length) $body.append('<tr><td colspan="8" class="text-center text-muted py-4">No payments recorded yet.</td></tr>');
-  payments.forEach(p => {
+  if (!sortedPayments.length) $body.append('<tr><td colspan="8" class="text-center text-muted py-4">No payments recorded yet.</td></tr>');
+  sortedPayments.forEach(p => {
     const b = bookings.find(x => x.id === p.booking_id);
     $body.append(`
       <tr>
@@ -108,18 +117,23 @@ function renderPayments() {
       </tr>`);
   });
 
-  const outstanding = bookings.filter(b => PaymentsHelper.remainingBalance(b, pendingPaymentIndex) > 0);
+  const outstanding = [];
+  for (const b of bookings) {
+    const balance = await PaymentsHelper.remainingBalance(b, pendingPaymentIndex);
+    if (balance > 0) outstanding.push({ booking: b, balance, paid: await PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex), status: await PaymentsHelper.paymentStatus(b, pendingPaymentIndex) });
+  }
   const $out = $('#outstandingBody').empty();
   if (!outstanding.length) $out.append('<tr><td colspan="6" class="text-center text-muted py-4">No outstanding balances.</td></tr>');
-  outstanding.forEach(b => {
+  outstanding.forEach(item => {
+    const b = item.booking;
     $out.append(`
       <tr>
         <td>${escapeHtmlA(b._server_id || b.id)}</td>
         <td>${escapeHtmlA(b.customer_name)}</td>
         <td>${BookingCalc.formatCurrency(b.total)}</td>
-        <td>${BookingCalc.formatCurrency(PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex))}</td>
-        <td class="fw-bold text-danger">${BookingCalc.formatCurrency(PaymentsHelper.remainingBalance(b, pendingPaymentIndex))}</td>
-        <td>${badgeStatus(PaymentsHelper.paymentStatus(b, pendingPaymentIndex), CONFIG.paymentStatusColors)}</td>
+        <td>${BookingCalc.formatCurrency(item.paid)}</td>
+        <td class="fw-bold text-danger">${BookingCalc.formatCurrency(item.balance)}</td>
+        <td>${badgeStatus(item.status, CONFIG.paymentStatusColors)}</td>
       </tr>`);
   });
 }

@@ -178,26 +178,26 @@ $(async function () {
   populateForm();
   restoreManualDraft();
 
-  $(document).on('change', '.js-m-service', function () {
+  $(document).on('change', '.js-m-service', async function () {
     $(this).closest('.service-check-card').toggleClass('selected', this.checked);
-    renderPackages();
-    renderAddons();
-    updateSummary();
-    checkAvailability();
+    await renderPackages();
+    await renderAddons();
+    await updateSummary();
+    await checkAvailability();
   });
-  $(document).on('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage', function () {
-    updateSummary();
-    checkAvailability();
+  $(document).on('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage', async function () {
+    await updateSummary();
+    await checkAvailability();
   });
 
-  $('#manualBookingForm').on('submit', function (e) {
+  $('#manualBookingForm').on('submit', async function (e) {
     e.preventDefault();
-    createManualBooking();
+    await createManualBooking();
   });
 });
 
-function populateForm() {
-  const services = API.getActiveServices();
+async function populateForm() {
+  const services = await API.getActiveServices();
   const $wrap = $('#mServiceChecklist').empty();
   services.forEach(s => {
     $wrap.append(`
@@ -216,23 +216,31 @@ function populateForm() {
   CONFIG.paymentMethods.forEach(m => $pm.append(`<option>${m}</option>`));
 }
 
-function renderPackages() {
-  const service=getMSelectedServices()[0];
-  const packages=API.getPackages().filter(p=>p.service_id===service);
-  $('#mPackage').html('<option value="">Choose a package</option>'+packages.map(p=>'<option value="'+escapeHtmlA(p.package_id)+'">'+escapeHtmlA(p.package_name)+' — '+BookingCalc.formatCurrency(p.price)+'</option>').join(''));
+async function renderPackages() {
+  const service = getMSelectedServices()[0];
+  const packages = await API.getPackages();
+  const filtered = packages.filter(p => p.service_id === service);
+  $('#mPackage').html('<option value="">Choose a package</option>' + filtered.map(p => '<option value="' + escapeHtmlA(p.package_id) + '">' + escapeHtmlA(p.package_name) + ' — ' + BookingCalc.formatCurrency(p.price) + '</option>').join(''));
 }
-function manualTotals(addonIds,discount,fees) {
-  const p=API.getPackages().find(p=>String(p.package_id)===$('#mPackage').val());
-  const subtotal=Number(p?.price||0),addonsTotal=API.getAddons().filter(a=>addonIds.includes(a.addon_id)).reduce((sum,a)=>sum+Number(a.price),0);
-  return {subtotal,addonsTotal,total:Math.max(0,subtotal+addonsTotal-discount+fees)};
+async function manualTotals(addonIds, discount, fees) {
+  const [packages, addons] = await Promise.all([API.getPackages(), API.getAddons()]);
+  const p = packages.find(item => String(item.package_id) === String($('#mPackage').val()));
+  const subtotal = Number(p?.price || 0);
+  const addonsTotal = addons.filter(a => addonIds.includes(a.addon_id)).reduce((sum, a) => sum + Number(a.price), 0);
+  return { subtotal, addonsTotal, total: Math.max(0, subtotal + addonsTotal - discount + fees) };
 }
 function manualDraftKey(){return 'er_manual_draft_'+STORAGE._get(STORAGE_KEYS.adminSession,{})?.user?.user_id;}
-function restoreManualDraft(){
- const draft=STORAGE._get(manualDraftKey(),{});
- if(draft.service){$('.js-m-service').filter((i,el)=>el.value===draft.service).prop('checked',true);renderPackages();renderAddons();}
- Object.entries(draft).forEach(([id,value])=>{if(!['service','addonIds'].includes(id))$('#'+id).val(value);});
- $('.js-m-addon').each(function(){this.checked=(draft.addonIds||[]).includes(this.value);});
- updateSummary();checkAvailability();
+async function restoreManualDraft(){
+ const draft = STORAGE._get(manualDraftKey(), {});
+ if (draft.service) {
+   $('.js-m-service').filter((i, el) => el.value === draft.service).prop('checked', true);
+   await renderPackages();
+   await renderAddons();
+ }
+ Object.entries(draft).forEach(([id, value]) => { if (!['service', 'addonIds'].includes(id)) $('#' + id).val(value); });
+ $('.js-m-addon').each(function () { this.checked = (draft.addonIds || []).includes(this.value); });
+ await updateSummary();
+ await checkAvailability();
 }
 $(document).off('input.manualDraft change.manualDraft','#manualBookingForm :input').on('input.manualDraft change.manualDraft','#manualBookingForm :input',()=>{
  const draft={service:getMSelectedServices()[0],addonIds:getMSelectedAddons()};$('#manualBookingForm [id]').each(function(){if(this.matches('input,select,textarea'))draft[this.id]=$(this).val();});STORAGE._set(manualDraftKey(),draft);
@@ -240,11 +248,13 @@ $(document).off('input.manualDraft change.manualDraft','#manualBookingForm :inpu
 function getMSelectedServices() { return $('.js-m-service:checked').map(function () { return this.value; }).get(); }
 function getMSelectedAddons() { return $('.js-m-addon:checked').map(function () { return this.value; }).get(); }
 
-function renderAddons() {
+async function renderAddons() {
   const serviceIds = getMSelectedServices();
   const $wrap = $('#mAddonChecklist').empty();
   let addons = [];
-  serviceIds.forEach(id => { addons = addons.concat(API.getAddonsForService(id)); });
+  for (const id of serviceIds) {
+    addons = addons.concat(await API.getAddonsForService(id));
+  }
   if (!addons.length) { $('#mAddonSection').hide(); return; }
   $('#mAddonSection').show();
   addons.forEach(a => {
@@ -258,12 +268,11 @@ function renderAddons() {
   });
 }
 
-function updateSummary() {
-  const serviceIds = getMSelectedServices();
+async function updateSummary() {
   const addonIds = getMSelectedAddons();
   const discount = Number($('#mDiscount').val() || 0);
   const fees = Number($('#mFees').val() || 0);
-  const { subtotal, addonsTotal, total } = manualTotals(addonIds, discount, fees);
+  const { subtotal, addonsTotal, total } = await manualTotals(addonIds, discount, fees);
   $('#mSumSubtotal').text(BookingCalc.formatCurrency(subtotal));
   $('#mSumAddons').text(BookingCalc.formatCurrency(addonsTotal));
   $('#mSumDiscount').text('-' + BookingCalc.formatCurrency(discount));
@@ -272,7 +281,7 @@ function updateSummary() {
 }
 $(document).on('input', '#mDiscount, #mFees', updateSummary);
 
-function checkAvailability() {
+async function checkAvailability() {
   const serviceIds = getMSelectedServices();
   const date = $('#mDate').val(), start = $('#mStart').val(), end = $('#mEnd').val();
   const $status = $('#mAvailabilityStatus');
@@ -282,7 +291,8 @@ function checkAvailability() {
     $('#mSubmitBtn').prop('disabled', true);
     return;
   }
-  const conflicts = serviceIds.filter(id => !API.checkAvailability(id, date, start, end).available);
+  const availability = await Promise.all(serviceIds.map(async id => ({ id, available: (await API.checkAvailability(id, date, start, end)).available })));
+  const conflicts = availability.filter(entry => !entry.available).map(entry => entry.id);
   if (conflicts.length) {
     $status.html('<span class="availability-pill unavailable"><i class="bi bi-exclamation-circle"></i> Possible conflict in the currently loaded schedule</span>');
     $('#mSubmitBtn').prop('disabled', true);
@@ -301,7 +311,7 @@ function validateBookingTimes(date, start, end) {
   return { ok: true, message: '' };
 }
 
-function createManualBooking() {
+async function createManualBooking() {
   let createdBooking = null;
   const serviceIds = getMSelectedServices();
   if (serviceIds.length!==1 || !$('#mPackage').val()) { showFieldError('#mPackage','Select one service and its package.'); return; }
@@ -311,7 +321,8 @@ function createManualBooking() {
   if (!timeCheck.ok) { showFieldError('#mEnd', timeCheck.message); return; }
   clearFieldError('#mEnd');
 
-  const conflicts = serviceIds.filter(id => !API.checkAvailability(id, date, start, end).available);
+  const availability = await Promise.all(serviceIds.map(async id => ({ id, available: (await API.checkAvailability(id, date, start, end)).available })));
+  const conflicts = availability.filter(entry => !entry.available).map(entry => entry.id);
   if (conflicts.length) {
     $('#manualSaveError').text('The currently loaded schedule shows a possible conflict. Review the date and time before trying again.').prop('hidden', false).trigger('focus');
     return;
@@ -320,7 +331,7 @@ function createManualBooking() {
   const addonIds = getMSelectedAddons();
   const discount = Number($('#mDiscount').val() || 0);
   const fees = Number($('#mFees').val() || 0);
-  const { subtotal, addonsTotal, total } = manualTotals(addonIds, discount, fees);
+  const { subtotal, addonsTotal, total } = await manualTotals(addonIds, discount, fees);
   const amountPaid = Number($('#mAmountPaid').val() || 0);
   for (const [selector, value, label] of [
     ['#mDiscount', discount, 'Discount'],
@@ -336,33 +347,33 @@ function createManualBooking() {
 
   $('#mSubmitBtn').prop('disabled',true);
   try {
-  createdBooking = API.createBooking({
-    customer_name: $('#mCustName').val().trim(),
-    contact: $('#mCustContact').val().trim(),
-    email: $('#mCustEmail').val().trim(),
-    customer_type: $('#mCustType').val(),
-    event_type: $('#mEventType').val(),
-    event_date: date, start_time: start, end_time: end,
-    location: $('#mLocation').val().trim(),
-    guests: Number($('#mGuests').val() || 0),
-    special_requests: $('#mSpecialRequests').val().trim(),
-    service_ids: serviceIds, package_id: Number($('#mPackage').val()),
-    addon_ids: addonIds,
-    discount, fees,
-    subtotal, addons_total: addonsTotal, total,
-    amount_paid: 0,
-    status: "Pending",
-    source: $('#mSource').val()
-  });
+    createdBooking = await API.createBooking({
+      customer_name: $('#mCustName').val().trim(),
+      contact: $('#mCustContact').val().trim(),
+      email: $('#mCustEmail').val().trim(),
+      customer_type: $('#mCustType').val(),
+      event_type: $('#mEventType').val(),
+      event_date: date, start_time: start, end_time: end,
+      location: $('#mLocation').val().trim(),
+      guests: Number($('#mGuests').val() || 0),
+      special_requests: $('#mSpecialRequests').val().trim(),
+      service_ids: serviceIds, package_id: Number($('#mPackage').val()),
+      addon_ids: addonIds,
+      discount, fees,
+      subtotal, addons_total: addonsTotal, total,
+      amount_paid: 0,
+      status: "Pending",
+      source: $('#mSource').val()
+    });
 
-  if (amountPaid > 0) {
-    const payment = PaymentsHelper.recordPayment(createdBooking.id, amountPaid, $('#mPayMethod').val(), 'Down payment / reservation fee');
-    if (!payment) throw new Error('The initial payment could not be recorded.');
-  }
+    if (amountPaid > 0) {
+      const payment = await PaymentsHelper.recordPayment(createdBooking.id, amountPaid, $('#mPayMethod').val(), 'Down payment / reservation fee');
+      if (!payment) throw new Error('The initial payment could not be recorded.');
+    }
 
-  localStorage.removeItem(manualDraftKey());
-  showAdminToast(API.savedMessage());
-  window.location.href = 'bookings.html';
+    localStorage.removeItem(manualDraftKey());
+    showAdminToast(API.savedMessage());
+    window.location.href = 'bookings.html';
   } catch(error) {
     if (createdBooking) {
       localStorage.removeItem(manualDraftKey());

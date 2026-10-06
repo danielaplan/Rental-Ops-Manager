@@ -83,9 +83,9 @@
 <script>
 $(async function () {
   await API.ready;
-  initAdminChrome('addons.html', 'Add-ons');
-  populateServiceSelect();
-  renderAddonsTable();
+  await initAdminChrome('addons.html', 'Add-ons');
+  await populateServiceSelect();
+  await renderAddonsTable();
 
   $('#addAddonBtn').on('click', function () {
     $('#addonForm')[0].reset();
@@ -94,8 +94,11 @@ $(async function () {
     new bootstrap.Modal('#addonFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-addon', function () {
-    const a = API.getAddons().find(x => x.addon_id === $(this).data('id'));
+  $(document).on('click', '.js-edit-addon', async function (event) {
+    const target = $(event.target).closest('.js-edit-addon');
+    if (!target.length) return;
+    const addons = await API.getAddons();
+    const a = addons.find(x => x.addon_id === target.data('id'));
     if (!a) return;
     $('#addonId').val(a.addon_id);
     $('#addonService').val(a.service_id);
@@ -106,20 +109,24 @@ $(async function () {
     new bootstrap.Modal('#addonFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-addon', function () {
-    const id = $(this).data('id');
-    confirmDelete('Delete this add-on?', function () {
-      try { API.deleteAddon(id); renderAddonsTable(); showAdminToast(API.savedMessage()); }
+  $(document).on('click', '.js-delete-addon', async function (event) {
+    const target = $(event.target).closest('.js-delete-addon');
+    if (!target.length) return;
+    const id = target.data('id');
+    confirmDelete('Delete this add-on?', async function () {
+      try { await API.deleteAddon(id); await renderAddonsTable(); showAdminToast(API.savedMessage()); }
       catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
-  $(document).on('change', '.js-toggle-addon-status', function () {
-    try { API.updateAddon($(this).data('id'), { status: this.checked ? 'Active' : 'Inactive' }); showAdminToast(API.savedMessage()); }
-    catch (error) { this.checked = !this.checked; showAdminToast(error.message, 'danger'); }
+  $(document).on('change', '.js-toggle-addon-status', async function (event) {
+    const target = $(event.target).closest('.js-toggle-addon-status');
+    if (!target.length) return;
+    try { await API.updateAddon(target.data('id'), { status: target.is(':checked') ? 'Active' : 'Inactive' }); showAdminToast(API.savedMessage()); }
+    catch (error) { target.prop('checked', !target.is(':checked')); showAdminToast(error.message, 'danger'); }
   });
 
-  $('#addonForm').on('submit', function (e) {
+  $('#addonForm').on('submit', async function (e) {
     e.preventDefault();
     const id = $('#addonId').val();
     const data = {
@@ -130,24 +137,24 @@ $(async function () {
     };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
-      if (id) API.updateAddon(id, data);
-      else API.createAddon(data);
+      if (id) await API.updateAddon(id, data);
+      else await API.createAddon(data);
       bootstrap.Modal.getInstance(document.getElementById('addonFormModal')).hide();
-      renderAddonsTable();
+      await renderAddonsTable();
       showAdminToast(API.savedMessage());
     } catch (error) { showAdminToast(error.message, 'danger'); }
     finally { submit.prop('disabled', false); }
   });
 });
 
-function populateServiceSelect() {
+async function populateServiceSelect() {
   const $sel = $('#addonService').empty();
-  API.getServices().forEach(s => $sel.append(`<option value="${escapeHtmlA(s.service_id)}">${escapeHtmlA(s.name)}</option>`));
+  const services = await API.getServices();
+  services.forEach(s => $sel.append(`<option value="${escapeHtmlA(s.service_id)}">${escapeHtmlA(s.name)}</option>`));
 }
 
-function renderAddonsTable() {
-  const addons = API.getAddons();
-  const services = API.getServices();
+async function renderAddonsTable() {
+  const [addons, services] = await Promise.all([API.getAddons(), API.getServices()]);
   const $body = $('#addonsBody').empty();
   if (!addons.length) {
     $body.append('<tr><td colspan="5" class="text-center text-muted py-4">No add-ons yet.</td></tr>');

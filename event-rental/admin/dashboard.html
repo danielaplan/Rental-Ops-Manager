@@ -115,11 +115,14 @@
 <script src="../js/bookings.js"></script>
 <script src="../js/admin.js"></script>
 <script>
-$(function () {
+$(async function () {
   initAdminChrome('dashboard.html', 'Dashboard');
-  const stats = API.getDashboardStats();
-  const services = API.getServices();
-  const bookings = API.getBookings();
+  const [stats, services, bookings, rentalItems] = await Promise.all([
+    API.getDashboardStats(),
+    API.getServices(),
+    API.getBookings(),
+    API.getRentalItems()
+  ]);
 
   // Render top stat cards
   const cards = [
@@ -166,7 +169,7 @@ $(function () {
   });
 
   // Render Items Needing Attention
-  const items = API.getRentalItems().filter(i => ["Damaged", "Under Maintenance", "Missing"].includes(i.status));
+  const items = rentalItems.filter(i => ["Damaged", "Under Maintenance", "Missing"].includes(i.status));
   const $att = $('#attentionList');
   if (!items.length) {
     $att.append('<div class="text-center text-muted py-4"><i class="bi bi-shield-check fs-2 text-success d-block mb-1"></i>All inventory items are in good condition.</div>');

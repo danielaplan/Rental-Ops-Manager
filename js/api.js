@@ -229,7 +229,7 @@ const API = (() => {
     createService: data => create("services.php", "services", data),
     updateService: (id, data) => update("services.php", "services", id, data),
     deleteService: async id => { await remove("services.php", id); return true; },
-/statu
+
     getAddons: () => list("addons.php", "addons", { do: "all" }),
     getAddonsForService: serviceId => list("addons.php", "addons", { do: "forService", service_id: serverId(serviceId) }),
     createAddon: data => create("addons.php", "addons", data),

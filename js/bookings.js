@@ -10,16 +10,18 @@ const BookingCalc = {
    * @param {number} discount
    * @param {number} fees
    */
-  computeTotals(serviceIds, addonIds, discount, fees) {
-    const services = API.getServices();
-    const addons = API.getAddons();
+  async computeTotals(serviceIds, addonIds, discount, fees, loadedServices, loadedAddons) {
+    const ids = Array.isArray(serviceIds) ? serviceIds : [];
+    const extra = Array.isArray(addonIds) ? addonIds : [];
+    const services = Array.isArray(loadedServices) ? loadedServices : await API.getServices();
+    const addons = Array.isArray(loadedAddons) ? loadedAddons : await API.getAddons();
 
-    const subtotal = serviceIds.reduce((sum, id) => {
+    const subtotal = ids.reduce((sum, id) => {
       const s = services.find(x => x.service_id === id);
       return sum + (s ? Number(s.price) : 0);
     }, 0);
 
-    const addonsTotal = addonIds.reduce((sum, id) => {
+    const addonsTotal = extra.reduce((sum, id) => {
       const a = addons.find(x => x.addon_id === id);
       return sum + (a ? Number(a.price) : 0);
     }, 0);

@@ -47,13 +47,15 @@
 <script>
 $(async function () {
   await API.ready;
-  initAdminChrome('customers.html', 'Customers');
-  renderCustomers();
-  $('#custSearch').on('input', function () { renderCustomers($(this).val()); });
+  await initAdminChrome('customers.html', 'Customers');
+  await renderCustomers();
+  $('#custSearch').on('input', async function () { await renderCustomers($(this).val()); });
 });
 
-function renderCustomers(query) {
-  const customers = CustomersHelper.search(query);
+async function renderCustomers(query) {
+  const version = ++CustomersHelper.renderVersion;
+  const customers = await CustomersHelper.search(query, version);
+  if (version !== CustomersHelper.renderVersion) return;
   const $body = $('#customersBody').empty();
   if (!customers.length) {
     $body.append('<tr><td colspan="6" class="text-center text-muted py-4">No customers found.</td></tr>');

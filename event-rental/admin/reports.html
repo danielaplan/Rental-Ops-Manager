@@ -136,9 +136,13 @@ $(function () {
   });
 });
 
-function renderReport(startDate, endDate) {
-  const r = API.getReportStats(startDate, endDate);
-  const filteredBookings = API.getBookings().filter(b => {
+async function renderReport(startDate, endDate) {
+  const [r, bookings, rentalItems] = await Promise.all([
+    API.getReportStats(startDate, endDate),
+    API.getBookings(),
+    API.getRentalItems()
+  ]);
+  const filteredBookings = bookings.filter(b => {
     if (startDate && b.event_date < startDate) return false;
     if (endDate && b.event_date > endDate) return false;
     return true;
@@ -212,7 +216,7 @@ function renderReport(startDate, endDate) {
     }
   }));
 
-  const items = API.getRentalItems().filter(i => ['Damaged', 'Missing'].includes(i.status));
+  const items = rentalItems.filter(i => ['Damaged', 'Missing'].includes(i.status));
   const $body = $('#damagedBody').empty();
   if (!items.length) $body.append('<tr><td colspan="3" class="text-center text-muted py-3">No damaged or missing items.</td></tr>');
   items.forEach(i => {

@@ -74,8 +74,8 @@
 <script>
 $(async function () {
   await API.ready;
-  initAdminChrome('categories.html', 'Categories');
-  renderCategoriesTable();
+  await initAdminChrome('categories.html', 'Categories');
+  await renderCategoriesTable();
 
   $('#addCategoryBtn').on('click', function () {
     $('#categoryForm')[0].reset();
@@ -84,8 +84,11 @@ $(async function () {
     new bootstrap.Modal('#categoryFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-cat', function () {
-    const c = API.getCategories().find(x => x.category_id === $(this).data('id'));
+  $(document).on('click', '.js-edit-cat', async function (event) {
+    const target = $(event.target).closest('.js-edit-cat');
+    if (!target.length) return;
+    const categories = await API.getCategories();
+    const c = categories.find(x => x.category_id === target.data('id'));
     if (!c) return;
     $('#catId').val(c.category_id);
     $('#catName').val(c.name);
@@ -94,35 +97,37 @@ $(async function () {
     new bootstrap.Modal('#categoryFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-cat', function () {
-    const id = $(this).data('id');
-    const inUse = API.getServices().some(s => s.category_id === id);
+  $(document).on('click', '.js-delete-cat', async function (event) {
+    const target = $(event.target).closest('.js-delete-cat');
+    if (!target.length) return;
+    const id = target.data('id');
+    const services = await API.getServices();
+    const inUse = services.some(s => s.category_id === id);
     if (inUse) { alert('This category is used by one or more services. Reassign those services first.'); return; }
-    confirmDelete('Delete this category?', function () {
-      try { API.deleteCategory(id); renderCategoriesTable(); showAdminToast(API.savedMessage()); }
+    confirmDelete('Delete this category?', async function () {
+      try { await API.deleteCategory(id); await renderCategoriesTable(); showAdminToast(API.savedMessage()); }
       catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
-  $('#categoryForm').on('submit', function (e) {
+  $('#categoryForm').on('submit', async function (e) {
     e.preventDefault();
     const id = $('#catId').val();
     const data = { name: $('#catName').val().trim(), status: $('#catStatus').val() };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
-      if (id) API.updateCategory(id, data);
-      else API.createCategory(data);
+      if (id) await API.updateCategory(id, data);
+      else await API.createCategory(data);
       bootstrap.Modal.getInstance(document.getElementById('categoryFormModal')).hide();
-      renderCategoriesTable();
+      await renderCategoriesTable();
       showAdminToast(API.savedMessage());
     } catch (error) { showAdminToast(error.message, 'danger'); }
     finally { submit.prop('disabled', false); }
   });
 });
 
-function renderCategoriesTable() {
-  const categories = API.getCategories();
-  const services = API.getServices();
+async function renderCategoriesTable() {
+  const [categories, services] = await Promise.all([API.getCategories(), API.getServices()]);
   const $body = $('#categoriesBody').empty();
   if (!categories.length) {
     $body.append('<tr><td colspan="4" class="text-center text-muted py-4">No categories yet.</td></tr>');

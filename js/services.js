@@ -5,11 +5,12 @@
  * sugar so app.js stays focused on wiring up the DOM.
  */
 const ServicesHelper = {
-  categoryName(categoryId) {
-    const cat = API.getCategories().find(c => c.category_id === categoryId);
+  async categoryName(categoryId) {
+    const categories = await API.getCategories();
+    const cat = categories.find(c => c.category_id === categoryId);
     return cat ? cat.name : "";
   },
-  activeAddonsFor(serviceId) {
-    return API.getAddonsForService(serviceId);
+  async activeAddonsFor(serviceId) {
+    return await API.getAddonsForService(serviceId);
   }
 };

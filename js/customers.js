@@ -4,9 +4,11 @@
  * customers page (search/filter convenience).
  */
 const CustomersHelper = {
-  search(query) {
+  renderVersion: 0,
+  async search(query, requestVersion = ++this.renderVersion) {
     const q = (query || "").toLowerCase().trim();
-    const list = API.getCustomers();
+    const list = await API.getCustomers();
+    if (requestVersion !== this.renderVersion) return [];
     if (!q) return list;
     return list.filter(c =>
       (c.name || "").toLowerCase().includes(q) ||

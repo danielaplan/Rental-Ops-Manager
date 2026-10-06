@@ -72,8 +72,8 @@
 <script>
 $(async function () {
   await API.ready;
-  initAdminChrome('gallery.html', 'Gallery');
-  renderGallery();
+  await initAdminChrome('gallery.html', 'Gallery');
+  await renderGallery();
 
   $('#addImageBtn').on('click', function () {
     $('#imageForm')[0].reset();
@@ -83,8 +83,10 @@ $(async function () {
     new bootstrap.Modal('#imageFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-img', function () {
-    const img = API.getGallery().find(g => g.image_id === $(this).data('id'));
+  $(document).on('click', '.js-edit-img', async function (event) {
+    const target = $(event.target).closest('.js-edit-img');
+    if (!target.length) return;
+    const img = (await API.getGallery()).find(g => g.image_id === target.data('id'));
     if (!img) return;
     $('#imgId').val(img.image_id);
     $('#imgTitle').val(img.title);
@@ -95,16 +97,18 @@ $(async function () {
     new bootstrap.Modal('#imageFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-img', function () {
-    const id = $(this).data('id');
-    confirmDelete('Delete this gallery image?', function () {
-      API.deleteGalleryImage(id);
-      renderGallery();
+  $(document).on('click', '.js-delete-img', async function (event) {
+    const target = $(event.target).closest('.js-delete-img');
+    if (!target.length) return;
+    const id = target.data('id');
+    confirmDelete('Delete this gallery image?', async function () {
+      await API.deleteGalleryImage(id);
+      await renderGallery();
       showAdminToast('Image deleted', 'danger');
     });
   });
 
-  $('#imageForm').on('submit', function (e) {
+  $('#imageForm').on('submit', async function (e) {
     e.preventDefault();
     const id = $('#imgId').val();
     const data = { title: $('#imgTitle').val().trim(), image: $('#imgUrl').val().trim(), featured: $('#imgFeatured').is(':checked') };
@@ -113,10 +117,10 @@ $(async function () {
       return;
     }
     try {
-      if (id) { API.updateGalleryImage(id, data); showAdminToast(API.savedMessage()); }
-      else { API.createGalleryImage(data); showAdminToast(API.savedMessage()); }
+      if (id) { await API.updateGalleryImage(id, data); showAdminToast(API.savedMessage()); }
+      else { await API.createGalleryImage(data); showAdminToast(API.savedMessage()); }
       bootstrap.Modal.getInstance(document.getElementById('imageFormModal')).hide();
-      renderGallery();
+      await renderGallery();
     } catch (error) {
       $('#imageFormError').text(error.message).prop('hidden', false).trigger('focus');
     }
@@ -133,8 +137,8 @@ function safeGalleryImageUrl(value) {
   }
 }
 
-function renderGallery() {
-  const images = API.getGallery();
+async function renderGallery() {
+  const images = await API.getGallery();
   const $wrap = $('#galleryGridAdmin').empty();
   if (!images.length) {
     $wrap.append('<p class="text-muted">No images yet.</p>');

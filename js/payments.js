@@ -5,9 +5,10 @@
  * admin/bookings.html.
  */
 const PaymentsHelper = {
-  pendingAmountsByBooking() {
+  async pendingAmountsByBooking() {
     const pending = new Map();
-    API.getPayments().forEach(payment => {
+    const payments = await API.getPayments();
+    payments.forEach(payment => {
       if (!payment.pending_sync) return;
       const key = String(payment.booking_id);
       pending.set(key, (pending.get(key) || 0) + Number(payment.amount || 0));
@@ -15,28 +16,28 @@ const PaymentsHelper = {
     return pending;
   },
 
-  acceptedAmountPaid(booking, pendingAmounts) {
+  async acceptedAmountPaid(booking, pendingAmounts) {
     const recorded = Number(booking.amount_paid || 0);
-    const amounts = pendingAmounts || PaymentsHelper.pendingAmountsByBooking();
+    const amounts = pendingAmounts && typeof pendingAmounts.then === 'function' ? await pendingAmounts : pendingAmounts || await PaymentsHelper.pendingAmountsByBooking();
     const pending = amounts.get(String(booking.id)) || 0;
     return Math.max(recorded - pending, 0);
   },
 
-  paymentStatus(booking, pendingAmounts) {
+  async paymentStatus(booking, pendingAmounts) {
     const total = Number(booking.total || 0);
-    const paid = PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts);
+    const paid = await PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts);
     if (total > 0 && paid >= total) return 'Fully Paid';
     if (paid > 0) return 'Partial';
     return 'Unpaid';
   },
 
-  remainingBalance(booking, pendingAmounts) {
-    return Math.max(Number(booking.total || 0) - PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts), 0);
+  async remainingBalance(booking, pendingAmounts) {
+    return Math.max(Number(booking.total || 0) - await PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts), 0);
   },
 
   recordPayment(bookingId, amount, method, notes) {
     const paymentAmount = Number(amount);
-    if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) return null;
+    if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) return Promise.resolve(null);
     return API.createPayment({
       booking_id: bookingId,
       amount: paymentAmount,
@@ -45,8 +46,8 @@ const PaymentsHelper = {
     });
   },
 
-  renderHistory(bookingId, containerSelector) {
-    const payments = API.getPayments().filter(payment => String(payment.booking_id) === String(bookingId));
+  async renderHistory(bookingId, containerSelector) {
+    const payments = (await API.getPayments()).filter(payment => String(payment.booking_id) === String(bookingId));
     const $wrap = $(containerSelector).empty();
     if (!payments.length) {
       $wrap.append('<p class="text-muted small mb-0">No payments recorded yet.</p>');

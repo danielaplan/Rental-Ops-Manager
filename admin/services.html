@@ -85,8 +85,8 @@
 <script>
 $(async function () {
   await API.ready;
-  initAdminChrome('services.html', 'Services');
-  renderServicesTable();
+  await initAdminChrome('services.html', 'Services');
+  await renderServicesTable();
 
   $('#addServiceBtn').on('click', function () {
     $('#serviceForm')[0].reset();
@@ -98,8 +98,10 @@ $(async function () {
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-service', function () {
-    const s = API.getService($(this).data('id'));
+  $(document).on('click', '.js-edit-service', async function (event) {
+    const target = $(event.target).closest('.js-edit-service');
+    if (!target.length) return;
+    const s = (await API.getServices()).find(item => item.service_id === target.data('id'));
     if (!s) return;
     $('#svcId').val(s.service_id);
     $('#svcName').val(s.name);
@@ -111,12 +113,14 @@ $(async function () {
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-service', function () {
-    const id = $(this).data('id');
-    confirmDelete('Delete this service? Existing bookings and inventory may still refer to it.', function () {
+  $(document).on('click', '.js-delete-service', async function (event) {
+    const target = $(event.target).closest('.js-delete-service');
+    if (!target.length) return;
+    const id = target.data('id');
+    confirmDelete('Delete this service? Existing bookings and inventory may still refer to it.', async function () {
       try {
-        API.deleteService(id);
-        renderServicesTable();
+        await API.deleteService(id);
+        await renderServicesTable();
         showAdminToast(API.savedMessage());
       } catch (error) {
         showAdminToast(error.message, 'danger');
@@ -124,27 +128,29 @@ $(async function () {
     });
   });
 
-  $(document).on('change', '.js-toggle-service-status', function () {
-    const id = $(this).data('id');
+  $(document).on('change', '.js-toggle-service-status', async function (event) {
+    const target = $(event.target).closest('.js-toggle-service-status');
+    if (!target.length) return;
+    const id = target.data('id');
     try {
-      API.updateService(id, { status: this.checked ? 'Active' : 'Inactive' });
+      await API.updateService(id, { status: target.is(':checked') ? 'Active' : 'Inactive' });
       showAdminToast(API.savedMessage());
     } catch (error) {
-      this.checked = !this.checked;
+      target.prop('checked', !target.is(':checked'));
       showAdminToast(error.message, 'danger');
     }
   });
 
-  $('#serviceForm').on('submit', function (e) {
+  $('#serviceForm').on('submit', async function (e) {
     e.preventDefault();
     const id = $('#svcId').val();
     const data = { name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val() };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
-      if (id) API.updateService(id, data);
-      else API.createService(data);
+      if (id) await API.updateService(id, data);
+      else await API.createService(data);
       bootstrap.Modal.getInstance(document.getElementById('serviceFormModal')).hide();
-      renderServicesTable();
+      await renderServicesTable();
       showAdminToast(API.savedMessage());
     } catch (error) {
       showAdminToast(error.message, 'danger');
@@ -154,8 +160,8 @@ $(async function () {
   });
 });
 
-function renderServicesTable() {
-  const services = API.getServices();
+async function renderServicesTable() {
+  const services = await API.getServices();
   const $body = $('#servicesBody').empty();
   if (!services.length) {
     $body.append('<tr><td colspan="4" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');

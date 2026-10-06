@@ -6,7 +6,7 @@
       const panel=document.createElement('details');panel.id='syncPanel';panel.className='sync-panel border rounded p-3 mb-3 bg-white';
       panel.innerHTML='<summary><span id="syncStatus" role="status" aria-live="polite"></span></summary><p id="offlineSetup" class="small mt-2 mb-2"></p><p id="syncReadError" class="small text-danger mb-2" role="alert" hidden></p><button type="button" class="btn btn-sm btn-outline-secondary" id="syncNow">Refresh data and sync</button><div id="syncOperations" class="mt-3"></div>';
       document.querySelector('.admin-topbar')?.after(panel);
-      panel.querySelector('#syncNow').addEventListener('click',async()=>{await API.refreshSharedData();await API.flushSyncQueue();render();});
+      panel.querySelector('#syncNow').addEventListener('click', async () => { await API.refreshSharedData(); await API.flushSyncQueue(); render(); });
       panel.addEventListener('submit',e=>{
         if(!e.target.matches('.sync-edit'))return;e.preventDefault();
         const form=e.target,date=form.elements.event_date.value,start=form.elements.start_time.value,end=form.elements.end_time.value;

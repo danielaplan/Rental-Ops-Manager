@@ -4,21 +4,24 @@
  * gallery from the API layer and renders the public brochure and
  * staff contact information.
  */
-$(function () {
-  applySiteAppearance();
-  renderSiteChrome();
-  renderHero();
-  renderAbout();
-  renderServices();
-  renderGallery();
-  renderContact();
-  refreshPublicSiteData().then(() => {
-    applySiteAppearance();
-    renderSiteChrome();
-    renderHero();
-    renderAbout();
-    renderContact();
-  });
+$(async function () {
+  await API.ready;
+  await applySiteAppearance();
+  await renderSiteChrome();
+  await renderHero();
+  await renderAbout();
+  await renderServices();
+  await renderGallery();
+  await renderContact();
+
+  await refreshPublicSiteData();
+  await applySiteAppearance();
+  await renderSiteChrome();
+  await renderHero();
+  await renderAbout();
+  await renderServices();
+  await renderGallery();
+  await renderContact();
 
   $('.navbar-nav .nav-link').on('click', function (e) {
     const target = document.querySelector(this.getAttribute('href'));
@@ -42,24 +45,162 @@ $(function () {
   });
 });
 
+const PUBLIC_STORAGE_KEYS = typeof STORAGE_KEYS !== 'undefined'
+  ? STORAGE_KEYS
+  : { settings: 'er_settings', websiteContent: 'er_website_content', services: 'er_services', gallery: 'er_gallery' };
+
+function normalizePublicId(prefix, value) {
+  if (value === null || value === undefined || value === '') return '';
+  const text = String(value).trim();
+  if (!text) return '';
+  if (text.startsWith(prefix + '-')) return text;
+  if (/^[A-Z]+-/.test(text)) return text;
+  const number = Number(String(text).replace(/\D+/g, ''));
+  if (Number.isNaN(number)) return text;
+  return `${prefix}-${String(number).padStart(3, '0')}`;
+}
+
+function publicIdsMatch(a, b) {
+  if (a === b) return true;
+  if (a === undefined || b === undefined || a === null || b === null) return false;
+  return String(a) === String(b);
+}
+
+function normalizePublicService(row, cachedMatch) {
+  const serviceId = normalizePublicId('SVC', row.service_id ?? cachedMatch?.service_id ?? row.id ?? cachedMatch?.id);
+  return {
+    ...(cachedMatch || {}),
+    ...row,
+    service_id: serviceId,
+    service_name: row.service_name || row.name || cachedMatch?.service_name || cachedMatch?.name || '',
+    name: row.name || row.service_name || cachedMatch?.name || cachedMatch?.service_name || '',
+    image: row.image || cachedMatch?.image || '',
+    status: row.status || cachedMatch?.status || 'Active',
+    description: row.description || cachedMatch?.description || '',
+    price: row.price ?? cachedMatch?.price,
+    featured: row.featured ?? cachedMatch?.featured ?? false
+  };
+}
+
+function normalizePublicGallery(row, cachedMatch) {
+  const imageId = normalizePublicId('IMG', row.image_id ?? cachedMatch?.image_id ?? row.id ?? cachedMatch?.id);
+  return {
+    ...(cachedMatch || {}),
+    ...row,
+    image_id: imageId,
+    title: row.title || cachedMatch?.title || '',
+    image: row.image || cachedMatch?.image || '',
+    featured: row.featured ?? cachedMatch?.featured ?? 0
+  };
+}
+
+function mergePublicCollection(cached, fresh, idField, normalizer) {
+  const merged = Array.isArray(cached) ? [...cached] : [];
+  const source = Array.isArray(fresh) ? fresh : [];
+
+  source.forEach(row => {
+    if (!row) {
+      return;
+    }
+
+    const matchingCached = merged.find(item => {
+      const currentId = item?.[idField];
+      const directMatch = publicIdsMatch(currentId, row[idField]);
+      const normalizePrefix = idField === 'service_id' ? 'SVC' : 'IMG';
+      const legacyMatch = publicIdsMatch(currentId, normalizePublicId(normalizePrefix, row[idField]));
+      return directMatch || legacyMatch;
+    });
+
+    const normalized = normalizer ? normalizer(row, matchingCached) : row;
+    const rowId = normalized?.[idField];
+    const index = merged.findIndex(item => publicIdsMatch(item?.[idField], rowId));
+
+    if (index >= 0) {
+      merged[index] = { ...merged[index], ...normalized };
+    } else {
+      merged.push(normalized);
+    }
+  });
+
+  return merged;
+}
+
+async function resolveApiValue(loader, fallback) {
+  try {
+    const value = await Promise.resolve(loader());
+    return value ?? fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function publicSettingsCache() {
+  if (typeof STORAGE === 'undefined' || !STORAGE) return {};
+  if (typeof STORAGE._get === 'function') return STORAGE._get(PUBLIC_STORAGE_KEYS.settings, {}) || {};
+  if (typeof STORAGE.getOne === 'function') return STORAGE.getOne('settings') || {};
+  return {};
+}
+
+function publicContentCache() {
+  if (typeof STORAGE === 'undefined' || !STORAGE) return {};
+  if (typeof STORAGE._get === 'function') return STORAGE._get(PUBLIC_STORAGE_KEYS.websiteContent, {}) || {};
+  if (typeof STORAGE.getOne === 'function') return STORAGE.getOne('websiteContent') || {};
+  return {};
+}
+
+function publicServicesCache() {
+  if (typeof STORAGE === 'undefined' || !STORAGE) return [];
+  if (typeof STORAGE.getAll === 'function') return STORAGE.getAll('services') || [];
+  return [];
+}
+
+function publicGalleryCache() {
+  if (typeof STORAGE === 'undefined' || !STORAGE) return [];
+  if (typeof STORAGE.getAll === 'function') return STORAGE.getAll('gallery') || [];
+  return [];
+}
+
 async function refreshPublicSiteData() {
   const endpoints = [
     ['settings', 'api/settings.php?do=get'],
-    ['websiteContent', 'api/websiteContent.php?do=get']
+    ['websiteContent', 'api/websiteContent.php?do=get'],
+    ['services', 'api/services.php?do=all'],
+    ['gallery', 'api/gallery.php?do=all']
   ];
-  await Promise.all(endpoints.map(async ([collection, endpoint]) => {
+
+  const results = await Promise.all(endpoints.map(async ([collection, endpoint]) => {
     try {
       const response = await fetch(endpoint, { cache: 'no-store', signal: AbortSignal.timeout(3500) });
       const result = await response.json();
-      if (response.ok && result.ok && result.data && typeof result.data === 'object') {
-        STORAGE.setOne(collection, result.data);
+      if (!response.ok || !result || !result.ok || !result.data) return { collection, data: undefined };
+      const fresh = result.data;
+      if (Array.isArray(fresh)) {
+        const cached = collection === 'services' ? publicServicesCache() : collection === 'gallery' ? publicGalleryCache() : [];
+        const idField = collection === 'services' ? 'service_id' : collection === 'gallery' ? 'image_id' : undefined;
+        const normalizer = collection === 'services' ? normalizePublicService : collection === 'gallery' ? normalizePublicGallery : null;
+        const merged = mergePublicCollection(cached, fresh, idField, normalizer);
+        if (typeof STORAGE.saveAll === 'function') STORAGE.saveAll(collection, merged);
+      } else if (typeof STORAGE.setOne === 'function') {
+        const cached = collection === 'settings' ? publicSettingsCache() : publicContentCache();
+        STORAGE.setOne(collection, { ...cached, ...fresh });
       }
-    } catch {}
+      return { collection, data: fresh };
+    } catch (error) {
+      return { collection, data: undefined, error };
+    }
   }));
+
+  const state = {};
+  results.forEach(result => {
+    if (result.data !== undefined) state[result.collection] = result.data;
+  });
+
+  return state;
 }
 
-function applySiteAppearance() {
-  const settings = API.getSettings();
+async function applySiteAppearance() {
+  const cached = publicSettingsCache();
+  const settings = Object.keys(cached || {}).length ? cached : await resolveApiValue(() => API.getSettings(), {});
   const root = document.documentElement;
   const primary = normalizeHexColor(settings.primary_color);
   const accent = normalizeHexColor(settings.accent_color);
@@ -98,8 +239,9 @@ function adjustColor(hex, amount) {
   return '#' + [red, green, blue].map(channel => channel.toString(16).padStart(2, '0')).join('');
 }
 
-function renderSiteChrome() {
-  const content = API.getWebsiteContent();
+async function renderSiteChrome() {
+  const cached = publicContentCache();
+  const content = { ...cached, ...(await resolveApiValue(() => API.getWebsiteContent(), {})) };
   const savedName = content.business_name || '';
   const name = !savedName || savedName.startsWith('Fiesta & Co.')
     ? CONFIG.businessNameFallback
@@ -108,8 +250,9 @@ function renderSiteChrome() {
   document.title = name + " | Event Rentals & Styling";
 }
 
-function renderHero() {
-  const c = API.getWebsiteContent();
+async function renderHero() {
+  const cached = publicContentCache();
+  const c = { ...cached, ...(await resolveApiValue(() => API.getWebsiteContent(), {})) };
   $('#heroTitle').text(c.hero_title || "");
   const heroDescription = c.hero_description || '';
   $('#heroDesc').text(heroDescription.includes('Metro Manila')
@@ -118,8 +261,9 @@ function renderHero() {
   $('#heroImage').attr('src', safeWebUrl(c.hero_image));
 }
 
-function renderAbout() {
-  const c = API.getWebsiteContent();
+async function renderAbout() {
+  const cached = publicContentCache();
+  const c = { ...cached, ...(await resolveApiValue(() => API.getWebsiteContent(), {})) };
   $('#aboutTitle').text(c.about_title || "");
   const aboutDescription = c.about_description || '';
   $('#aboutDesc').text(aboutDescription.startsWith('Fiesta & Co.')
@@ -127,8 +271,9 @@ function renderAbout() {
     : aboutDescription);
 }
 
-function renderServices() {
-  const services = API.getActiveServices();
+async function renderServices() {
+  const cachedServices = publicServicesCache().filter(service => service.status === 'Active');
+  const services = cachedServices.length ? cachedServices : await resolveApiValue(() => API.getActiveServices(), []);
   const $wrap = $('#servicesGrid').empty();
 
   if (!services.length) {
@@ -138,10 +283,11 @@ function renderServices() {
 
   services.forEach(s => {
     const displayName = publicServiceName(s.name);
+    const serviceImage = safeWebUrl(s.image) || safeWebUrl((cachedServices.find(item => String(item.service_id) === String(s.service_id)) || {}).image);
     const card = `
       <div class="col-md-6 col-lg-4">
         <div class="service-card">
-          <img src="${escapeHtml(safeWebUrl(s.image))}" alt="${escapeHtml(displayName)}">
+          <img src="${escapeHtml(serviceImage)}" alt="${escapeHtml(displayName)}">
           <div class="service-card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h3>${escapeHtml(displayName)}</h3>
@@ -154,9 +300,15 @@ function renderServices() {
     $wrap.append(card);
   });
 
-  $(document).on('click', '.js-view-service', function () {
-    openServiceDetails($(this).data('id'));
-  });
+  const $document = $(document);
+  if (typeof $document.off === 'function') {
+    $document.off('click', '.js-view-service');
+  }
+  if (typeof $document.on === 'function') {
+    $document.on('click', '.js-view-service', async function () {
+      await openServiceDetails($(this).data('id'));
+    });
+  }
 }
 
 function publicServiceName(name) {
@@ -168,23 +320,25 @@ function publicServiceName(name) {
   return serviceNames[name] || name;
 }
 
-function openServiceDetails(serviceId) {
-  const s = API.getService(serviceId);
-  if (!s) return;
-  const displayName = publicServiceName(s.name);
+async function openServiceDetails(serviceId) {
+  const cachedService = publicServicesCache().find(item => String(item.service_id) === String(serviceId));
+  const s = { ...(cachedService || {}), ...(await resolveApiValue(() => API.getService(serviceId), {})) };
+  if (!s || (!s.name && !cachedService)) return;
+  const displayName = publicServiceName(s.name || cachedService?.name || 'Service');
   $('#serviceModalLabel').text(displayName);
   $('#serviceModalBody').html(`
-    <img src="${escapeHtml(safeWebUrl(s.image))}" alt="${escapeHtml(displayName)}" class="w-100 mb-3" style="border-radius:8px;aspect-ratio:16/9;object-fit:cover;">
+    <img src="${escapeHtml(safeWebUrl(s.image || cachedService?.image))}" alt="${escapeHtml(displayName)}" class="w-100 mb-3" style="border-radius:8px;aspect-ratio:16/9;object-fit:cover;">
     <p class="mb-0 text-muted">Contact our staff to confirm current package options, inclusions, and pricing for this service.</p>
   `);
   new bootstrap.Modal('#serviceModal').show();
 }
 
-function renderGallery() {
-  const images = API.getGallery();
-    const $wrap = $('#galleryGrid').empty();
-    const shown = images.slice(0, 6);
-    shown.forEach(img => {
+async function renderGallery() {
+  const cached = publicGalleryCache();
+  const images = cached.length ? cached : await resolveApiValue(() => API.getGallery(), []);
+  const $wrap = $('#galleryGrid').empty();
+  const shown = images.slice(0, 6);
+  shown.forEach(img => {
     $wrap.append(`
       <div class="col-md-4 col-6">
         <div class="gallery-item">
@@ -195,8 +349,9 @@ function renderGallery() {
   });
 }
 
-function renderContact() {
-  const c = API.getWebsiteContent();
+async function renderContact() {
+  const cached = publicContentCache();
+  const c = { ...cached, ...(await resolveApiValue(() => API.getWebsiteContent(), {})) };
   const phone = c.contact_phone === '0917-123-4567' ? '' : (c.contact_phone || '');
   const email = c.contact_email === 'hello@fiestaandco.ph' ? '' : (c.contact_email || '');
   const address = c.contact_address === '123 Rizal Avenue, Caloocan City, Metro Manila' ? '' : (c.contact_address || '');

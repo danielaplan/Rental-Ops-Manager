@@ -121,10 +121,10 @@ let currentReport = null;
 
 $(async function () {
   await API.ready;
-  initAdminChrome('reports.html', 'Reports');
-  renderReport();
+  await initAdminChrome('reports.html', 'Reports');
+  await renderReport();
 
-  $('#reportFilterForm').on('submit', function (e) {
+  $('#reportFilterForm').on('submit', async function (e) {
     e.preventDefault();
     const startDate = $('#reportStartDate').val();
     const endDate = $('#reportEndDate').val();
@@ -132,12 +132,12 @@ $(async function () {
       showAdminToast('The start date must be before the end date.', 'danger');
       return;
     }
-    renderReport(startDate, endDate);
+    await renderReport(startDate, endDate);
   });
 
-  $('#clearReportFilter').on('click', function () {
+  $('#clearReportFilter').on('click', async function () {
     $('#reportStartDate, #reportEndDate').val('');
-    renderReport();
+    await renderReport();
   });
 
   $('#viewReportReceipt').on('click', function () {
@@ -159,22 +159,34 @@ $(async function () {
   });
 });
 
-function renderReport(startDate, endDate) {
-  const r = API.getReportStats(startDate, endDate);
-  const filteredBookings = API.getBookings().filter(b => {
+async function renderReport(startDate, endDate) {
+  const [report, bookings, payments, rentalItems, pendingPaymentIndex] = await Promise.all([
+    API.getReportStats(startDate, endDate),
+    API.getBookings(),
+    API.getPayments(),
+    API.getRentalItems(),
+    PaymentsHelper.pendingAmountsByBooking()
+  ]);
+  const filteredBookings = bookings.filter(b => {
     if (startDate && b.event_date < startDate) return false;
     if (endDate && b.event_date > endDate) return false;
     return true;
   });
-  const customerCount = r.total_customers !== undefined
-    ? r.total_customers
+  const customerCount = report.total_customers !== undefined
+    ? report.total_customers
     : new Set(filteredBookings.map(b => b.customer_id || b.customer_name).filter(Boolean)).size;
   const bookingIds = new Set(filteredBookings.map(b => String(b.id)));
-  const pendingPayments = API.getPayments().filter(payment => payment.pending_sync && bookingIds.has(String(payment.booking_id)));
+  const pendingPayments = payments.filter(payment => payment.pending_sync && bookingIds.has(String(payment.booking_id)));
   const pendingPaymentTotal = pendingPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-  const pendingPaymentIndex = PaymentsHelper.pendingAmountsByBooking();
-  r.total_revenue = filteredBookings.reduce((sum, booking) => sum + PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex), 0);
-  r.outstanding_balance = filteredBookings.reduce((sum, booking) => sum + PaymentsHelper.remainingBalance(booking, pendingPaymentIndex), 0);
+  const totalRevenue = await filteredBookings.reduce(async (sumPromise, booking) => {
+    const sum = await sumPromise;
+    return sum + await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex);
+  }, Promise.resolve(0));
+  const outstandingBalance = await filteredBookings.reduce(async (sumPromise, booking) => {
+    const sum = await sumPromise;
+    return sum + await PaymentsHelper.remainingBalance(booking, pendingPaymentIndex);
+  }, Promise.resolve(0));
+  const r = { ...report, total_revenue: totalRevenue, outstanding_balance: outstandingBalance };
   const rangeLabel = startDate && endDate
     ? `${BookingCalc.formatDate(startDate)} – ${BookingCalc.formatDate(endDate)}`
     : startDate
@@ -243,7 +255,7 @@ function renderReport(startDate, endDate) {
     }
   }));
 
-  const items = API.getRentalItems().filter(i => ['Damaged', 'Missing'].includes(i.status));
+  const items = rentalItems.filter(i => ['Damaged', 'Missing'].includes(i.status));
   const $body = $('#damagedBody').empty();
   if (!items.length) $body.append('<tr><td colspan="3" class="text-center text-muted py-3">No damaged or missing items.</td></tr>');
   items.forEach(i => {

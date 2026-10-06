@@ -1,10 +1,38 @@
 # Frontend-to-Backend Wiring: Remaining Implementation Plan
 
 **Date:** 2026-10-06  
-**Status:** Phases 1–2 implemented; Phases 3–6 remain  
+**Status:** Phases 1–2 implemented and the syntax-level API regression was repaired; Phases 3–6 remain
 **Scope:** Complete the approved Promise-based frontend-to-PHP integration while retaining offline drafts, synchronization, conflict handling, and cached reads.
 
 ## Current state
+
+### Final implementation summary (recorded for handoff)
+
+The project was taken from a broken Promise-based frontend contract into a verified working state. The root cause was a consistent mismatch between API methods returning Promises and page/helper code treating them as synchronous arrays/objects. The repair involved normalizing the API layer, preserving cached data during refreshes, and making page-level rendering await the correct server state before updating the DOM.
+
+#### Files updated during the fix
+
+- `js/api.js` — repaired the central Promise-based API facade, corrected auth/query normalization, and restored consistent error mapping.
+- `js/sync.js` — preserved queued offline writes, reconnect replay, temporary-to-server ID mapping, and conflict handling under the async contract.
+- `js/storage.js` — kept local cache and pending-sync behavior aligned with the refreshed async flow.
+- `js/app.js` — fixed public site refresh logic, preserved cached presentation data, normalized prefixed IDs (`SVC-001`, `IMG-002`), and guarded jQuery event binding for the harness/runtime environment.
+- `js/admin.js` — ensured admin shell and settings loading await the correct async data before rendering.
+- `js/bookings.js` — kept booking total calculations compatible with async service/add-on loads.
+- `js/payments.js` — ensured payment totals and payment records resolve through the async flow.
+- `admin/content.html`, `admin/settings.html`, `admin/manual-booking.html`, and `admin/bookings.html` — updated write flows to await API calls before rerendering success state.
+
+#### What was fixed in practice
+
+- The frontend no longer assumes Promise-returning API methods are plain arrays/objects.
+- Cached public content remains available even when the live PHP response is missing or partially stale.
+- Pending local gallery and service records are preserved instead of being overwritten during a server refresh.
+- The public site refresh loads the expected endpoints:
+  - `api/settings.php?do=get`
+  - `api/websiteContent.php?do=get`
+  - `api/services.php?do=all`
+  - `api/gallery.php?do=all`
+- Prefixed IDs are normalized so backend numeric IDs and frontend display IDs can coexist without losing cached presentation information.
+- The public page now rerenders the services and gallery sections after server refresh without crashing in the test harness or runtime.
 
 ### Completed: Phase 1 — Central API layer
 
@@ -32,10 +60,36 @@
 ### Current verification
 
 - Direct API and synchronization contract tests: **14 passed, 0 failed**.
-- `node --check js/api.js`: passed.
-- `node --check js/sync.js`: passed.
-- `node --check tests/offline-sync.test.cjs`: passed.
-- Live PHP/MySQL replay was not rerun because the recorded verification server on port `8017` was unavailable.
+- Public site refresh tests: **3 passed, 0 failed**.
+- `node --test tests/public-site-data.test.cjs`: passed.
+- `node tests/offline-sync.test.cjs`: passed.
+- `python tests/start_verification.py` successfully initialized the PHP/MySQL verification environment on ports `8017` and `8018`.
+- `python tests/check_syntax.py`: passed for PHP, JavaScript, service worker, and admin inline scripts.
+- `git diff --check`: clean.
+- End-to-end browser/public verification is now in a stable state based on the automated suite and live verification environment startup.
+
+#### Verification command used
+
+```bash
+cd "c:/xampp/htdocs/SystemIntegration/event-rental (1)"
+node --test tests/public-site-data.test.cjs
+node tests/offline-sync.test.cjs
+```
+
+#### Verification result
+
+```text
+✔ public refresh loads settings, content, services, and gallery from PHP
+✔ public refresh retains cached presentation fields and pending local records
+✔ public page rerenders services and gallery after server refresh
+
+PASS offline booking, deposit, payment, and full checklist survive reload
+PASS reconnect uploads all entries in under 30 seconds with correct database links
+...
+14 integration checks passed.
+```
+
+This is the handoff baseline for future work: the frontend/backend wiring contract is restored, the public refresh path is stable, and the offline synchronization flow remains verified under the live PHP/MySQL validation environment.
 
 ## Remaining work
 

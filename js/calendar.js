@@ -6,10 +6,11 @@ const CalendarHelper = {
   currentMonth: new Date().getMonth(),
   currentYear: new Date().getFullYear(),
 
-  render(containerSelector, onBookingClick) {
-    const bookings = API.getBookings();
-    const byDate=new Map(),services=new Map(API.getServices().map(s=>[s.service_id,s.name]));
-    bookings.forEach(b=>{if(!['Cancelled','Rejected'].includes(b.status)){const day=byDate.get(b.event_date)||[];day.push(b);byDate.set(b.event_date,day);}});
+  async render(containerSelector, onBookingClick) {
+    const [bookings, servicesData] = await Promise.all([API.getBookings(), API.getServices()]);
+    const byDate = new Map();
+    const services = new Map(servicesData.map(s => [s.service_id, s.name]));
+    bookings.forEach(b => { if (!['Cancelled', 'Rejected'].includes(b.status)) { const day = byDate.get(b.event_date) || []; day.push(b); byDate.set(b.event_date, day); } });
     const year = this.currentYear, month = this.currentMonth;
     const firstDay = new Date(year, month, 1);
     const startOffset = firstDay.getDay();

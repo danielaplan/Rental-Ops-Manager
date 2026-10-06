@@ -71,9 +71,9 @@ function isOwnerAdmin() {
   return String(session?.user?.role || '').toLowerCase() === 'owner';
 }
 
-function renderAdminSidebar(activeHref) {
-  const settings = API.getSettings();
-  const savedName = settings.business_name || '';
+async function renderAdminSidebar(activeHref) {
+  const settings = await API.getSettings().catch(() => ({}));
+  const savedName = settings?.business_name || '';
   const businessName = !savedName || savedName.startsWith('Fiesta & Co.')
     ? CONFIG.businessNameFallback
     : savedName;
@@ -99,7 +99,7 @@ function renderAdminSidebar(activeHref) {
   });
 }
 
-function initAdminChrome(activeHref, pageTitle) {
+async function initAdminChrome(activeHref, pageTitle) {
   AdminAuth.requireLogin();
   if (OWNER_ONLY_ADMIN_PAGES.has(activeHref) && !isOwnerAdmin()) {
     const main = document.querySelector('.admin-main');
@@ -107,7 +107,7 @@ function initAdminChrome(activeHref, pageTitle) {
     window.location.replace('dashboard.html');
     return;
   }
-  renderAdminSidebar(activeHref);
+  await renderAdminSidebar(activeHref);
   $('#adminPageTitle').text(pageTitle);
   initAdminSpaNavigation();
   window.initSyncPanel?.();

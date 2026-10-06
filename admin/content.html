@@ -121,23 +121,23 @@ $(async function () {
   renderAdminSidebar('content.html');
   loadContent();
 
-  $('#contentForm').on('submit', function (e) {
+  $('#contentForm').on('submit', async function (e) {
     e.preventDefault();
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
-      API.updateWebsiteContent({
-      business_name: $('#cBusinessName').val().trim(),
-      logo: $('#cLogo').val().trim(),
-      hero_title: $('#cHeroTitle').val().trim(),
-      hero_description: $('#cHeroDesc').val().trim(),
-      hero_image: $('#cHeroImage').val().trim(),
-      hero_button_text: $('#cHeroBtn').val().trim(),
-      about_title: $('#cAboutTitle').val().trim(),
-      about_description: $('#cAboutDesc').val().trim(),
-      contact_phone: $('#cPhone').val().trim(),
-      contact_email: $('#cEmail').val().trim(),
-      contact_address: $('#cAddress').val().trim(),
-      contact_facebook: $('#cFacebook').val().trim(),
+      await API.updateWebsiteContent({
+        business_name: $('#cBusinessName').val().trim(),
+        logo: $('#cLogo').val().trim(),
+        hero_title: $('#cHeroTitle').val().trim(),
+        hero_description: $('#cHeroDesc').val().trim(),
+        hero_image: $('#cHeroImage').val().trim(),
+        hero_button_text: $('#cHeroBtn').val().trim(),
+        about_title: $('#cAboutTitle').val().trim(),
+        about_description: $('#cAboutDesc').val().trim(),
+        contact_phone: $('#cPhone').val().trim(),
+        contact_email: $('#cEmail').val().trim(),
+        contact_address: $('#cAddress').val().trim(),
+        contact_facebook: $('#cFacebook').val().trim(),
         contact_instagram: $('#cInstagram').val().trim()
       });
       showAdminToast(API.savedMessage());
@@ -149,8 +149,8 @@ $(async function () {
   });
 });
 
-function loadContent() {
-  const c = API.getWebsiteContent();
+async function loadContent() {
+  const c = await API.getWebsiteContent().catch(() => ({}));
   const savedName = c.business_name || '';
   $('#cBusinessName').val(!savedName || savedName.startsWith('Fiesta & Co.') ? CONFIG.businessNameFallback : savedName);
   $('#cLogo').val(c.logo);

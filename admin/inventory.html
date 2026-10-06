@@ -139,12 +139,12 @@
 <script>
 $(async function () {
   await API.ready;
-  initAdminChrome('inventory.html', 'Inventory');
+  await initAdminChrome('inventory.html', 'Inventory');
   if (!isOwnerAdmin()) $('#addItemBtn').prop('hidden', true);
-  populateItemSelects();
-  renderInventory();
+  await populateItemSelects();
+  await renderInventory();
 
-  $('#invSearch').on('input', function () { renderInventory($(this).val()); });
+  $('#invSearch').on('input', async function () { await renderInventory($(this).val()); });
 
   $('#addItemBtn').on('click', function () {
     $('#itemForm')[0].reset();
@@ -153,8 +153,11 @@ $(async function () {
     new bootstrap.Modal('#itemFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-item', function () {
-    const it = API.getRentalItems().find(x => x.rental_item_id === $(this).data('id'));
+  $(document).on('click', '.js-edit-item', async function (event) {
+    const target = $(event.target).closest('.js-edit-item');
+    if (!target.length) return;
+    const items = await API.getRentalItems();
+    const it = items.find(x => x.rental_item_id === target.data('id'));
     if (!it) return;
     $('#itemId').val(it.rental_item_id);
     $('#itemService').val(it.service_id);
@@ -170,18 +173,21 @@ $(async function () {
     new bootstrap.Modal('#itemFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-item', function () {
-    const id = $(this).data('id');
-    confirmDelete('Delete this rental item from the catalog?', function () {
-      try { API.deleteRentalItem(id); renderInventory(); showAdminToast(API.savedMessage()); }
+  $(document).on('click', '.js-delete-item', async function (event) {
+    const target = $(event.target).closest('.js-delete-item');
+    if (!target.length) return;
+    const id = target.data('id');
+    confirmDelete('Delete this rental item from the catalog?', async function () {
+      try { await API.deleteRentalItem(id); await renderInventory(); showAdminToast(API.savedMessage()); }
       catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
-  $(document).on('click', '.js-view-history', function () {
-    const id = $(this).data('id');
-    const item = API.getRentalItems().find(x => x.rental_item_id === id);
-    const history = API.getItemHistory(id);
+  $(document).on('click', '.js-view-history', async function (event) {
+    const target = $(event.target).closest('.js-view-history');
+    if (!target.length) return;
+    const id = target.data('id');
+    const [item, history] = await Promise.all([API.getRentalItems().then(items => items.find(x => x.rental_item_id === id)), API.getItemHistory(id)]);
     let html = `<h6>${escapeHtmlA(item ? item.name : '')}</h6>`;
     if (!history.length) {
       html += '<p class="text-muted">No rental/return history yet.</p>';
@@ -196,7 +202,7 @@ $(async function () {
     new bootstrap.Modal('#historyModal').show();
   });
 
-  $('#itemForm').on('submit', function (e) {
+  $('#itemForm').on('submit', async function (e) {
     e.preventDefault();
     const id = $('#itemId').val();
     const data = {
@@ -212,31 +218,34 @@ $(async function () {
     };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
-      if (id) API.updateRentalItem(id, data);
-      else API.createRentalItem(data);
+      if (id) await API.updateRentalItem(id, data);
+      else await API.createRentalItem(data);
       bootstrap.Modal.getInstance(document.getElementById('itemFormModal')).hide();
-      renderInventory();
+      await renderInventory();
       showAdminToast(API.savedMessage());
     } catch (error) { showAdminToast(error.message, 'danger'); }
     finally { submit.prop('disabled', false); }
   });
 });
 
-function populateItemSelects() {
+async function populateItemSelects() {
+  const [services, statusValues, conditionValues] = await Promise.all([
+    API.getServices(),
+    Promise.resolve(CONFIG.inventoryStatuses),
+    Promise.resolve(CONFIG.itemConditions)
+  ]);
   const $svc = $('#itemService').empty();
-  API.getServices().forEach(s => $svc.append(`<option value="${escapeHtmlA(s.service_id)}">${escapeHtmlA(s.name)}</option>`));
+  services.forEach(s => $svc.append(`<option value="${escapeHtmlA(s.service_id)}">${escapeHtmlA(s.name)}</option>`));
 
   const $status = $('#itemStatus').empty();
-  CONFIG.inventoryStatuses.forEach(s => $status.append(`<option>${s}</option>`));
+  statusValues.forEach(s => $status.append(`<option>${s}</option>`));
 
   const $cond = $('#itemCondition').empty();
-  CONFIG.itemConditions.forEach(c => $cond.append(`<option>${c}</option>`));
+  conditionValues.forEach(c => $cond.append(`<option>${c}</option>`));
 }
 
-function renderInventory(search) {
-  const items = API.getRentalItems();
-  const services = API.getServices();
-  const bookingItems = STORAGE.getAll('bookingItems');
+async function renderInventory(search) {
+  const [items, services, bookingItems] = await Promise.all([API.getRentalItems(), API.getServices(), STORAGE.getAll('bookingItems')]);
 
   // stats
   const statCount = (status) => items.filter(i => i.status === status).length;

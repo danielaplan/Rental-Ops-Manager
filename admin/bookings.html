@@ -339,13 +339,13 @@ $(async function () {
     renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
   });
 
-  $(document).on('click', '.js-view-booking', function (e) {
+  $(document).on('click', '.js-view-booking', async function (e) {
     e.preventDefault();
-    openBookingDetail($(this).data('id'));
+    await openBookingDetail($(this).data('id'));
   });
 
-  $('#editBookingBtn').on('click', function () {
-    const booking = API.getBooking(currentBookingId);
+  $('#editBookingBtn').on('click', async function () {
+    const booking = await API.getBooking(currentBookingId);
     if (!booking) return;
     $('#editEventDate').val(booking.event_date || '');
     $('#editEventStart').val(String(booking.start_time || '').slice(0, 5));
@@ -366,12 +366,12 @@ $(async function () {
   $('#editBookingModal').on('hidden.bs.modal', function () {
     if (!returnToBookingDetails || !currentBookingId) return;
     returnToBookingDetails = false;
-    openBookingDetail(currentBookingId);
+    void openBookingDetail(currentBookingId);
   });
 
-  $('#editBookingForm').on('submit', function (e) {
+  $('#editBookingForm').on('submit', async function (e) {
     e.preventDefault();
-    const booking = API.getBooking(currentBookingId);
+    const booking = await API.getBooking(currentBookingId);
     const eventDate = $('#editEventDate').val();
     const startTime = $('#editEventStart').val();
     const endTime = $('#editEventEnd').val();
@@ -389,9 +389,11 @@ $(async function () {
       return;
     }
     if (['Confirmed', 'Reserved', 'Preparing', 'Released'].includes(booking.status)) {
-      const conflicts = (booking.service_ids || []).filter(serviceId =>
-        !API.checkAvailability(serviceId, eventDate, startTime, endTime, booking.id).available
-      );
+      const availability = await Promise.all((booking.service_ids || []).map(async serviceId => ({
+        id: serviceId,
+        available: (await API.checkAvailability(serviceId, eventDate, startTime, endTime, booking.id)).available
+      })));
+      const conflicts = availability.filter(item => !item.available).map(item => item.id);
       if (conflicts.length) {
         error.text('This time overlaps another active booking. Change the date or time; the server will also check before accepting the edit.')
           .prop('hidden', false).trigger('focus');
@@ -401,7 +403,7 @@ $(async function () {
 
     button.prop('disabled', true);
     try {
-      API.updateBooking(currentBookingId, { event_date: eventDate, start_time: startTime, end_time: endTime, location });
+      await API.updateBooking(currentBookingId, { event_date: eventDate, start_time: startTime, end_time: endTime, location });
       bootstrap.Modal.getInstance(document.getElementById('editBookingModal'))?.hide();
       renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
       showAdminToast(API.savedMessage());
@@ -412,9 +414,9 @@ $(async function () {
     }
   });
 
-  $('#dSaveBookingBtn').on('click', function () {
+  $('#dSaveBookingBtn').on('click', async function () {
     const newStatus = $('#dStatusSelect').val();
-    const booking = API.getBooking(currentBookingId);
+    const booking = await API.getBooking(currentBookingId);
     if (!booking) return;
     if (newStatus === 'Completed' && booking.status !== 'Completed') {
       $('#dSaveConflictMsg').text('Use Save Return Inspection to request completion after recording the returned items.').show().trigger('focus');
@@ -425,9 +427,11 @@ $(async function () {
     // A status change that activates the booking's time slot needs the same
     // conflict check as a new booking — the slot may have been taken.
     if (newStatus === 'Confirmed' || newStatus === 'Reserved' || newStatus === 'Preparing') {
-      const conflict = (booking.service_ids || []).filter(sid =>
-        !API.checkAvailability(sid, booking.event_date, booking.start_time, booking.end_time, booking.id).available
-      );
+      const availability = await Promise.all((booking.service_ids || []).map(async sid => ({
+        id: sid,
+        available: (await API.checkAvailability(sid, booking.event_date, booking.start_time, booking.end_time, booking.id)).available
+      })));
+      const conflict = availability.filter(item => !item.available).map(item => item.id);
       if (conflict.length) {
         $('#dSaveConflictMsg').html(
           `<div class="alert alert-danger mb-0"><i class="bi bi-exclamation-triangle me-1"></i>` +
@@ -441,7 +445,7 @@ $(async function () {
 
     $('#dSaveConflictMsg').hide();
     try {
-      API.updateBooking(currentBookingId, { status: newStatus });
+      await API.updateBooking(currentBookingId, { status: newStatus });
       bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
       showAdminToast(API.savedMessage());
       renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
@@ -450,24 +454,23 @@ $(async function () {
     }
   });
 
-  $(document).on('change', '.js-release-check', function () {
+  $(document).on('change', '.js-release-check', async function () {
     const bookingItemId = $(this).closest('.checklist-row').data('item');
-    API.updateBookingItem(bookingItemId, { checked_released: this.checked });
+    await API.updateBookingItem(bookingItemId, { checked_released: this.checked });
     $(this).closest('.checklist-row').toggleClass('checked', this.checked);
     InventoryHelper.updateReleaseProgress('#releaseChecklistWrap');
   });
 
-  $('#confirmReleaseBtn').on('click', function () {
-    API.recordRelease(currentBookingId, $('#releasedByInput').val() || 'Staff', $('#releaseNotesInput').val());
-    // mark rental items as Released
-    const items = API.getBookingItems(currentBookingId);
-    items.forEach(it => {
-      API.updateRentalItem(it.rental_item_id, { status: 'Released' });
-    });
-    API.updateBooking(currentBookingId, { status: 'Released' });
+  $('#confirmReleaseBtn').on('click', async function () {
+    await API.recordRelease(currentBookingId, $('#releasedByInput').val() || 'Staff', $('#releaseNotesInput').val());
+    const items = await API.getBookingItems(currentBookingId);
+    for (const it of items) {
+      await API.updateRentalItem(it.rental_item_id, { status: 'Released' });
+    }
+    await API.updateBooking(currentBookingId, { status: 'Released' });
     showAdminToast('Items marked as released');
-    renderBookingsTable();
-    loadBookingDetail(currentBookingId);
+    await renderBookingsTable();
+    await loadBookingDetail(currentBookingId);
   });
 
   $('#previewReturnBtn').on('click', function () {
@@ -481,33 +484,36 @@ $(async function () {
     $('#returnSummaryBox').show();
   });
 
-  $('#completeReturnBtn').on('click', function () {
-    const results=InventoryHelper.collectReturnResults('#returnChecklistWrap');
-    if(!results.length||results.some(r=>!Number.isInteger(r.returned_qty)||r.returned_qty<0||r.returned_qty>Number(r.expected_qty))){
-      $('#returnSaveError').prop('hidden',false).text('Enter whole returned quantities between zero and the expected quantity.').trigger('focus');return;
+  $('#completeReturnBtn').on('click', async function () {
+    const results = InventoryHelper.collectReturnResults('#returnChecklistWrap');
+    if (!results.length || results.some(r => !Number.isInteger(r.returned_qty) || r.returned_qty < 0 || r.returned_qty > Number(r.expected_qty))) {
+      $('#returnSaveError').prop('hidden', false).text('Enter whole returned quantities between zero and the expected quantity.').trigger('focus');
+      return;
     }
-    try{
-      API.recordReturn(currentBookingId,$('#inspectedByInput').val()||'Staff',results,$('#returnNotesInput').val());
-      const complete=results.every(r=>r.returned_qty===Number(r.expected_qty)&&r.condition!=='Missing');
-      if(complete)API.finalizeReturn(currentBookingId);
-      showAdminToast(API.savedMessage()+(complete?' Completion awaits server validation.':' Missing items remain outstanding.'));
-      loadBookingDetail(currentBookingId);
-    }catch(error){$('#returnSaveError').prop('hidden',false).text(error.message).trigger('focus');}
+    try {
+      await API.recordReturn(currentBookingId, $('#inspectedByInput').val() || 'Staff', results, $('#returnNotesInput').val());
+      const complete = results.every(r => r.returned_qty === Number(r.expected_qty) && r.condition !== 'Missing');
+      if (complete) await API.finalizeReturn(currentBookingId);
+      showAdminToast(API.savedMessage() + (complete ? ' Completion awaits server validation.' : ' Missing items remain outstanding.'));
+      await loadBookingDetail(currentBookingId);
+    } catch (error) {
+      $('#returnSaveError').prop('hidden', false).text(error.message).trigger('focus');
+    }
   });
-  $('#saveDepositBtn').on('click',function(){
-    try{
-      const saved=API.upsertDeposit(currentBookingId,{amount_held:Number($('#depositHeld').val()),deduction_amount:Number($('#depositDeduction').val()),deduction_reason:$('#depositReason').val()});
+  $('#saveDepositBtn').on('click', async function () {
+    try {
+      const saved = await API.upsertDeposit(currentBookingId, { amount_held: Number($('#depositHeld').val()), deduction_amount: Number($('#depositDeduction').val()), deduction_reason: $('#depositReason').val() });
       renderDepositRefundState(saved);
-      $('#depositError').prop('hidden',true);showAdminToast(API.savedMessage());
-    }catch(error){$('#depositError').prop('hidden',false).text(error.message).trigger('focus');}
+      $('#depositError').prop('hidden', true); showAdminToast(API.savedMessage());
+    } catch (error) { $('#depositError').prop('hidden', false).text(error.message).trigger('focus'); }
   });
   $('#deliveryMethod, #deliveryFee, #deliveryResponsibility').on('input change', function () {
     deliveryFormRevision++;
     $('#deliverySaveState').text('Unsaved changes');
   });
-  $('#saveDeliveryBtn').on('click', function () {
+  $('#saveDeliveryBtn').on('click', async function () {
     try {
-      API.upsertDelivery(currentBookingId, {
+      await API.upsertDelivery(currentBookingId, {
         delivery_method: $('#deliveryMethod').val(),
         delivery_fee: $('#deliveryFee').val(),
         fee_shouldered_by: $('#deliveryResponsibility').val()
@@ -524,7 +530,7 @@ $(async function () {
     $('#depositRefund').val(Math.max(Number($('#depositHeld').val())-Number($('#depositDeduction').val()),0).toFixed(2));
     $('#depositRefundState').text('Unsaved changes');
   });
-  $('#recordPaymentBtn').on('click', function () {
+  $('#recordPaymentBtn').on('click', async function () {
     const amount = Number($('#payAmount').val());
     const error = $('#paySaveError');
     const button = $(this);
@@ -538,13 +544,13 @@ $(async function () {
       const purpose = $('#payPurpose').val();
       const additionalNotes = $('#payNotes').val().trim();
       const notes = [purpose, additionalNotes].filter(Boolean).join(' — ');
-      const payment = PaymentsHelper.recordPayment(currentBookingId, amount, $('#payMethod').val(), notes);
+      const payment = await PaymentsHelper.recordPayment(currentBookingId, amount, $('#payMethod').val(), notes);
       if (!payment) throw new Error('The payment was not recorded. Check the amount and try again.');
       error.prop('hidden', true).text('');
       $('#payAmount, #payNotes').val('');
       showAdminToast(API.savedMessage());
-      renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
-      loadBookingDetail(currentBookingId);
+      await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+      await loadBookingDetail(currentBookingId);
     } catch (saveError) {
       error.text(saveError.message).prop('hidden', false).trigger('focus');
     } finally {
@@ -554,10 +560,13 @@ $(async function () {
 });
 
 let bookingPage=0;
-function renderBookingsTable(statusFilter, search) {
-  let bookings = API.getBookings().slice().sort((a, b) => (a.event_date < b.event_date ? 1 : -1));
-  const services = API.getServices();
-  const pendingPaymentIndex = PaymentsHelper.pendingAmountsByBooking();
+async function renderBookingsTable(statusFilter, search) {
+  const [bookingsData, services, pendingPaymentIndex] = await Promise.all([
+    API.getBookings(),
+    API.getServices(),
+    PaymentsHelper.pendingAmountsByBooking()
+  ]);
+  let bookings = bookingsData.slice().sort((a, b) => (a.event_date < b.event_date ? 1 : -1));
 
   if (statusFilter) bookings = bookings.filter(b => b.status === statusFilter);
   if (search) {
@@ -573,11 +582,12 @@ function renderBookingsTable(statusFilter, search) {
     return;
   }
   const total=bookings.length;
-  bookings.slice(bookingPage*50,(bookingPage+1)*50).forEach(b => {
+  for (const b of bookings.slice(bookingPage * 50, (bookingPage + 1) * 50)) {
     const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name).filter(Boolean).join(', ');
+    const paymentStatus = await PaymentsHelper.paymentStatus(b, pendingPaymentIndex);
     $body.append(`
       <tr>
-        <td><a href="#" class="fw-semibold js-view-booking" data-id="${escapeHtmlA(b.id)}">${escapeHtmlA(b._server_id || (String(b.id).startsWith('LOCAL-')?'Offline draft':b.id))}</a></td>
+        <td><a href="#" class="fw-semibold js-view-booking" data-id="${escapeHtmlA(b.id)}">${escapeHtmlA(b._server_id || (String(b.id).startsWith('LOCAL-') ? 'Offline draft' : b.id))}</a></td>
         <td>
           <div class="fw-semibold text-truncate" style="max-width:150px;" title="${escapeHtmlA(b.customer_name)}">${escapeHtmlA(b.customer_name)}</div>
           <div class="text-muted small">${escapeHtmlA(b.contact)}</div>
@@ -590,34 +600,37 @@ function renderBookingsTable(statusFilter, search) {
           <div class="text-truncate" style="max-width:170px;" title="${escapeHtmlA(svcNames)}">${escapeHtmlA(svcNames)}</div>
         </td>
         <td class="fw-bold">${BookingCalc.formatCurrency(b.total)}</td>
-        <td>${badgeStatus(PaymentsHelper.paymentStatus(b, pendingPaymentIndex), CONFIG.paymentStatusColors)}</td>
-        <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}${b.pending_sync?'<span class="badge bg-warning text-dark">Pending Sync</span>':''}</td>
+        <td>${badgeStatus(paymentStatus, CONFIG.paymentStatusColors)}</td>
+        <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}${b.pending_sync ? '<span class="badge bg-warning text-dark">Pending Sync</span>' : ''}</td>
         <td class="text-center">
           <button class="btn btn-sm btn-outline-secondary py-1 px-2 js-view-booking" data-id="${escapeHtmlA(b.id)}" title="View Details">
             <i class="bi bi-eye"></i> View
           </button>
         </td>
       </tr>`);
-  });
+  }
   if(!$('#bookingPagination').length)$('<div id="bookingPagination" class="d-flex align-items-center flex-wrap gap-2 mt-3"></div>').insertAfter($('#bookingsBody').closest('.table-wrap'));
   $('#bookingPagination').prop('hidden', false);
   const firstShown=total?bookingPage*50+1:0;
   $('#bookingPagination').html('<button type="button" id="bookingPrev" class="btn btn-sm btn-outline-secondary" '+(bookingPage===0?'disabled':'')+'>Previous</button><span aria-live="polite">Showing '+firstShown+'–'+Math.min((bookingPage+1)*50,total)+' of '+total+'</span><button type="button" id="bookingNext" class="btn btn-sm btn-outline-secondary" '+((bookingPage+1)*50>=total?'disabled':'')+'>Next</button>');
-  $('#bookingPrev').on('click',()=>{bookingPage--;renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());});
-  $('#bookingNext').on('click',()=>{bookingPage++;renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());});
+  $('#bookingPrev').on('click', async () => { bookingPage--; await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val()); });
+  $('#bookingNext').on('click', async () => { bookingPage++; await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val()); });
 }
 
-function openBookingDetail(id) {
+async function openBookingDetail(id) {
   currentBookingId = id;
-  loadBookingDetail(id);
+  await loadBookingDetail(id);
   new bootstrap.Modal('#bookingDetailModal').show();
 }
 
-function loadBookingDetail(id) {
-  const b = API.getBooking(id);
+async function loadBookingDetail(id) {
+  const [b, services, addons, packages] = await Promise.all([
+    API.getBooking(id),
+    API.getServices(),
+    API.getAddons(),
+    API.getPackages()
+  ]);
   if (!b) return;
-  const services = API.getServices();
-  const addons = API.getAddons();
 
   $('#detailBookingId').text(b._server_id || (String(b.id).startsWith('LOCAL-')?'Offline draft':b.id));
   $('#dCustName').text(b.customer_name);
@@ -634,8 +647,8 @@ function loadBookingDetail(id) {
   const $svcList = $('#dServicesList').empty();
   (b.service_ids || []).forEach(sid => {
     const s = services.find(x => x.service_id === sid);
-    const pack=API.getPackages().find(p=>String(p.package_id)===String(b.package_id));
-    if (s) $svcList.append(`<li>${escapeHtmlA(s.name)}${pack?' — '+escapeHtmlA(pack.package_name)+' — '+BookingCalc.formatCurrency(pack.price):''}</li>`);
+    const pack = packages.find(p => String(p.package_id) === String(b.package_id));
+    if (s) $svcList.append(`<li>${escapeHtmlA(s.name)}${pack ? ' — ' + escapeHtmlA(pack.package_name) + ' — ' + BookingCalc.formatCurrency(pack.price) : ''}</li>`);
   });
   (b.addon_ids || []).forEach(aid => {
     const a = addons.find(x => x.addon_id === aid);
@@ -647,30 +660,32 @@ function loadBookingDetail(id) {
   $('#dDiscount').text(BookingCalc.formatCurrency(b.discount));
   $('#dFees').text(BookingCalc.formatCurrency(b.fees));
   $('#dTotal').text(BookingCalc.formatCurrency(b.total));
-  const pendingPaymentIndex = PaymentsHelper.pendingAmountsByBooking();
+  const pendingPaymentIndex = await PaymentsHelper.pendingAmountsByBooking();
   const pendingPaymentAmount = pendingPaymentIndex.get(String(id)) || 0;
-  $('#dPaid').text(BookingCalc.formatCurrency(PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex)));
-  $('#dBalance').text(BookingCalc.formatCurrency(PaymentsHelper.remainingBalance(b, pendingPaymentIndex)));
+  $('#dPaid').text(BookingCalc.formatCurrency(await PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex)));
+  $('#dBalance').text(BookingCalc.formatCurrency(await PaymentsHelper.remainingBalance(b, pendingPaymentIndex)));
   $('#dStatusSelect').val(b.status);
-  $('#dPaymentStatusSelect').val(PaymentsHelper.paymentStatus(b, pendingPaymentIndex));
+  $('#dPaymentStatusSelect').val(await PaymentsHelper.paymentStatus(b, pendingPaymentIndex));
   $('#dPaymentPendingNote').text(pendingPaymentAmount > 0 ? `${BookingCalc.formatCurrency(pendingPaymentAmount)} is Pending Sync and is not included as accepted payment yet.` : '').prop('hidden', pendingPaymentAmount <= 0);
 
-  InventoryHelper.renderChecklist(id, '#releaseChecklistWrap', 'release');
-  InventoryHelper.renderChecklist(id, '#returnChecklistWrap', 'return');
+  await Promise.all([
+    InventoryHelper.renderChecklist(id, '#releaseChecklistWrap', 'release'),
+    InventoryHelper.renderChecklist(id, '#returnChecklistWrap', 'return'),
+    PaymentsHelper.renderHistory(id, '#paymentHistoryWrap')
+  ]);
   $('#returnSummaryBox').hide();
 
-  PaymentsHelper.renderHistory(id, '#paymentHistoryWrap');
-  const deposit=API.getDeposit(id);
+  const deposit = await API.getDeposit(id);
   setDepositForm(deposit);
-  const depositRevision=Number($('#depositHeld').data('revision')||0);
-  API.refreshDeposit(id).then(saved=>{
-    if(currentBookingId===id&&depositRevision===Number($('#depositHeld').data('revision')||0))setDepositForm(saved);
-  });
-  setDeliveryForm(API.getDelivery(id));
-  const deliveryRevision=deliveryFormRevision;
-  API.refreshDelivery(id).then(saved=>{
-    if(currentBookingId===id&&deliveryFormRevision===deliveryRevision)setDeliveryForm(saved);
-  });
+  const depositRevision = Number($('#depositHeld').data('revision') || 0);
+  const refreshedDeposit = await API.refreshDeposit(id);
+  if (currentBookingId === id && depositRevision === Number($('#depositHeld').data('revision') || 0)) setDepositForm(refreshedDeposit);
+
+  const delivery = await API.getDelivery(id);
+  setDeliveryForm(delivery);
+  const deliveryRevision = deliveryFormRevision;
+  const refreshedDelivery = await API.refreshDelivery(id);
+  if (currentBookingId === id && deliveryFormRevision === deliveryRevision) setDeliveryForm(refreshedDelivery);
 
 }
 

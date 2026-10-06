@@ -116,23 +116,23 @@ $(async function () {
   renderAdminSidebar('settings.html');
   loadSettings();
 
-  $('#settingsForm').on('submit', function (e) {
+  $('#settingsForm').on('submit', async function (e) {
     e.preventDefault();
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
-      API.updateSettings({
-      business_name: $('#sBusinessName').val().trim(),
-      logo: $('#sLogo').val().trim(),
-      phone: $('#sPhone').val().trim(),
-      email: $('#sEmail').val().trim(),
-      address: $('#sAddress').val().trim(),
-      facebook: $('#sFacebook').val().trim(),
-      instagram: $('#sInstagram').val().trim(),
-      min_booking_notice_days: Number($('#sNoticeDays').val() || 0),
-      booking_hours_open: $('#sHoursOpen').val(),
-      booking_hours_close: $('#sHoursClose').val(),
-      cancellation_policy: $('#sCancelPolicy').val().trim(),
-      primary_color: $('#sPrimaryColor').val(),
+      await API.updateSettings({
+        business_name: $('#sBusinessName').val().trim(),
+        logo: $('#sLogo').val().trim(),
+        phone: $('#sPhone').val().trim(),
+        email: $('#sEmail').val().trim(),
+        address: $('#sAddress').val().trim(),
+        facebook: $('#sFacebook').val().trim(),
+        instagram: $('#sInstagram').val().trim(),
+        min_booking_notice_days: Number($('#sNoticeDays').val() || 0),
+        booking_hours_open: $('#sHoursOpen').val(),
+        booking_hours_close: $('#sHoursClose').val(),
+        cancellation_policy: $('#sCancelPolicy').val().trim(),
+        primary_color: $('#sPrimaryColor').val(),
         accent_color: $('#sAccentColor').val()
       });
       showAdminToast(API.savedMessage());
@@ -144,8 +144,8 @@ $(async function () {
   });
 });
 
-function loadSettings() {
-  const s = API.getSettings();
+async function loadSettings() {
+  const s = await API.getSettings().catch(() => ({}));
   const savedName = s.business_name || '';
   $('#sBusinessName').val(!savedName || savedName.startsWith('Fiesta & Co.') ? CONFIG.businessNameFallback : savedName);
   $('#sLogo').val(s.logo);
