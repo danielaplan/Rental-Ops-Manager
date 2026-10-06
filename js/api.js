@@ -1,19 +1,9 @@
 /**
- * api.js
- * -----------------------------------------------------------------
- * This is the ONLY layer the rest of the app (public pages + admin
- * pages) should call to read or write data. Right now every method
- * reads/writes localStorage via storage.js. Later, each method body
- * can be swapped for a fetch() call to the matching PHP endpoint
- * (see comments) WITHOUT changing any calling code elsewhere.
+ * Promise-based frontend contract for the PHP API.
  *
- *   API.getServices()        -> GET  api/services.php
- *   API.createService(data)  -> POST api/services.php
- *   ... etc.
- *
- * All methods return plain JS values (objects/arrays), same shape
- * a JSON API response would be decoded into.
- * ------------------------------------------------------------- */
+ * Pages should only call API methods. This layer owns URLs, authentication,
+ * PHP action parameters, field mapping, ID conversion, and response errors.
+ */
 function calculatePaymentStatus(booking) {
   const total = Number(booking.total || 0);
   const paid = Number(booking.amount_paid || 0);
@@ -22,466 +12,336 @@ function calculatePaymentStatus(booking) {
   return "Unpaid";
 }
 
-const API = {
+const API = (() => {
+  const scriptUrl = document.currentScript?.src || window.location.href;
+  const apiBase = new URL("../api/", scriptUrl);
+  const timeoutMs = 12000;
 
-  /* ============ CATEGORIES ============ */
-  getCategories() {
-    return STORAGE.getAll("categories");
-  },
-  createCategory(data) {
-    const list = STORAGE.getAll("categories");
-    const id = STORAGE.nextId("CAT-", list, "category_id");
-    const record = { category_id: id, status: "Active", ...data };
-    list.push(record);
-    STORAGE.saveAll("categories", list);
-    return record;
-  },
-  updateCategory(id, data) {
-    const list = STORAGE.getAll("categories");
-    const idx = list.findIndex(c => c.category_id === id);
-    if (idx === -1) return null;
-    list[idx] = { ...list[idx], ...data };
-    STORAGE.saveAll("categories", list);
-    return list[idx];
-  },
-  deleteCategory(id) {
-    let list = STORAGE.getAll("categories");
-    list = list.filter(c => c.category_id !== id);
-    STORAGE.saveAll("categories", list);
-    return true;
-  },
+  const session = () => {
+    if (typeof STORAGE === "undefined" || typeof STORAGE._get !== "function") return {};
+    const key = typeof STORAGE_KEYS !== "undefined" ? STORAGE_KEYS.adminSession : "er_admin_session";
+    return STORAGE._get(key, {}) || {};
+  };
 
-  /* ============ SERVICES ============ */
-  getServices() {
-    return STORAGE.getAll("services");
-  },
-  getActiveServices() {
-    return STORAGE.getAll("services").filter(s => s.status === "Active");
-  },
-  getService(id) {
-    return STORAGE.getAll("services").find(s => s.service_id === id) || null;
-  },
-  createService(data) {
-    const list = STORAGE.getAll("services");
-    const id = STORAGE.nextId("SVC-", list, "service_id");
-    const record = {
-      service_id: id, status: "Active", featured: false,
-      inclusions: [], ...data
-    };
-    list.push(record);
-    STORAGE.saveAll("services", list);
-    return record;
-  },
-  updateService(id, data) {
-    const list = STORAGE.getAll("services");
-    const idx = list.findIndex(s => s.service_id === id);
-    if (idx === -1) return null;
-    list[idx] = { ...list[idx], ...data };
-    STORAGE.saveAll("services", list);
-    return list[idx];
-  },
-  deleteService(id) {
-    let list = STORAGE.getAll("services");
-    list = list.filter(s => s.service_id !== id);
-    STORAGE.saveAll("services", list);
-    return true;
-  },
+  const serverId = value => {
+    if (value === null || value === undefined || value === "") return value;
+    if (typeof value === "number") return value;
+    const text = String(value);
+    if (/^\d+$/.test(text)) return Number(text);
+    if (text.startsWith("LOCAL-")) throw new Error("This record has not been accepted by the server yet.");
+    const match = text.match(/-(\d+)$/);
+    return match ? Number(match[1]) : value;
+  };
 
-  /* ============ ADD-ONS ============ */
-  getAddons() {
-    return STORAGE.getAll("addons");
-  },
-  getAddonsForService(serviceId) {
-    return STORAGE.getAll("addons").filter(a => a.service_id === serviceId && a.status === "Active");
-  },
-  createAddon(data) {
-    const list = STORAGE.getAll("addons");
-    const id = STORAGE.nextId("ADD-", list, "addon_id");
-    const record = { addon_id: id, status: "Active", ...data };
-    list.push(record);
-    STORAGE.saveAll("addons", list);
-    return record;
-  },
-  updateAddon(id, data) {
-    const list = STORAGE.getAll("addons");
-    const idx = list.findIndex(a => a.addon_id === id);
-    if (idx === -1) return null;
-    list[idx] = { ...list[idx], ...data };
-    STORAGE.saveAll("addons", list);
-    return list[idx];
-  },
-  deleteAddon(id) {
-    let list = STORAGE.getAll("addons");
-    list = list.filter(a => a.addon_id !== id);
-    STORAGE.saveAll("addons", list);
-    return true;
-  },
+  const prefixedId = (prefix, value) => {
+    if (value === null || value === undefined || value === "") return value;
+    const text = String(value);
+    if (text.startsWith("LOCAL-") || text.startsWith(prefix + "-")) return value;
+    return `${prefix}-${String(value).padStart(3, "0")}`;
+  };
 
-  /* ============ RENTAL ITEMS (per-service catalog) ============ */
-  getRentalItems() {
-    return STORAGE.getAll("rentalItems");
-  },
-  getRentalItemsForService(serviceId) {
-    return STORAGE.getAll("rentalItems").filter(i => i.service_id === serviceId);
-  },
-  createRentalItem(data) {
-    const list = STORAGE.getAll("rentalItems");
-    const id = STORAGE.nextId("RI-", list, "rental_item_id");
-    const record = {
-      rental_item_id: id, status: "Available", condition: "Good",
-      tracking: "quantity", required: false, notes: "", ...data
-    };
-    list.push(record);
-    STORAGE.saveAll("rentalItems", list);
-    return record;
-  },
-  updateRentalItem(id, data) {
-    const list = STORAGE.getAll("rentalItems");
-    const idx = list.findIndex(i => i.rental_item_id === id);
-    if (idx === -1) return null;
-    list[idx] = { ...list[idx], ...data };
-    STORAGE.saveAll("rentalItems", list);
-    return list[idx];
-  },
-  deleteRentalItem(id) {
-    let list = STORAGE.getAll("rentalItems");
-    list = list.filter(i => i.rental_item_id !== id);
-    STORAGE.saveAll("rentalItems", list);
-    return true;
-  },
-  logItemHistory(entry) {
-    const list = STORAGE.getAll("itemHistory");
-    list.unshift({ history_id: "HIST-" + Date.now(), date: new Date().toISOString(), ...entry });
-    STORAGE.saveAll("itemHistory", list);
-  },
-  getItemHistory(rentalItemId) {
-    return STORAGE.getAll("itemHistory").filter(h => h.rental_item_id === rentalItemId);
-  },
+  const titleCaseStatus = value => String(value || "Pending").toLowerCase()
+    .replace(/(^|\s|_)([a-z])/g, (_match, space, letter) => `${space === "_" ? " " : space}${letter.toUpperCase()}`);
 
-  /* ============ BOOKING ITEMS (checklist per booking) ============ */
-  getBookingItems(bookingId) {
-    return STORAGE.getAll("bookingItems").filter(bi => bi.booking_id === bookingId);
-  },
-  generateBookingChecklist(bookingId, serviceIds) {
-    let list = STORAGE.getAll("bookingItems");
-    list = list.filter(bi => bi.booking_id !== bookingId); // regenerate cleanly
-    const rentalItems = STORAGE.getAll("rentalItems");
-    serviceIds.forEach(sid => {
-      rentalItems.filter(ri => ri.service_id === sid).forEach(ri => {
-        list.push({
-          booking_item_id: "BI-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
-          booking_id: bookingId,
-          rental_item_id: ri.rental_item_id,
-          service_id: sid,
-          name: ri.name,
-          expected_qty: ri.quantity,
-          released_qty: 0,
-          returned_qty: 0,
-          required: ri.required,
-          checked_released: false,
-          condition: "",
-          notes: ""
-        });
-      });
+  const numericFields = (row, fields) => {
+    const out = { ...row };
+    fields.forEach(field => {
+      if (out[field] !== null && out[field] !== undefined && out[field] !== "") out[field] = Number(out[field]);
     });
-    STORAGE.saveAll("bookingItems", list);
-    return list.filter(bi => bi.booking_id === bookingId);
-  },
-  updateBookingItem(bookingItemId, data) {
-    const list = STORAGE.getAll("bookingItems");
-    const idx = list.findIndex(bi => bi.booking_item_id === bookingItemId);
-    if (idx === -1) return null;
-    list[idx] = { ...list[idx], ...data };
-    STORAGE.saveAll("bookingItems", list);
-    return list[idx];
-  },
+    return out;
+  };
 
-  /* ============ RELEASE / RETURN RECORDS ============ */
-  recordRelease(bookingId, releasedBy, notes) {
-    const list = STORAGE.getAll("itemReleases");
-    const record = {
-      release_id: "REL-" + Date.now(), booking_id: bookingId,
-      released_by: releasedBy, notes: notes || "", released_at: new Date().toISOString()
-    };
-    list.push(record);
-    STORAGE.saveAll("itemReleases", list);
-    // history entries
-    const items = API.getBookingItems(bookingId);
-    items.forEach(it => {
-      API.logItemHistory({
-        rental_item_id: it.rental_item_id, booking_id: bookingId,
-        action: "Released", qty: it.expected_qty, condition: "Good"
-      });
-    });
-    return record;
-  },
-  recordReturn(bookingId, inspectedBy, itemResults, notes) {
-    const list = STORAGE.getAll("itemReturns");
-    const record = {
-      return_id: "RET-" + Date.now(), booking_id: bookingId,
-      inspected_by: inspectedBy, notes: notes || "",
-      inspected_at: new Date().toISOString(), items: itemResults
-    };
-    list.push(record);
-    STORAGE.saveAll("itemReturns", list);
-    itemResults.forEach(r => {
-      API.logItemHistory({
-        rental_item_id: r.rental_item_id, booking_id: bookingId,
-        action: "Returned", qty: r.returned_qty, condition: r.condition
-      });
-    });
-    return record;
-  },
+  const cachedRow = (collection, field, id) => {
+    if (typeof STORAGE === "undefined" || typeof STORAGE.getAll !== "function") return null;
+    return STORAGE.getAll(collection).find(row => {
+      const candidate = row._server_id ?? row[field];
+      if (String(candidate).startsWith("LOCAL-")) return false;
+      return String(serverId(candidate)) === String(id);
+    }) || null;
+  };
 
-  /* ============ AVAILABILITY ============ */
-  checkAvailability(serviceId, date, startTime, endTime, excludeBookingId) {
-    if(serviceId!=='SVC-001' && Number(serviceId)!==1)return {available:true,conflictWith:null};
-    const bookings=STORAGE.getAll("bookings").filter(b=>b.event_date===date &&
-      (b.service_ids||[]).some(id=>id==='SVC-001'||Number(id)===1) &&
-      ['confirmed','reserved','preparing','released'].includes(String(b.status).toLowerCase()) && String(b.id)!==String(excludeBookingId));
-    const toMin = (t) => {
-      const [h, m] = t.split(":").map(Number);
-      return h * 60 + m;
-    };
-    const s1 = toMin(startTime), e1 = toMin(endTime);
-    const conflict = bookings.find(b => {
-      const s2 = toMin(b.start_time), e2 = toMin(b.end_time);
-      return s1 < e2 && s2 < e1;
-    });
-    return { available: !conflict, conflictWith: conflict ? conflict.id : null };
-  },
+  const normalize = (entity, value) => {
+    if (value === null || value === undefined) return value;
+    if (Array.isArray(value)) return value.map(row => normalize(entity, row));
+    let row = { ...value };
 
-  /* ============ BOOKINGS ============ */
-  getBookings() {
-    const list = STORAGE.getAll("bookings");
-    let changed = false;
-    const normalized = list.map(booking => {
-      const paymentStatus = calculatePaymentStatus(booking);
-      if (booking.payment_status === paymentStatus) return booking;
-      changed = true;
-      return { ...booking, payment_status: paymentStatus };
-    });
-    if (changed) STORAGE.saveAll("bookings", normalized);
-    return normalized;
-  },
-  getBooking(id) {
-    return API.getBookings().find(b => b.id === id) || null;
-  },
-  createBooking(data) {
-    const list = STORAGE.getAll("bookings");
-    const id = STORAGE.nextBookingId(list);
-    const record = {
-      id, discount: 0, fees: 0, amount_paid: 0,
-      status: "Pending", payment_status: "Unpaid",
-      created_at: new Date().toISOString(),
-      ...data
-    };
-    record.payment_status = calculatePaymentStatus(record);
-    list.push(record);
-    STORAGE.saveAll("bookings", list);
-
-    // Upsert customer
-    API.upsertCustomerFromBooking(record);
-    // Auto-generate rental checklist
-    API.generateBookingChecklist(id, record.service_ids || []);
-    return record;
-  },
-  updateBooking(id, data) {
-    const list = STORAGE.getAll("bookings");
-    const idx = list.findIndex(b => b.id === id);
-    if (idx === -1) return null;
-    list[idx] = { ...list[idx], ...data };
-    list[idx].payment_status = calculatePaymentStatus(list[idx]);
-    STORAGE.saveAll("bookings", list);
-    return list[idx];
-  },
-
-  upsertCustomerFromBooking(booking) {
-    const list = STORAGE.getAll("customers");
-    let existing = list.find(c => c.contact === booking.contact);
-    if (existing) {
-      existing.name = booking.customer_name;
-      existing.email = booking.email || existing.email;
-    } else {
-      const id = STORAGE.nextId("CUS-", list, "customer_id");
-      existing = {
-        customer_id: id, name: booking.customer_name, contact: booking.contact,
-        email: booking.email || "", type: booking.customer_type || "Guest / No Account"
-      };
-      list.push(existing);
+    if (entity === "categories") row.category_id = prefixedId("CAT", row.category_id);
+    if (entity === "services") {
+      const cached = cachedRow("services", "service_id", row.service_id);
+      row = { ...(cached || {}), ...row };
+      row._server_id = serverId(row.service_id);
+      row.service_id = prefixedId("SVC", row._server_id);
+      row.name = row.service_name ?? row.name;
     }
-    STORAGE.saveAll("customers", list);
-    return existing;
-  },
-
-  /* ============ CUSTOMERS ============ */
-  getCustomers() {
-    const customers = STORAGE.getAll("customers");
-    const bookings = STORAGE.getAll("bookings");
-    return customers.map(c => {
-      const theirs = bookings.filter(b => b.contact === c.contact);
-      return {
-        ...c,
-        bookings_count: theirs.length,
-        total_spent: theirs.reduce((sum, b) => sum + (b.amount_paid || 0), 0)
-      };
-    });
-  },
-
-  /* ============ PAYMENTS ============ */
-  getPayments() {
-    return STORAGE.getAll("payments");
-  },
-  getPaymentsForBooking(bookingId) {
-    return STORAGE.getAll("payments").filter(p => p.booking_id === bookingId);
-  },
-  createPayment(data) {
-    const list = STORAGE.getAll("payments");
-    const id = STORAGE.nextId("PAY-", list, "payment_id");
-    const record = { payment_id: id, date: new Date().toISOString().slice(0, 10), ...data };
-    list.push(record);
-    STORAGE.saveAll("payments", list);
-
-    // update booking amount_paid
-    const booking = API.getBooking(data.booking_id);
-    if (booking) {
-      const newPaid = (booking.amount_paid || 0) + Number(data.amount || 0);
-      API.updateBooking(booking.id, { amount_paid: newPaid });
+    if (entity === "addons") {
+      row = numericFields(row, ["price"]);
+      row.addon_id = prefixedId("ADD", row.addon_id);
+      if (row.service_id != null) row.service_id = prefixedId("SVC", row.service_id);
     }
-    return record;
-  },
+    if (entity === "rentalItems") {
+      row = numericFields(row, ["quantity"]);
+      row.rental_item_id = prefixedId("RI", row.rental_item_id);
+      if (row.service_id != null) row.service_id = prefixedId("SVC", row.service_id);
+      if (row.required != null) row.required = Boolean(Number(row.required));
+    }
+    if (entity === "bookingItems") {
+      row = numericFields(row, ["expected_qty", "released_qty", "returned_qty"]);
+      row.booking_item_id = prefixedId("BI", row.booking_item_id);
+      if (row.rental_item_id != null) row.rental_item_id = prefixedId("RI", row.rental_item_id);
+      if (row.service_id != null) row.service_id = prefixedId("SVC", row.service_id);
+      if (row.required != null) row.required = Boolean(Number(row.required));
+      if (row.checked_released != null) row.checked_released = Boolean(Number(row.checked_released));
+    }
+    if (entity === "bookings") {
+      row = numericFields(row, ["subtotal", "addons_total", "total", "amount_paid", "discount", "fees", "guests"]);
+      row.id = row.id ?? row.booking_id;
+      row.location = row.event_location ?? row.location;
+      row.contact = row.contact ?? row.contact_number;
+      row.status = titleCaseStatus(row.status);
+      row.service_ids = (Array.isArray(row.service_ids) ? row.service_ids : []).map(id => prefixedId("SVC", id));
+      if (!row.service_ids.length && row.service_id != null) row.service_ids = [prefixedId("SVC", row.service_id)];
+      row.addon_ids = (Array.isArray(row.addon_ids) ? row.addon_ids : []).map(id => prefixedId("ADD", id));
+      row.payment_status = calculatePaymentStatus(row);
+    }
+    if (entity === "customers") {
+      row.customer_id = prefixedId("CUS", row.customer_id);
+      row.name = row.full_name ?? row.name;
+      row.contact = row.contact_number ?? row.contact;
+      row.email = row.messenger_handle ?? row.email;
+    }
+    if (entity === "payments") {
+      row = numericFields(row, ["amount"]);
+      row.payment_id = prefixedId("PAY", row.payment_id);
+      row.method = row.payment_method ?? row.method;
+      row.date = String(row.payment_date ?? row.date ?? "").slice(0, 10);
+    }
+    if (entity === "gallery") {
+      row.image_id = prefixedId("IMG", row.image_id);
+      if (row.featured != null) row.featured = Boolean(Number(row.featured));
+    }
+    if (entity === "packages") {
+      row = numericFields(row, ["price"]);
+      row.package_id = prefixedId("PKG", row.package_id);
+      if (row.service_id != null) row.service_id = prefixedId("SVC", row.service_id);
+      row.name = row.package_name ?? row.name;
+    }
+    if (entity === "itemHistory") {
+      row.history_id = prefixedId("HIST", row.history_id);
+      if (row.rental_item_id != null) row.rental_item_id = prefixedId("RI", row.rental_item_id);
+      row.qty = Number(row.qty || 0);
+    }
+    if (entity === "itemReleases") row.release_id = prefixedId("REL", row.release_id);
+    if (entity === "deposits") row = numericFields(row, ["amount_held", "deduction_amount", "refund_amount"]);
+    if (entity === "delivery") row = numericFields(row, ["delivery_fee"]);
+    if (entity === "reports" && Array.isArray(row.upcoming_bookings)) row.upcoming_bookings = normalize("bookings", row.upcoming_bookings);
+    return row;
+  };
 
-  /* ============ GALLERY ============ */
-  getGallery() {
-    return STORAGE.getAll("gallery");
-  },
-  createGalleryImage(data) {
-    const list = STORAGE.getAll("gallery");
-    const id = STORAGE.nextId("IMG-", list, "image_id");
-    const record = { image_id: id, featured: false, ...data };
-    list.push(record);
-    STORAGE.saveAll("gallery", list);
-    return record;
-  },
-  updateGalleryImage(id, data) {
-    const list = STORAGE.getAll("gallery");
-    const idx = list.findIndex(g => g.image_id === id);
-    if (idx === -1) return null;
-    list[idx] = { ...list[idx], ...data };
-    STORAGE.saveAll("gallery", list);
-    return list[idx];
-  },
-  deleteGalleryImage(id) {
-    let list = STORAGE.getAll("gallery");
-    list = list.filter(g => g.image_id !== id);
-    STORAGE.saveAll("gallery", list);
-    return true;
-  },
-
-  /* ============ WEBSITE CONTENT ============ */
-  getWebsiteContent() {
-    return STORAGE._get(STORAGE_KEYS.websiteContent, {});
-  },
-  updateWebsiteContent(data) {
-    const current = API.getWebsiteContent();
-    const updated = { ...current, ...data };
-    STORAGE.setOne("websiteContent", updated);
-    const settings = API.getSettings();
-    STORAGE.setOne("settings", {
-      ...settings,
-      business_name: updated.business_name,
-      phone: updated.contact_phone,
-      email: updated.contact_email,
-      address: updated.contact_address,
-      facebook: updated.contact_facebook,
-      instagram: updated.contact_instagram
+  const payload = (entity, input = {}) => {
+    const out = { ...input };
+    if (entity === "services" && out.name !== undefined) {
+      out.service_name = out.name;
+      delete out.name;
+    }
+    if (entity === "customers") {
+      if (out.name !== undefined) out.full_name = out.name;
+      if (out.contact !== undefined) out.contact_number = out.contact;
+      if (out.email !== undefined) out.messenger_handle = out.email;
+      delete out.name;
+      delete out.contact;
+      delete out.email;
+    }
+    if (entity === "payments" && out.method !== undefined) {
+      out.payment_method = out.method;
+      delete out.method;
+    }
+    if (entity === "bookings") {
+      if (out.location !== undefined) out.event_location = out.location;
+      if (out.service_ids) out.service_ids = out.service_ids.map(serverId);
+      if (out.addon_ids) out.addon_ids = out.addon_ids.map(serverId);
+      if (out.package_id != null) out.package_id = serverId(out.package_id);
+      if (out.customer_id != null) out.customer_id = serverId(out.customer_id);
+      delete out.location;
+    }
+    ["service_id", "booking_id", "rental_item_id", "booking_item_id", "package_id", "customer_id"].forEach(field => {
+      if (out[field] !== null && out[field] !== undefined && out[field] !== "") out[field] = serverId(out[field]);
     });
-    return updated;
-  },
+    return out;
+  };
 
-  /* ============ SETTINGS ============ */
-  getSettings() {
-    return STORAGE._get(STORAGE_KEYS.settings, {});
-  },
-  updateSettings(data) {
-    const current = API.getSettings();
-    const updated = { ...current, ...data };
-    STORAGE.setOne("settings", updated);
-    const content = API.getWebsiteContent();
-    STORAGE.setOne("websiteContent", {
-      ...content,
-      business_name: updated.business_name,
-      contact_phone: updated.phone,
-      contact_email: updated.email,
-      contact_address: updated.address,
-      contact_facebook: updated.facebook,
-      contact_instagram: updated.instagram
+  const request = async (endpoint, options = {}) => {
+    const url = new URL(endpoint, apiBase);
+    Object.entries(options.query || {}).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, value);
     });
-    return updated;
-  },
+    const token = session()?.session_token;
+    const method = options.method || (options.body === undefined ? "GET" : "POST");
+    const headers = { ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+    if (options.body !== undefined) headers["Content-Type"] = "application/json";
+    const init = { method, headers };
+    if (options.body !== undefined) init.body = JSON.stringify(options.body);
+    if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") init.signal = AbortSignal.timeout(timeoutMs);
 
-  /* ============ DASHBOARD / REPORTS AGGREGATES ============ */
-  getDashboardStats() {
-    const bookings = STORAGE.getAll("bookings");
-    const services = STORAGE.getAll("services");
-    const items = STORAGE.getAll("rentalItems");
-    const today = new Date().toISOString().slice(0, 10);
+    let response;
+    try {
+      response = await fetch(url.href, init);
+    } catch (cause) {
+      const error = new Error("Unable to reach the server.");
+      error.code = "network_error";
+      error.cause = cause;
+      throw error;
+    }
+    const text = await response.text();
+    let envelope;
+    try {
+      envelope = text ? JSON.parse(text) : null;
+    } catch {
+      const error = new Error("The server returned an invalid response. Confirm that PHP is running.");
+      error.code = "invalid_response";
+      error.status = response.status;
+      throw error;
+    }
+    if (!response.ok || !envelope?.ok) {
+      const error = new Error(envelope?.error || `Request failed (${response.status}).`);
+      error.code = envelope?.code || "request_failed";
+      error.status = response.status;
+      error.details = envelope;
+      throw error;
+    }
+    return envelope.data;
+  };
 
-    const revenue = bookings.reduce((sum, b) => sum + (b.amount_paid || 0), 0);
-    const countByStatus = (s) => bookings.filter(b => b.status === s).length;
+  const list = async (endpoint, entity, query = {}) => normalize(entity, await request(endpoint, { query }));
+  const create = async (endpoint, entity, data) => normalize(entity, await request(endpoint, { query: { do: "create" }, body: payload(entity, data) }));
+  const update = async (endpoint, entity, id, data) => normalize(entity, await request(endpoint, { query: { do: "update", id: serverId(id) }, body: payload(entity, data) }));
+  const remove = async (endpoint, id) => request(endpoint, { query: { do: "delete", id: serverId(id) }, body: {} });
 
-    return {
-      total_bookings: bookings.length,
-      pending_bookings: countByStatus("Pending"),
-      confirmed_bookings: countByStatus("Confirmed"),
-      completed_bookings: countByStatus("Completed"),
-      total_revenue: revenue,
-      active_services: services.filter(s => s.status === "Active").length,
-      available_inventory: items.filter(i => i.status === "Available").length,
-      items_on_rental: items.filter(i => i.status === "On Rental" || i.status === "Released").length,
-      items_needing_attention: items.filter(i => ["Damaged", "Under Maintenance", "Missing"].includes(i.status)).length,
-      upcoming_bookings: bookings.filter(b => b.event_date >= today && !["Completed", "Cancelled", "Rejected"].includes(b.status))
-        .sort((a, b) => a.event_date.localeCompare(b.event_date)).slice(0, 5)
-    };
-  },
+  return {
+    request,
+    getCategories: () => list("categories.php", "categories", { do: "all" }),
+    createCategory: data => create("categories.php", "categories", data),
+    updateCategory: (id, data) => update("categories.php", "categories", id, data),
+    deleteCategory: async id => { await remove("categories.php", id); return true; },
 
-  getReportStats(startDate, endDate) {
-    const allBookings = STORAGE.getAll("bookings");
-    const bookings = allBookings.filter(b => {
-      if (startDate && b.event_date < startDate) return false;
-      if (endDate && b.event_date > endDate) return false;
-      return true;
-    });
-    const services = STORAGE.getAll("services");
-    const items = STORAGE.getAll("rentalItems");
+    getServices: () => list("services.php", "services", { do: "all" }),
+    async getActiveServices() { return (await this.getServices()).filter(row => row.status === "Active"); },
+    async getService(id) { return normalize("services", await request("services.php", { query: { do: "get", id: serverId(id) } })); },
+    createService: data => create("services.php", "services", data),
+    updateService: (id, data) => update("services.php", "services", id, data),
+    deleteService: async id => { await remove("services.php", id); return true; },
+/statu
+    getAddons: () => list("addons.php", "addons", { do: "all" }),
+    getAddonsForService: serviceId => list("addons.php", "addons", { do: "forService", service_id: serverId(serviceId) }),
+    createAddon: data => create("addons.php", "addons", data),
+    updateAddon: (id, data) => update("addons.php", "addons", id, data),
+    deleteAddon: async id => { await remove("addons.php", id); return true; },
 
-    const serviceCount = {};
-    bookings.forEach(b => (b.service_ids || []).forEach(sid => {
-      serviceCount[sid] = (serviceCount[sid] || 0) + 1;
-    }));
-    const popular = Object.entries(serviceCount)
-      .map(([sid, count]) => ({
-        name: (services.find(s => s.service_id === sid) || {}).name || sid,
-        count
-      }))
-      .sort((a, b) => b.count - a.count);
+    getRentalItems: () => list("rentalItems.php", "rentalItems", { do: "all" }),
+    getRentalItemsForService: serviceId => list("rentalItems.php", "rentalItems", { do: "forService", service_id: serverId(serviceId) }),
+    createRentalItem: data => create("rentalItems.php", "rentalItems", data),
+    updateRentalItem: (id, data) => update("rentalItems.php", "rentalItems", id, data),
+    deleteRentalItem: async id => { await remove("rentalItems.php", id); return true; },
 
-    const outstanding = bookings.reduce((sum, b) => sum + Math.max((b.total || 0) - (b.amount_paid || 0), 0), 0);
-    const customers = new Set(bookings.map(b => b.customer_id || b.customer_name).filter(Boolean));
+    getBookingItems: bookingId => list("bookingItems.php", "bookingItems", { do: "forBooking", booking_id: serverId(bookingId) }),
+    async generateBookingChecklist(bookingId, serviceIds) {
+      return normalize("bookingItems", await request("bookingItems.php", { query: { do: "generate" }, body: { booking_id: serverId(bookingId), service_ids: serviceIds.map(serverId) } }));
+    },
+    updateBookingItem: (id, data) => update("bookingItems.php", "bookingItems", id, data),
+    deleteBookingItem: id => request("bookingItems.php", { query: { do: "delete", id: serverId(id) }, body: {} }),
 
-    return {
-      total_bookings: bookings.length,
-      total_customers: customers.size,
-      pending: bookings.filter(b => b.status === "Pending").length,
-      confirmed: bookings.filter(b => b.status === "Confirmed").length,
-      completed: bookings.filter(b => b.status === "Completed").length,
-      cancelled: bookings.filter(b => b.status === "Cancelled" || b.status === "Rejected").length,
-      total_revenue: bookings.reduce((s, b) => s + (b.amount_paid || 0), 0),
-      outstanding_balance: outstanding,
-      popular_services: popular,
-      damaged_or_missing: items.filter(i => ["Damaged", "Missing"].includes(i.status)).length,
-      range_start: startDate || "",
-      range_end: endDate || ""
-    };
-  }
-};
+    async recordRelease(bookingId, releasedBy, notes) {
+      return normalize("itemReleases", await request("itemReleases.php", { query: { do: "create" }, body: { booking_id: serverId(bookingId), released_by: releasedBy, notes: notes || "" } }));
+    },
+    async recordReturn(bookingId, inspectedBy, itemResults, notes) {
+      const items = itemResults.map(item => payload("bookingItems", { ...item, notes: item.notes || notes || "" }));
+      return request("equipment.php", { query: { do: "inspect" }, body: { booking_id: serverId(bookingId), inspected_by: inspectedBy, items } });
+    },
+    async logItemHistory(entry) {
+      return normalize("itemHistory", await request("itemHistory.php", { query: { do: "create" }, body: payload("itemHistory", entry) }));
+    },
+    getItemHistory: rentalItemId => list("itemHistory.php", "itemHistory", { do: "forItem", rental_item_id: serverId(rentalItemId) }),
+    finalizeReturn: bookingId => request("equipment.php", { query: { do: "finalizeReturn" }, body: { booking_id: serverId(bookingId) } }),
+
+    async checkAvailability(serviceId, date, startTime, endTime, excludeBookingId) {
+      if (serverId(serviceId) !== 1) return { available: true, conflictWith: null };
+      const bookings = (await this.getBookings()).filter(booking => booking.event_date === date && booking.service_ids.some(id => serverId(id) === 1) && ["confirmed", "reserved", "preparing", "released"].includes(String(booking.status).toLowerCase()) && String(booking.id) !== String(excludeBookingId));
+      const toMinutes = time => { const [hours, minutes] = String(time).split(":").map(Number); return hours * 60 + minutes; };
+      const start = toMinutes(startTime), end = toMinutes(endTime);
+      const conflict = bookings.find(booking => start < toMinutes(booking.end_time) && toMinutes(booking.start_time) < end);
+      return { available: !conflict, conflictWith: conflict?.id || null };
+    },
+
+    getBookings: () => list("bookings.php", "bookings", { do: "all" }),
+    async getBooking(id) { return normalize("bookings", await request("bookings.php", { query: { do: "get", id: serverId(id) } })); },
+    async createBooking(data) { return normalize("bookings", await request("bookings.php", { query: { do: "create" }, body: payload("bookings", data) })); },
+    async updateBooking(id, data) { return normalize("bookings", await request("bookings.php", { query: { do: "update", id: serverId(id) }, body: payload("bookings", data) })); },
+    deleteBooking: id => request("bookings.php", { query: { do: "delete", id: serverId(id) }, body: {} }),
+
+    async upsertCustomerFromBooking(booking) {
+      const contact = booking.contact ?? booking.contact_number;
+      const matches = await list("customers.php", "customers", { do: "search", q: contact || "" });
+      const existing = matches.find(row => row.contact === contact);
+      const data = { name: booking.customer_name, contact, email: booking.email || "" };
+      return existing ? update("customers.php", "customers", existing.customer_id, data) : create("customers.php", "customers", data);
+    },
+    async getCustomers() {
+      const [customers, bookings] = await Promise.all([
+        list("customers.php", "customers", { do: "all" }),
+        this.getBookings()
+      ]);
+      return customers.map(customer => {
+        const customerId = serverId(customer.customer_id);
+        const related = bookings.filter(booking =>
+          String(booking.customer_id) === String(customerId) || booking.contact === customer.contact
+        );
+        return {
+          ...customer,
+          type: related[0]?.customer_type || customer.type || "Guest / No Account",
+          bookings_count: related.length,
+          total_spent: related.reduce((sum, booking) => sum + Number(booking.amount_paid || 0), 0)
+        };
+      });
+    },
+
+    getPayments: () => list("payments.php", "payments", { do: "all" }),
+    getPaymentsForBooking: bookingId => list("payments.php", "payments", { do: "all", booking_id: serverId(bookingId) }),
+    async createPayment(data) { return normalize("payments", await request("payments.php", { query: { do: "create" }, body: payload("payments", data) })); },
+
+    getGallery: () => list("gallery.php", "gallery", { do: "all" }),
+    createGalleryImage: data => create("gallery.php", "gallery", data),
+    updateGalleryImage: (id, data) => update("gallery.php", "gallery", id, data),
+    deleteGalleryImage: async id => { await remove("gallery.php", id); return true; },
+
+    getWebsiteContent: () => request("websiteContent.php", { query: { do: "get" } }),
+    updateWebsiteContent: data => request("websiteContent.php", { query: { do: "update" }, body: data }),
+    getSettings: () => request("settings.php", { query: { do: "get" } }),
+    updateSettings: data => request("settings.php", { query: { do: "update" }, body: data }),
+
+    async getDashboardStats() { return normalize("reports", await request("reports.php", { query: { do: "dashboard" } })); },
+    async getReportStats(startDate, endDate) { return normalize("reports", await request("reports.php", { query: { do: "report", start: startDate, end: endDate } })); },
+
+    getSyncQueue() {
+      if (typeof STORAGE === "undefined" || typeof STORAGE._get !== "function") return [];
+      return STORAGE._get("er_sync_queue", []);
+    },
+    getPackages: () => list("packages.php", "packages", { do: "all" }),
+
+    async getDeposit(bookingId) {
+      const data = await request("deposits.php", { query: { do: "get", booking_id: serverId(bookingId) } });
+      return normalize("deposits", data) || { booking_id: bookingId, amount_held: 0, deduction_amount: 0, deduction_reason: "", refund_amount: 0 };
+    },
+    async refreshDeposit(bookingId) { return this.getDeposit(bookingId); },
+    async upsertDeposit(bookingId, data) {
+      return normalize("deposits", await request("deposits.php", { query: { do: "upsert" }, body: payload("deposits", { ...data, booking_id: bookingId }) }));
+    },
+
+    async getDelivery(bookingId) {
+      const data = await request("delivery.php", { query: { do: "get", booking_id: serverId(bookingId) } });
+      return normalize("delivery", data) || { booking_id: bookingId, delivery_method: "self_pickup", delivery_fee: 0, fee_shouldered_by: "renter" };
+    },
+    async refreshDelivery(bookingId) { return this.getDelivery(bookingId); },
+    async upsertDelivery(bookingId, data) {
+      return normalize("delivery", await request("delivery.php", { query: { do: "upsert" }, body: payload("delivery", { ...data, booking_id: bookingId }) }));
+    }
+  };
+})();
