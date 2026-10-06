@@ -57,7 +57,7 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('payments.html', 'Payments');
   await renderPayments();

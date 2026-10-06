@@ -36,22 +36,21 @@ function createHarness() {
   };
 
   const STORAGE = {
+    _get(key, fallback) { return collections[key] || fallback; },
+    getOne(collection) { return collections[collection] || {}; },
     getAll(collection) { return collections[collection] || []; },
     saveAll(collection, rows) { collections[collection] = rows; return true; },
     setOne(collection, value) { collections[collection] = value; return true; }
   };
-  const API = {
-    getSettings: () => collections.settings,
-    getWebsiteContent: () => collections.websiteContent,
-    getActiveServices: () => collections.services.filter(row => row.status === 'Active'),
-    getService: id => collections.services.find(row => row.service_id === id) || null,
-    getGallery: () => collections.gallery
-  };
   const fetch = async endpoint => {
-    requests.push(String(endpoint));
+    const url = new URL(String(endpoint));
+    const key = url.pathname.replace(/^\//, '') + url.search;
+    requests.push(key);
+    if (payloads[key] instanceof Error) throw payloads[key];
     return {
       ok: true,
-      json: async () => ({ ok: true, data: payloads[String(endpoint)] })
+      status: 200,
+      text: async () => JSON.stringify({ ok: true, data: payloads[key] })
     };
   };
   let readyCallback;
@@ -78,17 +77,17 @@ function createHarness() {
     AbortSignal: { timeout() { return undefined; } },
     fetch,
     STORAGE,
-    API,
     $: jquery,
     CONFIG: { businessNameFallback: 'AKAD Rentals' },
-    document: { documentElement: { style: { setProperty() {} } } },
+    document: { currentScript: { src: 'http://localhost/js/api.js' }, documentElement: { style: { setProperty() {} } } },
     window: { location: { href: 'http://localhost/index.html' } }
   };
   context.globalThis = context;
   vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(root, 'js', 'api.js'), 'utf8') + '\nglobalThis.API = API;', context);
   vm.runInContext(fs.readFileSync(path.join(root, 'js', 'app.js'), 'utf8'), context, { filename: 'js/app.js' });
   return {
-    context, requests, collections, renderCounts,
+    context, requests, collections, renderCounts, payloads,
     ready: () => readyCallback()
   };
 }
@@ -130,9 +129,30 @@ test('public refresh retains cached presentation fields and pending local record
 test('public page rerenders services and gallery after server refresh', async () => {
   const { ready, renderCounts } = createHarness();
 
-  ready();
-  await settle();
+  await ready();
 
   assert.equal(renderCounts.services, 2);
   assert.equal(renderCounts.gallery, 2);
+});
+
+test('public outage retains cached data while successful endpoints still refresh', async () => {
+  const { context, collections, payloads } = createHarness();
+  payloads['api/services.php?do=all'] = new Error('Offline');
+  const result = await context.refreshPublicSiteData();
+  assert.ok(result.errors.services);
+  assert.equal(collections.services[0].name, 'Cached Karaoke');
+  assert.equal(collections.gallery[0].title, 'Server Gallery');
+});
+
+test('public refresh preserves pending edits and removes accepted records deleted on the server', async () => {
+  const { context, collections, payloads } = createHarness();
+  collections.services[0].pending_sync = true;
+  collections.services[0].name = 'Unsynced edit';
+  collections.services.push({ service_id: 'SVC-099', name: 'Deleted service', status: 'Active' });
+  await context.refreshPublicSiteData();
+  assert.equal(collections.services.find(row => row.service_id === 'SVC-001').name, 'Unsynced edit');
+  assert.ok(!collections.services.some(row => row.service_id === 'SVC-099'));
+  payloads['api/services.php?do=all'] = [];
+  await context.refreshPublicSiteData();
+  assert.equal(collections.services.length, 2);
 });

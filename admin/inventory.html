@@ -137,23 +137,23 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('inventory.html', 'Inventory');
   if (!isOwnerAdmin()) $('#addItemBtn').prop('hidden', true);
   await populateItemSelects();
   await renderInventory();
 
-  $('#invSearch').on('input', async function () { await renderInventory($(this).val()); });
+  $('#invSearch').onAdmin('input', async function () { await renderInventory($(this).val()); });
 
-  $('#addItemBtn').on('click', function () {
+  $('#addItemBtn').onAdmin('click', function () {
     $('#itemForm')[0].reset();
     $('#itemId').val('');
     $('#itemFormTitle').text('Add Rental Item');
     new bootstrap.Modal('#itemFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-item', async function (event) {
+  $(document).onAdmin('click', '.js-edit-item', async function (event) {
     const target = $(event.target).closest('.js-edit-item');
     if (!target.length) return;
     const items = await API.getRentalItems();
@@ -173,17 +173,17 @@ $(async function () {
     new bootstrap.Modal('#itemFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-item', async function (event) {
+  $(document).onAdmin('click', '.js-delete-item', async function (event) {
     const target = $(event.target).closest('.js-delete-item');
     if (!target.length) return;
     const id = target.data('id');
-    confirmDelete('Delete this rental item from the catalog?', async function () {
+    return confirmDelete('Delete this rental item from the catalog?', async function () {
       try { await API.deleteRentalItem(id); await renderInventory(); showAdminToast(API.savedMessage()); }
       catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
-  $(document).on('click', '.js-view-history', async function (event) {
+  $(document).onAdmin('click', '.js-view-history', async function (event) {
     const target = $(event.target).closest('.js-view-history');
     if (!target.length) return;
     const id = target.data('id');
@@ -202,7 +202,7 @@ $(async function () {
     new bootstrap.Modal('#historyModal').show();
   });
 
-  $('#itemForm').on('submit', async function (e) {
+  $('#itemForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#itemId').val();
     const data = {

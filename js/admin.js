@@ -131,9 +131,59 @@ function closeAdminSidebar() {
   $('#sidebarBackdrop').removeClass('show');
 }
 
-function confirmDelete(message, callback) {
+function showAdminError(error) {
+  let alert = document.getElementById('adminAsyncError');
+  if (!alert) {
+    alert = document.createElement('div');
+    alert.id = 'adminAsyncError';
+    alert.className = 'alert alert-danger';
+    alert.setAttribute('role', 'alert');
+    const topbar = document.querySelector('.admin-topbar');
+    if (topbar) topbar.after(alert);
+    else document.body.prepend(alert);
+  }
+  alert.textContent = error?.message || 'The operation failed. Please retry. Your form values have been retained.';
+  alert.hidden = false;
+}
+
+// jQuery does not handle rejected Promises returned by event callbacks.
+// Keep failures visible and lock an action before its first asynchronous read.
+const adminActionsInFlight = new WeakSet();
+function adminEventHandler(callback) {
+  return async function (...args) {
+    const event = args[0];
+    const exclusive = event?.type === 'submit' ||
+      (event?.type === 'click' && this?.matches?.('button, input[type=submit]'));
+    if (exclusive && adminActionsInFlight.has(this)) { event.preventDefault(); return; }
+    const controls = exclusive && this.id !== 'manualBookingForm'
+      ? (this.matches('form') ? [...this.querySelectorAll('[type=submit]')] : [this]) : [];
+    const disabled = controls.map(control => control.disabled);
+    if (exclusive) adminActionsInFlight.add(this);
+    controls.forEach(control => { control.disabled = true; });
+    try {
+      return await callback.apply(this, args);
+    } catch (error) {
+      showAdminError(error);
+    } finally {
+      if (exclusive) adminActionsInFlight.delete(this);
+      controls.forEach((control, index) => { control.disabled = disabled[index]; });
+    }
+  };
+}
+
+$.fn.onAdmin = function (...args) {
+  const index = args.length - 1;
+  if (typeof args[index] === 'function') args[index] = adminEventHandler(args[index]);
+  return this.on(...args);
+};
+
+function adminReady(callback) {
+  $(adminEventHandler(callback));
+}
+
+async function confirmDelete(message, callback) {
   if (confirm(message || "Are you sure you want to delete this? This cannot be undone.")) {
-    callback();
+    try { await callback(); } catch (error) { showAdminError(error); }
   }
 }
 

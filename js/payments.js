@@ -46,8 +46,9 @@ const PaymentsHelper = {
     });
   },
 
-  async renderHistory(bookingId, containerSelector) {
+  async renderHistory(bookingId, containerSelector, isCurrent = () => true) {
     const payments = (await API.getPayments()).filter(payment => String(payment.booking_id) === String(bookingId));
+    if (!isCurrent()) return;
     const $wrap = $(containerSelector).empty();
     if (!payments.length) {
       $wrap.append('<p class="text-muted small mb-0">No payments recorded yet.</p>');

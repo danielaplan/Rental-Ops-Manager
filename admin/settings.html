@@ -109,14 +109,14 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
-  initAdminChrome('settings.html', 'Settings');
+  await initAdminChrome('settings.html', 'Settings');
   await API.refreshSettings();
-  renderAdminSidebar('settings.html');
-  loadSettings();
+  await renderAdminSidebar('settings.html');
+  await loadSettings();
 
-  $('#settingsForm').on('submit', async function (e) {
+  $('#settingsForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {

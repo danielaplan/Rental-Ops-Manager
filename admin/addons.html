@@ -81,20 +81,20 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('addons.html', 'Add-ons');
   await populateServiceSelect();
   await renderAddonsTable();
 
-  $('#addAddonBtn').on('click', function () {
+  $('#addAddonBtn').onAdmin('click', function () {
     $('#addonForm')[0].reset();
     $('#addonId').val('');
     $('#addonFormTitle').text('Add Add-on');
     new bootstrap.Modal('#addonFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-addon', async function (event) {
+  $(document).onAdmin('click', '.js-edit-addon', async function (event) {
     const target = $(event.target).closest('.js-edit-addon');
     if (!target.length) return;
     const addons = await API.getAddons();
@@ -109,24 +109,24 @@ $(async function () {
     new bootstrap.Modal('#addonFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-addon', async function (event) {
+  $(document).onAdmin('click', '.js-delete-addon', async function (event) {
     const target = $(event.target).closest('.js-delete-addon');
     if (!target.length) return;
     const id = target.data('id');
-    confirmDelete('Delete this add-on?', async function () {
+    return confirmDelete('Delete this add-on?', async function () {
       try { await API.deleteAddon(id); await renderAddonsTable(); showAdminToast(API.savedMessage()); }
       catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
-  $(document).on('change', '.js-toggle-addon-status', async function (event) {
+  $(document).onAdmin('change', '.js-toggle-addon-status', async function (event) {
     const target = $(event.target).closest('.js-toggle-addon-status');
     if (!target.length) return;
     try { await API.updateAddon(target.data('id'), { status: target.is(':checked') ? 'Active' : 'Inactive' }); showAdminToast(API.savedMessage()); }
     catch (error) { target.prop('checked', !target.is(':checked')); showAdminToast(error.message, 'danger'); }
   });
 
-  $('#addonForm').on('submit', async function (e) {
+  $('#addonForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#addonId').val();
     const data = {

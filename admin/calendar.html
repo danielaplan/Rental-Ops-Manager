@@ -61,18 +61,20 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('calendar.html', 'Calendar');
   await CalendarHelper.render('#calendarWrap', showBookingPeek);
 
-  $('#prevMonthBtn').on('click', async function () { CalendarHelper.prevMonth(); await CalendarHelper.render('#calendarWrap', showBookingPeek); });
-  $('#nextMonthBtn').on('click', async function () { CalendarHelper.nextMonth(); await CalendarHelper.render('#calendarWrap', showBookingPeek); });
+  $('#prevMonthBtn').onAdmin('click', async function () { CalendarHelper.prevMonth(); await CalendarHelper.render('#calendarWrap', showBookingPeek); });
+  $('#nextMonthBtn').onAdmin('click', async function () { CalendarHelper.nextMonth(); await CalendarHelper.render('#calendarWrap', showBookingPeek); });
 });
 
+let peekVersion = 0;
 async function showBookingPeek(bookingId) {
+  const version = ++peekVersion;
   const [b, services] = await Promise.all([API.getBooking(bookingId), API.getServices()]);
-  if (!b) return;
+  if (!b || version !== peekVersion) return;
   const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name).filter(Boolean).join(', ');
   $('#calBookingBody').html(`
     <p class="mb-1"><strong>${escapeHtmlA(b._server_id || b.id)}</strong> — ${badgeStatus(escapeHtmlA(b.status), CONFIG.bookingStatusColors)}</p>

@@ -45,11 +45,11 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('customers.html', 'Customers');
   await renderCustomers();
-  $('#custSearch').on('input', async function () { await renderCustomers($(this).val()); });
+  $('#custSearch').onAdmin('input', async function () { await renderCustomers($(this).val()); });
 });
 
 async function renderCustomers(query) {

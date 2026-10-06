@@ -1,6 +1,6 @@
 ---
 title: Rental-Ops-Manager Memory Index
-date: 2026-09-30
+date: 2026-10-06
 tags:
   - rental-ops-manager
   - akad
@@ -12,6 +12,29 @@ aliases:
   - Vault Index
 status: active
 ---
+
+## Latest session — frontend async fixes and remaining acceptance — 2026-10-06
+
+The user authorized resolving the five recommended frontend workstreams and requested a reminder to test afterward. That authorization superseded the earlier frontend-edit restriction for this work. The latest request is memory updates only; do not interpret it as authorization to implement the remaining backend fixes.
+
+Implemented frontend changes:
+
+- Manual booking awaits form population before restoring drafts, guards duplicate submissions before the first awaited read, retains input on failure, preserves prefixed package IDs, and prevents duplicate booking creation after a dependent down-payment failure.
+- Shared admin event/initialization handling catches asynchronous errors and guards save actions. Delete callbacks, sync retries, and scheduled rerenders await completion and display failures.
+- Availability, package/add-on loading, calendar, booking lists/details/checklists, dashboard, and reports have stale-response protection. Dashboard charts and report receipts use resolved numeric payment amounts.
+- Public refresh uses the central `API.refreshPublicData()` request/normalization path, preserves cached presentation fields and pending drafts, retains cached content on outages, and removes accepted records absent from a successful server response.
+- Added `tests/frontend-async-workflows.test.cjs`, expanded public refresh tests, and updated the service-worker shell cache version.
+
+Verification performed: **30 automated tests passed, 0 failed** across direct API, synchronization contract, public refresh, and frontend async workflow suites. PHP, JavaScript, service worker, and admin inline syntax checks passed; `git diff --check` passed. The isolated verification servers on ports 8017/8018 were unavailable, so no new live PHP/MySQL or browser acceptance run was performed. Historical live reports do not certify these new edits.
+
+**Testing reminder remains outstanding:** use [Frontend Testing Checklist](../Implementation/Frontend-Testing-Checklist.md) for browser booking/payment/return workflows, failure and retry behavior, offline reload/reconnect, rapid selection changes, and mobile/keyboard checks. The reminder is recorded here and was included in the handoff; no scheduled notification was created. The [wiring plan](../Implementation/Frontend-Backend-Wiring-Remaining-Plan.md) now distinguishes this follow-up from its historical checklist. Do not describe the frontend or whole system as fully accepted until the remaining workflows pass.
+
+Two confirmed backend issues remain **unfixed**:
+
+1. `api/crud.php` merges create values as `$defaults + $vals`, allowing defaults such as Active to override a submitted Inactive status. Defaults should apply only to missing fields.
+2. `api/bookings.php` allows a general update to set Completed without the dedicated return-finalization/inspection validation. The frontend blocks the normal direct transition, but the backend must enforce this rule independently.
+
+No backend implementation changes, staging, commits, pushes, or deployment were performed in this frontend follow-up. FR-10 internal blockouts remain skipped. Earlier blanket “backend fully complete,” “runtime complete,” and “frontend ~50%” statements below are historical and superseded by the scoped evidence above.
 
 ## Frontend review, smoke test, and pagination fix — 2026-10-02
 

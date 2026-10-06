@@ -1,12 +1,26 @@
 # Frontend-to-Backend Wiring: Remaining Implementation Plan
 
 **Date:** 2026-10-06  
-**Status:** Phases 1–2 implemented and the syntax-level API regression was repaired; Phases 3–6 remain
+**Status:** Frontend async safeguards and public API consolidation implemented on 2026-10-06; current browser/live workflow acceptance remains pending.
 **Scope:** Complete the approved Promise-based frontend-to-PHP integration while retaining offline drafts, synchronization, conflict handling, and cached reads.
 
 ## Current state
 
-### Final implementation summary (recorded for handoff)
+### 2026-10-06 frontend follow-up
+
+The five recommended frontend workstreams have implementation and automated regression coverage:
+
+- Manual booking waits for controls before restoring drafts, guards submission before its first awaited read, retains entered values on failure, and prevents creating a second booking when its down payment fails.
+- Admin initialization, events, delete callbacks, sync retries, and scheduled rerenders handle asynchronous completion and errors. Save controls are guarded while their action runs.
+- Availability, package/add-on rendering, calendar, booking details/checklists, booking lists, dashboard, and report rendering reject obsolete responses. Dashboard charts and report receipts use resolved numeric payment amounts.
+- Public refresh now uses `API.refreshPublicData()` and the central request/normalization code. It preserves pending drafts and cached presentation fields, retains cached content on outages, and removes accepted records absent from successful server responses.
+- Automated tests include deferred responses, rejected reads/writes, duplicate submissions, draft restoration, partial payment failure, and public outages. The offline app-shell cache version was updated.
+
+The phase descriptions below are the original checklist, not a statement that every listed conversion remains undone. Browser and live PHP/MySQL acceptance must still be performed. Ports 8017 and 8018 were unavailable during this follow-up; no new live integration result is claimed.
+
+**Testing reminder:** follow [Frontend-Testing-Checklist.md](Frontend-Testing-Checklist.md) before accepting the frontend. The two backend compatibility issues below remain separate unresolved work.
+
+### Earlier implementation summary (historical handoff)
 
 The project was taken from a broken Promise-based frontend contract into a verified working state. The root cause was a consistent mismatch between API methods returning Promises and page/helper code treating them as synchronous arrays/objects. The repair involved normalizing the API layer, preserving cached data during refreshes, and making page-level rendering await the correct server state before updating the DOM.
 

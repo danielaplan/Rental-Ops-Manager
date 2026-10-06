@@ -118,13 +118,14 @@
 <script>
 let reportCharts = [];
 let currentReport = null;
+let reportVersion = 0;
 
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('reports.html', 'Reports');
   await renderReport();
 
-  $('#reportFilterForm').on('submit', async function (e) {
+  $('#reportFilterForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const startDate = $('#reportStartDate').val();
     const endDate = $('#reportEndDate').val();
@@ -135,17 +136,17 @@ $(async function () {
     await renderReport(startDate, endDate);
   });
 
-  $('#clearReportFilter').on('click', async function () {
+  $('#clearReportFilter').onAdmin('click', async function () {
     $('#reportStartDate, #reportEndDate').val('');
     await renderReport();
   });
 
-  $('#viewReportReceipt').on('click', function () {
+  $('#viewReportReceipt').onAdmin('click', function () {
     renderReportReceipt();
     new bootstrap.Modal('#reportReceiptModal').show();
   });
 
-  $('#refreshReportData').on('click', async function () {
+  $('#refreshReportData').onAdmin('click', async function () {
     $(this).prop('disabled', true);
     $('#reportDataState').text(navigator.onLine ? 'Refreshing saved data…' : 'Offline: showing saved data; changes remain pending sync.');
     try {
@@ -160,6 +161,7 @@ $(async function () {
 });
 
 async function renderReport(startDate, endDate) {
+  const version = ++reportVersion;
   const [report, bookings, payments, rentalItems, pendingPaymentIndex] = await Promise.all([
     API.getReportStats(startDate, endDate),
     API.getBookings(),
@@ -186,6 +188,9 @@ async function renderReport(startDate, endDate) {
     const sum = await sumPromise;
     return sum + await PaymentsHelper.remainingBalance(booking, pendingPaymentIndex);
   }, Promise.resolve(0));
+  const acceptedPayments = new Map(await Promise.all(filteredBookings.map(async booking =>
+    [String(booking.id), await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex)])));
+  if (version !== reportVersion) return;
   const r = { ...report, total_revenue: totalRevenue, outstanding_balance: outstandingBalance };
   const rangeLabel = startDate && endDate
     ? `${BookingCalc.formatDate(startDate)} – ${BookingCalc.formatDate(endDate)}`
@@ -194,7 +199,7 @@ async function renderReport(startDate, endDate) {
       : endDate
         ? `Until ${BookingCalc.formatDate(endDate)}`
         : 'All booking dates';
-        currentReport = { report: r, bookings: filteredBookings, customerCount, rangeLabel, pendingPayments, pendingPaymentTotal, pendingPaymentIndex };
+        currentReport = { report: r, bookings: filteredBookings, customerCount, rangeLabel, pendingPayments, pendingPaymentTotal, acceptedPayments };
   $('#reportRangeLabel').text(rangeLabel);
         $('#reportEmptyState').prop('hidden', filteredBookings.length > 0);
         $('#reportVisualizations, #reportStatsRow').prop('hidden', filteredBookings.length === 0);
@@ -265,7 +270,7 @@ async function renderReport(startDate, endDate) {
 
 function renderReportReceipt() {
   if (!currentReport) return;
-  const { report, bookings, customerCount, rangeLabel, pendingPayments, pendingPaymentTotal, pendingPaymentIndex } = currentReport;
+  const { report, bookings, customerCount, rangeLabel, pendingPayments, pendingPaymentTotal, acceptedPayments } = currentReport;
   const $body = $('#reportReceiptBody').empty();
   $('#receiptRangeLabel').text(rangeLabel);
 
@@ -274,7 +279,7 @@ function renderReportReceipt() {
     const name = b.customer_name || 'Unknown customer';
     if (!customerTotals[name]) customerTotals[name] = { bookings: 0, paid: 0 };
     customerTotals[name].bookings += 1;
-    customerTotals[name].paid += PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex);
+    customerTotals[name].paid += acceptedPayments.get(String(b.id)) || 0;
   });
   const pendingByBooking = new Map();
   pendingPayments.forEach(payment => {
@@ -291,7 +296,7 @@ function renderReportReceipt() {
       <td>${escapeHtmlA(b.customer_name)}</td>
       <td>${BookingCalc.formatDate(b.event_date)}</td>
       <td>${BookingCalc.formatCurrency(b.total)}</td>
-      <td>${BookingCalc.formatCurrency(PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex))}</td>
+      <td>${BookingCalc.formatCurrency(acceptedPayments.get(String(b.id)) || 0)}</td>
       <td>${BookingCalc.formatCurrency(pendingByBooking.get(String(b.id)) || 0)}</td>
       <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}</td>
     </tr>`).join('');

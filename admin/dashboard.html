@@ -123,13 +123,13 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('dashboard.html', 'Dashboard');
   await renderDashboard();
   await API.refreshSharedData();
 
-  $('#refreshDashboardData').on('click', async function () {
+  $('#refreshDashboardData').onAdmin('click', async function () {
     $(this).prop('disabled', true);
     $('#dashboardDataState').text(navigator.onLine ? 'Refreshing saved data…' : 'Offline: showing saved data; changes remain pending sync.');
     try {
@@ -143,17 +143,23 @@ $(async function () {
   });
 });
 
+let dashboardVersion = 0;
 async function renderDashboard() {
-  const [stats, services, bookings, pendingPaymentIndex] = await Promise.all([
+  const version = ++dashboardVersion;
+  const [stats, services, bookings, pendingPaymentIndex, rentalItems] = await Promise.all([
     API.getDashboardStats(),
     API.getServices(),
     API.getBookings(),
-    PaymentsHelper.pendingAmountsByBooking()
+    PaymentsHelper.pendingAmountsByBooking(),
+    API.getRentalItems()
   ]);
   const acceptedRevenue = await bookings.reduce(async (sumPromise, booking) => {
     const sum = await sumPromise;
     return sum + await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex);
   }, Promise.resolve(0));
+  const acceptedPayments = new Map(await Promise.all(bookings.map(async booking =>
+    [String(booking.id), await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex)])));
+  if (version !== dashboardVersion) return;
 
   // Render top stat cards
   const cards = [
@@ -200,7 +206,7 @@ async function renderDashboard() {
   });
 
   // Render Items Needing Attention
-  const items = (await API.getRentalItems()).filter(i => ["Damaged", "Under Maintenance", "Missing"].includes(i.status));
+  const items = rentalItems.filter(i => ["Damaged", "Under Maintenance", "Missing"].includes(i.status));
   const $att = $('#attentionList').empty();
   if (!items.length) {
     $att.append('<div class="text-center text-muted py-4"><i class="bi bi-shield-check fs-2 text-success d-block mb-1"></i>All inventory items are in good condition.</div>');
@@ -217,10 +223,10 @@ async function renderDashboard() {
   }
 
   // Render Chart.js Graphs
-  renderDashboardCharts(bookings, services, pendingPaymentIndex);
+  renderDashboardCharts(bookings, services, acceptedPayments);
 }
 
-function renderDashboardCharts(bookings, services, pendingPaymentIndex) {
+function renderDashboardCharts(bookings, services, acceptedPayments) {
   ['revenueChart', 'statusChart', 'servicesChart'].forEach(id => Chart.getChart(id)?.destroy());
   // 1. Revenue & Bookings Trend (Last 6 Months)
   const monthLabels = [];
@@ -240,7 +246,7 @@ function renderDashboardCharts(bookings, services, pendingPaymentIndex) {
     monthLabels.push(monthName);
 
     const monthB = bookings.filter(b => (b.event_date || "").startsWith(yearMonth));
-    const monthRev = monthB.reduce((sum, b) => sum + PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex), 0);
+    const monthRev = monthB.reduce((sum, b) => sum + (acceptedPayments.get(String(b.id)) || 0), 0);
 
     monthlyRevenue.push(monthRev);
     monthlyBookings.push(monthB.length);

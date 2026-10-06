@@ -72,19 +72,19 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('categories.html', 'Categories');
   await renderCategoriesTable();
 
-  $('#addCategoryBtn').on('click', function () {
+  $('#addCategoryBtn').onAdmin('click', function () {
     $('#categoryForm')[0].reset();
     $('#catId').val('');
     $('#categoryFormTitle').text('Add Category');
     new bootstrap.Modal('#categoryFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-cat', async function (event) {
+  $(document).onAdmin('click', '.js-edit-cat', async function (event) {
     const target = $(event.target).closest('.js-edit-cat');
     if (!target.length) return;
     const categories = await API.getCategories();
@@ -97,20 +97,20 @@ $(async function () {
     new bootstrap.Modal('#categoryFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-cat', async function (event) {
+  $(document).onAdmin('click', '.js-delete-cat', async function (event) {
     const target = $(event.target).closest('.js-delete-cat');
     if (!target.length) return;
     const id = target.data('id');
     const services = await API.getServices();
     const inUse = services.some(s => s.category_id === id);
     if (inUse) { alert('This category is used by one or more services. Reassign those services first.'); return; }
-    confirmDelete('Delete this category?', async function () {
+    return confirmDelete('Delete this category?', async function () {
       try { await API.deleteCategory(id); await renderCategoriesTable(); showAdminToast(API.savedMessage()); }
       catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
 
-  $('#categoryForm').on('submit', async function (e) {
+  $('#categoryForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#catId').val();
     const data = { name: $('#catName').val().trim(), status: $('#catStatus').val() };

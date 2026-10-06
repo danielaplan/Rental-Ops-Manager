@@ -83,12 +83,12 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('services.html', 'Services');
   await renderServicesTable();
 
-  $('#addServiceBtn').on('click', function () {
+  $('#addServiceBtn').onAdmin('click', function () {
     $('#serviceForm')[0].reset();
     $('#svcId').val('');
     $('#serviceFormTitle').text('Add Service');
@@ -98,7 +98,7 @@ $(async function () {
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-service', async function (event) {
+  $(document).onAdmin('click', '.js-edit-service', async function (event) {
     const target = $(event.target).closest('.js-edit-service');
     if (!target.length) return;
     const s = (await API.getServices()).find(item => item.service_id === target.data('id'));
@@ -113,11 +113,11 @@ $(async function () {
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-service', async function (event) {
+  $(document).onAdmin('click', '.js-delete-service', async function (event) {
     const target = $(event.target).closest('.js-delete-service');
     if (!target.length) return;
     const id = target.data('id');
-    confirmDelete('Delete this service? Existing bookings and inventory may still refer to it.', async function () {
+    return confirmDelete('Delete this service? Existing bookings and inventory may still refer to it.', async function () {
       try {
         await API.deleteService(id);
         await renderServicesTable();
@@ -128,7 +128,7 @@ $(async function () {
     });
   });
 
-  $(document).on('change', '.js-toggle-service-status', async function (event) {
+  $(document).onAdmin('change', '.js-toggle-service-status', async function (event) {
     const target = $(event.target).closest('.js-toggle-service-status');
     if (!target.length) return;
     const id = target.data('id');
@@ -141,7 +141,7 @@ $(async function () {
     }
   });
 
-  $('#serviceForm').on('submit', async function (e) {
+  $('#serviceForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#svcId').val();
     const data = { name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val() };

@@ -5,8 +5,9 @@
  * admin/inventory.html.
  */
 const InventoryHelper = {
-  async renderChecklist(bookingId, containerSelector, mode) {
+  async renderChecklist(bookingId, containerSelector, mode, isCurrent = () => true) {
     const items = await API.getBookingItems(bookingId);
+    if (!isCurrent()) return;
     const $wrap = $(containerSelector).empty();
     if (!items.length) {
       $wrap.append('<p class="text-muted">No rental items linked to this booking\'s services.</p>');

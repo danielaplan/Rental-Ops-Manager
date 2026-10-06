@@ -70,12 +70,12 @@
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
-$(async function () {
+adminReady(async function () {
   await API.ready;
   await initAdminChrome('gallery.html', 'Gallery');
   await renderGallery();
 
-  $('#addImageBtn').on('click', function () {
+  $('#addImageBtn').onAdmin('click', function () {
     $('#imageForm')[0].reset();
     $('#imgId').val('');
     $('#imageFormError').prop('hidden', true).text('');
@@ -83,7 +83,7 @@ $(async function () {
     new bootstrap.Modal('#imageFormModal').show();
   });
 
-  $(document).on('click', '.js-edit-img', async function (event) {
+  $(document).onAdmin('click', '.js-edit-img', async function (event) {
     const target = $(event.target).closest('.js-edit-img');
     if (!target.length) return;
     const img = (await API.getGallery()).find(g => g.image_id === target.data('id'));
@@ -97,18 +97,18 @@ $(async function () {
     new bootstrap.Modal('#imageFormModal').show();
   });
 
-  $(document).on('click', '.js-delete-img', async function (event) {
+  $(document).onAdmin('click', '.js-delete-img', async function (event) {
     const target = $(event.target).closest('.js-delete-img');
     if (!target.length) return;
     const id = target.data('id');
-    confirmDelete('Delete this gallery image?', async function () {
+    return confirmDelete('Delete this gallery image?', async function () {
       await API.deleteGalleryImage(id);
       await renderGallery();
       showAdminToast('Image deleted', 'danger');
     });
   });
 
-  $('#imageForm').on('submit', async function (e) {
+  $('#imageForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#imgId').val();
     const data = { title: $('#imgTitle').val().trim(), image: $('#imgUrl').val().trim(), featured: $('#imgFeatured').is(':checked') };

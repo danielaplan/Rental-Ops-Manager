@@ -5,13 +5,16 @@
 const CalendarHelper = {
   currentMonth: new Date().getMonth(),
   currentYear: new Date().getFullYear(),
+  renderVersion: 0,
 
   async render(containerSelector, onBookingClick) {
+    const version = ++this.renderVersion;
+    const year = this.currentYear, month = this.currentMonth;
     const [bookings, servicesData] = await Promise.all([API.getBookings(), API.getServices()]);
+    if (version !== this.renderVersion) return;
     const byDate = new Map();
     const services = new Map(servicesData.map(s => [s.service_id, s.name]));
     bookings.forEach(b => { if (!['Cancelled', 'Rejected'].includes(b.status)) { const day = byDate.get(b.event_date) || []; day.push(b); byDate.set(b.event_date, day); } });
-    const year = this.currentYear, month = this.currentMonth;
     const firstDay = new Date(year, month, 1);
     const startOffset = firstDay.getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -43,8 +46,9 @@ const CalendarHelper = {
     html += '</div>';
     $(containerSelector).html(html);
 
-    $(containerSelector).off('click', '.js-cal-booking').on('click', '.js-cal-booking', function () {
-      if (onBookingClick) onBookingClick($(this).data('id'));
+    $(containerSelector).off('click', '.js-cal-booking').on('click', '.js-cal-booking', async function () {
+      try { if (onBookingClick) await onBookingClick($(this).data('id')); }
+      catch (error) { showAdminError(error); }
     });
     $(containerSelector).off('click','.js-cal-more').on('click','.js-cal-more',function(){
       const expanded=this.getAttribute('aria-expanded')==='true';
