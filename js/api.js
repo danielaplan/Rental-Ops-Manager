@@ -178,7 +178,7 @@ const API = (() => {
     const method = options.method || (options.body === undefined ? "GET" : "POST");
     const headers = { ...(token ? { Authorization: `Bearer ${token}` } : {}) };
     if (options.body !== undefined) headers["Content-Type"] = "application/json";
-    const init = { method, headers, cache: 'no-store' };
+    const init = { method, headers };
     if (options.body !== undefined) init.body = JSON.stringify(options.body);
     if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") init.signal = AbortSignal.timeout(timeoutMs);
 
@@ -218,39 +218,6 @@ const API = (() => {
 
   return {
     request,
-    async refreshPublicData() {
-      const state = {};
-      await Promise.all(['settings', 'websiteContent', 'services', 'gallery'].map(async entity => {
-        try {
-          const collection = entity === 'services' || entity === 'gallery';
-          const data = await request(entity + '.php', { query: { do: collection ? 'all' : 'get' } });
-          if (!data || (collection ? !Array.isArray(data) : typeof data !== 'object' || Array.isArray(data))) return;
-          const operations = typeof API.getSyncQueue === 'function' ? API.getSyncQueue() : [];
-          if (collection) {
-            const field = entity === 'services' ? 'service_id' : 'image_id';
-            const before = STORAGE.getAll(entity);
-            const pending = before.filter(row => row.pending_sync);
-            const deleted = operations.filter(op => op.entity === entity && op.action === 'delete');
-            const key = id => String(id).startsWith('LOCAL-') ? String(id) : String(serverId(id));
-            const fresh = normalize(entity, data).filter(row =>
-              !pending.some(draft => key(draft[field]) === key(row[field])) &&
-              !deleted.some(op => key(op.local_id) === key(row[field])));
-            const rows = [...fresh, ...pending];
-            STORAGE.saveAll(entity, rows);
-            if (typeof STORAGE.saveCache === 'function') await STORAGE.saveCache(entity, rows);
-          } else if (!operations.some(op => op.entity === entity)) {
-            const key = typeof STORAGE_KEYS !== 'undefined' ? STORAGE_KEYS[entity] : null;
-            const cached = key && typeof STORAGE._get === 'function' ? STORAGE._get(key, {}) : {};
-            STORAGE.setOne(entity, { ...cached, ...data });
-          }
-          state[entity] = data;
-        } catch (error) {
-          // Public content remains available from the last successful cache.
-          state.errors = { ...state.errors, [entity]: error.message };
-        }
-      }));
-      return state;
-    },
     getCategories: () => list("categories.php", "categories", { do: "all" }),
     createCategory: data => create("categories.php", "categories", data),
     updateCategory: (id, data) => update("categories.php", "categories", id, data),

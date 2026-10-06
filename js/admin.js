@@ -8,28 +8,88 @@
  * Offline work requires an existing online-authenticated session.
  */
 const AdminAuth = {
+  // Fix #6: expiresAt must be present and in the future — missing field = invalid session.
   isLoggedIn() {
-    const s=STORAGE._get(STORAGE_KEYS.adminSession);
-    return !!(s?.session_token && s?.user?.user_id && (!s.expiresAt || s.expiresAt>Date.now()));
+    const s = STORAGE._get(STORAGE_KEYS.adminSession);
+    return !!(s?.session_token && s?.user?.user_id && s.expiresAt && s.expiresAt > Date.now());
   },
-  async login(username, password) {
+
+  // Fix #3: Server-side verification — asks PHP if the token is still real.
+  // Returns true if confirmed, false if rejected. Falls back to localStorage on network error (offline).
+  async verifyWithServer() {
+    const s = STORAGE._get(STORAGE_KEYS.adminSession);
+    if (!s?.session_token) return false;
     try {
-      const response = await fetch('../api/auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contact_number: username, password }) });
-      const envelope = await response.json();
-      if (!response.ok || !envelope.ok) throw new Error(envelope.error || 'Sign in failed.');
-      STORAGE._set(STORAGE_KEYS.adminSession, { username, loginAt: new Date().toISOString(), expiresAt:Date.now()+envelope.data.expires_in*1000, ...envelope.data });
+      const response = await fetch('../api/auth.php?do=me', {
+        headers: { Authorization: `Bearer ${s.session_token}` }
+      });
+      if (!response.ok) {
+        // Server rejected — wipe stale localStorage session so login page shows next time.
+        localStorage.removeItem(STORAGE_KEYS.adminSession);
+        return false;
+      }
       return true;
-    } catch (error) {
-      throw error;
+    } catch {
+      // Network error (offline mode) — trust the local expiry check only.
+      return this.isLoggedIn();
     }
   },
-  logout() {
-    localStorage.removeItem(STORAGE_KEYS.adminSession);
-    window.location.href = "login.html";
+
+  async login(username, password) {
+    const response = await fetch('../api/auth.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contact_number: username, password })
+    });
+    const text = await response.text();
+    let envelope;
+    try {
+      envelope = text ? JSON.parse(text) : null;
+    } catch {
+      throw new Error('The server returned an invalid response. PHP is not running on this host — this app requires a PHP backend and cannot run on Vercel static hosting.');
+    }
+    if (!response.ok || !envelope?.ok) {
+      throw new Error(envelope?.error || `Sign in failed (HTTP ${response.status}).`);
+    }
+    STORAGE._set(STORAGE_KEYS.adminSession, {
+      username,
+      loginAt: new Date().toISOString(),
+      expiresAt: Date.now() + envelope.data.expires_in * 1000,
+      ...envelope.data
+    });
+    return true;
   },
-  requireLogin() {
+
+  // Fix #5: Calls PHP to delete the server session row before clearing localStorage.
+  async logout() {
+    const s = STORAGE._get(STORAGE_KEYS.adminSession);
+    if (s?.session_token) {
+      try {
+        await fetch('../api/auth.php?do=logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${s.session_token}`
+          },
+          body: JSON.stringify({ session_token: s.session_token })
+        });
+      } catch {
+        // Best-effort: always clear localStorage even if the server call fails.
+      }
+    }
+    localStorage.removeItem(STORAGE_KEYS.adminSession);
+    window.location.href = 'login.html';
+  },
+
+  // Fix #4: Now async — does a fast local check then a server ping.
+  async requireLogin() {
     if (!this.isLoggedIn()) {
-      window.location.href = "login.html";
+      window.location.href = 'login.html';
+      return;
+    }
+    const valid = await this.verifyWithServer();
+    if (!valid) {
+      window.location.href = 'login.html';
     }
   }
 };
@@ -95,12 +155,12 @@ async function renderAdminSidebar(activeHref) {
   $('#adminSidebar').html(html);
   $('#adminLogoutBtn').on('click', function (e) {
     e.preventDefault();
-    if (confirm('Log out of the admin panel?')) AdminAuth.logout();
+    if (confirm('Log out of the admin panel?')) { AdminAuth.logout(); }
   });
 }
 
 async function initAdminChrome(activeHref, pageTitle) {
-  AdminAuth.requireLogin();
+  await AdminAuth.requireLogin();
   if (OWNER_ONLY_ADMIN_PAGES.has(activeHref) && !isOwnerAdmin()) {
     const main = document.querySelector('.admin-main');
     if (main) main.hidden = true;

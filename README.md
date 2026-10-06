@@ -1,35 +1,153 @@
-# Rental Ops Manager — local tester setup
+# AKAD Sweet Party Rentals — Local Dev & Testing Setup
 
-This repository contains a PHP/MySQL backend. The admin login sends its credentials to `api/auth.php`, which checks the MySQL `USERS` table and creates a database-backed session. Opening the HTML file directly, or serving the repository as static files only, cannot complete that login.
+> **Quick answer:** The admin login calls `api/auth.php` (PHP + MySQL).
+> You **must** run the site through a PHP server — opening the HTML file directly or using Vercel static hosting will not work.
 
-## Start the application locally
+---
 
-1. Install/start a PHP server with the PDO MySQL extension and a MySQL-compatible server (for example, Apache and MySQL from XAMPP). Keep MySQL running while testing.
-2. Import `db/schema.sql`, then `db/seed.sql`, into the same MySQL server. The scripts create/use the `akad_rentals` database. `seed.sql` also creates the `SESSIONS` table required by login.
-3. Run PHP from the repository root. With XAMPP on Windows, a PowerShell example is:
+## Prerequisites
 
-   ```powershell
-   C:\xampp\php\php.exe -S 127.0.0.1:8000 -t .
-   ```
+| Tool | What it is | Download |
+|---|---|---|
+| **XAMPP** | PHP + Apache + MySQL in one installer | https://www.apachefriends.org |
+| A browser | Chrome or Brave recommended | — |
 
-   Alternatively, place the repository under a PHP-enabled Apache document root and open it through that server. The site URL must reach PHP files under `/api/`.
-4. Open `http://127.0.0.1:8000/admin/login.html` (or the equivalent URL on the PHP host).
+> Already have XAMPP? Skip to **Step 2**.
 
-The seeded **demo owner** account is contact number `0917-123-4567` with password `password`. Enter both values on the login form; its fields are intentionally blank. The other seeded users are staff accounts. These are test credentials; replace them before a non-test deployment. An existing database may contain different account details if it was changed after seeding.
+---
 
-The backend defaults to MySQL host `localhost`, database `akad_rentals`, user `root`, and an empty password. If the tester's database differs, set `AKAD_DB_HOST`, `AKAD_DB_NAME`, `AKAD_DB_USER`, and `AKAD_DB_PASS` in the PHP server environment before starting it. The SQL scripts themselves select `akad_rentals`, so a different database name requires importing them for that database as well.
+## Step 1 — Start XAMPP Services
 
-## If login fails
+1. Open **XAMPP Control Panel** (Run as Administrator).
+2. Click **Start** next to **Apache**.
+3. Click **Start** next to **MySQL**.
+4. Both status lights should turn **green** before continuing.
 
-| Result | Check |
+---
+
+## Step 2 — Import the Database
+
+Open a **PowerShell** window and run these two commands one at a time:
+
+```powershell
+# 1. Create tables
+C:\xampp\mysql\bin\mysql.exe -u root -e "source C:/Users/acer/Desktop/Rental-Ops-Manager/db/schema.sql"
+
+# 2. Insert demo data (users, services, bookings, etc.)
+C:\xampp\mysql\bin\mysql.exe -u root -e "source C:/Users/acer/Desktop/Rental-Ops-Manager/db/seed.sql"
+```
+
+Both commands should complete silently (no errors). If you see **"database already exists"** or **"Table already exists"** — that is fine, keep going.
+
+> ⚠️ Only run `seed.sql` on a **test database**. Re-running it overwrites demo rows but will NOT touch rows you created manually.
+
+---
+
+## Step 3 — Start the PHP Server
+
+Open a **new** PowerShell window (keep it open while testing) and run:
+
+```powershell
+C:\xampp\php\php.exe -S 127.0.0.1:8000 -t C:\Users\acer\Desktop\Rental-Ops-Manager
+```
+
+You should see output like:
+```
+PHP 8.x.x Development Server (http://127.0.0.1:8000) started
+```
+
+> Do **not** close this window — it is the backend.
+
+---
+
+## Step 4 — Open the Admin Login
+
+In your browser, navigate to:
+
+```
+http://127.0.0.1:8000/admin/login.html
+```
+
+Enter the demo **owner** account:
+
+| Field | Value |
 |---|---|
-| Browser cannot reach `api/auth.php`, or receives HTML instead of JSON | Open the site through a PHP-enabled server, not as `file://` or a static-only host. |
-| `Database unavailable` / HTTP 500 | Start MySQL, confirm the database was imported, and check the database settings used by PHP. |
-| `Invalid credentials` / HTTP 401 | Confirm the account exists in the database the PHP server uses, and use the current account password. The seed demo password is `password`. |
-| Login succeeds but later requests fail | Keep PHP/MySQL running and check that requests reach the same server/database. |
+| Contact number | `0917-123-4567` |
+| Password | `password` |
 
-On case-sensitive MySQL hosts, also check table-name casing: the SQL scripts declare uppercase table names while PHP queries use lowercase names. This repository was verified in a local Windows/MariaDB environment; a fresh deployment on a case-sensitive host may need a naming fix before login or other API requests work.
+Click **Log In** — you should land on the Dashboard.
 
-The seeded data is for testing. Re-importing `seed.sql` updates rows with matching IDs, including demo user hashes and bookings; do not rerun it against operational data without reviewing its effects.
+### Other seeded accounts
 
-For a guided explanation of the backend and database, open [System Understanding — Start Here](<Rentals ops(Third year)/System Understanding/Start Here.md>).
+| Name | Role | Contact | Password |
+|---|---|---|---|
+| Maria Santos | **owner** | `0917-123-4567` | `password` |
+| Juan Dela Cruz | staff | `0918-222-3333` | `password` |
+| Ana Cruz | staff | `0919-444-5555` | `password` |
+
+> Staff accounts cannot access owner-only pages (Services, Categories, Add-ons, Gallery, Content, Settings).
+
+---
+
+## Troubleshooting Login
+
+| Error you see | Cause | Fix |
+|---|---|---|
+| `"PHP is not running on this host"` | Opening `file://` or Vercel, not the PHP server | Use `http://127.0.0.1:8000/admin/login.html` |
+| `"The server returned an invalid response"` | PHP server is not running | Run the Step 3 command and keep the window open |
+| `"Database unavailable"` (HTTP 500) | MySQL is stopped or DB not imported | Start MySQL in XAMPP, re-run Step 2 |
+| `"Invalid credentials"` (HTTP 401) | Wrong contact/password, or seed not run | Use `0917-123-4567` / `password`; re-run Step 2 |
+| Page loads but API calls fail | PHP server was closed | Re-run the Step 3 command |
+| CORS error in console | PHP server is on a different port | Make sure port is `8000` and you opened `http://127.0.0.1:8000` |
+
+---
+
+## Quick Test Checklist
+
+After login succeeds, open these pages to confirm the full stack is working:
+
+- [ ] **Dashboard** — shows booking stats (numbers from the DB, not zeros)
+- [ ] **Bookings** — lists 3 seeded bookings (BK-001, BK-002, BK-003)
+- [ ] **Services** — lists Karaoke Rental, Sweet Corner, Balloon Decoration
+- [ ] **Settings** — loads without a "Database unavailable" banner
+
+---
+
+## Database Connection Settings
+
+`api/config.php` reads these environment variables (falls back to XAMPP defaults):
+
+| Env variable | Default | Change if needed |
+|---|---|---|
+| `AKAD_DB_HOST` | `localhost` | Different MySQL host |
+| `AKAD_DB_NAME` | `akad_rentals` | Different database name |
+| `AKAD_DB_USER` | `root` | MySQL username |
+| `AKAD_DB_PASS` | *(empty)* | MySQL password |
+
+To override, prepend them to the PHP server command:
+
+```powershell
+$env:AKAD_DB_PASS="mypassword"; C:\xampp\php\php.exe -S 127.0.0.1:8000 -t C:\Users\acer\Desktop\Rental-Ops-Manager
+```
+
+---
+
+## Project Structure (quick reference)
+
+```
+/
+├── admin/          Admin HTML pages (login, dashboard, bookings, ...)
+├── api/            PHP endpoints (auth.php, bookings.php, ...)
+├── db/
+│   ├── schema.sql  Creates all tables
+│   └── seed.sql    Inserts demo users, services, bookings
+├── js/             Frontend JS (api.js, admin.js, ...)
+├── css/            Stylesheets
+└── index.html      Public-facing website
+```
+
+---
+
+> **Note:** `api/*.php` requires a running PHP + MySQL server.
+> Vercel (static-only hosting) cannot execute PHP — use it only for the public-facing `index.html` pages, not the admin backend.
+

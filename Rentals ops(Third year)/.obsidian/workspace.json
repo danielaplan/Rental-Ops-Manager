@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AKAD Project State Engine.md",
+                "file": "MEMORY.md",
                 "mode": "source",
                 "source": false
               },
@@ -186,15 +186,15 @@
   },
   "active": "d4a53a33c0cb1b51",
   "lastOpenFiles": [
+    "MEMORY.md",
+    "AKAD Project State Engine.md",
     "System Understanding/Backend/Files/auth.php.md",
     "System Understanding/Backend/Backend Overview.md",
     "System Understanding/System Overview.md",
     "System Understanding/Start Here.md",
     "System Understanding/Database/Database Overview.md",
     "System Understanding/Database/Tables/USERS.md",
-    "MEMORY.md",
     "AKAD Requirements Analysis Ideas and Concepts.md",
-    "AKAD Project State Engine.md",
     "AKAD Requirements Analysis Approval.md",
     "AKAD Requirements Analysis Changes.md",
     "AKAD System Design.md",

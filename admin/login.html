@@ -47,18 +47,25 @@
 <script src="../js/offline.js"></script>
 <script>
   $(function () {
-    if (AdminAuth.isLoggedIn()) window.location.href = "dashboard.html";
+    // Fix #1: Never auto-redirect based on localStorage alone.
+    // Verify with PHP first — only redirect if the server confirms the token is still valid.
+    if (AdminAuth.isLoggedIn()) {
+      AdminAuth.verifyWithServer().then(valid => {
+        if (valid) window.location.href = 'dashboard.html';
+      });
+    }
 
     $('#loginForm').onAdmin('submit', async function (e) {
       e.preventDefault();
-      const username = $('#loginUsername').val().trim() || "admin";
+      // Fix #2: No silent fallback — blank contact number is a real error.
+      const username = $('#loginUsername').val().trim();
       const password = $('#loginPassword').val();
-      try {
-        await AdminAuth.login(username, password);
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        alert(error.message || 'Unable to sign in.');
+      if (!username) {
+        alert('Please enter your contact number.');
+        return;
       }
+      await AdminAuth.login(username, password);
+      window.location.href = 'dashboard.html';
     });
   });
 </script>
