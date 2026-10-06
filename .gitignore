@@ -1,10 +1,9 @@
 # Local Claude Code/session state
 # The durable project documentation remains tracked separately.
 .claude/
-
 # Local project copies of private assistant memory
 memory/
 **/memory/
-
 # Local project planning and assistant memory
-/.project-memory/
+/.project-memory/*
+!.project-memory/sync-vault.sh
