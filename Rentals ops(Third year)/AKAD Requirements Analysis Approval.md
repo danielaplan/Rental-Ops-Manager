@@ -5,18 +5,20 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 029bc4ed-f6f8-48e9-afa4-819cfc579d61
-  modified: 2026-10-02
+  modified: 2026-10-06
 ---
 
-## Scoped frontend authorization — 2026-10-02
+## Latest user authorization and boundary — 2026-10-06
 
-The user requested an afternoon-commit review, updates to the existing frontend handoff, focused testing by the assistant, and a fix for the reproduced no-match booking-pagination defect. The local `admin/bookings.html` change and handoff update are within that authorization. Overall acceptance remains with the user; the focused test does not approve every frontend workflow. The September 28 frontend-code boundary was superseded only for this requested fix, not for unrelated features. No assistant staging, commit, or push was performed. FR-10 remains skipped.
+The user authorized a full audit and fix of all authentication issues in `js/admin.js` and `admin/login.html`. Six issues were found and fixed (see `process-context.md` for full detail). This supersedes the October 2 frontend boundary only for these specific auth/login files. It does not authorize unrelated frontend features, FR-10 blockouts, backend PHP changes, or full acceptance. The assistant may freely edit `js/admin.js` and `admin/login.html` for auth-correctness issues going forward without new per-change authorization. No files were staged, committed, or pushed.
 
-Results and outstanding frontend/backend dependencies are in [the handoff](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md).
+README.md was also rewritten (local dev guide) with explicit user authorization. DB schema/seed were confirmed imported; local PHP server at `127.0.0.1:8000` confirmed working.
 
-## Frontend handoff status — 2026-09-30
+## Latest user authorization and boundary — 2026-10-02
 
-The September 30 merged source review updated the [frontend developer handoff](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md). It recognizes implemented booking editing, public booking removal, AKAD titles, package display, payment choices, delivery controls/queue, report refresh, read-error display, simplified service fields, key escaping, and draft recovery. These are implementation observations, **not approval of full frontend or system acceptance**. The FE-01–FE-17 completion and regression checklist in that handoff remains open. Live PHP/MySQL, offline replay, physical-device, keyboard, role, report, and performance checks are still required as applicable. Historical frontend status below is superseded where it conflicts with this review. FR-10 remains skipped.
+The user requested review of the afternoon GitHub commit, an update to the existing frontend handoff, focused browser testing, and a fix for the reproduced no-match pagination defect. The assistant made the scoped `admin/bookings.html` change and updated the tracked handoff; no staging, commit, or push was authorized or performed. The user is the owner of overall acceptance, while the later request specifically authorized the assistant's focused smoke test.
+
+This supersedes the September 28 prohibition on frontend code changes only for the pagination fix just requested. It does not authorize unrelated frontend features, FR-10 blockouts, backend changes, or a claim of full acceptance. The detailed test results and open work are in `docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md`. FR-10 remains skipped.
 
 ## Latest session decision ? 2026-09-28: FR-10 remains skipped
 

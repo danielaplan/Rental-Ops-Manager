@@ -1,24 +1,44 @@
 {
   "main": {
-    "id": "0931acd0e16553b3",
+    "id": "25dfacdc8ee6656c",
     "type": "split",
     "children": [
       {
-        "id": "24859f067b19d46f",
+        "id": "7e66b78e5d2add6c",
         "type": "tabs",
         "children": [
           {
-            "id": "d4a53a33c0cb1b51",
+            "id": "cb9e931260d89a74",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "MEMORY.md",
+                "file": "Welcome.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "MEMORY"
+              "title": "Welcome"
+            }
+          }
+        ]
+      },
+      {
+        "id": "7d67d1312fb680bd",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "956a4fdc4d3cab4a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Welcome.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Welcome"
             }
           }
         ]
@@ -27,15 +47,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "cc4b66b27f6935fd",
+    "id": "a8d6402df86690af",
     "type": "split",
     "children": [
       {
-        "id": "f93531836ebf7e8d",
+        "id": "162d9dacc7f3e076",
         "type": "tabs",
         "children": [
           {
-            "id": "64203bac64e397f1",
+            "id": "4036a84b7b0c9779",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -50,7 +70,7 @@
             }
           },
           {
-            "id": "eb9ba810d6eeae1f",
+            "id": "578b0abb815a2958",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -67,11 +87,14 @@
             }
           },
           {
-            "id": "c8228c743622c7a3",
+            "id": "d08efdffe7548cbe",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {},
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
               "icon": "lucide-bookmark",
               "title": "Bookmarks"
             }
@@ -80,22 +103,23 @@
       }
     ],
     "direction": "horizontal",
-    "width": 422.5
+    "width": 300
   },
   "right": {
-    "id": "d053eb210415aae0",
+    "id": "7a7b49b206cf3500",
     "type": "split",
     "children": [
       {
-        "id": "87a2bf33fe63abb1",
+        "id": "b7aadf5ed1f31bca",
         "type": "tabs",
         "children": [
           {
-            "id": "6e370b9b1713ec3e",
+            "id": "09f9b0594c0823eb",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Welcome.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -109,11 +133,12 @@
             }
           },
           {
-            "id": "ee7548ee1e845b6e",
+            "id": "b401cb7262479af4",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Welcome.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -122,7 +147,7 @@
             }
           },
           {
-            "id": "0f4ec4fe3e225bcd",
+            "id": "bcb34f14bb6e5e48",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -137,7 +162,7 @@
             }
           },
           {
-            "id": "147b0f3dcfb6613c",
+            "id": "2b6ba6018e36b69c",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -151,11 +176,12 @@
             }
           },
           {
-            "id": "2dcdfbd374241bf1",
+            "id": "63ab3022b4fb1b64",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
+                "file": "Welcome.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -179,31 +205,42 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false,
-      "obsidian42-brat:BRAT": false,
-      "callout-manager:Insert Callout": false
+      "bases:Create new base": false
     }
   },
-  "active": "d4a53a33c0cb1b51",
+  "active": "956a4fdc4d3cab4a",
   "lastOpenFiles": [
-    "process-context.md",
-    "AKAD Requirements Analysis Ideas and Concepts.md",
-    "AKAD Requirements Analysis Changes.md",
-    "AKAD Requirements Analysis Approval.md",
-    "AKAD Project State Engine.md",
-    "MEMORY.md",
-    "System Understanding/Backend/Files/auth.php.md",
-    "System Understanding/Backend/Backend Overview.md",
-    "System Understanding/System Overview.md",
-    "System Understanding/Start Here.md",
-    "System Understanding/Database/Database Overview.md",
+    "System Understanding/Database/Tables/SERVICES.md",
     "System Understanding/Database/Tables/USERS.md",
-    "AKAD System Design.md",
-    "AKAD Revised Rentals Proposal.md",
-    "MEMORY.md.tmp.18960.b57513d3481a",
-    "MEMORY.md.tmp.18960.cfa7378466f7",
-    "AKAD Requirements Analysis Changes.md.tmp.18960.9c0a16bd5462",
-    "Welcome.md",
-    "AKAD Project State Engine.md.tmp.18960.8eeea104a0a0"
+    "System Understanding/Database/Tables/SESSIONS.md",
+    "System Understanding/Database/Tables/WEBSITE_CONTENT.md",
+    "System Understanding/Database/Tables/RENTAL_ITEMS.md",
+    "System Understanding/Database/Tables/PAYMENTS.md",
+    "System Understanding/Database/Tables/PACKAGES.md",
+    "System Understanding/Database/Tables/ITEM_RELEASES.md",
+    "System Understanding/Database/Tables/ITEM_HISTORY.md",
+    "System Understanding/Database/Tables/CUSTOMERS.md",
+    "System Understanding/Database/Tables/EQUIPMENT_CHECKLIST.md",
+    "System Understanding/Database/Tables/GALLERY.md",
+    "System Understanding/Database/Tables/DEPOSITS.md",
+    "System Understanding/Database/Tables/DELIVERY.md",
+    "System Understanding/Database/Tables/CATEGORIES.md",
+    "System Understanding/Database/Tables/BOOKING_ITEMS.md",
+    "System Understanding/Database/Tables/BOOKINGS.md",
+    "System Understanding/Database/Tables/APP_SETTINGS.md",
+    "System Understanding/Database/Tables/ADDONS.md",
+    "System Understanding/Backend/Files/websiteContent.php.md",
+    "System Understanding/Backend/Files/sync_state.php.md",
+    "System Understanding/Backend/Files/rentalItems.php.md",
+    "System Understanding/Backend/Files/sync.php.md",
+    "System Understanding/Backend/Files/settings.php.md",
+    "System Understanding/Backend/Files/services.php.md",
+    "System Understanding/Backend/Files/reports.php.md",
+    "System Understanding/Database/Tables",
+    "System Understanding/Backend/Files",
+    "System Understanding/Workflows",
+    "System Understanding/Database",
+    "System Understanding/Backend",
+    "System Understanding"
   ]
 }

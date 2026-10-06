@@ -8,17 +8,17 @@ metadata:
   modified: 2026-10-02
 ---
 
-## Frontend update — 2026-10-02
+## Current frontend evidence — 2026-10-02
 
-The current FE-01–FE-17 report is the [frontend developer handoff](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md). It compares commit `e5f3b1f` with the requirements and records focused browser/PHP/MySQL results. Pagination reached rows 51–63 and returned to rows 1–50. A no-match search exposed stale controls; the user-authorized local `admin/bookings.html` fix removed them, and a 12-booking browser check confirmed removal and restoration after clearing the search. One isolated deposit/delivery save/reload, Details-tab visibility, Active-service create/Inactive edit and reload, and literal special-character rendering passed. Seeded local owner login passed. The temporary database/server were removed.
+The current tracked status is the [frontend requirements review](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md), updated after GitHub commit `e5f3b1f` and a focused browser/PHP/MySQL smoke test. The historical September 28 coverage table below is not the current frontend verdict.
 
-These are selected results, not full frontend acceptance. The other developer's raw PHP login response still requires a PHP-enabled server on that laptop; its environment was not tested. CRUD create-default precedence, universal return-completion enforcement, non-JSON login guidance, and phone/offline/keyboard/performance checks remain open. FR-10 remains skipped. The older September 28 table below is historical.
+- FE-17 / NFR-04: page 2 and back worked with 63 isolated bookings. A no-match search exposed stale pagination; the user-authorized local fix removes the controls in the empty branch. Browser verification with 12 bookings confirmed disappearance and restoration after clearing the search. Refresh/filter edge cases and frontend timing acceptance remain open.
+- FE-08 / FR-06 and FR-08: deposit and delivery controls now live in Details. One isolated save/reload passed: ₱350 held, ₱50 deducted, ₱300 preview; Lalamove with ₱250 fee paid by AKAD. Phone, offline, failure, and refund-status checks remain open.
+- FE-14/15: service creation is limited to Active as a frontend workaround. Active create and Inactive edit survived reload in the isolated database. Special characters rendered literally in a service row. Generic CRUD default precedence and the broader field/rendering audits remain open.
+- FE-05: seeded owner login worked through local PHP/MySQL. The other developer's raw PHP response was a server-execution problem, not a credential mismatch; that laptop was not tested. Frontend guidance for non-JSON login responses remains open.
+- FE-02 / FR-09: the ordinary booking status path can still set Completed without dedicated return-inspection validation. Owner/backend rule correction remains open.
 
-## Current frontend gap review — 2026-09-30
-
-The merged frontend at `cf29fd1` addresses several earlier gaps in source: booking event editing, public booking removal, AKAD titles, package-name display, GCash/MariBank selection, delivery controls with queued save, dashboard/report data-change refresh, read-error display, basic service-field contract, key output escaping, and add-on draft restoration. See the [frontend developer handoff](../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md) for FE-01–FE-17 status, source links, remaining fixes, and acceptance checks. The historical table below is a September 28 snapshot; its “Missing,” “mock authentication,” and “Fiesta & Co.” frontend findings do not describe the current merged source.
-
-The source review did not run new browser or live PHP/MySQL tests. Do not mark an FE item fully accepted solely because its form or handler exists. Backend persistence, role behavior, offline replay, reload, physical-device accessibility, and report definitions still need end-to-end verification. FR-10 remains skipped; negotiated down payments and deposits have no fixed or mandatory ₱1,000 minimum.
+The temporary smoke database and port-8020 PHP server were removed. These focused results do not certify full frontend, offline, device, usability, or production acceptance. FR-10 remains skipped.
 
 ## Latest session decision ? 2026-09-28: FR-10 remains skipped
 
@@ -58,23 +58,23 @@ Completed gap analysis of AKAD Sweet Party Rental requirements documentation aga
 
 **Requirements Status (Backend vs Frontend):**
 
-| Requirement                                                         | Priority | Frontend       | Backend (Sep 28)                                          |
-| ------------------------------------------------------------------- | -------- | -------------- | --------------------------------------------------------- |
-| FR-01: Record customer, contact, event date/location, service       | Must     | Partial        | ✅ API complete + auto-calc totals                         |
-| FR-02: One calendar for all service lines, live for connected staff | Must     | Partial        | ✅ API provides data                                       |
-| FR-03: Prevent overlapping karaoke bookings                         | Must     | Partial        | ✅ Server-side enforced (409) + status transition re-check |
-| FR-04: Down payment/reservation fee amount and status               | Must     | Partial        | ✅ API + recompute + payment status logic                  |
-| FR-05: Fixed Sweet Corner packages                                  | Should   | Missing        | ✅ API + packages table + service_id validation            |
-| FR-06: Refundable deposit, deductions, reason, refund calc          | Should   | Missing        | ✅ API + refund_status                                     |
-| FR-07: Most-booked service, monthly income, upcoming bookings       | Should   | Partial        | ✅ API (fixed revenue calc = Σ amount_paid)                |
-| FR-08: Delivery method and who pays the delivery fee                | Should   | Missing        | ✅ API + enum validation + booking_id validation           |
-| FR-09: Per-rental equipment return checklist                        | Could    | Partial        | ✅ API + finalizeReturn endpoint + completeness check      |
-| FR-10: Internally mark a service/date unavailable                   | Could    | Missing        | ❌ Skipped                                                 |
-| NFR-01: Offline entry, Pending Sync, auto sync, conflict review     | Must     | Missing        | ✅ API + queue + conflict detection + GET queue endpoint   |
-| NFR-02: Desktop and smartphone access                               | Should   | Partial        | N/A                                                       |
-| NFR-03: Usable without extensive training                           | Could    | Unverified     | N/A                                                       |
-| NFR-04: Responsive during peak periods                              | Could    | Unverified     | N/A                                                       |
-| WONT-01: No public customer self-service booking portal             | Won't    | Scope conflict | ✅ Auth on all endpoints                                   |
+| Requirement | Priority | Frontend | Backend (Sep 28) |
+|---|---|---|---|
+| FR-01: Record customer, contact, event date/location, service | Must | Partial | ✅ API complete + auto-calc totals |
+| FR-02: One calendar for all service lines, live for connected staff | Must | Partial | ✅ API provides data |
+| FR-03: Prevent overlapping karaoke bookings | Must | Partial | ✅ Server-side enforced (409) + status transition re-check |
+| FR-04: Down payment/reservation fee amount and status | Must | Partial | ✅ API + recompute + payment status logic |
+| FR-05: Fixed Sweet Corner packages | Should | Missing | ✅ API + packages table + service_id validation |
+| FR-06: Refundable deposit, deductions, reason, refund calc | Should | Missing | ✅ API + refund_status |
+| FR-07: Most-booked service, monthly income, upcoming bookings | Should | Partial | ✅ API (fixed revenue calc = Σ amount_paid) |
+| FR-08: Delivery method and who pays the delivery fee | Should | Missing | ✅ API + enum validation + booking_id validation |
+| FR-09: Per-rental equipment return checklist | Could | Partial | ✅ API + finalizeReturn endpoint + completeness check |
+| FR-10: Internally mark a service/date unavailable | Could | Missing | ❌ Skipped |
+| NFR-01: Offline entry, Pending Sync, auto sync, conflict review | Must | Implemented; focused runtime checks passed | Transactional commit/replay/conflict checks passed; see latest evidence and limits |
+| NFR-02: Desktop and smartphone access | Should | Partial | N/A |
+| NFR-03: Usable without extensive training | Could | Unverified | N/A |
+| NFR-04: Responsive during peak periods | Could | Unverified | N/A |
+| WONT-01: No public customer self-service booking portal | Won't | Scope conflict | ✅ Auth on all endpoints |
 
 **Key Findings:**
 - Earlier backend coverage summary; it did not establish frontend or full NFR-01 acceptance. See the latest evidence above.
