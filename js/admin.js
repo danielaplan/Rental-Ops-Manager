@@ -134,9 +134,11 @@ function isOwnerAdmin() {
 async function renderAdminSidebar(activeHref) {
   const settings = await API.getSettings().catch(() => ({}));
   const savedName = settings?.business_name || '';
-  const businessName = !savedName || savedName.startsWith('Fiesta & Co.')
+  const businessName = !savedName
     ? CONFIG.businessNameFallback
-    : savedName;
+    : savedName === CONFIG.businessNameFallback
+      ? CONFIG.businessNameFallback
+      : savedName;
   let html = `<div class="brand">${escapeHtmlA(businessName)}<div class="small fw-normal" style="color:rgba(255,255,255,0.5);">Admin Panel</div></div><nav class="nav flex-column pt-2">`;
   ADMIN_NAV.forEach((item, index) => {
     if (item.section) {

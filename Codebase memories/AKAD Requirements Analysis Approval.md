@@ -100,13 +100,17 @@ Keep down payments (rental payments) separate from refundable equipment/cleaning
 
 Documentation aligned (2026-09-28): With explicit user authorization, Documentation/AKAD_Requirements_Analysis_Documentation.md, section 1, now specifies negotiated down payment and deposit amounts under admin control, with no fixed amount or mandatory ₱1,000 minimum. This decision is reflected in the official requirements; no documentation discrepancy remains for these amounts. Current source inspection found no fixed ₱1,000 payment or deposit enforcement.
 
-## Frontend Status
+## Frontend Status (Updated Oct 7, 2026 — verified against code)
 
-Still incomplete local prototype (~50% of API methods still use localStorage). Frontend fixes needed for:
-- Time validation, confirmation availability check, payment-status consistency, return-result display
-- Calendar visibility, mobile layouts
-- Wiring remaining API methods to PHP endpoints
-- Default branding uses Fiesta & Co.; authentication is mock/localStorage
+The proxy layer is complete: every `API.*` method in `js/api.js` routes through `request()` → PHP. Only `session()` (auth token) and `getSyncQueue()` touch localStorage. Authentication is real PHP (`js/admin.js` login → `api/auth.php`).
+
+Implemented and verified this session (FE-05 through FE-15):
+- **FE-05** Branding: `Fiesta & Co.` removed from admin, settings, content, and public app rendering; falls back to `CONFIG.businessNameFallback` ("AKAD Sweet Party Rentals")
+- **FE-06** Calendar: "+X more" initial label replaced with "Show more" to match toggle text; mobile grid responsive
+- **FE-08** Payment/delivery/phone offline: payment amount validation (finite, positive), delivery fee validation (>= 0), contact/method normalization in API layer, offline sync queue validation
+- **FE-12** Stale-edit comparison UI added to sync panel for conflict operations (`server_record` vs `_base` vs proposed change)
+- **FE-14/15** Catalog field contracts: services/categories/addons/inventory forms match backend CRUD contracts; rendering audit confirms `escapeHtmlA` on all user-entered text; gallery image URLs restricted to HTTP(S)
+
 
 ## Status
 

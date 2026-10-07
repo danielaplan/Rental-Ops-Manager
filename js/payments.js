@@ -7,10 +7,20 @@
 const PaymentsHelper = {
   async pendingAmountsByBooking() {
     const pending = new Map();
+    // Offline-created payments live in the sync queue, not the server table.
+    const queue = API.getSyncQueue();
+    queue.forEach(op => {
+      if (op.entity !== 'payments' || op.action !== 'create' || op.status === 'synced') return;
+      const bid = String(op.data?.booking_id).replace(/[^0-9]/g, '') || op.data?.booking_id;
+      if (!bid) return;
+      const amount = Number(op.data?.amount || 0);
+      pending.set(String(bid), (pending.get(String(bid)) || 0) + amount);
+    });
+    // Also surface server-side pending_sync rows for completeness.
     const payments = await API.getPayments();
     payments.forEach(payment => {
-      if (!payment.pending_sync) return;
-      const key = String(payment.booking_id);
+      if (payment.sync_status !== 'pending_sync') return;
+      const key = String(payment.booking_id).replace(/[^0-9]/g, '');
       pending.set(key, (pending.get(key) || 0) + Number(payment.amount || 0));
     });
     return pending;

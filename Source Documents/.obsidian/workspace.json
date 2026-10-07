@@ -1,14 +1,14 @@
 {
   "main": {
-    "id": "25dfacdc8ee6656c",
+    "id": "bed017ae006276cc",
     "type": "split",
     "children": [
       {
-        "id": "7e66b78e5d2add6c",
+        "id": "31162eb3fba75ad8",
         "type": "tabs",
         "children": [
           {
-            "id": "cb9e931260d89a74",
+            "id": "c89f1c08688d3c9b",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -24,11 +24,11 @@
         ]
       },
       {
-        "id": "7d67d1312fb680bd",
+        "id": "ebacd0501b1b1bd8",
         "type": "tabs",
         "children": [
           {
-            "id": "956a4fdc4d3cab4a",
+            "id": "9f62adc9013b7b85",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -43,15 +43,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "a8d6402df86690af",
+    "id": "885bcbb7a8f2de16",
     "type": "split",
     "children": [
       {
-        "id": "162d9dacc7f3e076",
+        "id": "2a91c0d09214bdc3",
         "type": "tabs",
         "children": [
           {
-            "id": "4036a84b7b0c9779",
+            "id": "ea23b3ab08b62251",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -66,7 +66,7 @@
             }
           },
           {
-            "id": "578b0abb815a2958",
+            "id": "76b47f9c1900083c",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -83,7 +83,7 @@
             }
           },
           {
-            "id": "d08efdffe7548cbe",
+            "id": "367c6b874fb51b44",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -102,19 +102,20 @@
     "width": 300
   },
   "right": {
-    "id": "7a7b49b206cf3500",
+    "id": "404b48c98b016480",
     "type": "split",
     "children": [
       {
-        "id": "b7aadf5ed1f31bca",
+        "id": "314b051087b712ad",
         "type": "tabs",
         "children": [
           {
-            "id": "09f9b0594c0823eb",
+            "id": "99e8f6cdaa506b19",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Welcome.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -128,11 +129,12 @@
             }
           },
           {
-            "id": "b401cb7262479af4",
+            "id": "b9830caf8d05467b",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Welcome.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -141,7 +143,7 @@
             }
           },
           {
-            "id": "bcb34f14bb6e5e48",
+            "id": "ad5b9163e16cd4c7",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -156,7 +158,7 @@
             }
           },
           {
-            "id": "2b6ba6018e36b69c",
+            "id": "4988b256f5054f53",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -170,11 +172,12 @@
             }
           },
           {
-            "id": "63ab3022b4fb1b64",
+            "id": "d672ec55d2533ffb",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
+                "file": "Welcome.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -201,39 +204,15 @@
       "bases:Create new base": false
     }
   },
-  "active": "956a4fdc4d3cab4a",
+  "active": "c89f1c08688d3c9b",
   "lastOpenFiles": [
-    "Welcome.md",
-    "System Understanding/Database/Tables/SERVICES.md",
-    "System Understanding/Database/Tables/USERS.md",
-    "System Understanding/Database/Tables/SESSIONS.md",
-    "System Understanding/Database/Tables/WEBSITE_CONTENT.md",
-    "System Understanding/Database/Tables/RENTAL_ITEMS.md",
-    "System Understanding/Database/Tables/PAYMENTS.md",
-    "System Understanding/Database/Tables/PACKAGES.md",
-    "System Understanding/Database/Tables/ITEM_RELEASES.md",
-    "System Understanding/Database/Tables/ITEM_HISTORY.md",
-    "System Understanding/Database/Tables/CUSTOMERS.md",
-    "System Understanding/Database/Tables/EQUIPMENT_CHECKLIST.md",
-    "System Understanding/Database/Tables/GALLERY.md",
-    "System Understanding/Database/Tables/DEPOSITS.md",
-    "System Understanding/Database/Tables/DELIVERY.md",
-    "System Understanding/Database/Tables/CATEGORIES.md",
-    "System Understanding/Database/Tables/BOOKING_ITEMS.md",
-    "System Understanding/Database/Tables/BOOKINGS.md",
-    "System Understanding/Database/Tables/APP_SETTINGS.md",
-    "System Understanding/Database/Tables/ADDONS.md",
-    "System Understanding/Backend/Files/websiteContent.php.md",
-    "System Understanding/Backend/Files/sync_state.php.md",
-    "System Understanding/Backend/Files/rentalItems.php.md",
-    "System Understanding/Backend/Files/sync.php.md",
-    "System Understanding/Backend/Files/settings.php.md",
-    "System Understanding/Backend/Files/services.php.md",
-    "System Understanding/Database/Tables",
-    "System Understanding/Backend/Files",
-    "System Understanding/Workflows",
-    "System Understanding/Database",
-    "System Understanding/Backend",
-    "System Understanding"
+    "Documentation/AKAD_System_Design.md",
+    "Documentation/AKAD_UseCase.png",
+    "Documentation/AKAD_REVISED_Rentals_Proposal___RJDM_Collective.md",
+    "Documentation/AKAD_Requirements_Analysis_Documentation.md",
+    "Documentation/AKAD_ERD.png",
+    "Documentation/AKAD_Architecture.png",
+    "Documentation",
+    "Welcome.md"
   ]
 }

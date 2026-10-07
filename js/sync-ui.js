@@ -34,9 +34,35 @@
     document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||!navigator.onLine;});
     document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline pages are ready on this device. Existing signed-in sessions can record local entries.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
     if(working||document.activeElement?.closest('.sync-edit'))return;
+
+    // Build stale-edit comparison table for conflicts
+    function staleComparison(op) {
+      if (!op.server_record || !op.data._base) return '';
+      const base = op.data._base;
+      const server = op.server_record;
+      const local = op.data;
+      const keys = new Set([...Object.keys(base), ...Object.keys(server), ...Object.keys(local)]);
+      const rows = [...keys].filter(k => {
+        const b = base[k], s = server[k], l = local[k];
+        return b !== s || b !== l || s !== l;
+      }).map(k => {
+        const b = base[k] ?? '';
+        const s = server[k] ?? '';
+        const l = local[k] ?? '';
+        return `<tr><th scope="row">${esc(k)}</th><td>${esc(b)}</td><td>${esc(s)}</td><td>${esc(l)}</td></tr>`;
+      }).join('');
+      if (!rows) return '';
+      return `<details class="mt-2"><summary class="small text-muted">Stale-edit comparison</summary>
+        <table class="table table-sm table-bordered mt-2" style="font-size:.8rem;">
+          <thead><tr><th>Field</th><th>Your previous</th><th>Server now</th><th>Your change</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></details>`;
+    }
+
     document.querySelector('#syncOperations').innerHTML=ops.length ? ops.map(op=>{
       const booking=STORAGE.getAll('bookings').find(b=>String(b.id)===String(op.local_id)),draft={...booking,...op.data};
-      const editor=op.entity==='bookings'&&['conflict','failed'].includes(op.status)?`<details><summary>Edit booking date/time and retry</summary><form class="sync-edit row g-2 mt-1" data-operation="${esc(op.client_id)}">
+      const comparison = staleComparison(op);
+      const editor=op.entity==='bookings'&&['conflict','failed'].includes(op.status)?`<details><summary>Edit booking date/time and retry</summary>${comparison}<form class="sync-edit row g-2 mt-1" data-operation="${esc(op.client_id)}">
         <div class="col-sm-4"><label for="date-${op.client_id}">Event date</label><input required class="form-control" id="date-${op.client_id}" name="event_date" type="date" value="${esc(draft.event_date||'')}"></div>
         <div class="col-sm-4"><label for="start-${op.client_id}">Start time</label><input required class="form-control" id="start-${op.client_id}" name="start_time" type="time" value="${esc(String(draft.start_time||'').slice(0,5))}"></div>
         <div class="col-sm-4"><label for="end-${op.client_id}">End time</label><input required class="form-control" id="end-${op.client_id}" name="end_time" type="time" value="${esc(String(draft.end_time||'').slice(0,5))}"></div>

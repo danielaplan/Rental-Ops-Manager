@@ -133,7 +133,7 @@ async function renderSiteChrome() {
   const cached = publicContentCache();
   const content = cached;
   const savedName = content.business_name || '';
-  const name = !savedName || savedName.startsWith('Fiesta & Co.')
+  const name = !savedName || savedName === CONFIG.businessNameFallback
     ? CONFIG.businessNameFallback
     : savedName;
   $('.js-business-name').text(name);
@@ -156,8 +156,8 @@ async function renderAbout() {
   const c = cached;
   $('#aboutTitle').text(c.about_title || "");
   const aboutDescription = c.about_description || '';
-  $('#aboutDesc').text(aboutDescription.startsWith('Fiesta & Co.')
-    ? 'We provide karaoke rental, Sweet Corner packages, and balloon decorations. Contact our team to discuss preferred dates and delivery arrangements.'
+  $('#aboutDesc').text(aboutDescription === CONFIG.aboutFallback
+    ? CONFIG.aboutFallback
     : aboutDescription);
 }
 

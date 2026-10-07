@@ -7,6 +7,7 @@
  */
 const CONFIG = {
   businessNameFallback: "AKAD Sweet Party Rentals",
+  aboutFallback: "We provide karaoke rental, Sweet Corner packages, and balloon decorations. Contact our team to discuss preferred dates and delivery arrangements.",
 
   bookingStatuses: [
     "Pending", "Confirmed", "Reserved", "Preparing", "Released",

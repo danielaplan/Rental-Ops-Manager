@@ -58,23 +58,23 @@ Completed gap analysis of AKAD Sweet Party Rental requirements documentation aga
 
 **Requirements Status (Backend vs Frontend):**
 
-| Requirement | Priority | Frontend | Backend (Sep 28) |
-|---|---|---|---|
-| FR-01: Record customer, contact, event date/location, service | Must | Partial | ✅ API complete + auto-calc totals |
-| FR-02: One calendar for all service lines, live for connected staff | Must | Partial | ✅ API provides data |
-| FR-03: Prevent overlapping karaoke bookings | Must | Partial | ✅ Server-side enforced (409) + status transition re-check |
-| FR-04: Down payment/reservation fee amount and status | Must | Partial | ✅ API + recompute + payment status logic |
-| FR-05: Fixed Sweet Corner packages | Should | Missing | ✅ API + packages table + service_id validation |
-| FR-06: Refundable deposit, deductions, reason, refund calc | Should | Missing | ✅ API + refund_status |
-| FR-07: Most-booked service, monthly income, upcoming bookings | Should | Partial | ✅ API (fixed revenue calc = Σ amount_paid) |
-| FR-08: Delivery method and who pays the delivery fee | Should | Missing | ✅ API + enum validation + booking_id validation |
-| FR-09: Per-rental equipment return checklist | Could | Partial | ✅ API + finalizeReturn endpoint + completeness check |
-| FR-10: Internally mark a service/date unavailable | Could | Missing | ❌ Skipped |
-| NFR-01: Offline entry, Pending Sync, auto sync, conflict review | Must | Implemented; focused runtime checks passed | Transactional commit/replay/conflict checks passed; see latest evidence and limits |
-| NFR-02: Desktop and smartphone access | Should | Partial | N/A |
-| NFR-03: Usable without extensive training | Could | Unverified | N/A |
-| NFR-04: Responsive during peak periods | Could | Unverified | N/A |
-| WONT-01: No public customer self-service booking portal | Won't | Scope conflict | ✅ Auth on all endpoints |
+| Requirement                                                         | Priority | Frontend                                   | Backend (Sep 28)                                                                   |
+| ------------------------------------------------------------------- | -------- | ------------------------------------------ | ---------------------------------------------------------------------------------- |
+| FR-01: Record customer, contact, event date/location, service       | Must     | Partial                                    | ✅ API complete + auto-calc totals                                                  |
+| FR-02: One calendar for all service lines, live for connected staff | Must     | Partial                                    | ✅ API provides data                                                                |
+| FR-03: Prevent overlapping karaoke bookings                         | Must     | Partial                                    | ✅ Server-side enforced (409) + status transition re-check                          |
+| FR-04: Down payment/reservation fee amount and status               | Must     | Partial                                    | ✅ API + recompute + payment status logic                                           |
+| FR-05: Fixed Sweet Corner packages                                  | Should   | Missing                                    | ✅ API + packages table + service_id validation                                     |
+| FR-06: Refundable deposit, deductions, reason, refund calc          | Should   | Missing                                    | ✅ API + refund_status                                                              |
+| FR-07: Most-booked service, monthly income, upcoming bookings       | Should   | Partial                                    | ✅ API (fixed revenue calc = Σ amount_paid)                                         |
+| FR-08: Delivery method and who pays the delivery fee                | Should   | Missing                                    | ✅ API + enum validation + booking_id validation                                    |
+| FR-09: Per-rental equipment return checklist                        | Could    | Partial                                    | ✅ API + finalizeReturn endpoint + completeness check                               |
+| FR-10: Internally mark a service/date unavailable                   | Could    | Missing                                    | ❌ Skipped                                                                          |
+| NFR-01: Offline entry, Pending Sync, auto sync, conflict review     | Must     | Implemented; focused runtime checks passed | Transactional commit/replay/conflict checks passed; see latest evidence and limits |
+| NFR-02: Desktop and smartphone access                               | Should   | Partial                                    | N/A                                                                                |
+| NFR-03: Usable without extensive training                           | Could    | Unverified                                 | N/A                                                                                |
+| NFR-04: Responsive during peak periods                              | Could    | Unverified                                 | N/A                                                                                |
+| WONT-01: No public customer self-service booking portal             | Won't    | Scope conflict                             | ✅ Auth on all endpoints                                                            |
 
 **Key Findings:**
 - Earlier backend coverage summary; it did not establish frontend or full NFR-01 acceptance. See the latest evidence above.

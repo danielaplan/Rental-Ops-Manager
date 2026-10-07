@@ -91,6 +91,24 @@ if ($m === 'POST' && in_array($do, ['create', 'update'], true)) {
     }
     if (!$svc || !$pkg) sendJson(['ok' => false, 'error' => 'A valid service and package are required.', 'code' => 'validation'], 400);
     checkSlot($date, $start, $end, $do === 'update' ? $id : 0, $status, $svc);
+    if (strtolower($status) === 'completed') {
+        // Universal rule: mark completed only after all equipment on the booking
+        // has been inspected and fully returned (mirrors finalizeReturn).
+        $q = $pdo->prepare('SELECT COUNT(*) FROM booking_items WHERE booking_id=?');
+        $q->execute([$id]);
+        $expectedTotal = (int) $q->fetchColumn();
+        if ($expectedTotal > 0) {
+            $q = $pdo->prepare('SELECT expected_qty, returned_qty, condition_in FROM equipment_checklist WHERE booking_id=?');
+            $q->execute([$id]);
+            $items = $q->fetchAll();
+            if (count($items) !== $expectedTotal) sendJson(['ok' => false, 'error' => 'All equipment must be returned before completing this booking.', 'code' => 'incomplete_inspection'], 400);
+            foreach ($items as $item) {
+                if ($item['returned_qty'] < (int) $item['expected_qty'] || strtolower((string) $item['condition_in']) === 'missing') {
+                    sendJson(['ok' => false, 'error' => 'All equipment must be returned before completing this booking.', 'code' => 'incomplete_inspection'], 400);
+                }
+            }
+        }
+    }
     $addonIds = $b['addon_ids'] ?? ($do === 'update' ? $old['addon_ids'] : []);
     if (!is_array($addonIds)) sendJson(['ok' => false, 'error' => 'Add-ons must be an array.', 'code' => 'validation'], 400);
     $discount = $b['discount'] ?? ($do === 'update' ? $old['discount'] : 0);

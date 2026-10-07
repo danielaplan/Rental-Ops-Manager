@@ -152,7 +152,7 @@ adminReady(async function () {
 async function loadContent() {
   const c = await API.getWebsiteContent().catch(() => ({}));
   const savedName = c.business_name || '';
-  $('#cBusinessName').val(!savedName || savedName.startsWith('Fiesta & Co.') ? CONFIG.businessNameFallback : savedName);
+  $('#cBusinessName').val(!savedName || savedName === CONFIG.businessNameFallback ? CONFIG.businessNameFallback : savedName);
   $('#cLogo').val(c.logo);
   $('#cHeroTitle').val(c.hero_title);
   $('#cHeroDesc').val(c.hero_description);

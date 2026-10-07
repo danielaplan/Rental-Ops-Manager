@@ -13,9 +13,20 @@ aliases:
 status: active
 ---
 
-## Latest session — frontend async fixes and remaining acceptance — 2026-10-06
+## Latest session — frontend branding/calendar/sync/catalog fixes and session close — 2026-10-07
 
-The user authorized resolving the five recommended frontend workstreams and requested a reminder to test afterward. That authorization superseded the earlier frontend-edit restriction for this work. The latest request is memory updates only; do not interpret it as authorization to implement the remaining backend fixes.
+The user authorized all remaining frontend fixes (FE-03 through FE-15) and this session completed the branding, calendar, sync, and catalog work. Codebase is clean: no `Fiesta & Co.` references remain in `js/` or `admin/`; PHP and JS syntax checks pass.
+
+Implemented and verified this session:
+- **FE-05** Branding: `Fiesta & Co.` removed from `js/admin.js:139`, `js/app.js:159`, `admin/settings.html:150`, `admin/content.html:155`; all fall back to `CONFIG.businessNameFallback` ("AKAD Sweet Party Rentals")
+- **FE-06** Calendar: `js/calendar.js:43` "+X more" initial label changed to "Show more" to match the toggle text
+- **FE-08** Payment/delivery/offline: `api/payments.php` finite+positive amount validation, `api/delivery.php` fee >= 0, contact/method normalization, offline sync queue validation
+- **FE-12** Stale-edit comparison UI: `js/sync-ui.js:39-60` renders before/after/change table for conflict operations
+- **FE-14/15** Catalog field contracts verified; `escapeHtmlA` on all user-entered text; gallery URLs restricted to HTTP(S)
+
+Still open: FE-03/04, FE-07, FE-09/10/11, FE-16, FE-17. Backend-only dependencies: `api/crud.php` default-precedence bug and `api/bookings.php` general Completed-status bypass.
+
+The user then shut down the session. No staging, commit, or push was performed.
 
 Implemented frontend changes:
 

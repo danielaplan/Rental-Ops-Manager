@@ -147,7 +147,7 @@ adminReady(async function () {
 async function loadSettings() {
   const s = await API.getSettings().catch(() => ({}));
   const savedName = s.business_name || '';
-  $('#sBusinessName').val(!savedName || savedName.startsWith('Fiesta & Co.') ? CONFIG.businessNameFallback : savedName);
+  $('#sBusinessName').val(!savedName || savedName === CONFIG.businessNameFallback ? CONFIG.businessNameFallback : savedName);
   $('#sLogo').val(s.logo);
   $('#sPhone').val(s.phone);
   $('#sEmail').val(s.email);
