@@ -60,7 +60,7 @@ Selects all rows by descending primary key, optionally filters by service/bookin
 
 ### Current limits and details
 
-The filters argument is unused. List/get branches do not restrict HTTP method. PHP array union $defaults + $vals gives defaults precedence on create: supplied values for defaulted fields are overridden. Update accepts those fields. Required fields and many domain rules rely on database constraints.
+The filters argument is unused. List/get branches do not restrict HTTP method. **PHP array union `$vals + $defaults` now gives submitted values precedence: defaults fill only missing fields.** Update accepts those fields. Required fields and many domain rules rely on database constraints.
 
 ### Functions defined
 

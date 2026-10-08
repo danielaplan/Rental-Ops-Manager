@@ -4,26 +4,6 @@
     "type": "split",
     "children": [
       {
-        "id": "31162eb3fba75ad8",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "c89f1c08688d3c9b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Welcome.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Welcome"
-            }
-          }
-        ]
-      },
-      {
         "id": "ebacd0501b1b1bd8",
         "type": "tabs",
         "children": [
@@ -204,15 +184,15 @@
       "bases:Create new base": false
     }
   },
-  "active": "c89f1c08688d3c9b",
+  "active": "9f62adc9013b7b85",
   "lastOpenFiles": [
+    "Welcome.md",
     "Documentation/AKAD_System_Design.md",
     "Documentation/AKAD_UseCase.png",
     "Documentation/AKAD_REVISED_Rentals_Proposal___RJDM_Collective.md",
     "Documentation/AKAD_Requirements_Analysis_Documentation.md",
     "Documentation/AKAD_ERD.png",
     "Documentation/AKAD_Architecture.png",
-    "Documentation",
-    "Welcome.md"
+    "Documentation"
   ]
 }

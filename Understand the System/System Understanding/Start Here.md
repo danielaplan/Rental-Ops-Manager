@@ -37,9 +37,11 @@ File notes explain server instructions. Table notes explain saved information. W
 7. [Equipment Release and Return](Workflows/Equipment%20Release%20and%20Return.md) — follow the assigned items and return inspection.
 8. [Offline Synchronization](Workflows/Offline%20Synchronization.md) — trace how a local draft becomes a shared record.
 9. [Reports](Workflows/Reports.md) — understand what the summaries count.
-10. [Current Implementation Gaps](Current%20Implementation%20Gaps.md) — check the limits before describing a feature as complete.
+10. [Frontend Overview](Frontend/Overview.md) — understand the staff interface and how it connects to the backend.
+11. [Frontend Current Status](Frontend/Current%20Status.md) — check what is implemented and what still needs acceptance testing.
+12. [Current Implementation Gaps](Current%20Implementation%20Gaps.md) — check the limits before describing a feature as complete.
 
-[Glossary](Glossary.md) defines terms used throughout the guide. Linked file and table notes provide references for specific topics, including all 26 PHP files and 127 database columns.
+[Glossary](Glossary.md) defines terms used throughout the guide. Linked file and table notes provide references for specific topics, including all 26 PHP files, 127 database columns, and the full frontend file inventory.
 
 ## Documentation checklist
 
@@ -58,7 +60,7 @@ For example: “The booking record connects the customer, event and chosen servi
 
 This guide describes the reviewed implementation, including its gaps. The official requirements and design in `Documentation/` describe intended scope; these notes do not change them. Previously recorded tests are evidence within their recorded environments, not proof that every feature is finished.
 
-Frontend documentation is deferred. FR-10 service/date blockouts remain skipped. Code and database behavior are unchanged by this guide revision. Every filename and folder name is retained.
+Frontend documentation is documented in `System Understanding/Frontend/` (Overview, Current Status, File Inventory). FR-10 service/date blockouts remain skipped. Code and database behavior are unchanged by this guide revision. Every filename and folder name is retained.
 
 Related memory: [MEMORY](../MEMORY.md), [AKAD Project State Engine](../AKAD%20Project%20State%20Engine.md), [AKAD Requirements Analysis Changes](../AKAD%20Requirements%20Analysis%20Changes.md), [AKAD Requirements Analysis Ideas and Concepts](../AKAD%20Requirements%20Analysis%20Ideas%20and%20Concepts.md), [AKAD Requirements Analysis Approval](../AKAD%20Requirements%20Analysis%20Approval.md).
 

@@ -42,11 +42,11 @@ These findings come from source inspection on 2026-09-29. They are explanation l
 |---|---|---|
 | Read access | Most business/catalog reads are unauthenticated; reports and me require a session. Internal-tool intent does not itself protect these reads. | auth.php and endpoint branches |
 | Logout | Header-only fallback expects a token field absent from currentSession's selected row; JSON body token is needed. | auth.php |
-| Create defaults | Generic CRUD uses defaults + values, so supplied defaulted fields lose to defaults on create. | crud.php |
+| Create defaults | **Fixed 2026-10-08:** Generic CRUD now uses `$vals + $defaults` — submitted values take precedence; defaults fill only missing fields. Previously `$defaults + $vals` gave defaults precedence. | crud.php |
 | Validation / errors | Many generic CRUD fields rely on MySQL constraints; no central JSON exception handler. Negative rental payment amounts are not explicitly rejected. | config.php, crud.php, payments.php, sync.php |
 | Role parity | Sync generic operations for equipment/bookingItems/itemReleases/itemHistory allow authenticated staff; direct manual CRUD often requires owner. | sync.php vs direct endpoints |
 | Sync slot change | Sync slotChanged includes date/time/status but not service_id. Switching only primary service to karaoke with unchanged slot/status can miss overlap checking. | sync.php |
-| Completion bypass | finalizeReturn enforces full returned inspection, but bookings update can set completed directly. No global state machine. | bookings.php, sync.php, equipment_service.php |
+| Completion bypass | **Fixed 2026-10-08:** Equipment-completion validation now runs unconditionally whenever status === 'completed' (removed $expectedTotal > 0 gate). finalizeReturn enforces full returned inspection; bookings update path now also requires inspection. | bookings.php, sync.php, equipment_service.php |
 | Multi-service selections | JSON arrays exist, but first service/one package controls pricing and overlap. Do not explain this as complete multi-service booking pricing. | bookings.php, booking_pricing.php |
 | Payment summary | Booking update accepts amount_paid/payment_status; reports trust summary. Not every edit reconciles with payment rows. Direct create-payment retries lack replay protection. | bookings.php, payments.php, reports.php |
 | Money categories | Deposit held/deduction/refund is a summary calculation, not actual gateway/refund execution; no itemized deduction ledger. Delivery fee is not automatically in rental total. | deposit_service.php, delivery.php |

@@ -60,7 +60,9 @@ bookingRow() joins customer name/contact and decodes selections. entityId() acce
 
 ### Current limits and details
 
-Not a status-transition state machine: arbitrary status strings and direct completed updates are possible. Updates may accept amount_paid/payment_status rather than recompute them. There is no overnight interval support. See implementation gaps; direct writes and sync are not identical.
+Not a full status-transition state machine: arbitrary status strings are possible, and updates may accept amount_paid/payment_status rather than recompute them. There is no overnight interval support. See implementation gaps; direct writes and sync are not identical.
+
+**2026-10-08 fix:** the equipment-completion validation (returned_qty >= expected_qty, no condition_in = missing) now runs unconditionally whenever status === 'completed'. The previous `$expectedTotal > 0` gate that let a direct completed update bypass inspection was removed.
 
 ### Functions defined
 

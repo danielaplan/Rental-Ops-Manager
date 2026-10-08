@@ -94,18 +94,14 @@ if ($m === 'POST' && in_array($do, ['create', 'update'], true)) {
     if (strtolower($status) === 'completed') {
         // Universal rule: mark completed only after all equipment on the booking
         // has been inspected and fully returned (mirrors finalizeReturn).
-        $q = $pdo->prepare('SELECT COUNT(*) FROM booking_items WHERE booking_id=?');
+        // Must enforce independently of the frontend — a direct API call with
+        // status=completed must also pass the equipment-return check.
+        $q = $pdo->prepare('SELECT expected_qty, returned_qty, condition_in FROM equipment_checklist WHERE booking_id=?');
         $q->execute([$id]);
-        $expectedTotal = (int) $q->fetchColumn();
-        if ($expectedTotal > 0) {
-            $q = $pdo->prepare('SELECT expected_qty, returned_qty, condition_in FROM equipment_checklist WHERE booking_id=?');
-            $q->execute([$id]);
-            $items = $q->fetchAll();
-            if (count($items) !== $expectedTotal) sendJson(['ok' => false, 'error' => 'All equipment must be returned before completing this booking.', 'code' => 'incomplete_inspection'], 400);
-            foreach ($items as $item) {
-                if ($item['returned_qty'] < (int) $item['expected_qty'] || strtolower((string) $item['condition_in']) === 'missing') {
-                    sendJson(['ok' => false, 'error' => 'All equipment must be returned before completing this booking.', 'code' => 'incomplete_inspection'], 400);
-                }
+        $items = $q->fetchAll();
+        foreach ($items as $item) {
+            if ($item['returned_qty'] < (int) $item['expected_qty'] || strtolower((string) $item['condition_in']) === 'missing') {
+                sendJson(['ok' => false, 'error' => 'All equipment must be returned before completing this booking.', 'code' => 'incomplete_inspection'], 400);
             }
         }
     }

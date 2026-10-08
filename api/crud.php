@@ -32,7 +32,7 @@ function tableCrud($table, $pk, $fields, $defaults = [], $filters = [])
         $b = readJsonBody();
         $vals = [];
         foreach ($fields as $f) if (array_key_exists($f, $b)) $vals[$f] = $b[$f];
-        $vals = $defaults + $vals;
+        $vals = $vals + $defaults;  // submitted values take precedence; defaults fill only missing fields
         if (!$vals) sendJson(['ok' => false, 'error' => 'Missing fields.', 'code' => 'validation'], 400);
         $cols = array_keys($vals);
         $sql = "INSERT INTO `$table` (`" . implode('`,`', $cols) . '`) VALUES (' . implode(',', array_fill(0, count($cols), '?')) . ')';

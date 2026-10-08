@@ -1,79 +1,79 @@
 ---
 title: "Glossary"
-date: 2026-09-29
+date: 2026-10-08
 tags:
   - akad
   - system-understanding
-  - backend-database
+  - glossary
 status: documented
 ---
 
 # Glossary
 
-**Navigate:** [Start Here](Start%20Here.md) · [Reading order](Start%20Here.md#recommended-reading-order) · [Backend files](Backend/File%20Inventory.md) · [Database tables](Database/Database%20Overview.md) · [Glossary](Glossary.md)
+This glossary defines terms used throughout the System Understanding guide. It helps both human readers and AI assistants maintain consistent terminology when referencing system components.
 
-## Core terms
+## Terminology
 
-| Word | Plain meaning | Example |
-|---|---|---|
-| System | The connected pages, server rules and saved records used to manage rentals | Record and track Ana’s rental |
-| Frontend | The pages and controls people see | A staff form |
-| Backend | Instructions running on the server behind the pages | Check a booking and calculate its price |
-| Server | The computer/service answering application requests | Accept a submitted booking |
-| Database | Organized shared storage | Saved customers and bookings |
-| Table | A collection of one kind of saved information | PAYMENTS holds rental payment records |
-| Row / record | One entry in a table | Ana’s individual payment |
-| Column / field | One detail in a record | The payment amount |
-| ID / reference number | A value identifying a record or linking to it | A payment points to its booking number |
-| Request / response | A message asking for an action and the reply | Ask to save a deposit; receive its saved result |
-| API | The agreed way application code asks the backend for information or actions | Submit booking details in an expected format |
-| PHP | The language used for this backend’s instructions | bookings.php handles booking requests |
-| SQL / MySQL | SQL asks for database actions; MySQL manages the storage | Read payments belonging to a booking |
-| Workflow | The connected steps for one task | Create booking, record payment, inspect returns |
-| Login session | Temporary permission associated with a signed-in account | Staff can make protected requests |
-| Pending Sync | Stored on the device, awaiting acceptance into shared records | A supported offline draft |
-| Acknowledgement | The server’s confirmation that an action succeeded | Remove an accepted action from the waiting list |
+| Term | Definition | Context |
+|------|------------|---------|
+| **Frontend** | The staff/admin HTML/JS/Bootstrap interface that people interact with. Runs in the browser. Communicates with the backend via the API contract layer. | System Overview, Frontend Overview |
+| **Backend** | The PHP API layer that processes requests, enforces business rules, and communicates with MySQL. Consists of 26 PHP files in `api/`. | System Overview, Backend Overview |
+| **Database** | The MySQL relational store for all system data: bookings, payments, deposits, equipment, delivery, customers, services, packages, users, sessions. | System Overview, Database Overview |
+| **API Contract Layer** | `js/api.js` — the promise-based frontend-to-backend mapping. Contains ~80 methods (`getCategories`, `createBooking`, `finalizeReturn`, etc.) that normalize field names, handle ID prefixing (`SVC-`, `ADD-`, etc.), and parse responses. This is the single source of truth for how the frontend talks to the backend. | Frontend/Current Status, Frontend/File Inventory |
+| **Offline-First** | Design pattern where changes made without server connectivity are queued locally (IndexedDB/localStorage) and automatically synced when online. The system uses IndexedDB via the `er_sync_queue` storage key. | Frontend/Current Status, Workflows/Offline Synchronization |
+| **Bearer Token** | Authentication token obtained from `api/auth.php` after login. Stored in localStorage under `er_admin_session`. Included in every API request via `Authorization: Bearer <token>` header. | Frontend/Current Status, Login & Authentication |
+| **Current Implementation Gaps** | Known limitations and unfinished implementation details documented in `Current Implementation Gaps.md`. These are explained as differences between intended behavior and current source, not as new test failures. | Current Implementation Gaps.md |
+| **Acceptance Testing** | Manual browser-based validation performed by the project owner. The frontend developer supplies implementation + expected results; the owner executes the tests and records results. This is the final verification step before a feature is considered complete. | Frontend/Current Status.md |
+| **FR-10 Blockouts** | Internally mark a service/date as unavailable. Explicitly skipped per user decision (2026-09-28). No schema, endpoint, or frontend was implemented. | Throughout vault, FR-10 references |
+| **Frontend Current Status** | A structured status table documenting what frontend features are complete, what backend dependencies were fixed, and what manual owner acceptance tests remain. Created 2026-10-08 as part of the vault enhancement. | Frontend/Current Status.md |
+| **js/api.js** | The contract layer — maps UI actions to PHP endpoints. ~80 methods covering all PHP endpoints. Handles auth tokens, field mapping, ID prefixing, response normalization. | Frontend/Overview.md, Frontend/File Inventory.md |
+| **Payload/Normalize** | Functions in `js/api.js` that convert between UI keys and server keys. `payload(entity, input)` converts UI → server keys. `normalize(entity, value)` converts server → UI keys. ID prefixing uses `SVC-`, `ADD-`, `CUS-`, `PAY-`, `PKG-`, `BI-`, `RI-`, `HIST-`, `REL-`. | Frontend/File Inventory.md |
 
-## Technical terms
+## File Naming Conventions
 
-These terms describe record structure and processing. A primary key is a record’s identifying value; a foreign key links a reference to another record. A transaction saves or cancels related changes together. An upsert saves a new record or updates matching saved information.
+| Pattern | Example | Meaning |
+|---------|---------|---------|
+| `Start Here.md` | Entry point for the guide | Always present, top-level navigation |
+| `System Overview.md` | High-level purpose and architecture | One per guide section |
+| `Current Status.md` | Implementation status as of a date | Dated (2026-10-08), shows ✅/🔄/⏸️ status |
+| `File Inventory.md` | Lists key files and their responsibilities | Mirrors the backend structure for consistency |
+| `Backend/Files/*.md` | Individual PHP file documentation | One per PHP API endpoint |
+| `Database/Tables/*.md` | Table structure and field documentation | Mirrors the SQL schema |
+| `Workflows/*.md` | How several parts work together | 7 workflows: Login, Booking, Payments, etc. |
+| `Current Implementation Gaps.md` | Known limitations | Structured table of gaps with source references |
+| `Frontend/Overview.md` | Frontend purpose and connectivity | NEW 2026-10-08 |
+| `Frontend/Current Status.md` | Frontend feature status | NEW 2026-10-08 |
+| `Frontend/File Inventory.md` | Frontend key files reference | NEW 2026-10-08 |
 
-## Technical details
+## Linking Conventions
 
-This section records exact file behavior, field names and implementation details.
+| Link Type | Format | Example |
+|-----------|--------|---------|
+| **Same-note heading** | `[#Heading in same note]` | `[#Implementation Gaps](#current-implementation-gaps)` |
+| **Same-note block** | `[#block-id]` | `[#key-points](#key-points)` |
+| **Cross-note** | `[Display Text](../relative/path/file.md)` | `[Frontend Overview](../Frontend/Overview.md)` |
+| **Same-vault** | `[Note Name](../../Start%20Here.md)` | `[System Overview](../../System%20Overview.md)` |
+| **External docs** | `[Note Name](../../../../docs/collaboration-reports/AKAD_Frontend_Requirements_Review.md)` | Referencing the official requirements review |
 
-| Term | Meaning in this system |
-|---|---|
-| Backend | PHP code receiving requests, enforcing rules and querying MySQL |
-| Endpoint | PHP file exposed through HTTP, with do selecting an action |
-| API | Request/response contract used by application code |
-| PDO | PHP database interface used for the MySQL connection and prepared SQL |
-| Prepared statement | SQL with separately bound values rather than inserted user text |
-| JSON | Structured data format used for requests/responses and some SQL columns |
-| Primary key (PK) | Unique row identifier |
-| Foreign key (FK) | Database constraint referencing a parent record |
-| AUTO_INCREMENT | MySQL assigns successive row IDs |
-| Index | Lookup aid used by database queries; unique indexes also prevent duplicate key values |
-| Nullable | Column can store NULL (absence), distinct from zero/empty string |
-| Transaction | Group of changes committed together or rolled back |
-| FOR UPDATE | Row lock held during a transaction to coordinate concurrent writes |
-| Cascade / restrict / set null | Delete/update relationship rules: propagate, block, or remove the reference |
-| Upsert | Insert a record or update it when a unique key already exists |
-| Bearer token | Login credential sent with a request in Authorization |
-| Session | Token associated with a user and expiration in SESSIONS |
-| Role | owner or staff permission group |
-| Outbox | Device operations waiting for server acknowledgement |
-| LOCAL- ID | Temporary device identifier before MySQL supplies a real ID |
-| Receipt | Server's saved acknowledgement/hash used to avoid replaying a committed operation |
-| Idempotent replay | Retrying the same acknowledged operation does not perform the business write twice |
-| Stale conflict | A draft was based on older server values and needs review |
-| Slot conflict | Blocking karaoke event intervals overlap |
-| Rental payment | Money applied toward rental total, stored in PAYMENTS |
-| Refundable deposit | Separate held money with potential deductions, stored in DEPOSITS |
-| Snapshot | Cached copy of shared records on the device |
-| Source of truth | Official requirements/design control intended scope; current code demonstrates implementation |
-| FR / NFR | Functional requirement / non-functional quality or constraint |
+## Status Indicators
 
-## Continue reading
+Used consistently across all status tables:
 
-[Back to Start Here](Start%20Here.md)
+| Symbol | Meaning |
+|--------|---------|
+| ✅ | **Complete** — implemented and verified |
+| 🔄 | **In Progress** — work ongoing, owner acceptance testing pending |
+| ⏸️ | **Skipped** — explicitly deferred per user decision |
+| ❓ | **Unknown** — not yet assessed |
+
+## How to Use This Glossary
+
+1. **When writing a new note**: Add any new terms to this glossary
+2. **When linking concepts**: Use the defined linking conventions
+3. **When documenting status**: Use the status indicator symbols
+4. **When naming files**: Follow the file naming conventions
+5. **When an AI reads this**: It will recognize the patterns and understand the structure
+
+---
+
+*This glossary is maintained as part of the System Understanding guide. Add new terms as they are introduced in new notes or workflow documentation.*
