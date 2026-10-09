@@ -11,10 +11,14 @@
             "id": "9f62adc9013b7b85",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "Documentation/AKAD_REVISED_Rentals_Proposal___RJDM_Collective.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "AKAD_REVISED_Rentals_Proposal___RJDM_Collective"
             }
           }
         ]
@@ -186,9 +190,9 @@
   },
   "active": "9f62adc9013b7b85",
   "lastOpenFiles": [
+    "Documentation/AKAD_UseCase.png",
     "Welcome.md",
     "Documentation/AKAD_System_Design.md",
-    "Documentation/AKAD_UseCase.png",
     "Documentation/AKAD_REVISED_Rentals_Proposal___RJDM_Collective.md",
     "Documentation/AKAD_Requirements_Analysis_Documentation.md",
     "Documentation/AKAD_ERD.png",
