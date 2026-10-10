@@ -17,13 +17,13 @@
 <main class="admin-main">
   <div class="admin-topbar">
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle admin navigation" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
       <h1 id="adminPageTitle">Customers</h1>
     </div>
   </div>
 
   <div class="panel">
-    <input type="text" class="form-control form-control-sm mb-3" style="max-width:260px;" id="custSearch" placeholder="Search name, contact, or email...">
+    <input type="text" class="form-control form-control-sm mb-3" style="max-width:260px;" id="custSearch" placeholder="Search name, contact, or email..." aria-label="Search customers">
     <div class="table-wrap">
       <table class="admin-table">
         <thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Type</th><th># Bookings</th><th>Total Spent</th></tr></thead>

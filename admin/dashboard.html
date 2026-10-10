@@ -16,13 +16,16 @@
 
 <main class="admin-main">
   <div class="admin-topbar">
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
-      <h1 id="adminPageTitle">Dashboard</h1>
+    <div class="dashboard-heading d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle admin navigation" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
+      <div>
+        <h1 id="adminPageTitle">Dashboard</h1>
+        <p class="dashboard-subtitle">A quick view of current operations and upcoming work.</p>
+      </div>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <span id="dashboardDataState" class="small text-muted" role="status" aria-live="polite">Showing saved data while the latest data is checked.</span>
-      <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshDashboardData" title="Refresh dashboard data"><i class="bi bi-arrow-clockwise"></i></button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshDashboardData" title="Refresh dashboard data" aria-label="Refresh dashboard data"><i class="bi bi-arrow-clockwise"></i></button>
       <a href="manual-booking.html" class="btn btn-admin-accent"><i class="bi bi-plus-lg me-1"></i> Create Manual Booking</a>
     </div>
   </div>
@@ -56,7 +59,7 @@
   </div>
 
   <!-- STATS CARDS -->
-  <div class="row g-2 mb-3 admin-summary-cards" id="statsRow"></div>
+  <div class="row g-3 mb-4 admin-summary-cards" id="statsRow"></div>
 
   <!-- CHARTS & TABLES ROW 2: POPULAR SERVICES & INVENTORY ATTENTION -->
   <div class="row g-3 mb-4">
@@ -177,7 +180,7 @@ async function renderDashboard() {
   cards.forEach(c => {
     $row.append(`
       <div class="col-6 col-md-4 col-xl-3">
-        <div class="stat-card compact-stat-card ${c.cls || ''}">
+        <div class="stat-card compact-stat-card dashboard-stat-card ${c.cls || ''}">
           <div class="stat-header">
             <span class="stat-label">${c.label}</span>
             <div class="stat-icon"><i class="bi ${c.icon}"></i></div>

@@ -93,9 +93,8 @@
       if(page==='payments.html'&&typeof renderPayments==='function')await renderPayments();
       if(page==='dashboard.html'&&typeof renderDashboard==='function'){await renderDashboard();$('#dashboardDataState').text('Dashboard refreshed from updated saved data.');}
       if(page==='reports.html'&&typeof renderReport==='function'){await renderReport($('#reportStartDate').val(),$('#reportEndDate').val());$('#reportDataState').text('Report refreshed from updated saved data.');}
-      if(entity==='settings'&&typeof renderAdminSidebar==='function'){
-        const activeHref=document.querySelector('.admin-sidebar .nav-link.active')?.getAttribute('href');
-        await renderAdminSidebar(activeHref);
+      if(entity==='settings'&&typeof updateAdminSidebarBrand==='function'){
+        updateAdminSidebarBrand();
       }
       render();
       } catch(error) { readError=error.message; render(); }
@@ -111,4 +110,3 @@
     render();
   });
 })();
-

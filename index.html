@@ -19,7 +19,7 @@
 <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
   <div class="container container-narrow">
     <a class="navbar-brand js-business-name" href="#top">AKAD Sweet Party Rentals</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Toggle navigation" aria-controls="mainNav" aria-expanded="false">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="mainNav">
@@ -33,6 +33,10 @@
     </div>
   </div>
 </nav>
+
+<div class="container container-narrow">
+  <div id="publicDataStatus" class="alert alert-warning mt-3 mb-0" role="status" aria-live="polite" hidden></div>
+</div>
 
 <!-- HERO -->
 <header class="hero" id="top">
@@ -208,7 +212,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="serviceModalLabel">Service</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close service details"></button>
       </div>
       <div class="modal-body" id="serviceModalBody"></div>
       <div class="modal-footer">

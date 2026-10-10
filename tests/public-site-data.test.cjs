@@ -55,6 +55,7 @@ function createHarness() {
   };
   let readyCallback;
   const renderCounts = { services: 0, gallery: 0 };
+  const publicDataStatus = { textContent: '', hidden: true };
   const jquery = argument => {
     if (typeof argument === 'function') {
       readyCallback = argument;
@@ -79,7 +80,11 @@ function createHarness() {
     STORAGE,
     $: jquery,
     CONFIG: { businessNameFallback: 'AKAD Rentals' },
-    document: { currentScript: { src: 'http://localhost/js/api.js' }, documentElement: { style: { setProperty() {} } } },
+    document: {
+      currentScript: { src: 'http://localhost/js/api.js' },
+      documentElement: { style: { setProperty() {} } },
+      getElementById: id => id === 'publicDataStatus' ? publicDataStatus : null
+    },
     window: { location: { href: 'http://localhost/index.html' } }
   };
   context.globalThis = context;
@@ -87,7 +92,7 @@ function createHarness() {
   vm.runInContext(fs.readFileSync(path.join(root, 'js', 'api.js'), 'utf8') + '\nglobalThis.API = API;', context);
   vm.runInContext(fs.readFileSync(path.join(root, 'js', 'app.js'), 'utf8'), context, { filename: 'js/app.js' });
   return {
-    context, requests, collections, renderCounts, payloads,
+    context, requests, collections, renderCounts, payloads, publicDataStatus,
     ready: () => readyCallback()
   };
 }
@@ -136,10 +141,12 @@ test('public page rerenders services and gallery after server refresh', async ()
 });
 
 test('public outage retains cached data while successful endpoints still refresh', async () => {
-  const { context, collections, payloads } = createHarness();
+  const { context, collections, payloads, publicDataStatus } = createHarness();
   payloads['api/services.php?do=all'] = new Error('Offline');
   const result = await context.refreshPublicSiteData();
   assert.ok(result.errors.services);
+  assert.equal(publicDataStatus.hidden, false);
+  assert.match(publicDataStatus.textContent, /Showing the latest saved content/);
   assert.equal(collections.services[0].name, 'Cached Karaoke');
   assert.equal(collections.gallery[0].title, 'Server Gallery');
 });

@@ -85,7 +85,16 @@ function publicGalleryCache() {
 }
 
 async function refreshPublicSiteData() {
-  return API.refreshPublicData();
+  const result = await API.refreshPublicData();
+  const status = document.getElementById?.('publicDataStatus');
+  if (status) {
+    const failedEntities = Object.keys(result.errors || {});
+    status.textContent = failedEntities.length
+      ? 'Some website content could not be refreshed. Showing the latest saved content.'
+      : '';
+    status.hidden = failedEntities.length === 0;
+  }
+  return result;
 }
 
 async function applySiteAppearance() {
