@@ -196,7 +196,7 @@ async function renderDashboard() {
     $upcoming.append('<tr><td colspan="6" class="text-muted text-center py-3">No upcoming bookings found.</td></tr>');
   }
   stats.upcoming_bookings.forEach(b => {
-    const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name || id).join(', ');
+    const svcNames = b.service_name || 'Unknown service';
     $upcoming.append(`
       <tr>
         <td><a href="bookings.html" class="fw-semibold">${escapeHtmlA(b._server_id || b.id)}</a></td>

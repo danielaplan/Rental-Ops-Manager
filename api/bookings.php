@@ -2,6 +2,7 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/booking_pricing.php';
+require_once __DIR__ . '/booking_items_service.php';
 function bookingRow($id)
 {
     $s = db()->prepare('SELECT b.*,b.booking_id AS id,c.full_name AS customer_name,c.contact_number AS contact FROM bookings b JOIN customers c ON c.customer_id=b.customer_id WHERE b.booking_id=?');
@@ -120,6 +121,7 @@ if ($m === 'POST' && in_array($do, ['create', 'update'], true)) {
         $cols = array_keys($map);
         $pdo->prepare('INSERT INTO bookings (`' . implode('`,`', $cols) . '`) VALUES (' . implode(',', array_fill(0, count($cols), '?')) . ')')->execute(array_values($map));
         $id = (int)$pdo->lastInsertId();
+        ensureBookingItems($pdo, $id, $services);
     } else {
         $cols = array_keys($map);
         $pdo->prepare('UPDATE bookings SET ' . implode(',', array_map(fn($c) => "`$c`=?", $cols)) . ' WHERE booking_id=?')->execute([...array_values($map), $id]);

@@ -356,6 +356,7 @@ table.admin-table td .btn { min-height: 34px; }
 .sync-panel summary { cursor: pointer; min-height: 32px; }
 .sync-panel form { max-width: 100%; }
 .calendar-grid .js-cal-booking { min-width: 0; max-width: 100%; }
+.calendar-grid > * { min-width: 0; }
 .calendar-grid [hidden] { display: none !important; }
 .js-view-booking { overflow-wrap: anywhere; }
 :focus-visible { outline: 3px solid var(--a-accent); outline-offset: 3px; }
