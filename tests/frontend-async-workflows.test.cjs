@@ -161,7 +161,7 @@ test('report keeps newest filters and renders numeric receipt totals', async () 
 
 test('dashboard keeps the newest response and charts numeric accepted payments', async () => {
   const old = deferred(); let calls = 0;
-  const stats = { total_bookings: 2, upcoming_bookings: [] };
+  const stats = { total_bookings: 2, upcoming_bookings: [{ id: 7, customer_name: 'Customer', event_date: '2026-10-20', total: 2500, status: 'Confirmed', service_name: 'Karaoke Rental' }] };
   const h = harness('admin/dashboard.html', {
     getDashboardStats: () => ++calls === 1 ? old.promise : Promise.resolve(stats),
     getServices: async () => [], getRentalItems: async () => [],
@@ -174,6 +174,7 @@ test('dashboard keeps the newest response and charts numeric accepted payments',
   const revenue = h.charts[0].data.datasets[0].data;
   assert.ok(revenue.every(Number.isFinite));
   assert.equal(revenue.reduce((a, b) => a + b, 0), 200);
+  assert.match(h.node('#upcomingBody').html, /Karaoke Rental/);
 });
 
 test('admin event boundary prevents repeat writes and reports rejection without clearing input', async () => {
@@ -189,6 +190,34 @@ test('admin event boundary prevents repeat writes and reports rejection without 
   assert.equal(button.disabled, false);
   assert.equal(h.alerts[0].textContent, 'Save rejected');
   assert.equal(h.alerts[0].hidden, false);
+});
+
+test('admin login explains when its PHP endpoint cannot be reached', async () => {
+  const h = harness('js/admin.js');
+  h.context.fetch = async () => { throw new TypeError('Failed to fetch'); };
+  await assert.rejects(
+    vm.runInContext('AdminAuth.login("0000000000", "invalid-test-password")', h.context),
+    error => error.code === 'network_error' && /configured PHP site/.test(error.message)
+  );
+});
+
+test('settings refresh updates the sidebar brand without replacing navigation', async () => {
+  const h = harness('js/admin.js', { getSettings: async () => ({ business_name: 'Initial name' }) });
+  const brandName = { textContent: '' };
+  h.context.CONFIG.businessNameFallback = 'Fallback name';
+  h.context.STORAGE_KEYS.settings = 'settings';
+  h.context.STORAGE._get = key => key === 'settings'
+    ? { business_name: 'Updated name' }
+    : { user: { role: 'owner' } };
+  h.context.document.querySelector = selector => selector === '#adminSidebar .brand-name' ? brandName : null;
+
+  await h.context.renderAdminSidebar('dashboard.html');
+  const sidebar = h.node('#adminSidebar').html;
+  assert.match(sidebar, /Initial name/);
+
+  h.context.updateAdminSidebarBrand();
+  assert.equal(brandName.textContent, 'Updated name');
+  assert.equal(h.node('#adminSidebar').html, sidebar);
 });
 
 test('late checklist and payment history reads cannot overwrite another booking', async () => {

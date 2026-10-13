@@ -17,7 +17,7 @@
 <main class="admin-main">
   <div class="admin-topbar">
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle admin navigation" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
       <h1 id="adminPageTitle">Calendar</h1>
     </div>
     <a href="manual-booking.html" class="btn btn-admin-accent"><i class="bi bi-plus-lg"></i> Create Manual Booking</a>
@@ -25,9 +25,9 @@
 
   <div class="panel">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <button class="btn btn-outline-secondary btn-sm" id="prevMonthBtn"><i class="bi bi-chevron-left"></i></button>
+      <button class="btn btn-outline-secondary btn-sm" id="prevMonthBtn" aria-label="Previous month"><i class="bi bi-chevron-left"></i></button>
       <h5 class="mb-0 js-calendar-label"></h5>
-      <button class="btn btn-outline-secondary btn-sm" id="nextMonthBtn"><i class="bi bi-chevron-right"></i></button>
+      <button class="btn btn-outline-secondary btn-sm" id="nextMonthBtn" aria-label="Next month"><i class="bi bi-chevron-right"></i></button>
     </div>
     <div id="calendarWrap"></div>
   </div>
@@ -39,7 +39,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Booking Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close booking details"></button>
       </div>
       <div class="modal-body" id="calBookingBody"></div>
       <div class="modal-footer">

@@ -205,8 +205,9 @@
       "bases:Create new base": false
     }
   },
-  "active": "811c6aff5f51c63e",
+  "active": "43202704acbb4bdd",
   "lastOpenFiles": [
+    "System Understanding/Workflows/Payments and Deposits.md",
     "System Understanding/Backend/Files/auth.php.md",
     "System Understanding/Frontend/Current Status.md",
     "System Understanding/Backend/Files/reports.php.md",
@@ -232,7 +233,6 @@
     "System Understanding/Database/Tables/USERS.md",
     "System Understanding/Database/Tables/SESSIONS.md",
     "System Understanding/Database/Tables/WEBSITE_CONTENT.md",
-    "System Understanding/Database/Tables/RENTAL_ITEMS.md",
     "System Understanding/Database/Tables",
     "System Understanding/Backend/Files",
     "System Understanding/Workflows",

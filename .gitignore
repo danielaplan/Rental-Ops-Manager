@@ -7,3 +7,6 @@ memory/
 # Local project planning and assistant memory
 /.project-memory/*
 !.project-memory/sync-vault.sh
+/uploads/gallery/*
+!/uploads/gallery/.htaccess
+!/uploads/gallery/index.html

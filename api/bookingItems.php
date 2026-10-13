@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/booking_items_service.php';
 $do = $_GET['do'] ?? 'forBooking';
 $m = $_SERVER['REQUEST_METHOD'];
 $id = asInt($_GET['id'] ?? null, 1);
@@ -19,15 +20,9 @@ if ($m === 'POST' && $do === 'generate') {
     if (!$bid || !is_array($services)) sendJson(['ok' => false, 'error' => 'Booking and services are required.', 'code' => 'validation'], 400);
     $pdo->beginTransaction();
     try {
-        $pdo->prepare('DELETE FROM booking_items WHERE booking_id=?')->execute([$bid]);
-        $s = $pdo->prepare('INSERT INTO booking_items(booking_id,rental_item_id,service_id,name,expected_qty,released_qty,returned_qty,required,checked_released) SELECT ?,rental_item_id,service_id,name,quantity,0,0,required,0 FROM rental_items WHERE service_id=?');
-        foreach ($services as $sid) {
-            $s->execute([$bid, asInt($sid, 1)]);
-        }
+        $items = ensureBookingItems($pdo, $bid, $services);
         $pdo->commit();
-        $q = $pdo->prepare('SELECT * FROM booking_items WHERE booking_id=? ORDER BY booking_item_id');
-        $q->execute([$bid]);
-        sendJson(['ok' => true, 'data' => $q->fetchAll()]);
+        sendJson(['ok' => true, 'data' => $items]);
     } catch (Throwable $e) {
         $pdo->rollBack();
         sendJson(['ok' => false, 'error' => 'Unable to generate checklist.', 'code' => 'server_error'], 500);
@@ -38,7 +33,7 @@ if ($m === 'POST' && in_array($do, ['create', 'update', 'delete'], true)) {
     $b = readJsonBody();
     if ($do === 'create') {
         $cols = ['booking_id', 'rental_item_id', 'service_id', 'name', 'expected_qty', 'released_qty', 'returned_qty', 'required', 'checked_released', 'condition', 'notes'];
-        $v = [];
+        $v = [];   
         foreach ($cols as $k) if (array_key_exists($k, $b)) $v[$k] = $b[$k];
         if (empty($v['booking_id']) || empty($v['name'])) sendJson(['ok' => false, 'error' => 'Booking and item name are required.', 'code' => 'validation'], 400);
         $keys = array_keys($v);

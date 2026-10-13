@@ -17,7 +17,7 @@
 <main class="admin-main">
   <div class="admin-topbar">
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle admin navigation" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
       <h1 id="adminPageTitle">Bookings</h1>
     </div>
     <a href="manual-booking.html" class="btn btn-admin-accent"><i class="bi bi-plus-lg"></i> Create Manual Booking</a>
@@ -322,8 +322,8 @@ let currentBookingId = null;
 let deliveryFormRevision = 0;
 let returnToBookingDetails = false;
 let detailVersion = 0, bookingsVersion = 0, detailEditRevision = 0;
-$(document).onAdmin('input change', '#bookingDetailModal :input', () => { detailEditRevision++; });
-$(document).onAdmin('hidden.bs.modal', '#bookingDetailModal', () => { detailVersion++; });
+$('.admin-main').onAdmin('input change', '#bookingDetailModal :input', () => { detailEditRevision++; });
+$('.admin-main').onAdmin('hidden.bs.modal', '#bookingDetailModal', () => { detailVersion++; });
 
 adminReady(async function () {
   await API.ready;
@@ -342,7 +342,7 @@ adminReady(async function () {
     return renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
   });
 
-  $(document).onAdmin('click', '.js-view-booking', async function (e) {
+  $('.admin-main').onAdmin('click', '.js-view-booking', async function (e) {
     e.preventDefault();
     await openBookingDetail($(this).data('id'));
   });
@@ -458,7 +458,7 @@ adminReady(async function () {
     }
   });
 
-  $(document).onAdmin('change', '.js-release-check', async function () {
+  $('.admin-main').onAdmin('change', '.js-release-check', async function () {
     const bookingItemId = $(this).closest('.checklist-row').data('item');
     await API.updateBookingItem(bookingItemId, { checked_released: this.checked });
     $(this).closest('.checklist-row').toggleClass('checked', this.checked);

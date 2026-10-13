@@ -124,25 +124,25 @@ async function get(path, origin = BASE) {
   let a, b, localId, serverId;
   await test("offline booking, deposit, payment, and full checklist survive reload", async () => {
     a = device(token);
-    const row = create(a, booking("Device A"));
+    const row = await create(a, booking("Device A"));
     localId = row.id;
-    evalIn(
+    await evalIn(
       a,
       "API.upsertDeposit(" +
         JSON.stringify(localId) +
         ",{amount_held:350,deduction_amount:50,deduction_reason:'Cleaning'});",
     );
-    evalIn(
+    await evalIn(
       a,
       "API.createPayment({booking_id:" +
         JSON.stringify(localId) +
         ",amount:200,method:'GCash',notes:'Negotiated down payment'});",
     );
-    const item = evalIn(
+    const item = (await evalIn(
       a,
-      "API.getBookingItems(" + JSON.stringify(localId) + ")[0]",
-    );
-    evalIn(
+      "API.getBookingItems(" + JSON.stringify(localId) + ")",
+    ))[0];
+    await evalIn(
       a,
       "API.recordReturn(" +
         JSON.stringify(localId) +
@@ -165,7 +165,7 @@ async function get(path, origin = BASE) {
     a = device(token, 1, a.localStorage);
     assert.equal(q(a).length, 6);
     assert.equal(
-      evalIn(a, "API.getBooking(" + JSON.stringify(localId) + ").pending_sync"),
+      (await evalIn(a, "API.getBooking(" + JSON.stringify(localId) + ")")).pending_sync,
       true,
     );
   });
@@ -219,7 +219,7 @@ async function get(path, origin = BASE) {
   });
   await test("conflicting offline booking and dependent checklist are retained through reload", async () => {
     b.navigator.onLine = false;
-    const row = create(b, booking("Device B conflict"));
+    const row = await create(b, booking("Device B conflict"));
     b.navigator.onLine = true;
     const data = await evalIn(b, "API.flushSyncQueue()");
     assert.equal(data.conflicts.length, 1);
@@ -231,7 +231,7 @@ async function get(path, origin = BASE) {
       "conflict",
     );
     assert.equal(
-      evalIn(b, "API.getBooking(" + JSON.stringify(row.id) + ").customer_name"),
+      (await evalIn(b, "API.getBooking(" + JSON.stringify(row.id) + ")")).customer_name,
       "Device B conflict " + RUN,
     );
     b.navigator.onLine = true;
@@ -256,8 +256,8 @@ async function get(path, origin = BASE) {
   });
   await test("lost response retries without duplicate bookings or payments", async () => {
     const c = device(token);
-    const row = create(c, booking("Lost acknowledgement", "2099-05-03"));
-    evalIn(
+    const row = await create(c, booking("Lost acknowledgement", "2099-05-03"));
+    await evalIn(
       c,
       "API.createPayment({booking_id:" +
         JSON.stringify(row.id) +
@@ -297,7 +297,7 @@ async function get(path, origin = BASE) {
       (r) => Number(r._server_id) === Number(serverId),
     );
     c.navigator.onLine = false;
-    evalIn(
+    await evalIn(
       c,
       "API.updateBooking(" + JSON.stringify(own.id) + ',{status:"Reserved"});',
     );
@@ -322,8 +322,8 @@ async function get(path, origin = BASE) {
   });
   await test("non-karaoke bookings do not conflict with karaoke; invalid ranges stay rejected", async () => {
     const c = device(token);
-    create(c, booking("Other service", "2099-05-04", 2));
-    create(c, booking("Karaoke on same day", "2099-05-04"));
+    await create(c, booking("Other service", "2099-05-04", 2));
+    await create(c, booking("Karaoke on same day", "2099-05-04"));
     c.navigator.onLine = true;
     const data = await evalIn(c, "API.flushSyncQueue()");
     assert.equal(data.conflicts.length, 0);
@@ -342,9 +342,44 @@ async function get(path, origin = BASE) {
     });
     assert.equal(r.status, 400);
   });
+  await test("direct booking creation generates an idempotent checklist", async () => {
+    const response = await fetch(BASE + "api/bookings.php?do=create", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify({ ...booking("Direct checklist", "2099-05-06"), status: "Pending" }),
+    });
+    assert.equal(response.status, 201);
+    const saved = (await response.json()).data;
+    let items = await get("api/bookingItems.php?do=forBooking&booking_id=" + saved.id);
+    assert.equal(items.length, 1);
+    const update = await fetch(BASE + "api/bookingItems.php?do=update&id=" + items[0].booking_item_id, {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify({ checked_released: 1 }),
+    });
+    assert.equal(update.status, 200);
+    const regenerate = await fetch(BASE + "api/bookingItems.php?do=generate", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify({ booking_id: saved.id, service_ids: [1] }),
+    });
+    assert.equal(regenerate.status, 200);
+    items = await get("api/bookingItems.php?do=forBooking&booking_id=" + saved.id);
+    assert.equal(items.length, 1);
+    assert.equal(Number(items[0].checked_released), 1);
+  });
+  await test("new services preserve a submitted inactive status", async () => {
+    const response = await fetch(BASE + "api/services.php?do=create", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify({ service_name: "Inactive " + RUN, description: "Verification", status: "Inactive" }),
+    });
+    assert.equal(response.status, 201);
+    assert.equal((await response.json()).data.status, "Inactive");
+  });
   await test("deposit bounds and deduction reasons are enforced without a fixed minimum", async () => {
     const c = device(token);
-    assert.throws(() =>
+    await assert.rejects(() =>
       evalIn(
         c,
         "API.upsertDeposit(" +
@@ -369,7 +404,7 @@ async function get(path, origin = BASE) {
   });
   await test("finalize return succeeds only after a complete saved inspection", async () => {
     const c = device(token);
-    evalIn(c, "API.finalizeReturn(" + serverId + ");");
+    await evalIn(c, "API.finalizeReturn(" + serverId + ");");
     c.navigator.onLine = true;
     const data = await evalIn(c, "API.flushSyncQueue()");
     assert.equal(data.failed.length, 0);
@@ -410,7 +445,7 @@ async function get(path, origin = BASE) {
   });
   await test("periodic retry uploads when connection returns without an online event", async () => {
     const c = device(token);
-    create(c, booking("Periodic reconnect", "2099-05-09"));
+    await create(c, booking("Periodic reconnect", "2099-05-09"));
     c.navigator.onLine = true;
     c.interval();
     await evalIn(c, "API.flushSyncQueue()");
@@ -418,8 +453,8 @@ async function get(path, origin = BASE) {
   });
   await test("incomplete inspection cannot finalize a return", async () => {
     const c = device(token),
-      row = create(c, booking("Incomplete return", "2099-05-10"));
-    evalIn(c, "API.finalizeReturn(" + JSON.stringify(row.id) + ");");
+      row = await create(c, booking("Incomplete return", "2099-05-10"));
+    await evalIn(c, "API.finalizeReturn(" + JSON.stringify(row.id) + ");");
     c.navigator.onLine = true;
     const data = await evalIn(c, "API.flushSyncQueue()");
     assert.equal(data.failed.length, 1);
@@ -450,6 +485,9 @@ async function get(path, origin = BASE) {
   );
   console.log(results.length + " integration checks passed.");
 })().catch((error) => {
+  if (error?.cause?.code === "ECONNREFUSED") {
+    console.error("Offline verification server is not running. Run: rtk proxy python tests/start_verification.py");
+  }
   console.error(error);
   process.exitCode = 1;
 });

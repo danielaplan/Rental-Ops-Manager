@@ -8,6 +8,10 @@ const root = path.resolve(__dirname, '..');
 
 function harness(responder) {
   const requests = [];
+  class FormData {
+    constructor() { this.fields = []; }
+    append(name, value) { this.fields.push([name, value]); }
+  }
   const collections = {
     services: [{ service_id: 'SVC-001', name: 'Cached name', image: 'cached.jpg' }]
   };
@@ -30,6 +34,7 @@ function harness(responder) {
   const context = {
     console,
     URL,
+    FormData,
     AbortSignal: { timeout() { return undefined; } },
     fetch,
     STORAGE,
@@ -92,6 +97,19 @@ test('special workflows target their actual PHP actions', async () => {
   assert.equal(new URL(requests[2].url).searchParams.get('do'), 'upsert');
   assert.equal(new URL(requests[3].url).searchParams.get('do'), 'upsert');
   assert.equal(requests[4].url, 'http://localhost/rental/api/reports.php?do=report&start=2026-10-01&end=2026-10-31');
+});
+
+test('gallery image uploads use authenticated multipart form data', async () => {
+  const file = { name: 'party.webp', type: 'image/webp' };
+  const { API, requests } = harness(() => ({ data: '/rental/uploads/gallery/saved.webp' }));
+
+  const image = await API.uploadGalleryImage(file);
+
+  assert.equal(image, '/rental/uploads/gallery/saved.webp');
+  assert.equal(requests[0].url, 'http://localhost/rental/api/gallery-upload.php');
+  assert.equal(requests[0].options.headers.Authorization, 'Bearer test-token');
+  assert.equal(requests[0].options.headers['Content-Type'], undefined);
+  assert.deepEqual(requests[0].options.body.fields, [['image', file]]);
 });
 
 test('non-JSON and API errors produce useful typed errors', async () => {

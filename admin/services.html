@@ -17,7 +17,7 @@
 <main class="admin-main">
   <div class="admin-topbar">
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle admin navigation" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
       <h1 id="adminPageTitle">Services</h1>
     </div>
     <button class="btn btn-admin-primary" id="addServiceBtn"><i class="bi bi-plus-lg"></i> Add Service</button>
@@ -41,7 +41,7 @@
     <form class="modal-content" id="serviceForm">
       <div class="modal-header">
         <h5 class="modal-title" id="serviceFormTitle">Add Service</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close service form"></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="svcId">
@@ -60,7 +60,6 @@
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
-            <div class="form-text" id="svcInactiveCreateNote" hidden>New services must be created as Active until the server reliably saves an Inactive status.</div>
           </div>
         </div>
       </div>
@@ -92,13 +91,11 @@ adminReady(async function () {
     $('#serviceForm')[0].reset();
     $('#svcId').val('');
     $('#serviceFormTitle').text('Add Service');
-    $('#svcStatus option[value="Inactive"]').prop('disabled', true);
     $('#svcStatus').val('Active');
-    $('#svcInactiveCreateNote').prop('hidden', false);
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
-  $(document).onAdmin('click', '.js-edit-service', async function (event) {
+  $('.admin-main').onAdmin('click', '.js-edit-service', async function (event) {
     const target = $(event.target).closest('.js-edit-service');
     if (!target.length) return;
     const s = (await API.getServices()).find(item => item.service_id === target.data('id'));
@@ -106,14 +103,12 @@ adminReady(async function () {
     $('#svcId').val(s.service_id);
     $('#svcName').val(s.name);
     $('#svcDescription').val(s.description);
-    $('#svcStatus option[value="Inactive"]').prop('disabled', false);
-    $('#svcInactiveCreateNote').prop('hidden', true);
     $('#svcStatus').val(s.status);
     $('#serviceFormTitle').text('Edit Service');
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
-  $(document).onAdmin('click', '.js-delete-service', async function (event) {
+  $('.admin-main').onAdmin('click', '.js-delete-service', async function (event) {
     const target = $(event.target).closest('.js-delete-service');
     if (!target.length) return;
     const id = target.data('id');
@@ -128,7 +123,7 @@ adminReady(async function () {
     });
   });
 
-  $(document).onAdmin('change', '.js-toggle-service-status', async function (event) {
+  $('.admin-main').onAdmin('change', '.js-toggle-service-status', async function (event) {
     const target = $(event.target).closest('.js-toggle-service-status');
     if (!target.length) return;
     const id = target.data('id');

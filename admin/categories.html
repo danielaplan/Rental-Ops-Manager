@@ -17,7 +17,7 @@
 <main class="admin-main">
   <div class="admin-topbar">
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle admin navigation" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
       <h1 id="adminPageTitle">Categories</h1>
     </div>
     <button class="btn btn-admin-primary" id="addCategoryBtn"><i class="bi bi-plus-lg"></i> Add Category</button>
@@ -38,7 +38,7 @@
     <form class="modal-content" id="categoryForm">
       <div class="modal-header">
           <h5 class="modal-title" id="categoryFormTitle">Add Category</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close category form"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="catId">
@@ -84,7 +84,7 @@ adminReady(async function () {
     new bootstrap.Modal('#categoryFormModal').show();
   });
 
-  $(document).onAdmin('click', '.js-edit-cat', async function (event) {
+  $('.admin-main').onAdmin('click', '.js-edit-cat', async function (event) {
     const target = $(event.target).closest('.js-edit-cat');
     if (!target.length) return;
     const categories = await API.getCategories();
@@ -97,7 +97,7 @@ adminReady(async function () {
     new bootstrap.Modal('#categoryFormModal').show();
   });
 
-  $(document).onAdmin('click', '.js-delete-cat', async function (event) {
+  $('.admin-main').onAdmin('click', '.js-delete-cat', async function (event) {
     const target = $(event.target).closest('.js-delete-cat');
     if (!target.length) return;
     const id = target.data('id');

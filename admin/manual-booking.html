@@ -17,7 +17,7 @@
 <main class="admin-main">
   <div class="admin-topbar">
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle admin navigation" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
       <h1 id="adminPageTitle">Manual Booking</h1>
     </div>
   </div>
@@ -178,14 +178,14 @@ adminReady(async function () {
   await populateForm();
   await restoreManualDraft();
 
-  $(document).onAdmin('change', '.js-m-service', async function () {
+  $('.admin-main').onAdmin('change', '.js-m-service', async function () {
     $(this).closest('.service-check-card').toggleClass('selected', this.checked);
     await renderPackages();
     await renderAddons();
     await updateSummary();
     await checkAvailability();
   });
-  $(document).onAdmin('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage', async function () {
+  $('.admin-main').onAdmin('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage', async function () {
     await updateSummary();
     await checkAvailability();
   });
@@ -287,7 +287,7 @@ async function updateSummary() {
   $('#mSumFees').text(BookingCalc.formatCurrency(fees));
   $('#mSumTotal').text(BookingCalc.formatCurrency(total));
 }
-$(document).onAdmin('input', '#mDiscount, #mFees', updateSummary);
+$('.admin-main').onAdmin('input', '#mDiscount, #mFees', updateSummary);
 
 async function checkAvailability() {
   const version = ++availabilityVersion;

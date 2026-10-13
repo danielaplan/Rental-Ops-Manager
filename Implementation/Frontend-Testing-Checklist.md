@@ -26,4 +26,4 @@ Live offline integration (only with the isolated verification servers running on
 rtk proxy node tests/offline-sync.test.cjs
 ```
 
-Backend issues still requiring separate fixes: CRUD defaults overriding a submitted Inactive status; general booking updates bypassing dedicated completion/return validation. These prevent claiming full-system acceptance.
+General booking updates bypassing dedicated completion/return validation still requires separate review before claiming full-system acceptance. Submitted Inactive service status now takes precedence over the Active default.

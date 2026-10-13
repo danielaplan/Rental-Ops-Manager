@@ -175,12 +175,15 @@ const API = (() => {
       if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, value);
     });
     const token = session()?.session_token;
-    const method = options.method || (options.body === undefined ? "GET" : "POST");
+    const method = options.method || (options.body === undefined && options.formData === undefined ? "GET" : "POST");
     const headers = { ...(token ? { Authorization: `Bearer ${token}` } : {}) };
     if (options.body !== undefined) headers["Content-Type"] = "application/json";
     const init = { method, headers };
     if (options.body !== undefined) init.body = JSON.stringify(options.body);
-    if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") init.signal = AbortSignal.timeout(timeoutMs);
+    if (options.formData !== undefined) init.body = options.formData;
+    if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+      init.signal = AbortSignal.timeout(options.timeoutMs || timeoutMs);
+    }
 
     let response;
     try {
@@ -308,6 +311,11 @@ const API = (() => {
     async createPayment(data) { return normalize("payments", await request("payments.php", { query: { do: "create" }, body: payload("payments", data) })); },
 
     getGallery: () => list("gallery.php", "gallery", { do: "all" }),
+    uploadGalleryImage: file => {
+      const formData = new FormData();
+      formData.append("image", file);
+      return request("gallery-upload.php", { formData, timeoutMs: 60000 });
+    },
     createGalleryImage: data => create("gallery.php", "gallery", data),
     updateGalleryImage: (id, data) => update("gallery.php", "gallery", id, data),
     deleteGalleryImage: async id => { await remove("gallery.php", id); return true; },
@@ -316,6 +324,30 @@ const API = (() => {
     updateWebsiteContent: data => request("websiteContent.php", { query: { do: "update" }, body: data }),
     getSettings: () => request("settings.php", { query: { do: "get" } }),
     updateSettings: data => request("settings.php", { query: { do: "update" }, body: data }),
+    async refreshPublicData() {
+      const errors = {};
+      const refresh = async (entity, load, save) => {
+        try {
+          save(await load());
+        } catch (error) {
+          errors[entity] = error;
+        }
+      };
+      const mergePublicRows = (entity, idField, rows) => {
+        const cached = STORAGE.getAll(entity);
+        const pending = cached.filter(row => row.pending_sync || String(row[idField] || "").startsWith("LOCAL-"));
+        const pendingIds = new Set(pending.map(row => String(row[idField])));
+        STORAGE.saveAll(entity, [...rows.filter(row => !pendingIds.has(String(row[idField]))), ...pending]);
+      };
+
+      await Promise.all([
+        refresh("settings", () => this.getSettings(), settings => STORAGE.setOne("settings", settings)),
+        refresh("websiteContent", () => this.getWebsiteContent(), content => STORAGE.setOne("websiteContent", content)),
+        refresh("services", () => this.getServices(), rows => mergePublicRows("services", "service_id", rows)),
+        refresh("gallery", () => this.getGallery(), rows => mergePublicRows("gallery", "image_id", rows))
+      ]);
+      return { errors };
+    },
 
     async getDashboardStats() { return normalize("reports", await request("reports.php", { query: { do: "dashboard" } })); },
     async getReportStats(startDate, endDate) { return normalize("reports", await request("reports.php", { query: { do: "report", start: startDate, end: endDate } })); },

@@ -93,7 +93,7 @@ http://127.0.0.1:8000/admin/login.html
 | Admin URL | `http://127.0.0.1:8000/admin/login.html` |
 
 ---
-
+    
 ## Troubleshooting
 
 | Problem | Cause | Fix |

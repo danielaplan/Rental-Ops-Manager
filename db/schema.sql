@@ -238,6 +238,7 @@ CREATE TABLE IF NOT EXISTS BOOKING_ITEMS (
     checked_released TINYINT(1) NOT NULL DEFAULT 0,
     `condition` VARCHAR(100),
     notes TEXT,
+    UNIQUE KEY uq_booking_item (booking_id, rental_item_id),
     FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (rental_item_id) REFERENCES RENTAL_ITEMS(rental_item_id) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE SET NULL ON UPDATE CASCADE

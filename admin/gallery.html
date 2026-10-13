@@ -17,7 +17,7 @@
 <main class="admin-main">
   <div class="admin-topbar">
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn"><i class="bi bi-list"></i></button>
+      <button class="btn btn-outline-secondary btn-sm d-none admin-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle admin navigation" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
       <h1 id="adminPageTitle">Gallery</h1>
     </div>
     <button class="btn btn-admin-primary" id="addImageBtn"><i class="bi bi-plus-lg"></i> Add Image</button>
@@ -43,8 +43,16 @@
           </div>
           <div class="mb-3">
             <label class="form-label" for="imgUrl">Image URL</label>
-            <input type="text" inputmode="url" class="form-control" id="imgUrl" placeholder="https://... or /images/setup.jpg" required>
-            <div class="form-text">Use an HTTP(S) URL or a path on this site.</div>
+            <input type="text" inputmode="url" class="form-control" id="imgUrl" placeholder="https://... or /images/setup.jpg">
+            <div class="form-text">Use an HTTP(S) URL or a path on this site, or select an image file below.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="imgFile">Upload from your device</label>
+            <input type="file" class="form-control" id="imgFile" accept="image/jpeg,image/png,image/gif,image/webp">
+            <div class="form-text">JPG, PNG, GIF, or WebP; maximum 5 MB. Uploading requires a server connection.</div>
+          </div>
+          <div class="mb-3" id="imgPreviewWrap" hidden>
+            <img id="imgPreview" alt="Selected gallery image preview" style="display:block;max-width:100%;max-height:200px;object-fit:contain;border-radius:8px;">
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="imgFeatured">
@@ -75,15 +83,33 @@ adminReady(async function () {
   await initAdminChrome('gallery.html', 'Gallery');
   await renderGallery();
 
+  const updateImagePreview = () => {
+    const file = document.getElementById('imgFile').files[0];
+    const image = document.getElementById('imgPreview');
+    const wrap = document.getElementById('imgPreviewWrap');
+    if (image.dataset.objectUrl) URL.revokeObjectURL(image.dataset.objectUrl);
+    image.dataset.objectUrl = '';
+    const source = file ? URL.createObjectURL(file) : safeGalleryImageUrl($('#imgUrl').val());
+    if (!source) {
+      image.removeAttribute('src');
+      wrap.hidden = true;
+      return;
+    }
+    image.src = source;
+    if (file) image.dataset.objectUrl = source;
+    wrap.hidden = false;
+  };
+
   $('#addImageBtn').onAdmin('click', function () {
     $('#imageForm')[0].reset();
     $('#imgId').val('');
     $('#imageFormError').prop('hidden', true).text('');
     $('#imageFormTitle').text('Add Image');
+    updateImagePreview();
     new bootstrap.Modal('#imageFormModal').show();
   });
 
-  $(document).onAdmin('click', '.js-edit-img', async function (event) {
+  $('.admin-main').onAdmin('click', '.js-edit-img', async function (event) {
     const target = $(event.target).closest('.js-edit-img');
     if (!target.length) return;
     const img = (await API.getGallery()).find(g => g.image_id === target.data('id'));
@@ -91,13 +117,20 @@ adminReady(async function () {
     $('#imgId').val(img.image_id);
     $('#imgTitle').val(img.title);
     $('#imgUrl').val(img.image);
+    $('#imgFile').val('');
     $('#imgFeatured').prop('checked', !!img.featured);
     $('#imageFormError').prop('hidden', true).text('');
     $('#imageFormTitle').text('Edit Image');
+    updateImagePreview();
     new bootstrap.Modal('#imageFormModal').show();
   });
 
-  $(document).onAdmin('click', '.js-delete-img', async function (event) {
+  $('#imgFile').onAdmin('change', updateImagePreview);
+  $('#imgUrl').onAdmin('input', function () {
+    if (!document.getElementById('imgFile').files.length) updateImagePreview();
+  });
+
+  $('.admin-main').onAdmin('click', '.js-delete-img', async function (event) {
     const target = $(event.target).closest('.js-delete-img');
     if (!target.length) return;
     const id = target.data('id');
@@ -111,12 +144,23 @@ adminReady(async function () {
   $('#imageForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#imgId').val();
+    const file = document.getElementById('imgFile').files[0];
     const data = { title: $('#imgTitle').val().trim(), image: $('#imgUrl').val().trim(), featured: $('#imgFeatured').is(':checked') };
-    if (!safeGalleryImageUrl(data.image)) {
+    if (!data.title) {
+      $('#imageFormError').text('Enter a title for this image.').prop('hidden', false).trigger('focus');
+      return;
+    }
+    if (file && !safeGalleryUploadFile(file)) {
+      $('#imageFormError').text('Choose a JPG, PNG, GIF, or WebP image no larger than 5 MB.').prop('hidden', false).trigger('focus');
+      return;
+    }
+    if (!file && !safeGalleryImageUrl(data.image)) {
       $('#imageFormError').text('Enter a valid HTTP or HTTPS image URL.').prop('hidden', false).trigger('focus');
       return;
     }
     try {
+      if (file) data.image = await API.uploadGalleryImage(file);
+      else data.image = safeGalleryImageUrl(data.image);
       if (id) { await API.updateGalleryImage(id, data); showAdminToast(API.savedMessage()); }
       else { await API.createGalleryImage(data); showAdminToast(API.savedMessage()); }
       bootstrap.Modal.getInstance(document.getElementById('imageFormModal')).hide();
@@ -125,7 +169,21 @@ adminReady(async function () {
       $('#imageFormError').text(error.message).prop('hidden', false).trigger('focus');
     }
   });
+
+  document.getElementById('imageFormModal').addEventListener('hidden.bs.modal', function () {
+    const image = document.getElementById('imgPreview');
+    if (image.dataset.objectUrl) URL.revokeObjectURL(image.dataset.objectUrl);
+    image.dataset.objectUrl = '';
+    image.removeAttribute('src');
+    document.getElementById('imgPreviewWrap').hidden = true;
+  });
 });
+
+function safeGalleryUploadFile(file) {
+  return file instanceof File &&
+    ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type) &&
+    file.size > 0 && file.size <= 5 * 1024 * 1024;
+}
 
 function safeGalleryImageUrl(value) {
   if (typeof value !== 'string' || !value.trim()) return '';
