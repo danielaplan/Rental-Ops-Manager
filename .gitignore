@@ -10,3 +10,9 @@ memory/
 /uploads/gallery/*
 !/uploads/gallery/.htaccess
 !/uploads/gallery/index.html
+/uploads/content/*
+!/uploads/content/.htaccess
+!/uploads/content/index.html
+/uploads/services/*
+!/uploads/services/.htaccess
+!/uploads/services/index.html

@@ -33,7 +33,16 @@
         </div>
         <div class="col-md-6">
           <label class="form-label" for="cLogo">Logo URL (optional)</label>
-          <input type="text" class="form-control" id="cLogo">
+          <input type="text" class="form-control" id="cLogo" placeholder="https://... or /images/logo.png">
+          <div class="form-text">Paste a link, or upload a file below.</div>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="cLogoFile">Upload logo from your device</label>
+          <input type="file" class="form-control" id="cLogoFile" accept="image/jpeg,image/png,image/gif,image/webp">
+          <div class="form-text">JPG, PNG, GIF, or WebP; maximum 5 MB. Uploading requires a server connection.</div>
+          <div class="mt-2" id="cLogoPreviewWrap" hidden>
+            <img id="cLogoPreview" alt="Logo preview" style="display:block;max-width:100%;max-height:120px;object-fit:contain;border-radius:8px;">
+          </div>
         </div>
       </div>
     </div>
@@ -51,11 +60,20 @@
         </div>
         <div class="col-md-8">
           <label class="form-label" for="cHeroImage">Hero Image URL</label>
-          <input type="text" class="form-control" id="cHeroImage">
+          <input type="text" class="form-control" id="cHeroImage" placeholder="https://... or /images/setup.jpg">
+          <div class="form-text">Paste a link, or upload a file below.</div>
         </div>
         <div class="col-md-4">
           <label class="form-label" for="cHeroBtn">Button Text</label>
           <input type="text" class="form-control" id="cHeroBtn">
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="cHeroImageFile">Upload hero image from your device</label>
+          <input type="file" class="form-control" id="cHeroImageFile" accept="image/jpeg,image/png,image/gif,image/webp">
+          <div class="form-text">JPG, PNG, GIF, or WebP; maximum 5 MB. Uploading requires a server connection.</div>
+          <div class="mt-2" id="cHeroPreviewWrap" hidden>
+            <img id="cHeroPreview" alt="Hero image preview" style="display:block;max-width:100%;max-height:200px;object-fit:contain;border-radius:8px;">
+          </div>
         </div>
       </div>
     </div>
@@ -70,6 +88,19 @@
         <div class="col-12">
           <label class="form-label" for="cAboutDesc">Description</label>
           <textarea class="form-control" id="cAboutDesc" rows="3"></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="cAboutImage">About Image URL</label>
+          <input type="text" class="form-control" id="cAboutImage" placeholder="https://... or /images/about.jpg">
+          <div class="form-text">Paste a link, or upload a file below.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="cAboutImageFile">Upload about image from your device</label>
+          <input type="file" class="form-control" id="cAboutImageFile" accept="image/jpeg,image/png,image/gif,image/webp">
+          <div class="form-text">JPG, PNG, GIF, or WebP; maximum 5 MB. Uploading requires a server connection.</div>
+        </div>
+        <div class="col-12" id="cAboutPreviewWrap" hidden>
+          <img id="cAboutPreview" alt="About image preview" style="display:block;max-width:100%;max-height:200px;object-fit:contain;border-radius:8px;">
         </div>
       </div>
     </div>
@@ -119,7 +150,15 @@ adminReady(async function () {
   await initAdminChrome('content.html', 'Website Content');
   await API.refreshWebsiteContent();
   await renderAdminSidebar('content.html');
+
+  const images = {
+    logo: imageField({ url: '#cLogo', file: '#cLogoFile', preview: '#cLogoPreview', wrap: '#cLogoPreviewWrap', type: 'content', label: 'logo' }),
+    hero: imageField({ url: '#cHeroImage', file: '#cHeroImageFile', preview: '#cHeroPreview', wrap: '#cHeroPreviewWrap', type: 'content', label: 'hero image' }),
+    about: imageField({ url: '#cAboutImage', file: '#cAboutImageFile', preview: '#cAboutPreview', wrap: '#cAboutPreviewWrap', type: 'content', label: 'about image' })
+  };
+
   await loadContent();
+  Object.values(images).forEach(field => { field.reset(); field.refresh(); });
 
   $('#contentForm').onAdmin('submit', async function (e) {
     e.preventDefault();
@@ -127,13 +166,14 @@ adminReady(async function () {
     try {
       await API.updateWebsiteContent({
         business_name: $('#cBusinessName').val().trim(),
-        logo: $('#cLogo').val().trim(),
+        logo: await images.logo.resolve(),
         hero_title: $('#cHeroTitle').val().trim(),
         hero_description: $('#cHeroDesc').val().trim(),
-        hero_image: $('#cHeroImage').val().trim(),
+        hero_image: await images.hero.resolve(),
         hero_button_text: $('#cHeroBtn').val().trim(),
         about_title: $('#cAboutTitle').val().trim(),
         about_description: $('#cAboutDesc').val().trim(),
+        about_image: await images.about.resolve(),
         contact_phone: $('#cPhone').val().trim(),
         contact_email: $('#cEmail').val().trim(),
         contact_address: $('#cAddress').val().trim(),
@@ -160,6 +200,7 @@ async function loadContent() {
   $('#cHeroBtn').val(c.hero_button_text);
   $('#cAboutTitle').val(c.about_title);
   $('#cAboutDesc').val(c.about_description);
+  $('#cAboutImage').val(c.about_image);
   $('#cPhone').val(c.contact_phone);
   $('#cEmail').val(c.contact_email);
   $('#cAddress').val(c.contact_address);

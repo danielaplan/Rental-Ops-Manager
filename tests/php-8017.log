@@ -1994,3 +1994,2088 @@
 [Tue Oct  6 16:05:25 2026] 127.0.0.1:62779 Accepted
 [Tue Oct  6 16:05:25 2026] 127.0.0.1:62779 [200]: GET /api/bookings.php?do=get&id=48
 [Tue Oct  6 16:05:25 2026] 127.0.0.1:62779 Closing
+                                                                                                                                                                                 [Wed Oct 14 19:28:22 2026] 127.0.0.1:53523 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53523 [200]: POST /api/auth.php
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53523 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53527 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53527 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53527 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53529 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53530 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53531 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53532 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53533 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53534 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53535 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53536 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53537 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53538 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53539 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53529 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53529 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53530 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53530 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53531 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53531 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53532 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53532 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53533 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53533 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53534 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53534 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53535 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53535 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53536 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53536 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53537 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53537 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53538 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53538 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53539 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53539 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53551 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53551 [200]: GET /api/bookings.php?do=get&id=49
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53551 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53553 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53553 [200]: GET /api/deposits.php?do=get&booking_id=49
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53553 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53555 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53555 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=49
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53555 Closing
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53557 Accepted
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53557 [200]: GET /api/itemHistory.php?do=forItem&rental_item_id=1
+[Wed Oct 14 19:28:22 2026] 127.0.0.1:53557 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53607 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53607 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53607 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53609 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53609 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53609 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53611 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53611 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53611 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53613 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53614 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53615 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53616 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53617 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53618 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53619 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53620 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53621 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53622 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53623 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53613 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53613 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53614 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53614 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53615 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53615 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53616 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53616 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53617 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53617 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53618 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53618 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53619 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53619 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53620 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53620 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53621 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53621 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53622 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53622 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53623 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53623 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53635 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53635 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53635 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53637 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53637 [200]: GET /api/payments.php?do=all&booking_id=51
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53637 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53639 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53640 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53641 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53642 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53643 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53644 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53645 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53646 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53647 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53648 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53649 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53639 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53639 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53640 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53640 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53641 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53641 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53642 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53642 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53643 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53643 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53644 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53644 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53645 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53645 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53646 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53646 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53647 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53647 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53648 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53648 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53649 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53649 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53663 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53663 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53663 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53665 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53665 [200]: GET /api/bookings.php?do=get&id=49
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53665 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53667 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53667 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53667 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53670 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53671 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53672 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53673 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53674 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53675 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53676 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53677 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53678 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53680 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53682 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53670 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53670 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53671 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53671 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53672 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53672 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53673 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53673 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53674 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53674 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53675 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53675 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53676 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53676 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53677 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53677 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53678 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53678 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53680 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53680 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53682 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53682 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53695 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53695 [400]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53695 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53697 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53697 [201]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53697 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53699 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53699 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=54
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53699 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53701 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53701 [200]: POST /api/bookingItems.php?do=update&id=40
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53701 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53703 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53703 [200]: POST /api/bookingItems.php?do=generate
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53703 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53705 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53705 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=54
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53705 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53707 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53707 [201]: POST /api/services.php?do=create
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53707 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53709 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53709 [400]: POST /api/deposits.php?do=upsert
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53709 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53711 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53711 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53711 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53713 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53714 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53715 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53716 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53717 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53718 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53719 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53720 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53721 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53722 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53723 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53713 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53713 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53714 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53714 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53715 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53715 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53716 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53716 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53717 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53717 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53718 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53718 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53719 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53719 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53720 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53720 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53721 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53721 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53722 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53722 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53723 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53723 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53735 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53735 [200]: GET /api/bookings.php?do=get&id=49
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53735 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53737 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53737 [201]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53737 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53741 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53742 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53743 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53744 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53745 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53746 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53747 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53748 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53749 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53750 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53751 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53752 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53741 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53741 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53742 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53742 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53743 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53743 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53744 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53744 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53745 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53745 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53746 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53746 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53747 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53747 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53748 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53748 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53749 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53749 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53750 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53750 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53751 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53751 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53752 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53752 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53765 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53766 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53767 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53768 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53769 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53770 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53771 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53772 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53773 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53774 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53775 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53776 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53777 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53778 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53779 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53780 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53781 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53782 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53783 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53784 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53785 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53786 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53787 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53765 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53765 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53766 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53766 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53767 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53767 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53768 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53768 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53769 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53769 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53770 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53770 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53771 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53771 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53772 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53772 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53773 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53773 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53774 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53774 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53775 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53775 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53776 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53776 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53777 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53777 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53778 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53778 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53779 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53779 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53780 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53780 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53781 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53781 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53782 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53782 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53783 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53783 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53784 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53784 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53785 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53785 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53786 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53786 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53787 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53787 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53811 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53812 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53813 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53814 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53815 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53816 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53817 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53818 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53819 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53820 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53821 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53811 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53811 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53812 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53812 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53813 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53813 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53814 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53814 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53815 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53815 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53816 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53816 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53817 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53817 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53818 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53818 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53819 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53819 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53820 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53820 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53821 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53821 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53833 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53833 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53833 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53835 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53836 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53837 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53838 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53839 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53840 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53841 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53842 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53843 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53844 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53845 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53835 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53835 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53836 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53836 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53837 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53837 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53838 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53838 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53839 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53839 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53840 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53840 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53841 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53841 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53842 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53842 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53843 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53843 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53844 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53844 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53845 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53845 Closing
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53857 Accepted
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53857 [200]: GET /api/bookings.php?do=get&id=58
+[Wed Oct 14 19:28:23 2026] 127.0.0.1:53857 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50062 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50062 [200]: POST /api/auth.php
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50062 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50066 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50066 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50066 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50068 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50069 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50070 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50071 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50072 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50073 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50074 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50075 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50076 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50077 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50078 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50068 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50068 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50069 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50069 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50070 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50070 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50071 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50071 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50072 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50072 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50073 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50073 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50074 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50074 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50075 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50075 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50076 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50076 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50077 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50077 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50078 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50078 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50090 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50090 [200]: GET /api/bookings.php?do=get&id=59
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50090 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50092 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50092 [200]: GET /api/deposits.php?do=get&booking_id=59
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50092 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50094 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50094 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=59
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50094 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50096 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50096 [200]: GET /api/itemHistory.php?do=forItem&rental_item_id=1
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50096 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50146 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50146 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50146 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50148 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50148 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50148 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50150 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50150 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50150 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50152 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50153 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50154 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50155 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50156 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50157 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50158 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50159 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50160 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50161 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50162 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50152 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50152 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50153 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50153 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50154 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50154 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50155 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50155 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50156 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50156 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50157 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50157 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50158 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50158 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50159 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50159 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50160 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50160 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50161 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50161 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50162 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50162 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50174 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50174 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50174 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50176 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50176 [200]: GET /api/payments.php?do=all&booking_id=61
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50176 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50178 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50179 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50180 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50181 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50182 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50183 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50184 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50185 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50186 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50187 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50188 Accepted
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50178 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50178 Closing
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50179 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:14 2026] 127.0.0.1:50179 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50180 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50180 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50181 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50181 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50182 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50182 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50183 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50183 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50184 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50184 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50185 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50185 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50186 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50186 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50187 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50187 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50188 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50188 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50202 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50202 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50202 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50204 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50204 [200]: GET /api/bookings.php?do=get&id=59
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50204 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50206 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50206 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50206 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50208 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50209 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50210 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50211 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50212 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50213 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50214 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50215 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50216 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50217 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50218 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50208 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50208 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50209 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50209 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50210 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50210 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50211 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50211 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50212 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50212 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50213 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50213 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50214 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50214 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50215 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50215 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50216 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50216 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50217 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50217 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50218 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50218 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50230 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50230 [400]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50230 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50232 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50232 [201]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50232 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50234 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50234 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=64
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50234 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50236 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50236 [200]: POST /api/bookingItems.php?do=update&id=49
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50236 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50238 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50238 [200]: POST /api/bookingItems.php?do=generate
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50238 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50240 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50240 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=64
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50240 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50242 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50242 [201]: POST /api/services.php?do=create
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50242 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50244 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50244 [400]: POST /api/deposits.php?do=upsert
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50244 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50246 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50246 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50246 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50248 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50249 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50250 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50251 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50252 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50253 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50254 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50255 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50256 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50257 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50258 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50248 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50248 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50249 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50249 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50250 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50250 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50251 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50251 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50252 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50252 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50253 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50253 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50254 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50254 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50255 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50255 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50256 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50256 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50257 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50257 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50258 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50258 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50270 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50270 [200]: GET /api/bookings.php?do=get&id=59
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50270 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50272 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50272 [409]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50272 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50276 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50277 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50278 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50279 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50280 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50281 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50282 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50283 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50284 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50285 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50286 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50287 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50276 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50276 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50277 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50277 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50278 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50278 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50279 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50279 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50280 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50280 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50281 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50281 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50282 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50282 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50283 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50283 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50284 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50284 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50285 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50285 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50286 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50286 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50287 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50287 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50300 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50301 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50302 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50303 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50304 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50305 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50306 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50307 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50308 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50309 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50310 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50300 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50300 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50301 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50301 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50302 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50302 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50303 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50303 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50304 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50304 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50305 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50305 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50306 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50306 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50307 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50307 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50308 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50308 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50309 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50309 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50310 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50310 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50320 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50322 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50320 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50320 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50323 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50322 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50322 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50324 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50323 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50323 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50325 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50324 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50324 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50326 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50325 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50325 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50327 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50326 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50326 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50328 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50327 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50327 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50329 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50328 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50328 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50330 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50329 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50329 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50331 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50330 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50330 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50332 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50331 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50331 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50332 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50332 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50346 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50347 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50348 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50349 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50350 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50351 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50352 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50353 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50354 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50355 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50356 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50346 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50346 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50347 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50347 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50348 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50348 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50349 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50349 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50350 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50350 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50351 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50351 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50352 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50352 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50353 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50353 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50354 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50354 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50355 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50355 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50356 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50356 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50368 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50368 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50368 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50370 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50371 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50372 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50373 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50374 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50375 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50376 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50377 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50378 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50379 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50380 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50370 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50370 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50371 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50371 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50372 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50372 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50373 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50373 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50374 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50374 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50375 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50375 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50376 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50376 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50377 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50377 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50378 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50378 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50379 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50379 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50380 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50380 Closing
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50392 Accepted
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50392 [200]: GET /api/bookings.php?do=get&id=68
+[Wed Oct 14 19:44:15 2026] 127.0.0.1:50392 Closing
+[Wed Oct 14 19:57:31 2026] 127.0.0.1:52950 Accepted
+[Wed Oct 14 19:57:31 2026] 127.0.0.1:52950 [200]: POST /api/auth.php
+[Wed Oct 14 19:57:31 2026] 127.0.0.1:52950 Closing
+[Wed Oct 14 19:57:31 2026] 127.0.0.1:52954 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52954 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52954 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52956 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52957 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52958 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52959 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52960 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52961 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52962 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52963 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52964 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52965 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52966 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52956 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52956 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52957 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52957 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52958 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52958 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52959 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52959 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52960 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52960 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52961 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52961 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52962 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52962 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52963 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52963 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52964 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52964 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52965 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52965 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52966 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52966 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52978 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52978 [200]: GET /api/bookings.php?do=get&id=69
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52978 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52980 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52980 [200]: GET /api/deposits.php?do=get&booking_id=69
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52980 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52982 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52982 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=69
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52982 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52984 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52984 [200]: GET /api/itemHistory.php?do=forItem&rental_item_id=1
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:52984 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53035 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53035 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53035 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53037 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53037 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53037 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53039 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53039 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53039 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53041 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53042 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53043 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53044 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53045 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53046 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53047 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53048 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53049 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53050 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53051 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53041 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53041 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53042 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53042 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53043 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53043 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53044 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53044 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53045 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53045 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53046 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53046 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53047 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53047 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53048 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53048 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53049 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53049 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53050 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53050 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53051 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53051 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53063 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53063 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53063 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53065 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53065 [200]: GET /api/payments.php?do=all&booking_id=71
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53065 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53067 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53068 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53069 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53070 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53071 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53072 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53073 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53074 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53075 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53076 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53077 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53067 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53067 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53068 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53068 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53069 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53069 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53070 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53070 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53071 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53071 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53072 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53072 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53073 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53073 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53074 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53074 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53075 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53075 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53076 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53076 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53077 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53077 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53091 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53091 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53091 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53093 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53093 [200]: GET /api/bookings.php?do=get&id=69
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53093 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53095 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53095 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53095 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53097 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53098 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53099 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53100 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53101 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53102 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53103 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53104 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53105 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53106 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53107 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53097 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53097 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53098 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53098 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53099 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53099 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53100 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53100 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53101 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53101 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53102 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53102 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53103 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53103 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53104 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53104 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53105 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53105 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53106 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53106 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53107 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53107 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53119 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53119 [400]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53119 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53121 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53121 [201]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53121 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53123 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53123 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=74
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53123 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53125 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53125 [200]: POST /api/bookingItems.php?do=update&id=58
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53125 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53127 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53127 [200]: POST /api/bookingItems.php?do=generate
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53127 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53129 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53129 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=74
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53129 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53131 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53131 [201]: POST /api/services.php?do=create
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53131 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53133 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53133 [400]: POST /api/deposits.php?do=upsert
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53133 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53135 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53135 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53135 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53137 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53138 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53139 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53140 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53141 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53142 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53143 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53144 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53145 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53146 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53147 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53137 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53137 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53138 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53138 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53139 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53139 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53140 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53140 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53141 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53141 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53142 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53142 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53143 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53143 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53144 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53144 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53145 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53145 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53146 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53146 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53147 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53147 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53159 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53159 [200]: GET /api/bookings.php?do=get&id=69
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53159 Closing
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53161 Accepted
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53161 [201]: POST /api/bookings.php?do=create
+[Wed Oct 14 19:57:32 2026] 127.0.0.1:53161 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53165 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53166 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53167 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53168 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53169 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53170 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53171 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53172 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53173 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53174 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53175 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53176 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53165 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53165 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53166 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53166 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53167 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53167 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53168 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53168 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53169 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53169 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53170 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53170 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53171 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53171 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53172 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53172 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53173 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53173 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53174 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53174 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53175 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53175 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53176 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53176 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53189 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53190 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53191 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53192 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53193 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53194 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53195 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53196 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53197 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53198 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53199 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53189 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53189 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53190 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53190 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53191 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53191 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53192 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53192 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53193 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53193 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53194 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53194 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53195 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53195 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53196 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53196 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53197 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53197 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53198 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53198 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53199 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53199 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53206 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53207 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53206 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53206 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53208 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53207 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53207 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53209 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53208 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53208 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53210 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53209 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53209 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53211 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53210 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53210 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53212 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53211 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53211 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53213 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53212 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53212 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53214 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53213 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53213 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53215 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53214 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53214 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53216 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53215 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53215 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53217 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53216 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53216 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53217 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53217 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53235 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53236 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53237 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53238 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53239 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53240 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53241 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53242 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53243 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53244 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53245 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53235 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53235 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53236 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53236 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53237 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53237 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53238 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53238 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53239 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53239 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53240 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53240 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53241 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53241 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53242 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53242 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53243 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53243 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53244 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53244 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53245 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53245 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53257 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53257 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53257 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53259 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53260 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53261 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53262 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53263 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53264 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53265 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53266 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53267 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53268 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53269 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53259 [200]: GET /api/services.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53259 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53260 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53260 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53261 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53261 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53262 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53262 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53263 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53263 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53264 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53264 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53265 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53265 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53266 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53266 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53267 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53267 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53268 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53268 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53269 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53269 Closing
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53281 Accepted
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53281 [200]: GET /api/bookings.php?do=get&id=78
+[Wed Oct 14 19:57:33 2026] 127.0.0.1:53281 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55245 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55245 [200]: POST /api/auth.php
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55245 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55249 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55249 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55249 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55251 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55252 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55253 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55254 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55255 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55256 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55257 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55258 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55259 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55260 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55261 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55251 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55251 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55252 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55252 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55253 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55253 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55254 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55254 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55255 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55255 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55256 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55256 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55257 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55257 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55258 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55258 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55259 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55259 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55260 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55260 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55261 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55261 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55273 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55273 [200]: GET /api/bookings.php?do=get&id=79
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55273 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55275 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55275 [200]: GET /api/deposits.php?do=get&booking_id=79
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55275 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55277 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55277 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=79
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55277 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55279 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55279 [200]: GET /api/itemHistory.php?do=forItem&rental_item_id=1
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55279 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55329 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55329 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55329 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55331 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55331 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55331 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55333 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55333 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55333 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55335 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55336 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55337 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55338 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55339 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55340 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55341 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55342 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55343 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55344 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55345 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55335 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55335 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55336 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55336 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55337 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55337 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55338 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55338 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55339 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55339 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55340 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55340 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55341 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55341 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55342 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55342 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55343 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55343 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55344 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55344 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55345 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55345 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55357 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55357 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55357 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55359 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55359 [200]: GET /api/payments.php?do=all&booking_id=81
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55359 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55361 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55362 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55363 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55364 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55365 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55366 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55367 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55368 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55369 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55370 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55371 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55361 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55361 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55362 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55362 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55363 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55363 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55364 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55364 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55365 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55365 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55366 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55366 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55367 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55367 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55368 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55368 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55369 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55369 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55370 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55370 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55371 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55371 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55385 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55385 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55385 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55387 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55387 [200]: GET /api/bookings.php?do=get&id=79
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55387 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55389 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55389 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55389 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55391 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55392 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55393 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55394 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55395 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55396 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55397 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55398 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55399 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55400 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55401 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55391 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55391 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55392 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55392 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55393 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55393 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55394 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55394 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55395 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55395 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55396 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55396 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55397 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55397 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55398 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55398 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55399 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55399 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55400 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55400 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55401 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55401 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55413 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55413 [400]: POST /api/bookings.php?do=create
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55413 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55415 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55415 [201]: POST /api/bookings.php?do=create
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55415 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55417 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55417 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=84
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55417 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55419 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55419 [200]: POST /api/bookingItems.php?do=update&id=67
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55419 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55421 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55421 [200]: POST /api/bookingItems.php?do=generate
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55421 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55423 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55423 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=84
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55423 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55425 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55425 [201]: POST /api/services.php?do=create
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55425 Closing
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55427 Accepted
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55427 [400]: POST /api/deposits.php?do=upsert
+[Wed Oct 14 20:02:06 2026] 127.0.0.1:55427 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55429 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55429 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55429 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55431 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55432 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55433 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55434 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55435 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55436 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55437 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55438 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55439 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55440 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55441 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55431 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55431 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55432 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55432 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55433 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55433 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55434 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55434 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55435 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55435 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55436 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55436 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55437 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55437 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55438 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55438 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55439 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55439 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55440 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55440 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55441 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55441 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55453 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55453 [200]: GET /api/bookings.php?do=get&id=79
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55453 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55455 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55455 [409]: POST /api/bookings.php?do=create
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55455 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55459 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55460 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55461 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55462 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55463 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55464 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55465 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55466 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55467 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55468 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55469 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55470 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55459 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55459 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55460 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55460 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55461 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55461 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55462 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55462 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55463 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55463 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55464 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55464 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55465 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55465 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55466 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55466 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55467 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55467 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55468 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55468 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55469 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55469 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55470 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55470 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55483 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55484 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55485 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55486 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55487 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55488 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55489 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55490 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55491 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55492 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55493 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55483 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55483 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55484 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55484 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55485 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55485 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55486 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55486 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55487 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55487 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55488 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55488 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55489 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55489 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55490 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55490 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55491 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55491 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55492 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55492 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55493 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55493 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55503 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55504 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55503 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55503 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55505 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55504 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55504 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55506 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55505 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55505 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55507 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55506 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55506 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55508 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55507 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55507 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55509 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55508 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55508 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55510 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55509 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55509 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55511 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55510 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55510 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55512 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55511 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55511 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55513 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55512 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55512 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55514 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55513 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55513 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55514 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55514 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55529 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55530 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55531 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55532 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55533 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55534 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55535 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55536 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55537 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55538 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55539 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55529 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55529 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55530 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55530 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55531 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55531 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55532 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55532 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55533 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55533 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55534 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55534 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55535 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55535 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55536 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55536 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55537 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55537 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55538 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55538 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55539 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55539 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55551 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55551 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55551 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55553 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55554 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55555 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55556 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55557 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55558 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55559 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55560 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55561 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55562 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55563 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55553 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55553 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55554 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55554 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55555 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55555 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55556 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55556 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55557 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55557 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55558 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55558 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55559 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55559 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55560 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55560 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55561 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55561 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55562 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55562 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55563 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55563 Closing
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55575 Accepted
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55575 [200]: GET /api/bookings.php?do=get&id=88
+[Wed Oct 14 20:02:07 2026] 127.0.0.1:55575 Closing
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55579 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55579 [200]: POST /api/auth.php
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55579 Closing
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55583 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55583 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55583 Closing
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55585 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55586 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55587 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55588 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55589 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55590 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55591 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55592 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55593 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55594 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55595 Accepted
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55585 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55585 Closing
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55586 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55586 Closing
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55587 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55587 Closing
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55588 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55588 Closing
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55589 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:00 2026] 127.0.0.1:55589 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55590 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55590 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55591 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55591 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55592 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55592 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55593 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55593 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55594 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55594 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55595 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55595 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55607 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55607 [200]: GET /api/bookings.php?do=get&id=89
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55607 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55609 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55609 [200]: GET /api/deposits.php?do=get&booking_id=89
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55609 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55611 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55611 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=89
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55611 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55613 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55613 [200]: GET /api/itemHistory.php?do=forItem&rental_item_id=1
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55613 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55663 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55663 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55663 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55665 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55665 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55665 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55667 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55667 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55667 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55669 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55670 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55671 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55672 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55673 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55674 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55675 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55676 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55677 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55678 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55679 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55669 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55669 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55670 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55670 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55671 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55671 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55672 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55672 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55673 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55673 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55674 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55674 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55675 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55675 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55676 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55676 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55677 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55677 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55678 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55678 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55679 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55679 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55691 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55691 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55691 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55693 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55693 [200]: GET /api/payments.php?do=all&booking_id=91
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55693 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55695 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55696 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55697 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55698 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55699 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55700 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55701 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55702 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55703 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55704 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55705 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55695 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55695 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55696 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55696 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55697 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55697 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55698 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55698 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55699 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55699 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55700 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55700 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55701 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55701 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55702 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55702 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55703 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55703 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55704 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55704 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55705 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55705 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55719 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55719 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55719 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55721 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55721 [200]: GET /api/bookings.php?do=get&id=89
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55721 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55723 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55723 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55723 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55725 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55726 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55727 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55728 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55729 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55730 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55731 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55732 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55733 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55734 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55735 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55725 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55725 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55726 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55726 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55727 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55727 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55728 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55728 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55729 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55729 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55730 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55730 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55731 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55731 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55732 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55732 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55733 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55733 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55734 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55734 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55735 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55735 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55747 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55747 [400]: POST /api/bookings.php?do=create
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55747 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55749 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55749 [201]: POST /api/bookings.php?do=create
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55749 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55751 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55751 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=94
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55751 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55753 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55753 [200]: POST /api/bookingItems.php?do=update&id=76
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55753 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55755 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55755 [200]: POST /api/bookingItems.php?do=generate
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55755 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55757 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55757 [200]: GET /api/bookingItems.php?do=forBooking&booking_id=94
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55757 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55759 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55759 [201]: POST /api/services.php?do=create
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55759 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55761 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55761 [400]: POST /api/deposits.php?do=upsert
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55761 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55763 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55763 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55763 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55765 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55766 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55767 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55768 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55769 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55770 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55771 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55772 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55773 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55774 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55775 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55765 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55765 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55766 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55766 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55767 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55767 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55768 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55768 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55769 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55769 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55770 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55770 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55771 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55771 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55772 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55772 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55773 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55773 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55774 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55774 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55775 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55775 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55787 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55787 [200]: GET /api/bookings.php?do=get&id=89
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55787 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55789 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55789 [409]: POST /api/bookings.php?do=create
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55789 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55793 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55794 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55795 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55796 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55797 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55798 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55799 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55800 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55801 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55802 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55803 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55804 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55793 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55793 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55794 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55794 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55795 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55795 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55796 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55796 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55797 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55797 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55798 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55798 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55799 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55799 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55800 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55800 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55801 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55801 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55802 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55802 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55803 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55803 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55804 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55804 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55817 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55818 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55819 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55820 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55821 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55822 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55823 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55824 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55825 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55826 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55827 Accepted
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55817 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55817 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55818 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55818 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55819 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55819 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55820 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55820 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55821 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55821 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55822 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55822 Closing
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55823 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:01 2026] 127.0.0.1:55823 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55824 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55824 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55825 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55825 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55826 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55826 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55827 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55827 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55839 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55840 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55839 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55839 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55841 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55840 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55840 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55842 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55841 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55841 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55843 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55842 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55842 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55844 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55843 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55843 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55845 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55844 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55844 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55846 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55845 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55845 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55847 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55846 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55846 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55848 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55847 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55847 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55849 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55848 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55848 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55850 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55849 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55849 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55850 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55850 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55864 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55865 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55866 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55867 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55868 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55869 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55870 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55871 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55872 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55873 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55874 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55864 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55864 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55865 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55865 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55866 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55866 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55867 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55867 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55868 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55868 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55869 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55869 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55870 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55870 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55871 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55871 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55872 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55872 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55873 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55873 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55874 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55874 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55886 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55886 [200]: POST /api/sync.php?do=commit
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55886 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55888 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55889 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55890 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55891 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55892 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55893 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55894 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55895 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55896 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55897 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55898 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55888 [200]: GET /api/services.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55888 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55889 [200]: GET /api/categories.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55889 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55890 [200]: GET /api/packages.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55890 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55891 [200]: GET /api/addons.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55891 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55892 [200]: GET /api/rentalItems.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55892 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55893 [200]: GET /api/bookings.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55893 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55894 [200]: GET /api/payments.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55894 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55895 [200]: GET /api/customers.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55895 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55896 [200]: GET /api/gallery.php?do=all
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55896 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55897 [200]: GET /api/settings.php?do=get
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55897 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55898 [200]: GET /api/websiteContent.php?do=get
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55898 Closing
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55910 Accepted
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55910 [200]: GET /api/bookings.php?do=get&id=98
+[Wed Oct 14 20:04:02 2026] 127.0.0.1:55910 Closing

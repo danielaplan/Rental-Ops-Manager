@@ -69,6 +69,11 @@ const API = (() => {
     if (entity === "services") {
       const cached = cachedRow("services", "service_id", row.service_id);
       row = { ...(cached || {}), ...row };
+      // SERVICES.image is nullable, so PHP reports null both for a service that
+      // has never had a picture and for rows created before the column existed.
+      // Treat that as "no opinion" so the cached picture survives; the admin
+      // form sends "" when the field is deliberately cleared, and that is kept.
+      if (row.image == null) row.image = cached?.image ?? "";
       row._server_id = serverId(row.service_id);
       row.service_id = prefixedId("SVC", row._server_id);
       row.name = row.service_name ?? row.name;
@@ -315,6 +320,11 @@ const API = (() => {
       const formData = new FormData();
       formData.append("image", file);
       return request("gallery-upload.php", { formData, timeoutMs: 60000 });
+    },
+    uploadImage: (file, type = "content") => {
+      const formData = new FormData();
+      formData.append("image", file);
+      return request("image-upload.php", { query: { type }, formData, timeoutMs: 60000 });
     },
     createGalleryImage: data => create("gallery.php", "gallery", data),
     updateGalleryImage: (id, data) => update("gallery.php", "gallery", id, data),

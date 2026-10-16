@@ -161,7 +161,7 @@ test('report keeps newest filters and renders numeric receipt totals', async () 
 
 test('dashboard keeps the newest response and charts numeric accepted payments', async () => {
   const old = deferred(); let calls = 0;
-  const stats = { total_bookings: 2, upcoming_bookings: [] };
+  const stats = { total_bookings: 2, upcoming_bookings: [{ id: 7, customer_name: 'Customer', event_date: '2026-10-20', total: 2500, status: 'Confirmed', service_name: 'Karaoke Rental' }] };
   const h = harness('admin/dashboard.html', {
     getDashboardStats: () => ++calls === 1 ? old.promise : Promise.resolve(stats),
     getServices: async () => [], getRentalItems: async () => [],
@@ -174,6 +174,7 @@ test('dashboard keeps the newest response and charts numeric accepted payments',
   const revenue = h.charts[0].data.datasets[0].data;
   assert.ok(revenue.every(Number.isFinite));
   assert.equal(revenue.reduce((a, b) => a + b, 0), 200);
+  assert.match(h.node('#upcomingBody').html, /Karaoke Rental/);
 });
 
 test('admin event boundary prevents repeat writes and reports rejection without clearing input', async () => {

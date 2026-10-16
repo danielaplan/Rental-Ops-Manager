@@ -43,11 +43,11 @@ ON DUPLICATE KEY UPDATE full_name = VALUES(full_name), role = VALUES(role),
 -- ----------------------------------------------------------------------------
 -- Services + packages. One service, one package per booking (FR-05/FE-06).
 -- ----------------------------------------------------------------------------
-INSERT INTO SERVICES (service_id, service_name, description) VALUES
-    (1, 'Karaoke Rental',   'Full karaoke setup with a huge song library, wireless mics, and a big screen.'),
-    (2, 'Sweet Corner',     'A beautifully arranged dessert and candy table your guests will photograph before they taste it.'),
-    (3, 'Balloon Decoration', 'Custom balloon garlands, arches, and backdrops styled around your event theme and colors.')
-ON DUPLICATE KEY UPDATE service_name = VALUES(service_name), description = VALUES(description);
+INSERT INTO SERVICES (service_id, service_name, description, image) VALUES
+    (1, 'Karaoke Rental',   'Full karaoke setup with a huge song library, wireless mics, and a big screen.', 'https://images.unsplash.com/photo-1516873240891-4bf014598ab4?w=800&q=80'),
+    (2, 'Sweet Corner',     'A beautifully arranged dessert and candy table your guests will photograph before they taste it.', 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=800&q=80'),
+    (3, 'Balloon Decoration', 'Custom balloon garlands, arches, and backdrops styled around your event theme and colors.', 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80')
+ON DUPLICATE KEY UPDATE service_name = VALUES(service_name), description = VALUES(description), image = VALUES(image);
 
 INSERT INTO CATEGORIES (category_id,name,status) VALUES
     (1,'Entertainment','Active'),(2,'Food & Treats','Active'),(3,'Decorations','Active')

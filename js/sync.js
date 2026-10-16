@@ -43,6 +43,11 @@
     if(entity==='services'){
       const cached=STORAGE.getAll('services').find(value=>String(ref('services',value._server_id??value.service_id))===String(serverId));
       if(cached)Object.assign(out,cached,row);
+      // SERVICES.image is nullable, so PHP reports null for a service that has
+      // never had a picture and for rows created before the column existed.
+      // Treat that as "no opinion" so the cached picture survives; the admin
+      // form sends "" when the field is deliberately cleared, and that is kept.
+      if(out.image==null&&cached)out.image=cached.image??'';
     }
     if (field && serverId != null) {
       const aliases=STORAGE._get('er_sync_ids',{});

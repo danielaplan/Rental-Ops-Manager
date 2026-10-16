@@ -83,21 +83,10 @@ adminReady(async function () {
   await initAdminChrome('gallery.html', 'Gallery');
   await renderGallery();
 
-  const updateImagePreview = () => {
-    const file = document.getElementById('imgFile').files[0];
-    const image = document.getElementById('imgPreview');
-    const wrap = document.getElementById('imgPreviewWrap');
-    if (image.dataset.objectUrl) URL.revokeObjectURL(image.dataset.objectUrl);
-    image.dataset.objectUrl = '';
-    const source = file ? URL.createObjectURL(file) : safeGalleryImageUrl($('#imgUrl').val());
-    if (!source) {
-      image.removeAttribute('src');
-      wrap.hidden = true;
-      return;
-    }
-    image.src = source;
-    if (file) image.dataset.objectUrl = source;
-    wrap.hidden = false;
+  const imageUpload = imageField({ url: '#imgUrl', file: '#imgFile', preview: '#imgPreview', wrap: '#imgPreviewWrap', type: 'gallery', label: 'image' });
+
+  const showFormError = message => {
+    $('#imageFormError').text(message).prop('hidden', false).trigger('focus');
   };
 
   $('#addImageBtn').onAdmin('click', function () {
@@ -105,7 +94,7 @@ adminReady(async function () {
     $('#imgId').val('');
     $('#imageFormError').prop('hidden', true).text('');
     $('#imageFormTitle').text('Add Image');
-    updateImagePreview();
+    imageUpload.reset();
     new bootstrap.Modal('#imageFormModal').show();
   });
 
@@ -117,17 +106,12 @@ adminReady(async function () {
     $('#imgId').val(img.image_id);
     $('#imgTitle').val(img.title);
     $('#imgUrl').val(img.image);
-    $('#imgFile').val('');
     $('#imgFeatured').prop('checked', !!img.featured);
     $('#imageFormError').prop('hidden', true).text('');
     $('#imageFormTitle').text('Edit Image');
-    updateImagePreview();
+    imageUpload.reset();
+    imageUpload.refresh();
     new bootstrap.Modal('#imageFormModal').show();
-  });
-
-  $('#imgFile').onAdmin('change', updateImagePreview);
-  $('#imgUrl').onAdmin('input', function () {
-    if (!document.getElementById('imgFile').files.length) updateImagePreview();
   });
 
   $('.admin-main').onAdmin('click', '.js-delete-img', async function (event) {
@@ -144,56 +128,30 @@ adminReady(async function () {
   $('#imageForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#imgId').val();
-    const file = document.getElementById('imgFile').files[0];
-    const data = { title: $('#imgTitle').val().trim(), image: $('#imgUrl').val().trim(), featured: $('#imgFeatured').is(':checked') };
-    if (!data.title) {
-      $('#imageFormError').text('Enter a title for this image.').prop('hidden', false).trigger('focus');
-      return;
-    }
-    if (file && !safeGalleryUploadFile(file)) {
-      $('#imageFormError').text('Choose a JPG, PNG, GIF, or WebP image no larger than 5 MB.').prop('hidden', false).trigger('focus');
-      return;
-    }
-    if (!file && !safeGalleryImageUrl(data.image)) {
-      $('#imageFormError').text('Enter a valid HTTP or HTTPS image URL.').prop('hidden', false).trigger('focus');
-      return;
-    }
+    const title = $('#imgTitle').val().trim();
+    if (!title) return showFormError('Enter a title for this image.');
+    let image;
     try {
-      if (file) data.image = await API.uploadGalleryImage(file);
-      else data.image = safeGalleryImageUrl(data.image);
+      image = await imageUpload.resolve();
+    } catch (error) {
+      return showFormError(error.message);
+    }
+    if (!image) return showFormError('Choose an image file or enter an image URL.');
+    const data = { title: title, image: image, featured: $('#imgFeatured').is(':checked') };
+    try {
       if (id) { await API.updateGalleryImage(id, data); showAdminToast(API.savedMessage()); }
       else { await API.createGalleryImage(data); showAdminToast(API.savedMessage()); }
       bootstrap.Modal.getInstance(document.getElementById('imageFormModal')).hide();
       await renderGallery();
     } catch (error) {
-      $('#imageFormError').text(error.message).prop('hidden', false).trigger('focus');
+      showFormError(error.message);
     }
   });
 
   document.getElementById('imageFormModal').addEventListener('hidden.bs.modal', function () {
-    const image = document.getElementById('imgPreview');
-    if (image.dataset.objectUrl) URL.revokeObjectURL(image.dataset.objectUrl);
-    image.dataset.objectUrl = '';
-    image.removeAttribute('src');
-    document.getElementById('imgPreviewWrap').hidden = true;
+    imageUpload.reset();
   });
 });
-
-function safeGalleryUploadFile(file) {
-  return file instanceof File &&
-    ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type) &&
-    file.size > 0 && file.size <= 5 * 1024 * 1024;
-}
-
-function safeGalleryImageUrl(value) {
-  if (typeof value !== 'string' || !value.trim()) return '';
-  try {
-    const url = new URL(value.trim(), window.location.href);
-    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
-  } catch (error) {
-    return '';
-  }
-}
 
 async function renderGallery() {
   const images = await API.getGallery();
@@ -206,7 +164,7 @@ async function renderGallery() {
     $wrap.append(`
       <div class="col-md-4 col-sm-6">
         <div class="border rounded overflow-hidden">
-          <img src="${escapeHtmlA(safeGalleryImageUrl(img.image))}" alt="${escapeHtmlA(img.title)}" style="width:100%;height:160px;object-fit:cover;">
+          <img src="${escapeHtmlA(safeImageUrl(img.image))}" alt="${escapeHtmlA(img.title)}" style="width:100%;height:160px;object-fit:cover;">
           <div class="p-2">
             <div class="d-flex justify-content-between align-items-center">
               <span class="fw-semibold small">${escapeHtmlA(img.title)}</span>

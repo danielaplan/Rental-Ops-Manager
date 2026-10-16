@@ -54,13 +54,25 @@
             <label class="form-label" for="svcDescription">Description</label>
             <textarea class="form-control" id="svcDescription" rows="2" required></textarea>
           </div>
+          <div class="col-12">
+            <label class="form-label" for="svcImage">Service Image URL</label>
+            <input type="text" class="form-control" id="svcImage" placeholder="https://... or /images/setup.jpg">
+            <div class="form-text">Paste a link, or upload a file below.</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="svcImageFile">Upload service image from your device</label>
+            <input type="file" class="form-control" id="svcImageFile" accept="image/jpeg,image/png,image/gif,image/webp">
+            <div class="form-text">JPG, PNG, GIF, or WebP; maximum 5 MB. Uploading requires a server connection.</div>
+            <div class="mt-2" id="svcImagePreviewWrap" hidden>
+              <img id="svcImagePreview" alt="Service image preview" style="display:block;max-width:100%;max-height:200px;object-fit:contain;border-radius:8px;">
+            </div>
+          </div>
           <div class="col-md-6">
             <label class="form-label" for="svcStatus">Status</label>
             <select class="form-select" id="svcStatus">
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
-            <div class="form-text" id="svcInactiveCreateNote" hidden>New services must be created as Active until the server reliably saves an Inactive status.</div>
           </div>
         </div>
       </div>
@@ -88,13 +100,14 @@ adminReady(async function () {
   await initAdminChrome('services.html', 'Services');
   await renderServicesTable();
 
+  const serviceImage = imageField({ url: '#svcImage', file: '#svcImageFile', preview: '#svcImagePreview', wrap: '#svcImagePreviewWrap', type: 'services', label: 'service image' });
+
   $('#addServiceBtn').onAdmin('click', function () {
     $('#serviceForm')[0].reset();
     $('#svcId').val('');
+    serviceImage.reset();
     $('#serviceFormTitle').text('Add Service');
-    $('#svcStatus option[value="Inactive"]').prop('disabled', true);
     $('#svcStatus').val('Active');
-    $('#svcInactiveCreateNote').prop('hidden', false);
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
@@ -106,9 +119,10 @@ adminReady(async function () {
     $('#svcId').val(s.service_id);
     $('#svcName').val(s.name);
     $('#svcDescription').val(s.description);
-    $('#svcStatus option[value="Inactive"]').prop('disabled', false);
-    $('#svcInactiveCreateNote').prop('hidden', true);
+    $('#svcImage').val(s.image);
     $('#svcStatus').val(s.status);
+    serviceImage.reset();
+    serviceImage.refresh();
     $('#serviceFormTitle').text('Edit Service');
     new bootstrap.Modal('#serviceFormModal').show();
   });
@@ -144,9 +158,9 @@ adminReady(async function () {
   $('#serviceForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#svcId').val();
-    const data = { name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val() };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
+      const data = { name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), image: await serviceImage.resolve(), status: $('#svcStatus').val() };
       if (id) await API.updateService(id, data);
       else await API.createService(data);
       bootstrap.Modal.getInstance(document.getElementById('serviceFormModal')).hide();
@@ -170,7 +184,12 @@ async function renderServicesTable() {
   services.forEach(s => {
     $body.append(`
       <tr>
-        <td class="fw-semibold">${escapeHtmlA(s.name)}${s.pending_sync ? '<span class="badge bg-warning text-dark ms-2">Pending Sync</span>' : ''}</td>
+        <td class="fw-semibold">
+          <div class="d-flex align-items-center gap-2">
+            ${safeImageUrl(s.image) ? `<img src="${escapeHtmlA(safeImageUrl(s.image))}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">` : ''}
+            <span>${escapeHtmlA(s.name)}${s.pending_sync ? '<span class="badge bg-warning text-dark ms-2">Pending Sync</span>' : ''}</span>
+          </div>
+        </td>
         <td>${escapeHtmlA(s.description || '')}</td>
         <td>
           <div class="form-check form-switch">

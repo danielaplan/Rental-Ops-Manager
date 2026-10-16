@@ -38,6 +38,16 @@ C:\xampp\mysql\bin\mysql.exe -u root -e "source db/seed.sql"
 
 > **⚠️ Only run seed.sql on a test database.** It resets demo data.
 
+> **Upgrading an existing database?** `schema.sql` only *creates* missing tables, so
+> it will not add a new column to a table you already have. If your database predates
+> 2026-10-14, run the migrations once:
+>
+> ```powershell
+> C:\xampp\mysql\bin\mysql.exe -u root -e "source db/migrations/2026-10-14_services_image.sql"
+> ```
+>
+> That adds `SERVICES.image`, which stores each service's card image.
+
 ---
 
 ## 3. Start the PHP server
@@ -93,7 +103,7 @@ http://127.0.0.1:8000/admin/login.html
 | Admin URL | `http://127.0.0.1:8000/admin/login.html` |
 
 ---
-
+    
 ## Troubleshooting
 
 | Problem | Cause | Fix |
@@ -129,7 +139,8 @@ Rental-Ops-Manager/
 ├── api/             PHP backend files
 ├── db/
 │   ├── schema.sql   Creates the database tables
-│   └── seed.sql     Inserts demo data
+│   ├── seed.sql     Inserts demo data
+│   └── migrations/  One-off ALTERs for databases created before a change
 ├── css/             CSS files
 ├── js/              JavaScript files
 ├── index.html       Public-facing home page

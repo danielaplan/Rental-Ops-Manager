@@ -32,7 +32,16 @@
         </div>
         <div class="col-md-6">
           <label class="form-label" for="sLogo">Logo URL</label>
-          <input type="text" class="form-control" id="sLogo">
+          <input type="text" class="form-control" id="sLogo" placeholder="https://... or /images/logo.png">
+          <div class="form-text">Paste a link, or upload a file below.</div>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="sLogoFile">Upload logo from your device</label>
+          <input type="file" class="form-control" id="sLogoFile" accept="image/jpeg,image/png,image/gif,image/webp">
+          <div class="form-text">JPG, PNG, GIF, or WebP; maximum 5 MB. Uploading requires a server connection.</div>
+          <div class="mt-2" id="sLogoPreviewWrap" hidden>
+            <img id="sLogoPreview" alt="Logo preview" style="display:block;max-width:100%;max-height:120px;object-fit:contain;border-radius:8px;">
+          </div>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="sPhone">Phone</label>
@@ -114,7 +123,12 @@ adminReady(async function () {
   await initAdminChrome('settings.html', 'Settings');
   await API.refreshSettings();
   await renderAdminSidebar('settings.html');
+
+  const logoImage = imageField({ url: '#sLogo', file: '#sLogoFile', preview: '#sLogoPreview', wrap: '#sLogoPreviewWrap', type: 'content', label: 'logo' });
+
   await loadSettings();
+  logoImage.reset();
+  logoImage.refresh();
 
   $('#settingsForm').onAdmin('submit', async function (e) {
     e.preventDefault();
@@ -122,7 +136,7 @@ adminReady(async function () {
     try {
       await API.updateSettings({
         business_name: $('#sBusinessName').val().trim(),
-        logo: $('#sLogo').val().trim(),
+        logo: await logoImage.resolve(),
         phone: $('#sPhone').val().trim(),
         email: $('#sEmail').val().trim(),
         address: $('#sAddress').val().trim(),

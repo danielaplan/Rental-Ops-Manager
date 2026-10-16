@@ -23,7 +23,7 @@ const CalendarHelper = {
     $('.js-calendar-label').text(monthLabel);
 
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    let html = '<div class="calendar-grid d-grid" style="grid-template-columns:repeat(7,1fr);gap:6px;">';
+    let html = '<div class="calendar-grid d-grid" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;">';
     dayNames.forEach(d => { html += `<div class="text-center fw-bold text-muted small py-1">${d}</div>`; });
 
     for (let i = 0; i < startOffset; i++) html += '<div></div>';
