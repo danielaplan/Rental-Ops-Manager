@@ -170,6 +170,7 @@ async function renderDashboard() {
     { label: "Total Bookings", value: stats.total_bookings, icon: "bi-journal-check" },
     { label: "Pending Approval", value: stats.pending_bookings, icon: "bi-hourglass-split", cls: "warn" },
     { label: "Confirmed Events", value: stats.confirmed_bookings, icon: "bi-check2-circle" },
+    { label: "Awaiting Payment", value: stats.awaiting_payment_bookings, icon: "bi-cash-coin", cls: stats.awaiting_payment_bookings > 0 ? "warn" : "" },
     { label: "Completed", value: stats.completed_bookings, icon: "bi-flag" },
     { label: "Active Services", value: stats.active_services, icon: "bi-boxes" },
     { label: "Items On Rental", value: stats.items_on_rental, icon: "bi-truck" },
@@ -326,6 +327,7 @@ function renderDashboardCharts(bookings, services, acceptedPayments) {
   const statusCounts = {
     Pending: bookings.filter(b => b.status === 'Pending').length,
     Confirmed: bookings.filter(b => b.status === 'Confirmed').length,
+    AwaitingPayment: bookings.filter(b => b.status === 'Awaiting Payment').length,
     Completed: bookings.filter(b => b.status === 'Completed').length,
     Cancelled: bookings.filter(b => ['Cancelled', 'Rejected'].includes(b.status)).length
   };
@@ -334,10 +336,10 @@ function renderDashboardCharts(bookings, services, acceptedPayments) {
   new Chart(ctxStatus, {
     type: 'doughnut',
     data: {
-      labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+      labels: ['Pending', 'Confirmed', 'Awaiting Payment', 'Completed', 'Cancelled'],
       datasets: [{
-        data: [statusCounts.Pending, statusCounts.Confirmed, statusCounts.Completed, statusCounts.Cancelled],
-        backgroundColor: ['#D9A441', '#1F4E45', '#2E6E5F', '#E74C3C'],
+        data: [statusCounts.Pending, statusCounts.Confirmed, statusCounts.AwaitingPayment, statusCounts.Completed, statusCounts.Cancelled],
+        backgroundColor: ['#D9A441', '#1F4E45', '#C77800', '#2E6E5F', '#E74C3C'],
         borderWidth: 3,
         borderColor: '#ffffff'
       }]

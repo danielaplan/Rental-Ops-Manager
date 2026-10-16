@@ -5,8 +5,52 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 029bc4ed-f6f8-48e9-afa4-819cfc579d61
-  modified: 2026-10-08
+  modified: 2026-10-16
 ---
+
+## Awaiting Payment policy approval and implementation — 2026-10-16
+
+The user confirmed the client/owner wants a booking released from service availability after completed return review but wants it marked finished only when the agreed rental amount is fully paid. This authorizes the `Awaiting Payment` workflow. It is implemented in the shared direct/offline release path, notifications, reports and admin UI, with full completion allowed only when completed rental payments cover the agreed total. The full non-migration acceptance runner passed on synthetic `akad_verify_plan_1792150757195_24148`; evidence is `tests/acceptance-results/1792150756830-33488/summary.json`.
+
+This approval does not authorize deployment or deferred internal blockouts. Legacy migration is unnecessary for the clean-data path confirmed below.
+
+## Clean-data clarification — 2026-10-16
+
+The user clarified that all existing database records and all 51 worksheet findings are sample/test data; no real historical business records have existed in this project. The 51 findings are therefore not migration blockers and need no owner evidence. The current deployment path is a clean schema initialization that excludes sample bookings, payments, checklist data and test credentials. Older notes describing those findings as operational or historical business data are superseded. Deployment access and production acceptance remain separate; FR-10 blockouts remain deferred.
+
+## Developer implementation authorization — 2026-10-16
+
+The user confirmed that all repository data and databases are synthetic and exist only for testing; none represents real business, legal, customer or financial records. The developer is authorized to make and verify changes within the supplied implementation scope using synthetic databases without additional data-owner authorization. Preserve the existing worktree and the user's explicit product decisions, including offline sync and deferred FR-10 internal blockouts. Destructive or unrelated work remains outside the implementation scope unless requested.
+
+## Walkthrough execution boundary — 2026-10-16
+
+The user's authorization to run the prepared synthetic walkthrough was used for W01–W10. The user then explicitly authorized Codex to perform W11/W12 because the owners were unavailable. All twelve technical scenarios passed; the W12 location-conflict recovery defect was fixed and verified. The user subsequently confirmed on 2026-10-16 that the owner approved all implemented and tested changes. The later Awaiting Payment decision and implementation are recorded above. No operational access, migration/dry run, historical resolution, deployment, staging, commit, or push was authorized or performed.
+
+## Consolidated verification authorization — 2026-10-15
+
+User explicitly authorized runtime backend/frontend regression execution on isolated synthetic databases with no migration execution, fixing confirmed backend defects, consolidated evidence/matrix updates, a synthetic owner walkthrough and an evidence checklist derived from the existing worksheet. This permits reading that worksheet, not reading an operational database or inventing resolutions. All runtime tests passed; no new application defect reproduced. Walkthrough preparation is not owner sign-off. All 51 historical findings remain Pending, offline sync preserved, legacy blockouts deferred, operational access/migration prohibited without new separate authorization. No staging, commit or push performed.
+
+## Latest continuation boundary — 2026-10-15
+
+User reiterated backend continuation from the current worktree: preserve user changes and offline APIs/settings; keep legacy internal blockouts deferred; do not access any operational database or run any migration/dry run. The 51 findings require owner-provided source evidence. This continuation only added backend history-retention/template-validation fixes, tests, and plan/memory evidence using a new synthetic database. No operational access, migration application, staging, commit, or push occurred. Future migration remains blocked and requires separate explicit authorization.
+
+## Follow-up authorization boundary — 2026-10-15
+
+User authorized continuation from the current dirty worktree, safe code-level gap fixes, focused synthetic tests, and plan/memory updates. MySQL may remain running. Preserve offline APIs/settings and existing unrelated changes; keep internal blockouts deferred. No operational database change, migration, or operational dry run is authorized. Owner-provided records are required for the 51 pending historical findings; a future operational dry run requires explicit approval and applying the migration requires separate authorization after resolution. This follow-up changed only write validation/tests/documentation and did not access the operational database. No staging, commit, or push performed.
+
+## Latest completion-pass authorization — 2026-10-15
+
+The user explicitly authorized a parallel requirement-by-requirement backend review, safe missing implementation, focused tests, and plan/memory updates. Preserve the dirty worktree. Preserve offline sync; do not remove its APIs/settings or convert workflows to online-only. Legacy FR-10 internal blockouts remain deferred, including revised-plan availability-block activation/extension; existing draft artifacts are not approval. Revised financial deposits/deductions remain in scope.
+
+No operational migration is authorized. The last known read-only `akad_rentals` preflight had 51 unresolved findings; this pass supplies no historical evidence and does not apply or rerun the operational migration. Use the external owner worksheet only with source evidence, then require zero preflight exceptions before proposing migration. The latest row-by-row evidence is `Implementation/Backend-Requirement-Matrix.md`; production hosting/performance/client acceptance remain separate gates. No staging, commit, or push is authorized.
+
+## Earlier scope and migration decision — 2026-10-15
+
+- The user approved the revised backend implementation and the limited frontend work needed to align offline package checklists/sync and add an explicit post-event release review. This was not a general approval for unrelated frontend changes.
+- The user explicitly chose to keep offline sync. Do not remove its endpoints/settings or migrate to online-only without renewed authorization.
+- FR-10 internal blockouts remain deferred and are not authorized by the checklist/sync approval.
+- The user confirmed backup/restore and maintenance-window prerequisites for planning production migration. The read-only dry run against configured `akad_rentals` found 51 unresolved historical-data exceptions. Do not apply the migration until all are resolved with business evidence and a subsequent dry run has zero exceptions.
+- No production migration was applied. The local synthetic benchmark and regression tests are evidence of local behavior, not production acceptance. See `Implementation/Revised-Requirements-Backend-Implementation-Plan.md`, `Implementation/Backend-Migration.md`, and `process-context.md`.
 
 ## Latest user authorization and boundary — 2026-10-06
 

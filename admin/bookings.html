@@ -221,6 +221,30 @@
                 <i class="bi bi-check2-all"></i> Save Return Inspection
               </button>
             </div>
+            <fieldset id="postEventReview" class="border rounded p-3 mt-3" hidden>
+              <legend class="float-none w-auto px-2 h6" id="postEventReviewTitle">Post-event release review</legend>
+              <p class="small text-muted" id="postEventReviewHelp">After the event ends, review the service, completed payments, and deposit before releasing the booking.</p>
+              <div class="form-check post-event-review-input">
+                <input class="form-check-input" type="checkbox" id="reviewServiceReady">
+                <label class="form-check-label" for="reviewServiceReady">Service and return inspection are ready for release</label>
+              </div>
+              <div class="form-check post-event-review-input">
+                <input class="form-check-input" type="checkbox" id="reviewPayments">
+                <label class="form-check-label" for="reviewPayments">Payments reviewed</label>
+              </div>
+              <div class="form-check post-event-review-input">
+                <input class="form-check-input" type="checkbox" id="reviewDeposit">
+                <label class="form-check-label" for="reviewDeposit">Deposit and deductions reviewed</label>
+              </div>
+              <div class="mt-2 post-event-review-input">
+                <label class="form-label" for="postEventReviewNotes">Review notes</label>
+                <textarea class="form-control" id="postEventReviewNotes" rows="3" maxlength="5000" required></textarea>
+              </div>
+              <div id="postEventReviewError" class="text-danger small mt-2" role="alert" tabindex="-1" hidden></div>
+              <button type="button" class="btn btn-admin-accent mt-3" id="finalizeReturnBtn">
+                <i class="bi bi-check-circle"></i> Complete post-event review and release
+              </button>
+            </fieldset>
           </div>
 
           <!-- PAYMENTS TAB -->
@@ -238,13 +262,14 @@
                     <select class="form-select" id="payMethod"></select>
                   </div>
                   <div class="mb-2">
-                    <label class="form-label" for="payPurpose">Payment purpose</label>
+                    <label class="form-label" for="payPurpose">Payment type</label>
                     <select class="form-select" id="payPurpose">
-                      <option>Down payment / reservation fee</option>
-                      <option>Balance payment</option>
-                      <option>Other agreed payment</option>
+                      <option value="Down payment">Down payment</option>
+                      <option value="Balance">Balance</option>
                     </select>
                   </div>
+                  <div class="row g-2 mb-2"><div class="col-sm-6"><label class="form-label" for="payStatus">Status</label><select class="form-select" id="payStatus"><option>Completed</option><option>Pending</option><option>Failed</option></select></div><div class="col-sm-6"><label class="form-label" for="payDate">Payment date and time</label><input type="datetime-local" class="form-control" id="payDate" required></div></div>
+                  <div class="mb-2"><label class="form-label" for="payReference">Reference <span class="text-muted">(optional)</span></label><input type="text" maxlength="150" class="form-control" id="payReference"></div>
                   <div class="mb-2">
                     <label class="form-label" for="payNotes">Additional notes</label>
                     <input type="text" class="form-control" id="payNotes">
@@ -334,9 +359,11 @@ adminReady(async function () {
   $('#payMethod').empty();
   CONFIG.paymentMethods.forEach(m => $('#payMethod').append(`<option>${m}</option>`));
   $('#dStatusSelect').empty();
-  CONFIG.bookingStatuses.forEach(s => $('#dStatusSelect').append(`<option>${s}</option>`));
+  CONFIG.bookingEditableStatuses.forEach(s => $('#dStatusSelect').append(`<option>${s}</option>`));
 
   await renderBookingsTable();
+  const requestedBookingId = new URLSearchParams(window.location.search).get('booking_id');
+  if (requestedBookingId) await openBookingDetail(requestedBookingId);
 
   $('#filterStatus, #filterSearch').onAdmin('input change', function () {
     return renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
@@ -468,11 +495,6 @@ adminReady(async function () {
   $('#confirmReleaseBtn').onAdmin('click', async function () {
     const bookingId = currentBookingId;
     await API.recordRelease(bookingId, $('#releasedByInput').val() || 'Staff', $('#releaseNotesInput').val());
-    const items = await API.getBookingItems(bookingId);
-    for (const it of items) {
-      await API.updateRentalItem(it.rental_item_id, { status: 'Released' });
-    }
-    await API.updateBooking(bookingId, { status: 'Released' });
     showAdminToast(API.savedMessage());
     await renderBookingsTable();
     await loadBookingDetail(currentBookingId);
@@ -498,12 +520,53 @@ adminReady(async function () {
     }
     try {
       await API.recordReturn(bookingId, $('#inspectedByInput').val() || 'Staff', results, $('#returnNotesInput').val());
-      const complete = results.every(r => r.returned_qty === Number(r.expected_qty) && r.condition !== 'Missing');
-      if (complete) await API.finalizeReturn(bookingId);
-      showAdminToast(API.savedMessage() + (complete ? ' Completion awaits server validation.' : ' Missing items remain outstanding.'));
+      showAdminToast(API.savedMessage() + ' The owner must complete the post-event review before final release.');
       await loadBookingDetail(currentBookingId);
     } catch (error) {
       $('#returnSaveError').prop('hidden', false).text(error.message).trigger('focus');
+    }
+  });
+  $('#finalizeReturnBtn').onAdmin('click', async function () {
+    const bookingId = currentBookingId;
+    try {
+      const booking = await API.getBooking(bookingId);
+      let submission;
+      if (booking.status === 'Awaiting Payment') {
+        if (Number(booking.outstanding_balance) > 0) {
+          $('#postEventReviewError').prop('hidden', false).text(`Record the remaining ${BookingCalc.formatCurrency(booking.outstanding_balance)} as a completed payment before completing this booking.`).trigger('focus');
+          return;
+        }
+        submission = await API.finalizeReturn(bookingId);
+      } else {
+        const review = {
+          service_ready: $('#reviewServiceReady').is(':checked'),
+          payments_reviewed: $('#reviewPayments').is(':checked'),
+          deposits_reviewed: $('#reviewDeposit').is(':checked'),
+          review_notes: $('#postEventReviewNotes').val().trim()
+        };
+        if (!review.service_ready || !review.payments_reviewed || !review.deposits_reviewed || !review.review_notes) {
+          $('#postEventReviewError').prop('hidden', false).text('Confirm each review and add notes before releasing the booking.').trigger('focus');
+          return;
+        }
+        const items = await API.getBookingItems(bookingId);
+        if (!items.length || items.some(item => !item.checked_by || !item.checked_at || !item.condition || item.returned_qty === null || Number(item.returned_qty) > Number(item.released_qty))) {
+          $('#postEventReviewError').prop('hidden', false).text('Save a complete return inspection for every checklist item before releasing the booking.').trigger('focus');
+          return;
+        }
+        submission = await API.finalizeReturn(bookingId, review);
+      }
+      const syncResult = await API.flushSyncQueue();
+      const rejected = [...(syncResult?.failed || []), ...(syncResult?.conflicts || [])]
+        .find(item => item.client_id === submission?.operation_id);
+      if (rejected) throw new Error(rejected.reason || 'The server rejected the completion request.');
+      $('#postEventReviewError').prop('hidden', true).text('');
+      showAdminToast(API.savedMessage() + (booking.status === 'Awaiting Payment'
+        ? ' Full-payment completion submitted for server validation.'
+        : ' The service is released; any unpaid balance remains in Awaiting Payment.'));
+      await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+      await loadBookingDetail(currentBookingId);
+    } catch (error) {
+      $('#postEventReviewError').prop('hidden', false).text(error.message).trigger('focus');
     }
   });
   $('#saveDepositBtn').onAdmin('click', async function () {
@@ -549,11 +612,14 @@ adminReady(async function () {
     try {
       const purpose = $('#payPurpose').val();
       const additionalNotes = $('#payNotes').val().trim();
-      const notes = [purpose, additionalNotes].filter(Boolean).join(' — ');
-      const payment = await PaymentsHelper.recordPayment(currentBookingId, amount, $('#payMethod').val(), notes);
+      const paymentDate = $('#payDate').val();
+      if (!paymentDate) { error.prop('hidden', false).text('Enter the payment date and time.').trigger('focus'); return; }
+      const payment = await PaymentsHelper.recordPayment(currentBookingId, amount, $('#payMethod').val(), additionalNotes, {
+        payment_type: purpose, payment_status: $('#payStatus').val(), payment_date: paymentDate.replace('T',' ') + ':00', payment_reference: $('#payReference').val().trim() || null
+      });
       if (!payment) throw new Error('The payment was not recorded. Check the amount and try again.');
       error.prop('hidden', true).text('');
-      $('#payAmount, #payNotes').val('');
+      $('#payAmount, #payNotes, #payReference').val('');
       showAdminToast(API.savedMessage());
       await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
       await loadBookingDetail(currentBookingId);
@@ -694,6 +760,19 @@ async function loadBookingDetail(id) {
   ]);
   if (!isCurrent()) return false;
   $('#returnSummaryBox').hide();
+  const awaitingPayment = b.status === 'Awaiting Payment';
+  $('#postEventReview').prop('hidden', !['Awaiting Completion', 'Awaiting Payment'].includes(b.status));
+  $('#postEventReviewTitle').text(awaitingPayment ? 'Payment completion review' : 'Post-event release review');
+  $('#postEventReviewHelp').text(awaitingPayment
+    ? `Service availability has been released. Record the remaining ${BookingCalc.formatCurrency(balance)} as completed payment before completing this booking.`
+    : 'After the event ends, review the service, completed payments, and deposit before releasing the booking.');
+  $('.post-event-review-input').prop('hidden', awaitingPayment);
+  $('#finalizeReturnBtn').html(awaitingPayment
+    ? '<i class="bi bi-check-circle"></i> Complete fully paid booking'
+    : '<i class="bi bi-check-circle"></i> Complete post-event review and release');
+  $('#reviewServiceReady, #reviewPayments, #reviewDeposit').prop('checked', false);
+  $('#postEventReviewNotes').val('');
+  $('#postEventReviewError').prop('hidden', true).text('');
 
   setDepositForm(deposit);
   const depositRevision = Number($('#depositHeld').data('revision') || 0);

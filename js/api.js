@@ -72,6 +72,7 @@ const API = (() => {
       row._server_id = serverId(row.service_id);
       row.service_id = prefixedId("SVC", row._server_id);
       row.name = row.service_name ?? row.name;
+      row = numericFields(row, ["default_preparation_minutes", "default_travel_minutes"]);
     }
     if (entity === "addons") {
       row = numericFields(row, ["price"]);
@@ -120,7 +121,7 @@ const API = (() => {
       if (row.featured != null) row.featured = Boolean(Number(row.featured));
     }
     if (entity === "packages") {
-      row = numericFields(row, ["price"]);
+      row = numericFields(row, ["price", "duration_minutes", "deposit_amount", "requires_deposit", "is_promotional"]);
       row.package_id = prefixedId("PKG", row.package_id);
       if (row.service_id != null) row.service_id = prefixedId("SVC", row.service_id);
       row.name = row.package_name ?? row.name;
@@ -263,15 +264,31 @@ const API = (() => {
       return normalize("itemHistory", await request("itemHistory.php", { query: { do: "create" }, body: payload("itemHistory", entry) }));
     },
     getItemHistory: rentalItemId => list("itemHistory.php", "itemHistory", { do: "forItem", rental_item_id: serverId(rentalItemId) }),
-    finalizeReturn: bookingId => request("equipment.php", { query: { do: "finalizeReturn" }, body: { booking_id: serverId(bookingId) } }),
+    finalizeReturn: (bookingId, review = {}) => request("equipment.php", { query: { do: "finalizeReturn" }, body: { booking_id: serverId(bookingId), ...review } }),
 
-    async checkAvailability(serviceId, date, startTime, endTime, excludeBookingId) {
-      if (serverId(serviceId) !== 1) return { available: true, conflictWith: null };
-      const bookings = (await this.getBookings()).filter(booking => booking.event_date === date && booking.service_ids.some(id => serverId(id) === 1) && ["confirmed", "reserved", "preparing", "released"].includes(String(booking.status).toLowerCase()) && String(booking.id) !== String(excludeBookingId));
-      const toMinutes = time => { const [hours, minutes] = String(time).split(":").map(Number); return hours * 60 + minutes; };
-      const start = toMinutes(startTime), end = toMinutes(endTime);
-      const conflict = bookings.find(booking => start < toMinutes(booking.end_time) && toMinutes(booking.start_time) < end);
-      return { available: !conflict, conflictWith: conflict?.id || null };
+    async checkAvailability(serviceId, date, startTime, endTime, excludeBookingId, allowances = {}) {
+      try {
+        return await request("bookings.php", { query: {
+          do: "availability",
+          service_id: serverId(serviceId),
+          event_start_datetime: `${date} ${startTime}:00`,
+          event_end_datetime: `${date} ${endTime}:00`,
+          exclude_booking_id: excludeBookingId ? serverId(excludeBookingId) : undefined,
+          preparation_minutes: allowances.preparation_minutes,
+          travel_minutes: allowances.travel_minutes
+        } });
+      } catch (error) {
+        if (error.code !== "network_error") throw error;
+        const bookings = (await this.getBookings()).filter(booking =>
+          booking.event_date === date && booking.service_ids.some(id => serverId(id) === serverId(serviceId)) &&
+          ["confirmed", "awaiting completion"].includes(String(booking.status).toLowerCase()) &&
+          String(booking.id) !== String(excludeBookingId)
+        );
+        const toMinutes = time => { const [hours, minutes] = String(time).split(":").map(Number); return hours * 60 + minutes; };
+        const start = toMinutes(startTime), end = toMinutes(endTime);
+        const conflicts = bookings.filter(booking => start < toMinutes(booking.end_time) && toMinutes(booking.start_time) < end);
+        return { available: !conflicts.length, offline: true, conflicts: { bookings: conflicts, blocks: [] } };
+      }
     },
 
     getBookings: () => list("bookings.php", "bookings", { do: "all" }),
@@ -357,6 +374,19 @@ const API = (() => {
       return STORAGE._get("er_sync_queue", []);
     },
     getPackages: () => list("packages.php", "packages", { do: "all" }),
+    createPackage: data => create("packages.php", "packages", data),
+    updatePackage: (id, data) => update("packages.php", "packages", id, data),
+    deletePackage: id => remove("packages.php", id),
+    getChecklistTemplates: () => request("checklistTemplates.php", { query: { do: "all" } }),
+    createChecklistTemplate: data => request("checklistTemplates.php", { query: { do: "create" }, body: { ...data, package_id: serverId(data.package_id) } }),
+    updateChecklistTemplate: (id, data) => request("checklistTemplates.php", { query: { do: "update", id: serverId(id) }, body: data }),
+    deleteChecklistTemplate: id => request("checklistTemplates.php", { query: { do: "delete", id: serverId(id) }, body: {} }),
+    getOwners: () => request("owners.php", { query: { do: "all" } }),
+    createOwner: data => request("owners.php", { query: { do: "create" }, body: data }),
+    setOwnerActive: (id, active) => request("owners.php", { query: { do: active ? "reactivate" : "deactivate", id: serverId(id) }, body: {} }),
+    resetOwnerPassword: (id, password) => request("owners.php", { query: { do: "resetPassword", id: serverId(id) }, body: { password } }),
+    getNotifications: (all = false) => request("notifications.php", { query: { do: all ? "all" : "unresolved" } }),
+    getAuditLogs: (afterId = 0) => request("audit.php", { query: { after_id: afterId, limit: 500 } }),
 
     async getDeposit(bookingId) {
       const data = await request("deposits.php", { query: { do: "get", booking_id: serverId(bookingId) } });
@@ -365,6 +395,12 @@ const API = (() => {
     async refreshDeposit(bookingId) { return this.getDeposit(bookingId); },
     async upsertDeposit(bookingId, data) {
       return normalize("deposits", await request("deposits.php", { query: { do: "upsert" }, body: payload("deposits", { ...data, booking_id: bookingId }) }));
+    },
+    async addDepositDeduction(bookingId, data) {
+      return normalize("deposits", await request("deposits.php", { query: { do: "deduct" }, body: { ...data, booking_id: serverId(bookingId) } }));
+    },
+    async refundDeposit(bookingId) {
+      return normalize("deposits", await request("deposits.php", { query: { do: "refund" }, body: { booking_id: serverId(bookingId) } }));
     },
 
     async getDelivery(bookingId) {

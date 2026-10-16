@@ -20,9 +20,24 @@ define('DB_USER', getenv('AKAD_DB_USER') ?: 'root');
 define('DB_PASS', getenv('AKAD_DB_PASS') ?: '');
 define('DB_CHAR', 'utf8mb4');
 
-// Allow any origin during development. Narrow this before production.
+date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+$production = getenv('AKAD_ENV') === 'production';
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$allowedOrigins = array_filter(array_map('trim', explode(',', getenv('AKAD_ALLOWED_ORIGINS') ?: '')));
+if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Vary: Origin');
+} elseif ($production && $origin !== '') {
+    http_response_code(403);
+    echo json_encode(['ok'=>false,'error'=>'Origin is not allowed.']);
+    exit;
+}
+if ($production && PHP_SAPI !== 'cli' && (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off')) {
+    http_response_code(403);
+    echo json_encode(['ok'=>false,'error'=>'HTTPS is required.']);
+    exit;
+}
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
@@ -46,6 +61,7 @@ function db() {
     ];
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $opts);
+        $pdo->exec("SET time_zone = '+08:00'");
     } catch (PDOException $e) {
         sendJson(['ok' => false, 'error' => 'Database unavailable.', 'code' => 'server_error'], 500);
     }
@@ -68,10 +84,13 @@ function sendJson($payload, $httpStatus = 200) {
  * Returns [] when there is no body or it is not valid JSON.
  */
 function readJsonBody() {
+    static $body = null;
+    if ($body !== null) return $body;
     $raw = file_get_contents('php://input');
-    if ($raw === false || $raw === '') return [];
+    if ($raw === false || $raw === '') return $body = [];
     $data = json_decode($raw, true);
-    return is_array($data) ? $data : [];
+    if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE) sendJson(['ok'=>false,'error'=>'A valid JSON object is required.','code'=>'validation'],400);
+    return $body = $data;
 }
 
 /**

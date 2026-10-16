@@ -2,11 +2,83 @@
 
 ## Purpose
 
-This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the revised requirements in `Source Documents/Documentation/REvised`. It covers authentication screens, services and packages, booking and availability workflows, payments and deposits, checklists, delivery, notifications, reports, auditing, responsive behavior, and removal of the deferred offline interface.
+This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the revised requirements in `Source Documents/Documentation/REvised`. It covers authentication screens, services and packages, booking and availability workflows, payments and deposits, checklists, delivery, notifications, reports, auditing, responsive behavior, and preservation of the approved offline-sync workflow.
+
+## Current implementation handoff — 2026-10-16
+
+The revised backend implementation is complete and locally verified for the approved scope. Its latest isolated acceptance run passed all 9 backend/sync test files, all 17 offline integration checks, all 36 frontend regression tests, and the PHP/JavaScript/service-worker/admin-inline syntax checks. That evidence establishes the backend contract on synthetic data; it is not production deployment acceptance.
+
+The frontend remains an active implementation. Do **not** mark this plan complete based on the backend result. Continue from the current dirty worktree without reverting unrelated changes.
+
+### Controlling decisions
+
+- Preserve offline sync, its APIs, local queue, replay behavior, conflict retention, settings, status controls, service worker, and tests. The former F7 removal work is superseded and must not be implemented.
+- Keep legacy FR-10 internal availability blockouts deferred. Do not expose or extend the existing draft blockout API/UI.
+- Implement the approved post-event policy: review and release service capacity after return; use `Awaiting Payment` while a rental balance remains; allow `Completed` only after completed rental payments fully cover the agreed total.
+- Treat repository data, fixtures, accounts, bookings, payments, checklists, and migration worksheets as synthetic test material. Deploy from a clean reviewed schema rather than copying sample transactions or credentials.
+- Do not describe local synthetic tests as production, hosting, device, or client acceptance.
+
+### Current frontend status
+
+| ID | Status | Current evidence and remaining work |
+| --- | --- | --- |
+| F1-01 | Implemented | Owner login labels and authentication request flow are present. |
+| F1-02 | Implemented | Global unauthorized handling clears invalid sessions and returns to login. |
+| F1-03 | In progress | `js/api.js` contains owner-account API methods, but `admin/owners.html` does not exist. Build the primary-owner-only page and verify session revocation behavior. |
+| F1-04 | In progress | `js/admin.js` contains a notification-bell draft using `API.getNotifications()`. Verify rendering, action links, refresh, empty/error states, and resolution after workflow completion. |
+| F1-05 | Partial | Existing navigation is responsive. New navigation/notification controls still need 375-pixel and keyboard verification. |
+| F2-01 | In progress | Service allowance fields and API normalization are present as an unverified draft in `admin/services.html` and `js/api.js`. Finish validation and regression coverage. |
+| F2-02 | In progress | Package CRUD methods are present in `js/api.js`, and navigation currently links to `admin/packages.html`, but that page does not exist. Build and test the page. |
+| F2-03 | Missing UI | Add explicit Active, Inactive, Upcoming promotion, Active promotion, and Expired presentation. |
+| F2-04 | In progress | Checklist-template API methods are present, but no package/template management page exists. Version changes by creating a new template and deactivating the old one; do not mutate historical booking snapshots. |
+| F2-05 | Deferred | FR-10 internal availability blockouts remain outside the approved scope. |
+| F3-01 | In progress | `admin/manual-booking.html` contains an unverified draft for optional package, theme notes, agreed total, and allowance overrides. Finish the flow and preserve offline drafts. |
+| F3-02 | Partial | The manual-booking draft filters active/current promotional packages. Historical booking details still need to use stored package name/price snapshots instead of current package rows. |
+| F3-03 | Partial | Backend cancellation is retained and requires a reason. Replace generic status editing with a dedicated cancellation dialog and remove any destructive booking-delete action. |
+| F3-04 | Blocked integration draft | `js/api.js` currently calls `bookings.php?do=availability`, but the endpoint is not present in `api/bookings.php`. Add the smallest authenticated read-only preview endpoint using the existing availability service, then cover online and offline behavior. Final create/update remains authoritative. |
+| F3-05 | In progress | `admin/manual-booking.html` contains an unverified conflict-review dialog draft. Complete current conflict details, exact conflict IDs, nonblank override reason, change/cancel paths, active-block rejection, and sync-conflict recovery. |
+| F3-06 | Partial | Calendar displays booking/service/client/status data. Add approved-overlap distinction. Blockout display remains deferred with F2-05. |
+| F3-07 | Implemented | Visible online pages refresh every 15 seconds and on focus/connectivity changes. |
+| F3-08 | Partial | Existing booking UI is responsive, but the revised dialogs require the full viewport and keyboard pass. |
+| F4-01 | In progress | `admin/bookings.html` and `js/payments.js` contain an unverified draft for type, status, date, and reference. Finish initialization, history display, offline replay compatibility, and tests. |
+| F4-02 | Implemented | Balance and payment status are derived from accepted completed payments. Pending-sync amounts remain visibly excluded. |
+| F4-03 | Missing UI | Backend itemized deductions are complete and `js/api.js` has draft deduction/refund methods. Replace the single deduction fields with an itemized list and refund action/status UI. |
+| F4-04 | Implemented | Expected/released/returned quantities, conditions, required review, direct writes, and offline replay are integrated and tested. |
+| F4-05 | Partial | Delivery method, fee, responsibility, and persistence exist. Expose and verify delivery notes consistently. |
+| F4-06 | Partial | Existing tables have responsive behavior; revised payment/deduction/dialog surfaces still need final viewport verification. |
+| F5-01 | Partial | `Awaiting Completion` and `Awaiting Payment` appear in dashboard/bookings/calendar. Verify the notification action link from every page. |
+| F5-02 | Implemented | Guided post-event review and the approved `Awaiting Payment` branch are implemented. |
+| F5-03 | Implemented | Manual release/completion is separate from ordinary editing and enforced by the backend. |
+| F5-04 | Partial | Backend notification resolution is implemented. Finish and verify the frontend notification removal after confirmed completion. |
+| F6-01 | Missing correction | `admin/reports.html` still says collected payments are grouped by event date. Change the label to payment-date revenue to match the backend. |
+| F6-02 | Partial | Summary/status/popularity/damage output exists. Render the remaining backend lists and clearly label period versus lifetime totals. |
+| F6-03 | In progress | `js/api.js` has an audit reader and navigation links to `admin/audit.html`, but the page does not exist. Build a read-only filterable page. |
+| F6-04 | Partial | Reports are partly responsive. Complete this after the audit page and remaining report sections exist. |
+| F7-01–F7-04 | Superseded | Do not remove or weaken offline sync. Replace Phase F7 with preservation and parity verification. |
+
+### Immediate developer continuation order
+
+1. Stabilize the interrupted drafts before adding more UI: supply the missing authoritative availability preview endpoint, create the three pages currently referenced by navigation (`packages.html`, `owners.html`, and `audit.html`), and run syntax checks.
+2. Finish F3 booking creation/conflict behavior end to end, including offline queue/replay and server rejection recovery.
+3. Finish revised payment fields and itemized deposit deductions, including offline parity.
+4. Complete notifications, historical package snapshots, dedicated cancellation, delivery notes, calendar overlap markers, and report/audit presentation.
+5. Run the focused frontend tests, then the complete isolated acceptance runner. Update this table only from the final tested code state.
+
+### Files containing unverified continuation drafts
+
+- `js/api.js`
+- `js/admin.js`
+- `js/config.js`
+- `js/payments.js`
+- `admin/services.html`
+- `admin/manual-booking.html`
+- `admin/bookings.html`
+
+These files contain edits started on 2026-10-16 that were interrupted before syntax or regression testing. Review them as incomplete work; do not treat the presence of a field, method, or navigation link as implementation evidence.
 
 ## Dependencies
 
-- Backend authentication and schema migration must be available before final frontend integration.
+- Backend authentication, revised schema, domain services, reports, notifications, audit, and offline replay contracts are implemented and locally verified.
 - Server availability results are authoritative; the browser must not duplicate conflict rules.
 - The revised payment, deposit, notification, report, and audit APIs must be defined before completing their screens.
 - The interface must remain usable at representative desktop, laptop, and smartphone sizes.
@@ -14,12 +86,12 @@ This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the r
 ## Recommended implementation order
 
 1. Update shared API and authentication handling.
-2. Add service defaults, package management, and availability blocks.
+2. Add service defaults and package/checklist-template management. Keep availability blocks deferred.
 3. Rebuild booking creation, conflict handling, cancellation, and calendar presentation.
 4. Update payments, deposits, checklists, and delivery.
 5. Add post-event review, notifications, reports, and audit history.
-6. Remove offline-sync interface code.
-7. Run responsive, accessibility, workflow, and cross-device tests.
+6. Verify direct/offline parity and preserve the sync interface.
+7. Run responsive, accessibility, workflow, offline, and cross-device tests.
 
 ## Phase F1 — Authentication and application shell
 
@@ -39,7 +111,7 @@ This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the r
 | F2-02 | FR-03 | P1 | Add package management for regular and promotional packages. | New `admin/packages.html`, navigation, `js/api.js` | Owners can create, edit, activate, and deactivate all revised package fields. |
 | F2-03 | FR-03 | P1 | Show package status and promotion validity clearly. | Package page | Active, inactive, upcoming, active-promotion, and expired states are distinguishable. |
 | F2-04 | FR-11 | P1 | Add checklist-template editing within package management. | Package page/components | Template items and expected quantities can be added, edited, and deactivated. |
-| F2-05 | FR-08 | P1 | Add availability-block management. | Calendar panel or new availability page | Owners can create service-specific or all-service blocks and activate/deactivate them. |
+| F2-05 | FR-08 | Deferred | Do not activate or extend legacy internal availability blockouts. | Existing draft artifacts only | No blockout UI is exposed; reopen only after a separate owner decision. |
 
 ## Phase F3 — Booking workflow and calendar
 
@@ -50,7 +122,7 @@ This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the r
 | F3-03 | FR-04 | P0 | Replace booking deletion with cancellation and a required-reason dialog. | `admin/bookings.html`, `js/api.js` | The interface offers no destructive deletion for an operational booking. |
 | F3-04 | FR-06 | P0 | Replace browser conflict calculations with the authoritative availability endpoint. | `js/api.js`, booking pages | The preview and final save use the same server result. |
 | F3-05 | FR-07 | P0 | Add a conflict dialog showing the affected booking, customer, service, and schedule, with change, cancel, and override choices. | Booking pages | Override remains disabled until the owner supplies a non-blank reason. |
-| F3-06 | FR-05 | P1 | Update the consolidated calendar to show service, client, interval, status, availability blocks, and approved overlaps. | `admin/calendar.html`, `js/calendar.js` | All services appear together and blocks and approved overlaps are visibly distinct. |
+| F3-06 | FR-05 | P1 | Update the consolidated calendar to show service, client, interval, status, and approved overlaps. | `admin/calendar.html`, `js/calendar.js` | All services appear together and approved overlaps are visibly distinct. Blockouts remain deferred. |
 | F3-07 | FR-17 | P1 | Retain online automatic refresh at an interval of no more than 30 seconds. | Calendar/data refresh helper | A booking changed in another session appears without a full-page reload within 30 seconds. |
 | F3-08 | NFR-01 | P1 | Make booking and conflict dialogs usable on phone screens. | Booking pages and responsive CSS | All controls are reachable without horizontal page scrolling. |
 
@@ -71,7 +143,7 @@ This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the r
 | --- | --- | --- | --- | --- | --- |
 | F5-01 | FR-13 | P0 | Display Awaiting Completion consistently on dashboard, bookings, and calendar. | Dashboard, booking, and calendar pages | The status is visually distinct and includes an action-required link. |
 | F5-02 | FR-13 | P0 | Add a guided post-event review for equipment, deductions, outstanding payments, readiness, and notes. | Booking details | Manual release remains disabled until all required review steps are complete. |
-| F5-03 | FR-13 | P0 | Keep manual release separate from ordinary booking editing. | Booking details | Only a successful release response changes the visible status to Completed. |
+| F5-03 | FR-13 | P0 | Keep manual release separate from ordinary booking editing. | Booking details | A successful reviewed release changes the visible status to Completed when fully paid or Awaiting Payment when a rental balance remains. |
 | F5-04 | FR-13 | P1 | Resolve the related notification after successful release. | Notification UI | The notification disappears only after the server confirms resolution. |
 
 ## Phase F6 — Reports and audit history
@@ -83,14 +155,14 @@ This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the r
 | F6-03 | FR-15 | P1 | Add a read-only audit-history page with owner, action, record, and date filters. | New `admin/audit.html`, navigation | Audit entries are searchable and have no edit or delete controls. |
 | F6-04 | NFR-01 | P1 | Use responsive cards or scroll-contained tables for large report and audit results. | Report/audit pages and CSS | Data remains readable and controls remain accessible at phone widths. |
 
-## Phase F7 — Remove deferred frontend scope
+## Phase F7 — Preserve offline synchronization
 
 | ID | Requirement | Priority | Task | Main files | Acceptance criteria |
 | --- | --- | --- | --- | --- | --- |
-| F7-01 | DEF-01 | P2 | Remove offline scripts, service-worker registration, sync panels, pending-sync badges, and local outbox behavior. | `js/sync.js`, `js/sync-ui.js`, `js/offline.js`, `sw.js`, admin pages | No page claims that business writes can be recorded offline. |
-| F7-02 | DEF-01 | P2 | Replace cached writes with direct authenticated API calls and accurate success or failure messages. | `js/api.js`, admin pages | A success message appears only after the server accepts the write. |
-| F7-03 | FR-17 | P2 | Retain only the small online refresh helper needed by calendar and notifications. | New or simplified refresh helper | Refresh code has no queue, conflict replay, receipt, or local-ID behavior. |
-| F7-04 | DEF-01 | P2 | Remove obsolete offline tests and frontend fixtures after revised tests replace them. | `tests/` | The active test suite contains no deferred offline workflow expectations. |
+| F7-01 | Approved decision | P0 | Preserve offline scripts, service-worker registration, sync panels, pending-sync badges, and local outbox behavior. | `js/sync.js`, `js/sync-ui.js`, `js/offline.js`, `sw.js`, admin pages | Existing authenticated offline workflows remain available and visible. |
+| F7-02 | Approved decision | P0 | Keep direct and replay writes on the same backend domain rules. | `js/api.js`, `api/sync.php`, shared backend services | Direct and replayed operations produce equivalent validation, audit, and business results. |
+| F7-03 | FR-17 | P1 | Retain online refresh, retry, receipt, local-ID mapping, and visible conflict-recovery behavior. | Sync and refresh helpers | Reconnection uploads safely without duplicate accepted records or hidden rejected operations. |
+| F7-04 | Approved decision | P0 | Retain and extend offline integration tests for every revised frontend workflow that can be queued. | `tests/` | The active suite proves persistence through reload, replay, idempotency, stale-conflict retention, and a second-device read. |
 
 ## Frontend test plan
 
@@ -98,7 +170,7 @@ This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the r
 | --- | --- |
 | Authentication | Valid login, rejected login, expired session, inactive account message, primary-owner navigation, and global 401 handling. |
 | Booking form | Required fields, optional package, allowance overrides, cancellation reason, and historical package snapshots. |
-| Availability | Conflict details, availability block display, blank override reason prevention, and approved-overlap marker. |
+| Availability | Conflict details, blank override reason prevention, approved-overlap marker, authoritative online preview, and retained offline conflict review. Availability-block UI remains deferred. |
 | Payments and deposits | Required payment fields, derived balance, multiple itemized deductions, and refundable amount. |
 | Checklist and delivery | Complete release/return fields, delivery notes, and every fee-responsibility option. |
 | Post-event | Persistent notification, guided review, release validation, status update, and notification resolution. |
@@ -119,10 +191,10 @@ This plan aligns the owner-facing HTML, CSS, and JavaScript interface with the r
 - Every active requirement has a usable owner-facing workflow where a UI is required.
 - Authentication failures and expired sessions do not expose cached private screens.
 - Booking forms use the revised one-service model and optional packages.
-- Conflict details, availability blocks, and approved overlaps are clear and actionable.
-- Awaiting Completion remains visible until the owner finishes review and manual release.
+- Conflict details and approved overlaps are clear and actionable; deferred blockouts are not activated.
+- Awaiting Completion remains visible until return review releases service capacity; Awaiting Payment remains visible until completed rental payments cover the agreed total.
 - Reports use server results and correct payment-date language.
 - All revised workflows remain usable on desktop and representative smartphone widths.
 - The calendar and notifications refresh within 30 seconds while online.
-- Offline recording and synchronization controls are absent from the initial release.
+- Offline recording, synchronization, pending states, retries, and conflict recovery remain available and tested.
 

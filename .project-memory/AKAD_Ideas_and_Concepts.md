@@ -5,8 +5,16 @@ metadata:
   node_type: memory
   type: reference
   originSessionId: 029bc4ed-f6f8-48e9-afa4-819cfc579d61
-  modified: 2026-09-28T05:57:05.326Z
+  modified: 2026-10-15
 ---
+
+## Current implementation status — 2026-10-15
+
+The "Backend Fully Implemented Sep 28" heading below is historical and must not be read as current full acceptance. The revised backend implementation and specifically authorized checklist/review integration have passed local regression testing. Package-based offline checklists now match server templates, release/inspection sync carries the template identifiers and quantities, and manual post-event completion requires an explicit service/payment/deposit review.
+
+Preserve offline sync by user decision; do not remove its APIs/settings or change to online-only. FR-10 internal blockouts remain deferred. A local synthetic 10,000-booking benchmark met the stated local p95 target, but is not production-hosting acceptance. Production migration remains blocked by 51 unresolved legacy-data findings from a read-only dry run; no migration was applied. The full requirement matrix and production acceptance remain open.
+
+Use `Implementation/Revised-Requirements-Backend-Implementation-Plan.md` for the current implementation checklist and `Implementation/Backend-Migration.md` for cutover prerequisites. See `AKAD_Requirements_Changes.md` and `AKAD_Approval.md` for current evidence and user decisions.
 
 ## Latest session decision ? 2026-09-28: FR-10 remains skipped
 

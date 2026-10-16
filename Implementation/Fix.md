@@ -1,8 +1,17 @@
 # FR-10: Internal Blockouts — Implementation Plan for Codex
 
+## Session update — 2026-10-15: backend completion status and limited frontend authorization
+
+The revised backend work also aligned the package-template return checklist and explicit post-event review in the frontend, with the user's approval for those changes only. The user explicitly chose to preserve offline sync; do not remove it or its endpoints/settings without renewed authorization. This limited scope does not authorize FR-10 internal blockouts. The backend plan and `.project-memory/` record passing integration coverage, a local synthetic 10,000-booking benchmark, and the remaining production-cutover/performance-acceptance gates. No production database was migrated.
+
+## Session update — 2026-10-15: deposit refund integrity fix
+
+The backend refund logic was audited and corrected. Refund values are now clamped to zero so a deposit cannot report a negative refundable balance; refund requests are rejected when no refundable balance remains. The same non-negative calculation is used in the reporting layer to keep summaries aligned with runtime behavior. This remains within the backend-only scope and does not change frontend behavior.
+
+
 ## Latest session decision ? 2026-09-28: FR-10 remains skipped
 
-The user ended the session and explicitly instructed that FR-10 internal blockouts remain skipped. This supersedes the earlier request to implement them and the subsequent backend-only scope. Do not begin blockout implementation until the user explicitly reauthorizes it. The user's frontend boundary also remains in effect: do not change frontend code without new authorization.
+The user explicitly instructed that FR-10 internal blockouts remain skipped. This supersedes the earlier request to implement them and the subsequent backend-only scope. Do not begin blockout implementation until the user explicitly reauthorizes it. The later limited frontend authorization was for package-template checklists and post-event release review only; it does not change the FR-10 deferral.
 
 No FR-10 database migration, schema addition, backend endpoint, synchronization handler, or frontend change was made during the blockout discussion. Inspection confirmed that pi/blockouts.php is absent and the schema/sync endpoint contain no blockouts implementation. The existing Implementation/Fix.md is a deferred draft with known corrections required; it is not an active execution instruction. Previously completed offline/payment/inspection work and its recorded evidence remain in place. No files were staged, committed, or pushed.
 

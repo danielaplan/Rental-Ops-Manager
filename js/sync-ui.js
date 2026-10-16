@@ -16,9 +16,9 @@
       panel.querySelector('#syncNow').addEventListener('click', () => runSync(async () => { await API.refreshSharedData(); await API.flushSyncQueue(); }));
       panel.addEventListener('submit',e=>{
         if(!e.target.matches('.sync-edit'))return;e.preventDefault();
-        const form=e.target,date=form.elements.event_date.value,start=form.elements.start_time.value,end=form.elements.end_time.value;
-        if(!date||!start||!end||start>=end){form.querySelector('[role=alert]').textContent='Choose a date and an end time after the start time.';return;}
-        void runSync(() => API.retrySyncOperation(form.dataset.operation,{event_date:date,start_time:start,end_time:end}));
+        const form=e.target,date=form.elements.event_date.value,start=form.elements.start_time.value,end=form.elements.end_time.value,location=form.elements.event_location.value.trim();
+        if(!date||!start||!end||start>=end||!location){form.querySelector('[role=alert]').textContent='Choose a location, date and an end time after the start time.';return;}
+        void runSync(() => API.retrySyncOperation(form.dataset.operation,{event_date:date,start_time:start,end_time:end,event_location:location}));
       });
       panel.addEventListener('click',e=>{const button=e.target.closest('[data-retry]');if(button)void runSync(() => API.retrySyncOperation(button.dataset.retry));});
     }
@@ -41,7 +41,7 @@
       const base = op.data._base;
       const server = op.server_record;
       const local = op.data;
-      const keys = new Set([...Object.keys(base), ...Object.keys(server), ...Object.keys(local)]);
+      const keys = Object.keys(base);
       const rows = [...keys].filter(k => {
         const b = base[k], s = server[k], l = local[k];
         return b !== s || b !== l || s !== l;
@@ -62,10 +62,11 @@
     document.querySelector('#syncOperations').innerHTML=ops.length ? ops.map(op=>{
       const booking=STORAGE.getAll('bookings').find(b=>String(b.id)===String(op.local_id)),draft={...booking,...op.data};
       const comparison = staleComparison(op);
-      const editor=op.entity==='bookings'&&['conflict','failed'].includes(op.status)?`<details><summary>Edit booking date/time and retry</summary>${comparison}<form class="sync-edit row g-2 mt-1" data-operation="${esc(op.client_id)}">
+      const editor=op.entity==='bookings'&&['conflict','failed'].includes(op.status)?`<details><summary>Edit booking event details and retry</summary>${comparison}<form class="sync-edit row g-2 mt-1" data-operation="${esc(op.client_id)}">
         <div class="col-sm-4"><label for="date-${op.client_id}">Event date</label><input required class="form-control" id="date-${op.client_id}" name="event_date" type="date" value="${esc(draft.event_date||'')}"></div>
         <div class="col-sm-4"><label for="start-${op.client_id}">Start time</label><input required class="form-control" id="start-${op.client_id}" name="start_time" type="time" value="${esc(String(draft.start_time||'').slice(0,5))}"></div>
         <div class="col-sm-4"><label for="end-${op.client_id}">End time</label><input required class="form-control" id="end-${op.client_id}" name="end_time" type="time" value="${esc(String(draft.end_time||'').slice(0,5))}"></div>
+        <div class="col-12"><label for="location-${op.client_id}">Event location</label><input required class="form-control" id="location-${op.client_id}" name="event_location" type="text" value="${esc(draft.event_location||draft.location||'')}"></div>
         <div role="alert" class="text-danger small"></div><div><button class="btn btn-sm btn-admin-primary">Apply and retry</button></div></form></details>`:'';
       return `<article class="border-top py-2"><strong>${esc(op.entity)} · ${esc(op.action)}</strong><span class="badge bg-secondary ms-2">${esc(op.status==='pending'?'Pending Sync':op.status)}</span><p class="small mb-1">${esc(draft.customer_name||op.local_id||'')} ${esc(draft.event_date||'')}</p>${op.reason?`<p class="text-danger small" role="alert">${esc(op.reason)} Your draft is retained.</p>`:''}${editor}${op.status==='failed'&&!editor?`<button type="button" class="btn btn-sm btn-outline-secondary" data-retry="${op.client_id}">Retry</button>`:''}</article>`;
     }).join(''):'<p class="small text-muted mb-0">No pending changes for this signed-in user.</p>';

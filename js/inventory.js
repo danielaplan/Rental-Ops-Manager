@@ -10,7 +10,7 @@ const InventoryHelper = {
     if (!isCurrent()) return;
     const $wrap = $(containerSelector).empty();
     if (!items.length) {
-      $wrap.append('<p class="text-muted">No rental items linked to this booking\'s services.</p>');
+      $wrap.append('<p class="text-muted">No checklist items are linked to this booking. If this is an offline draft, connect and sync the package checklist before recording a release or return inspection.</p>');
       return;
     }
 
@@ -68,6 +68,8 @@ const InventoryHelper = {
       const bi = items.find(x => String(x.booking_item_id) === String(itemId));
       results.push({
         booking_item_id: itemId,
+        checklist_item_id: bi ? bi.checklist_item_id : null,
+        template_item_id: bi ? bi.template_item_id : null,
         rental_item_id: bi ? bi.rental_item_id : null,
         name: bi ? bi.name : '',
         expected_qty: bi ? bi.expected_qty : 0,

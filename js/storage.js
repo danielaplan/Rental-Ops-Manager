@@ -10,6 +10,7 @@ const STORAGE_KEYS = {
   addons: "er_addons",
   bookings: "er_bookings",
   bookingItems: "er_booking_items",
+  checklistTemplates: "er_checklist_templates",
   customers: "er_customers",
   payments: "er_payments",
   packages: "er_packages",
@@ -48,7 +49,7 @@ const STORAGE = {
       request.onsuccess=()=>{
         if(Array.isArray(request.result)){
           const drafts=this._get(STORAGE_KEYS[collection],[]).filter(r=>r.pending_sync);
-          const field=({bookings:'id',bookingItems:'booking_item_id',deposits:'booking_id',services:'service_id',categories:'category_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id'})[collection];
+          const field=({bookings:'id',bookingItems:'booking_item_id',checklistTemplates:'template_id',deposits:'booking_id',services:'service_id',categories:'category_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id'})[collection];
           this.memory[collection]=[...request.result.filter(r=>!drafts.some(d=>field&&String(r[field])===String(d[field]))),...drafts];
         }
         resolve();

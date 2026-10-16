@@ -1,3 +1,31 @@
+## Latest session — 2026-10-15: Revised backend and checklist integration
+
+Implemented the planned backend auth, availability-block, notification, conflict safety, payment/deposit, reporting, append-only history/release, and migration changes. Corrected availability behavior so unresolved due bookings block future reservations but do not block an unrelated historical interval.
+
+After the user authorized frontend checklist/sync changes, cached package templates for offline work, generated local checklist rows from the chosen package version, synchronized release quantities/inspection by checklist template ID, and added explicit service/payment/deposit review plus notes before post-event release. Sync-created bookings now set agreed totals and package snapshots.
+
+The user explicitly chose to preserve offline sync; do not remove sync endpoints/settings or migrate to online-only without renewed authorization.
+
+Verified on the synthetic `akad_verify_20261015_suite` database:
+- Revised backend integration passes, including owner lifecycle, lockout/reset, availability conflicts, and reports.
+- `tests/offline-sync.test.cjs`: 17/17 checks pass, including package-template inspection and post-event release review.
+- Public-site: 5/5; frontend API contract: 10/10; async workflows: 13/13; direct frontend API: 5/5.
+- PHP syntax passed for 37 API/migration files; changed JavaScript and inline booking-page scripts compile; `git diff --check` passes.
+
+An isolated `akad_perf_verify_20261015` benchmark used 10,000 bookings, 10,000 payments, and representative deposits, deductions, notifications, audit rows, and availability blocks. Local p95 was 2.88s for the full booking list, 184ms for booking creation, 180ms for conflict detection, 114ms for block creation, 852ms for dashboard, and 816ms for monthly report. The local report responses were about 1.4/1.5 KB versus 20.2 MB for the full booking list. This PHP built-in-server/MariaDB run met the local target but does not establish production-hosting performance.
+
+The user confirmed a verified backup/restore and approved maintenance window. A read-only migration dry run against the configured `akad_rentals` database returned 51 unresolved exceptions: 2 user-level, 15 booking-level, 4 payment-level, and 30 booking-item/checklist discrepancies. No migration changes were applied.
+
+Created `C:\Users\acer\Desktop\akad-rentals-migration-resolution-worksheet.csv` outside the repository with one blank evidence-resolution row per exception; no historical values were inferred.
+
+The subsequent Codex completion pass was reviewed. Fixed report response compatibility with the existing dashboard/report pages and exact local booking-ID matching when accounting for queued offline payments. After the fixes, all seven backend/sync suites passed on isolated `akad_verify_plan_1792044208446_19208` (17 offline checks included), the migration regression passed, all 34 frontend regressions passed, PHP lint passed for 42 files, and syntax/diff checks passed. No operational database was read or migrated in this pass.
+
+Remaining: provide evidence-backed resolutions for all dry-run exceptions and rerun to zero exceptions before migration; production performance acceptance and full requirement-matrix acceptance remain open. Offline sync is intentionally preserved by user decision. FR-10 internal blockouts remain deferred. No production records were altered.
+
+## Latest session — 2026-10-15: Deposit refund balance audit and fix
+
+The backend deposit/refund balance issue was audited and fixed. Negative refund balances are now clamped to zero, refund actions reject exhausted balances, and reporting uses the same non-negative calculation. No frontend changes were required.
+
 ## Latest session — Oct 8: Backend bug fixes + memory vault unified
 
 Two backend bugs fixed and PHP lint verified; PHP server + MySQL confirmed running locally for live testing:

@@ -314,3 +314,30 @@ test('the facade exposes methods required by current pages and the sync UI', () 
     assert.equal(typeof context.API[name], 'function', `API.${name} must exist`);
   }
 });
+
+test('pending offline payments remain keyed by the exact local booking ID', async () => {
+  const paymentsSource = fs.readFileSync(path.join(root, 'js', 'payments.js'), 'utf8');
+  const pendingBookingId = 'LOCAL-bookings-uuid-123';
+  const context = vm.createContext({
+    API: {
+      getSyncQueue: () => [{
+        entity: 'payments',
+        action: 'create',
+        status: 'pending',
+        data: { booking_id: pendingBookingId, amount: 250 }
+      }],
+      getPayments: async () => []
+    },
+    Map, Number, String, Math, Promise
+  });
+  vm.runInContext(`${paymentsSource}\nglobalThis.PaymentsHelper = PaymentsHelper;`, context);
+
+  const pending = await context.PaymentsHelper.pendingAmountsByBooking();
+  const accepted = await context.PaymentsHelper.acceptedAmountPaid(
+    { id: pendingBookingId, amount_paid: 250 },
+    pending
+  );
+
+  assert.equal(pending.get(pendingBookingId), 250);
+  assert.equal(accepted, 0, 'queued local payments must not count as server-accepted revenue');
+});

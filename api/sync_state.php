@@ -5,6 +5,7 @@ function syncState(PDO $pdo): array {
     return json_decode($q->fetchColumn(),true) ?: ['receipts'=>[],'ids'=>[]];
 }
 function syncReference($value,string $entity,array $state,int $userId): int {
+    if (!is_string($value) && !is_int($value)) throw new InvalidArgumentException('Related '.$entity.' reference must be an ID.');
     if(str_starts_with((string)$value,'LOCAL-')) {
         $id=$state['ids'][$userId.':'.$entity.':'.$value]??null;
         if(!$id)throw new InvalidArgumentException('Related '.$entity.' record is still pending. Resolve its conflict or retry it first.');

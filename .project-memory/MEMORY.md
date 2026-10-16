@@ -1,6 +1,6 @@
 ---
 title: Rental-Ops-Manager Memory Index
-date: 2026-10-08
+date: 2026-10-16
 tags:
   - rental-ops-manager
   - akad
@@ -12,6 +12,75 @@ aliases:
   - Vault Index
 status: active
 ---
+
+## Awaiting Payment implementation — 2026-10-16
+
+Owner-approved policy: completed return review releases service availability; an outstanding rental balance moves the booking to `Awaiting Payment`, and only completed payments covering `agreed_total` allow `Completed`. Implemented across shared direct/offline release, edit locks, notifications, reports, admin labels and tests. Latest full non-migration evidence: `tests/acceptance-results/1792150756830-33488/summary.json`, synthetic DB `akad_verify_plan_1792150757195_24148`; 9 backend/sync files, 17 offline checks, 36 frontend tests, syntax and diff passed. The clean-data decision below makes legacy migration unnecessary; deployment/production/device acceptance and deferred blockouts remain open.
+
+## Clean-data deployment decision — 2026-10-16
+
+The user confirmed that the database and all 51 worksheet findings contain sample/test data only; there are no real historical business records to migrate. Those findings are **Not Applicable** and do not block backend completion or clean deployment. Initialize production from the reviewed clean schema and exclude sample bookings, payments, checklist rows and test credentials. Older memory statements requiring owner evidence for the 51 rows are superseded. Deployment/production/device acceptance remains open and FR-10 blockouts remain deferred.
+
+Controlling implementation assumption: every repository database, fixture, worksheet row, account, booking, payment and checklist value is synthetic test data and has no real-business or legal-data significance. The developer may implement and test all work within the user-supplied implementation scope without additional data-owner authorization. Continue preserving existing user work, offline sync and the explicit FR-10 deferral.
+
+## Current backend source confirmation — 2026-10-16
+
+Re-scanned the B1–B6 backend implementation and fixed one customer CRUD/schema mismatch: removed unsupported `notes` from the writable customer definition because the clean schema has no such column. Added a regression. Full non-migration acceptance passed on synthetic `akad_verify_plan_1792128884100_5244`: nine backend/sync files, 17 offline checks, 35 frontend regressions, syntax and diff checks. Evidence is `tests/acceptance-results/1792128883458-17748/summary.json`. The later Awaiting Payment run above supersedes this evidence. The 51 historical findings, migration/deployment/production gates and deferred blockouts remain open.
+
+## Synthetic owner walkthrough run — 2026-10-16
+
+W01–W12 passed on isolated `akad_verify_plan_1792046564392_28220`; the user explicitly authorized Codex to perform W11/W12 as delegated reviewer. Offline creation/reload/reconnect, second-owner visibility, stale-edit retention, keyboard use and 390×844 layout were verified. Fixed the discovered location-conflict recovery gap in `js/sync-ui.js`; all 35 frontend tests and syntax checks passed afterward. On 2026-10-16, the user confirmed owner approval of all implemented/tested changes and later selected the Awaiting Payment policy recorded above. No operational access, migration/dry run, historical resolution, or blockout work occurred; the walkthrough server was stopped. See `Implementation/Backend-Owner-Walkthrough-2026-10-15.md` and linked evidence.
+
+## Consolidated verification completed — 2026-10-15
+
+Nine backend/sync files passed together on isolated `akad_verify_plan_1792046383527_34548` (17 offline checks), plus 34 frontend regressions and syntax/diff checks. No new application defects reproduced. Reproduce with `rtk proxy node tests/run_backend_acceptance.cjs`; logs and final-code hashes are separate from older evidence. Migration execution and legacy blockout tests were excluded. Report and owner walkthrough are in `Implementation/Backend-Consolidated-Verification-2026-10-15.md` and `Implementation/Backend-Owner-Walkthrough-2026-10-15.md`. Separate synthetic owner fixture database: `akad_verify_plan_1792046564392_28220`; owner approval of implemented/tested changes was recorded on 2026-10-16 and setup servers stopped. External evidence checklist covers all 51 worksheet findings with blank decisions/evidence, unchanged worksheet. No operational DB access, migration or dry run. Next: source evidence; production acceptance remains open.
+
+## Completion roadmap requested — 2026-10-15
+
+User requested a sequential plan to finish backend work and support an accurate completion claim. Added the ordered completion roadmap to `Implementation/Revised-Requirements-Backend-Implementation-Plan.md`: consolidated current-code verification; owner synthetic workflow acceptance; evidence resolution for 51 findings; reviewed conversion work and explicitly authorized rehearsal; staging/deployment validation; explicitly approved operational preflight; separately authorized cutover; final acceptance/handover. Runtime verification is distinct from complete migration/deployment acceptance. No tests, database access, migration, deployment or acceptance occurred during this planning update. Existing offline/blockout/evidence/authorization boundaries remain unchanged.
+
+## Latest follow-up — 2026-10-15: History retention and templates
+
+Protected rental-item history/checklist links against direct and offline deletion; unused-item deletion and receipts remain supported. Added template name/list/quantity validation that rejects malformed writes atomically. Two new tests failed before fixes; eight tests across five focused files passed afterward on synthetic `akad_verify_plan_1792045494512_37116`, plus syntax/diff checks. See the matrix for reproduction. No operational database access, dry run, or migration; no frontend/schema changes. All 51 findings remain pending owner evidence and separate migration authorization; production acceptance remains open. Offline sync preserved and internal blockouts deferred.
+
+## Latest follow-up — 2026-10-15: Write validation gaps
+
+Fixed malformed offline deposit deduction reasons and silently discarded item-history booking links; shared sync references now reject non-ID types before casting. New regression tests failed first, then passed with sync/finance/offline suites (17 offline checks) on isolated `akad_verify_plan_1792044979583_38544`. All 34 frontend regressions and syntax checks passed. See the plan/matrix for exact scope; other historical suite results were not rerun. Operational data was untouched. The 51 worksheet findings still need owner evidence; operational dry-run approval and later migration authorization are separate gates. Offline sync retained; blockouts deferred; production readiness unverified.
+
+## Latest session — 2026-10-15: Requirement completion pass
+
+User authorized parallel backend implementation review and focused tests using the revised plan plus latest decisions. Safe gaps closed: shared direct/sync booking/payment/catalog/delivery/history rules; scheduled reconciliation; shared release condition/audit validation; conflict client/service/schedule data and overlap markers; promotion rechecks; service allowance-limit consistency; report lists/definitions; session validation race; and stronger evidence/attribution/checklist migration preflight. Offline receipts/settings/retries and conflict drafts remain preserved.
+
+Authoritative per-row status: `Implementation/Backend-Requirement-Matrix.md`. Test runner `tests/run_revised_backend.cjs` creates fresh synthetic `akad_verify_plan_*` databases with owned PHP processes/free ports. New focused suites cover catalog, booking lifecycle, finance, auth, sync, and migration. Local test results do not establish production readiness.
+
+Initial completion-pass evidence (superseded by the post-review results below): seven backend/sync test files passed together on `akad_verify_plan_1792042925602_16200`, including 17 offline checks; separate synthetic migration regression passed; 33 frontend regressions and syntax/diff checks passed. No focused integrations skipped. The synthetic database is retained for inspection; runner-owned PHP processes were stopped.
+
+Still blocked: owner evidence for the 51 last-known operational migration findings, then a zero-exception read-only rerun before proposing migration. No operational migration or historical correction authorized/performed. Production TLS/origins, scheduler registration, production performance, client/device/usability and remaining scoped frontend acceptance are external gates. Legacy FR-10 blockouts stay deferred; sync removal is superseded. Preserve existing uncommitted work; do not stage/commit/push.
+
+## Earlier session — 2026-10-15: Revised backend implementation and checklist integration
+
+Continued work on `Implementation/Revised-Requirements-Backend-Implementation-Plan.md`. Backend changes include internal API auth boundaries, availability-block and notification APIs, conflict-safe writes, payment compatibility, deposit locking/refund safeguards, report corrections, append-only history/release APIs, and migration mapping/foreign-key safeguards. Availability now treats due/unreleased bookings as open-ended blockers for future requests without rejecting unrelated historical intervals.
+
+With the user's approval, aligned the frontend offline checklist with backend package templates: templates are cached, local booking checklists use the selected package's versioned items, sync transmits template/checklist identifiers and release quantities, and return inspection sends every row. Added an explicit post-event review form for service readiness, payments, deposits, and notes; sync/direct finalization carries those confirmations. Sync-created bookings now retain agreed totals and package snapshots.
+
+The user explicitly chose to preserve offline sync. Do not remove sync endpoints/settings or migrate to online-only unless the user changes that decision.
+
+Validation on synthetic DB `akad_verify_20261015_suite`: revised backend acceptance passed; offline-sync integration passed 17/17; public-site 5/5; frontend API contract 10/10; async workflow 13/13; direct API 5/5. PHP lint passed for 37 API/migration files, and changed JS plus booking-page inline JS compiled. Synthetic migration reconciliation also verified users, bookings, payments, checklist mapping, and actor foreign key. A separate synthetic 10,000-booking benchmark met the local under-three-second p95 target for measured booking/availability requests; the booking-list response was about 20.2 MB, while dashboard and monthly report responses were about 1.4/1.5 KB. The benchmark used a local PHP built-in server and is not production-hosting acceptance. A read-only dry run against configured `akad_rentals` found 51 unresolved migration exceptions: 2 user-level, 15 booking-level, 4 payment-level, and 30 booking-item/checklist discrepancies. No database was modified by the dry run.
+
+Still open: production migration needs evidence-backed resolutions for all 51 dry-run exceptions and a zero-exception rerun; production performance acceptance and the full requirement matrix remain open. The user confirmed backup/restore and maintenance prerequisites, but no migration was applied. B6 sync removal is deferred by the user's decision to preserve offline sync. FR-10 internal blockouts remain deferred. Do not claim overall plan completion until the remaining acceptance and production gates are addressed.
+
+Post-completion Codex review found and fixed two integration regressions: retained the legacy flat report response fields alongside new summary metrics, and preserved exact local booking IDs when subtracting queued offline payments. After the fixes, seven backend/sync suites, the migration regression, all 34 frontend regressions, 42 PHP syntax checks, and diff checks passed on isolated synthetic test data. No operational database was read or migrated in this pass; see `Implementation/Backend-Requirement-Matrix.md`.
+
+## Earlier session — 2026-10-15: Deposit refund balance audit and fix
+
+Reviewed the deposit/refund balance logic and fixed the root cause behind negative refundable balances. Previously, a deposit could show a negative `refund_amount` when deductions exceeded the held amount, and the refund endpoint could still accept a refund even when no refundable balance remained.
+
+Fixes applied:
+- `api/deposit_service.php`: `refund_amount` is now clamped to zero in `depositView()`.
+- `api/deposits.php`: refund processing now fails with a 409 if the refundable balance is zero or negative.
+- `api/reports.php`: report totals now use the same non-negative calculation to avoid mismatched dashboard values.
+
+Validation performed: PHP lint passed for the edited files; the focused JS verification suite passed with 33/33 tests green.
 
 ## Latest session — Oct 7 backend bug fixes + memory vault unified — 2026-10-08
 

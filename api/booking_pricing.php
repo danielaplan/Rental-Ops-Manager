@@ -4,13 +4,14 @@
  * Calculate a booking's base package, selected add-ons, discount, and fees
  * from current database prices. Client-supplied subtotal fields are ignored.
  */
-function calculateBookingTotals(PDO $pdo, int $serviceId, int $packageId, array $addonIds, $discount, $fees): array
+function calculateBookingTotals(PDO $pdo, int $serviceId, ?int $packageId, array $addonIds, $discount, $fees, $snapshotPrice = null): array
 {
-    $package = $pdo->prepare('SELECT price FROM packages WHERE package_id = ? AND service_id = ?');
-    $package->execute([$packageId, $serviceId]);
-    $packagePrice = $package->fetchColumn();
-    if ($packagePrice === false) {
-        throw new InvalidArgumentException('The selected package is not valid for this service.');
+    $packagePrice = $snapshotPrice ?? 0;
+    if ($packageId && $snapshotPrice === null) {
+        $package = $pdo->prepare('SELECT price FROM packages WHERE package_id = ? AND service_id = ?');
+        $package->execute([$packageId, $serviceId]);
+        $packagePrice = $package->fetchColumn();
+        if ($packagePrice === false) throw new InvalidArgumentException('The selected package is not valid for this service.');
     }
 
     $ids = [];

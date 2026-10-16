@@ -99,6 +99,18 @@
                 <label class="form-label" for="mSpecialRequests">Special Requests</label>
                 <textarea class="form-control" id="mSpecialRequests" rows="2"></textarea>
               </div>
+              <div class="col-12">
+                <label class="form-label" for="mThemeNotes">Theme / setup notes</label>
+                <textarea class="form-control" id="mThemeNotes" rows="2"></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="mPreparation">Preparation allowance (minutes)</label>
+                <input type="number" min="0" step="1" class="form-control" id="mPreparation" value="0" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="mTravel">Travel allowance (minutes)</label>
+                <input type="number" min="0" step="1" class="form-control" id="mTravel" value="0" required>
+              </div>
             </div>
           </div>
         </div>
@@ -106,7 +118,7 @@
         <div class="manual-booking-section manual-booking-services">
           <h6 class="manual-section-title">3. Select Service and Package</h6>
           <div class="row g-2 mb-3" id="mServiceChecklist"></div>
-<label for="mPackage" class="form-label">Package</label><select id="mPackage" class="form-select mb-3" required><option value="">Select a service first</option></select>
+<label for="mPackage" class="form-label">Package <span class="text-muted">(optional)</span></label><select id="mPackage" class="form-select mb-3"><option value="">Select a service first</option></select>
 <div id="manualSaveError" class="alert alert-danger" role="alert" tabindex="-1" hidden></div>
 
           <div id="mAddonSection" style="display:none;">
@@ -131,6 +143,11 @@
             <div class="col-6">
               <label class="form-label" for="mAmountPaid">Agreed down payment paid now (₱)</label>
                 <input type="number" min="0" step="0.01" class="form-control" id="mAmountPaid" value="0">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="mAgreedTotal">Agreed rental total (₱)</label>
+              <input type="number" min="0" step="0.01" class="form-control" id="mAgreedTotal" value="0" required>
+              <div class="form-text">Defaults to the calculated total and may be changed only to the amount agreed with the client.</div>
             </div>
             <div class="col-6">
               <label class="form-label" for="mPayMethod">Payment Method</label>
@@ -159,6 +176,19 @@
   </div>
 </main>
 
+<div class="modal fade" id="conflictReviewModal" tabindex="-1" aria-labelledby="conflictReviewTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="conflictReviewTitle">Review booking conflict</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div id="conflictReviewList" class="mb-3"></div>
+      <label class="form-label" for="conflictOverrideReason">Reason for approving this overlap</label>
+      <textarea class="form-control" id="conflictOverrideReason" rows="3" maxlength="5000" required></textarea>
+      <div class="text-danger small mt-2" id="conflictReviewError" hidden></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Change schedule</button><button type="button" class="btn btn-admin-primary" id="approveConflictBtn">Approve listed overlaps</button></div>
+  </div></div>
+</div>
+
 <script src="../vendor/jquery-3.7.1.min.js"></script>
 <script src="../vendor/bootstrap-5.3.3.bundle.min.js"></script>
 <script src="../js/config.js"></script>
@@ -184,8 +214,11 @@ adminReady(async function () {
     await renderAddons();
     await updateSummary();
     await checkAvailability();
+    const service = (await API.getServices()).find(item => item.service_id === this.value);
+    $('#mPreparation').val(service?.default_preparation_minutes || 0);
+    $('#mTravel').val(service?.default_travel_minutes || 0);
   });
-  $('.admin-main').onAdmin('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage', async function () {
+  $('.admin-main').onAdmin('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage, #mPreparation, #mTravel', async function () {
     await updateSummary();
     await checkAvailability();
   });
@@ -193,6 +226,15 @@ adminReady(async function () {
   $('#manualBookingForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     await createManualBooking();
+  });
+  $('.admin-main').onAdmin('click', '#reviewConflictsBtn', showConflictReview);
+  $('#approveConflictBtn').onAdmin('click', function () {
+    const reason = $('#conflictOverrideReason').val().trim();
+    if (!reason) { $('#conflictReviewError').prop('hidden', false).text('Enter the business reason for approving this overlap.'); return; }
+    reviewedConflictApproval = { ids: currentConflicts.map(item => Number(item.booking_id ?? item.id)), reason };
+    bootstrap.Modal.getInstance(document.getElementById('conflictReviewModal')).hide();
+    $('#mAvailabilityStatus').html('<span class="availability-pill unavailable"><i class="bi bi-exclamation-triangle"></i> Listed overlaps reviewed and approved for this save</span>');
+    $('#mSubmitBtn').prop('disabled', false);
   });
 });
 
@@ -223,8 +265,9 @@ async function renderPackages() {
   const service = getMSelectedServices()[0];
   const packages = await API.getPackages();
   if (version !== packageVersion || service !== getMSelectedServices()[0]) return;
-  const filtered = packages.filter(p => p.service_id === service);
-  $('#mPackage').html('<option value="">Choose a package</option>' + filtered.map(p => '<option value="' + escapeHtmlA(p.package_id) + '">' + escapeHtmlA(p.package_name) + ' — ' + BookingCalc.formatCurrency(p.price) + '</option>').join(''));
+  const today = new Date().toISOString().slice(0, 10);
+  const filtered = packages.filter(p => p.service_id === service && p.status === 'Active' && (!p.is_promotional || (p.promotion_start_date <= today && p.promotion_end_date >= today)));
+  $('#mPackage').html('<option value="">No package</option>' + filtered.map(p => '<option value="' + escapeHtmlA(p.package_id) + '">' + escapeHtmlA(p.package_name) + ' — ' + BookingCalc.formatCurrency(p.price) + (p.is_promotional ? ' · Promo' : '') + '</option>').join(''));
 }
 async function manualTotals(addonIds, discount, fees) {
   const [packages, addons] = await Promise.all([API.getPackages(), API.getAddons()]);
@@ -286,6 +329,7 @@ async function updateSummary() {
   $('#mSumDiscount').text('-' + BookingCalc.formatCurrency(discount));
   $('#mSumFees').text(BookingCalc.formatCurrency(fees));
   $('#mSumTotal').text(BookingCalc.formatCurrency(total));
+  if (!$('#mAgreedTotal').is(':focus')) $('#mAgreedTotal').val(total.toFixed(2));
 }
 $('.admin-main').onAdmin('input', '#mDiscount, #mFees', updateSummary);
 
@@ -300,16 +344,30 @@ async function checkAvailability() {
     $('#mSubmitBtn').prop('disabled', true);
     return;
   }
-  const availability = await Promise.all(serviceIds.map(async id => ({ id, available: (await API.checkAvailability(id, date, start, end)).available })));
+  reviewedConflictApproval = null;
+  const availability = await Promise.all(serviceIds.map(async id => ({ id, result: await API.checkAvailability(id, date, start, end, null, { preparation_minutes: Number($('#mPreparation').val() || 0), travel_minutes: Number($('#mTravel').val() || 0) }) })));
   if (version !== availabilityVersion) return;
-  const conflicts = availability.filter(entry => !entry.available).map(entry => entry.id);
-  if (conflicts.length) {
-    $status.html('<span class="availability-pill unavailable"><i class="bi bi-exclamation-circle"></i> Possible conflict in the currently loaded schedule</span>');
+  currentConflicts = availability.flatMap(entry => entry.result.conflicts?.bookings || []);
+  const blocked = availability.some(entry => (entry.result.conflicts?.blocks || []).length);
+  if (blocked) {
+    $status.html('<span class="availability-pill unavailable"><i class="bi bi-exclamation-circle"></i> This interval is unavailable and cannot be overridden.</span>');
+    $('#mSubmitBtn').prop('disabled', true);
+  } else if (currentConflicts.length) {
+    $status.html(`<button type="button" class="btn btn-sm btn-outline-danger" id="reviewConflictsBtn"><i class="bi bi-exclamation-triangle"></i> Review ${currentConflicts.length} booking conflict${currentConflicts.length === 1 ? '' : 's'}</button>`);
     $('#mSubmitBtn').prop('disabled', true);
   } else {
-    $status.html('<span class="availability-pill available"><i class="bi bi-info-circle"></i> No conflict in loaded data; the server verifies when saved</span>');
+    const offline = availability.some(entry => entry.result.offline);
+    $status.html(`<span class="availability-pill available"><i class="bi bi-info-circle"></i> ${offline ? 'Offline cached check complete; the server will verify during sync' : 'Available — verified by the server'}</span>`);
     $('#mSubmitBtn').prop('disabled', manualSaving);
   }
+}
+
+let currentConflicts = [];
+let reviewedConflictApproval = null;
+function showConflictReview() {
+  $('#conflictReviewList').html(currentConflicts.map(conflict => `<div class="border rounded p-2 mb-2"><strong>${escapeHtmlA(conflict.booking_reference || conflict.booking_id)}</strong><br>${escapeHtmlA(conflict.customer_name || 'Customer')} · ${escapeHtmlA(conflict.service_name || 'Service')}<br><span class="text-muted">${escapeHtmlA(conflict.event_start_datetime || '')} to ${escapeHtmlA(conflict.event_end_datetime || '')}</span></div>`).join(''));
+  $('#conflictOverrideReason').val(''); $('#conflictReviewError').prop('hidden', true);
+  new bootstrap.Modal('#conflictReviewModal').show();
 }
 
 /* Independent time validation — runs at submission, not just on change.
@@ -328,17 +386,18 @@ async function createManualBooking() {
   let createdBooking = null;
   try {
   const serviceIds = getMSelectedServices();
-  if (serviceIds.length!==1 || !$('#mPackage').val()) { showFieldError('#mPackage','Select one service and its package.'); return; }
+  if (serviceIds.length!==1) { showFieldError('#mPackage','Select one service.'); return; }
   const date = $('#mDate').val(), start = $('#mStart').val(), end = $('#mEnd').val();
 
   const timeCheck = validateBookingTimes(date, start, end);
   if (!timeCheck.ok) { showFieldError('#mEnd', timeCheck.message); return; }
   clearFieldError('#mEnd');
 
-  const availability = await Promise.all(serviceIds.map(async id => ({ id, available: (await API.checkAvailability(id, date, start, end)).available })));
-  const conflicts = availability.filter(entry => !entry.available).map(entry => entry.id);
-  if (conflicts.length) {
-    $('#manualSaveError').text('The currently loaded schedule shows a possible conflict. Review the date and time before trying again.').prop('hidden', false).trigger('focus');
+  const availability = await API.checkAvailability(serviceIds[0], date, start, end, null, { preparation_minutes: Number($('#mPreparation').val() || 0), travel_minutes: Number($('#mTravel').val() || 0) });
+  const conflictIds = (availability.conflicts?.bookings || []).map(item => Number(item.booking_id ?? item.id));
+  if ((availability.conflicts?.blocks || []).length || (conflictIds.length && (!reviewedConflictApproval || String(reviewedConflictApproval.ids.sort()) !== String(conflictIds.sort())))) {
+    currentConflicts = availability.conflicts?.bookings || [];
+    $('#manualSaveError').text('Review the current availability conflict before saving.').prop('hidden', false).trigger('focus');
     return;
   }
 
@@ -347,10 +406,12 @@ async function createManualBooking() {
   const fees = Number($('#mFees').val() || 0);
   const { subtotal, addonsTotal, total } = await manualTotals(addonIds, discount, fees);
   const amountPaid = Number($('#mAmountPaid').val() || 0);
+  const agreedTotal = Number($('#mAgreedTotal').val());
   for (const [selector, value, label] of [
     ['#mDiscount', discount, 'Discount'],
     ['#mFees', fees, 'Additional fees'],
-    ['#mAmountPaid', amountPaid, 'Down payment']
+    ['#mAmountPaid', amountPaid, 'Down payment'],
+    ['#mAgreedTotal', agreedTotal, 'Agreed total']
   ]) {
     if (!Number.isFinite(value) || value < 0) {
       showFieldError(selector, `${label} must be a non-negative amount.`);
@@ -369,10 +430,13 @@ async function createManualBooking() {
       location: $('#mLocation').val().trim(),
       guests: Number($('#mGuests').val() || 0),
       special_requests: $('#mSpecialRequests').val().trim(),
-      service_ids: serviceIds, package_id: $('#mPackage').val(),
+      theme_notes: $('#mThemeNotes').val().trim(),
+      preparation_minutes: Number($('#mPreparation').val() || 0), travel_minutes: Number($('#mTravel').val() || 0),
+      service_ids: serviceIds, package_id: $('#mPackage').val() || null,
       addon_ids: addonIds,
       discount, fees,
-      subtotal, addons_total: addonsTotal, total,
+      subtotal, addons_total: addonsTotal, total, agreed_total: agreedTotal,
+      approve_conflicts: Boolean(reviewedConflictApproval), conflict_ids: reviewedConflictApproval?.ids || [], override_reason: reviewedConflictApproval?.reason || '',
       amount_paid: 0,
       status: "Pending",
       source: $('#mSource').val()

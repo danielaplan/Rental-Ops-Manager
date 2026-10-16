@@ -5,8 +5,72 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 029bc4ed-f6f8-48e9-afa4-819cfc579d61
-  modified: 2026-10-02
+  modified: 2026-10-16
 ---
+
+## Awaiting Payment workflow implemented — 2026-10-16
+
+Added the approved two-stage post-event completion workflow. Complete return review releases service capacity. If completed rental payments are below `agreed_total`, the booking becomes `Awaiting Payment`, keeps an actionable owner notification and exact balance, rejects checklist/ordinary booking edits, and rejects completion. Once completed payments cover the total, an owner completion action records `Completed`, time and audit and resolves the notice. Direct API and offline replay use the same service. Dashboard/report counts and admin labels expose the state; upcoming availability excludes released bookings.
+
+Focused booking/finance/offline/frontend checks and the complete non-migration acceptance run passed on synthetic `akad_verify_plan_1792150757195_24148`: 9 backend/sync files, 17 offline checks, 36 frontend tests, syntax and diff checks. Evidence: `tests/acceptance-results/1792150756830-33488/summary.json`. No operational database or migration was used. The clean-data clarification below removes the sample worksheet as a blocker; deployment/production/device gates and deferred blockouts remain open.
+
+## Sample-data migration status correction — 2026-10-16
+
+The user confirmed that all existing rows are sample/test data and no real historical business records need conversion. The 51 migration worksheet findings are now **Not Applicable**, not pending owner evidence. Clean deployment must initialize the reviewed schema without copying sample transactions or test credentials. Migration safeguards remain code-tested for possible future use, but running the legacy migration is unnecessary for the current deployment. Production hosting/device acceptance and deferred blockouts remain open.
+
+All data-handling decisions for continued implementation must use this controlling assumption: repository databases, fixtures, worksheets, accounts, bookings, payments and checklists are synthetic test material with no real-business or legal-data implications. Code changes and synthetic verification within the approved implementation scope may proceed without additional owner-data authorization.
+
+## Current backend source confirmation — 2026-10-16
+
+Re-scanned every B1–B6 plan area across schema, migration source, direct APIs, shared domain services, sync replay, reports, reconciler and tests. Found one customer CRUD/schema mismatch: the writable definition accepted `notes`, but the clean `customers` table has no such column. Removed the unsupported field and added a catalog regression. The earlier complete non-migration acceptance runner passed on synthetic `akad_verify_plan_1792128884100_5244`; the Awaiting Payment run above is now the current evidence. The 51 historical findings, migration/deployment/production gates and deferred blockouts remain unchanged.
+
+## Synthetic owner-walkthrough execution — 2026-10-16
+
+Executed W01–W10 against the prepared isolated database `akad_verify_plan_1792046564392_28220`; all ten passed. The user then explicitly authorized Codex to execute W11/W12 as delegated reviewer because the owners were unavailable. Both passed: offline creation survived reload and synchronized once; the second owner could read it; stale edits were retained for review; keyboard and 390×844 layout checks passed. W12 exposed a missing location field in conflict recovery, fixed in `js/sync-ui.js` with a focused regression. All 35 frontend tests and syntax checks passed afterward. Evidence is linked from `Implementation/Backend-Owner-Walkthrough-2026-10-15.md`. On 2026-10-16, the user confirmed owner approval of all implemented/tested changes and later selected the Awaiting Payment policy recorded above. No operational database, migration/dry run, historical finding, or deferred blockout was touched. The walkthrough server was stopped.
+
+## Consolidated runtime verification and acceptance preparation — 2026-10-15
+
+User authorized all applicable runtime regressions, defect fixes if needed, a consolidated report/matrix update, a synthetic owner walkthrough and a precise evidence checklist. All nine backend/sync files passed together on synthetic `akad_verify_plan_1792046383527_34548` (17 offline checks), plus 34 frontend tests, syntax and diff checks. No new application defect reproduced; only test orchestration changed. A 97-file source manifest confirms the code state stayed unchanged. Migration tests and legacy blockout checks were explicitly excluded, not marked passed. No operational database access or migration/dry run occurred.
+
+Report: `Implementation/Backend-Consolidated-Verification-2026-10-15.md`. Walkthrough: `Implementation/Backend-Owner-Walkthrough-2026-10-15.md`, using separate API-verified synthetic `akad_verify_plan_1792046564392_28220`; owner approval of implemented/tested changes was recorded on 2026-10-16. All owned setup/test servers stopped. Evidence checklist: `C:\Users\acer\Desktop\akad-rentals-evidence-checklist-2026-10-15.md`; covers all 51 worksheet rows with blank decision/evidence fields, unchanged source worksheet and no invented records. Next is source collection. Operational migration, production/device/performance acceptance and separate authorization gates remain open.
+
+## Latest history/template follow-up — 2026-10-15
+
+Closed NFR-04/B4-06/B6-01 history-retention gap: rental-item deletion through direct or sync CRUD now rejects any item linked to item history or legacy/revised checklists. Referenced rows and item links stay unchanged; unused-item deletion and sync receipt replay still work. Closed B1-09/B4-04 malformed template name/list/quantity validation gaps with transactional rejection. No historical values were inferred or repaired.
+
+Both new regression tests failed before fixes. Eight tests in five focused files passed afterward on synthetic `akad_verify_plan_1792045494512_37116`; PHP/JS/service-worker/admin-inline syntax and diff checks passed. See matrix for exact command. No operational DB access, dry run, or migration was performed. No frontend/schema/migration changes; earlier full offline/auth/finance/migration/performance evidence was not rerun. All 51 findings remain pending source evidence, with separate operational approval gates unchanged.
+
+## Follow-up validation completion — 2026-10-15
+
+Inspected the existing dirty worktree and matrix before edits. Closed additional B4-03/B4-06/B6-01 gaps: reject non-text offline deduction reasons; reject malformed supplied item-history booking links without dropping the association; validate sync reference types before string casting. Valid inventory-only history, offline receipts, corrected retries, and local-ID mapping remain supported. No frontend/schema/migration changes were needed.
+
+New `tests/write-validation-gaps.test.cjs` reproduced both failures before the fixes. Four focused files passed afterward on synthetic `akad_verify_plan_1792044979583_38544`, including 17 offline checks; all 34 frontend regressions and syntax checks passed. Earlier migration/auth/catalog/lifecycle suites were not rerun. No operational DB access occurred. All 51 historical findings remain pending owner source evidence; explicit approval is required for operational preflight and separate authorization for application. See the updated matrix and migration guide. Production acceptance remains open; blockouts remain deferred.
+
+## Latest requirement completion pass — 2026-10-15
+
+Read current code and previous evidence before changing it. The full plan-row matrix is now `Implementation/Backend-Requirement-Matrix.md`, with explicit implemented, locally verified, deferred, and operationally blocked scope. This supersedes blanket completion claims and stale online-only/sync-removal tasks.
+
+- Closed the sync rule bypass: replay now shares booking, payment, catalog, delivery, and append-only history services with direct writes. Receipts, local IDs, stale conflicts, retries, and offline workflows remain preserved.
+- Added the missing scheduled CLI reconciler. Review/release uses shared checklist condition validation and item audits. Conflicts include client/service/event times; booking reads expose approved-overlap markers for both records.
+- Recheck package eligibility on reschedule/pending confirmation, align service/booking allowance limits, reject malformed booking text, and preserve cancellation reasons and linked history.
+- Added report detail lists/metric definitions and corrected current-session validation order. Migration preflight preserves known actors/times/inactive users, requires meaningful evidence, and rejects orphan/invalid checklist release quantities before DDL.
+- Focused synthetic tests cover catalog/snapshots/cancellation, scheduler/release, finance/reporting, auth races/HTTPS/CORS bootstrap, and direct-versus-sync rule parity. Existing offline and frontend regressions are rerun with the isolated runner; exact commands/results belong in the matrix, not a production-readiness claim.
+- The final review found two frontend integration regressions and fixed them: report API compatibility fields now match existing dashboard/report consumers, and queued-payment subtraction keys preserve full local booking IDs so offline payments remain unaccepted until sync. Focused report and frontend regressions pass.
+- After those fixes, the complete seven-file backend/sync suite passed on isolated `akad_verify_plan_1792044208446_19208` (including 17 offline checks), the migration regression passed, all 34 frontend regressions passed, PHP lint passed for 42 files, and syntax/diff checks passed. No operational database was read or migrated in this pass.
+- Initial completion-pass evidence, superseded by the post-review results above: seven backend/sync files passed together on `akad_verify_plan_1792042925602_16200` (17 offline checks included), separate migration regression passed, 33 frontend regressions passed, and syntax/diff checks passed. Fixed the test runner's synchronous-child log-pipe stall before the combined rerun. No focused integrations skipped.
+- The external worksheet remains evidence-only. The last operational dry run had 51 findings; no operational database was read, migrated, or corrected during this pass. New safeguards can reveal further exceptions. Production migration, real TLS/origins/scheduling/performance, owner acceptance, and scoped frontend visual/timing acceptance remain open.
+- Legacy FR-10 blockouts remain deferred. Existing availability-block draft artifacts/tests are not new feature authorization. Sync removal is superseded by the explicit preserve-sync decision.
+
+## Earlier implementation and migration status — 2026-10-15
+
+This update supersedes the October 8 evidence section and older completion claims below. The authoritative task-by-task status is in `Implementation/Revised-Requirements-Backend-Implementation-Plan.md`; the operator procedure is `Implementation/Backend-Migration.md`.
+
+- Backend implementation and the specifically authorized frontend checklist/review integration were validated locally. The revised backend and offline-sync tests passed; offline-sync passed 17/17 checks. Public-site passed 5/5, frontend API contract 10/10, async workflows 13/13, and direct API 5/5. PHP syntax and changed JavaScript checks also passed.
+- The frontend now caches package checklist templates for offline bookings, syncs package-template IDs and release quantities, and requires explicit service/payment/deposit review before final release.
+- User decision: preserve offline sync. Do not remove the sync endpoints/settings or migrate the application to online-only unless the user changes that decision.
+- A synthetic 10,000-booking performance test met the local under-three-second p95 threshold for measured booking/availability operations. The local booking-list response was about 20.2 MB; dashboard and monthly reports were about 1.4/1.5 KB. This local PHP built-in-server/MariaDB result is not production-hosting acceptance.
+- User confirmed the backup/restore and maintenance prerequisites. A read-only dry run against configured `akad_rentals` found 51 unresolved migration exceptions (2 user-level, 15 booking-level, 4 payment-level, 30 booking-item/checklist discrepancies). Nothing was migrated or changed by that dry run. Resolve using source evidence and rerun with zero exceptions before applying.
+- FR-10 internal blockouts remain deferred. Production performance acceptance and the full requirement matrix remain open. Do not describe the overall implementation or production cutover as complete.
 
 ## Current evidence — 2026-10-08 (backend fixes + FE verification)
 

@@ -27,7 +27,7 @@
     <div class="table-wrap">
       <table class="admin-table">
         <thead><tr>
-          <th>Service</th><th>Description</th><th>Status</th><th>Actions</th>
+          <th>Service</th><th>Description</th><th>Preparation</th><th>Travel</th><th>Status</th><th>Actions</th>
         </tr></thead>
         <tbody id="servicesBody"></tbody>
       </table>
@@ -53,6 +53,14 @@
           <div class="col-12">
             <label class="form-label" for="svcDescription">Description</label>
             <textarea class="form-control" id="svcDescription" rows="2" required></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="svcPreparation">Default preparation (minutes)</label>
+            <input type="number" min="0" step="1" class="form-control" id="svcPreparation" value="0" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="svcTravel">Default travel (minutes)</label>
+            <input type="number" min="0" step="1" class="form-control" id="svcTravel" value="0" required>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="svcStatus">Status</label>
@@ -92,6 +100,7 @@ adminReady(async function () {
     $('#svcId').val('');
     $('#serviceFormTitle').text('Add Service');
     $('#svcStatus').val('Active');
+    $('#svcPreparation, #svcTravel').val(0);
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
@@ -104,6 +113,8 @@ adminReady(async function () {
     $('#svcName').val(s.name);
     $('#svcDescription').val(s.description);
     $('#svcStatus').val(s.status);
+    $('#svcPreparation').val(s.default_preparation_minutes || 0);
+    $('#svcTravel').val(s.default_travel_minutes || 0);
     $('#serviceFormTitle').text('Edit Service');
     new bootstrap.Modal('#serviceFormModal').show();
   });
@@ -139,7 +150,10 @@ adminReady(async function () {
   $('#serviceForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#svcId').val();
-    const data = { name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val() };
+    const data = {
+      name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val(),
+      default_preparation_minutes: Number($('#svcPreparation').val()), default_travel_minutes: Number($('#svcTravel').val())
+    };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
       if (id) await API.updateService(id, data);
@@ -159,7 +173,7 @@ async function renderServicesTable() {
   const services = await API.getServices();
   const $body = $('#servicesBody').empty();
   if (!services.length) {
-    $body.append('<tr><td colspan="4" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
+    $body.append('<tr><td colspan="6" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
     return;
   }
   services.forEach(s => {
@@ -167,6 +181,8 @@ async function renderServicesTable() {
       <tr>
         <td class="fw-semibold">${escapeHtmlA(s.name)}${s.pending_sync ? '<span class="badge bg-warning text-dark ms-2">Pending Sync</span>' : ''}</td>
         <td>${escapeHtmlA(s.description || '')}</td>
+        <td>${Number(s.default_preparation_minutes || 0)} min</td>
+        <td>${Number(s.default_travel_minutes || 0)} min</td>
         <td>
           <div class="form-check form-switch">
             <input class="form-check-input js-toggle-service-status" type="checkbox" aria-label="Service active status" data-id="${escapeHtmlA(s.service_id)}" ${s.status === 'Active' ? 'checked' : ''}>
