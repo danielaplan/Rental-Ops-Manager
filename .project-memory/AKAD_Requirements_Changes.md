@@ -171,3 +171,8 @@ Completed gap analysis of AKAD Sweet Party Rental requirements documentation aga
 - Moved from "backend complete, frontend partial" to "backend fully complete with all critical fixes (Oct 8, 2026)"
 - All critical backend gaps closed: total auto-calc, status transition re-check, karaoke-only overlap, payment status logic, sync queue endpoint, delivery/package validation, equipment finalizeReturn, CRUD default precedence fix, Completed bypass fix
 - Ready for frontend integration and runtime verification (PHP server + MySQL confirmed running locally)
+# Frontend implementation continuation — 2026-10-17
+
+The user explicitly authorized continuing the revised frontend implementation. Added the missing authoritative booking availability preview endpoint and the missing package/checklist, primary-owner administration, and read-only audit pages. Completed dedicated reason-required cancellation, historical package snapshot display, delivery notes/responsibility values, calendar approved-overlap markers, itemized deposit deduction/refund UI, payment-date report wording, operational report totals, and package popularity. Offline sync and its UI/APIs remain present; legacy internal availability blockouts remain deferred.
+
+The final isolated acceptance runner passed 9 backend/sync test files, 17 offline integration checks, 37 frontend regression tests, and all PHP/JavaScript/service-worker/admin-inline syntax checks. Evidence: `tests/acceptance-results/1792178839273-14600`. Live checks verified the new pages and 375×812 document containment. Itemized deduction and refund operations now remain in the offline outbox and replay through the shared backend rules. Local synthetic evidence is not production or owner acceptance.

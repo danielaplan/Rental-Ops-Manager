@@ -1,0 +1,10 @@
+warning: in the working copy of '.project-memory/AKAD_Requirements_Changes.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Implementation/Revised-Requirements-Frontend-Implementation-Plan.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/audit.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/bookings.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/sync.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'js/sync.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/frontend-api-contract.test.cjs', LF will be replaced by CRLF the next time Git touches it
+.project-memory/AKAD_Approval.md:178: new blank line at EOF.
+.project-memory/AKAD_Requirements_Changes.md:179: new blank line at EOF.

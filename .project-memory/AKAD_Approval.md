@@ -172,3 +172,6 @@ Provides clear baseline of current state vs requirements with implemented and ve
 ## How to apply
 
 Use this memory to quickly context future conversations about the AKAD requirements analysis and implementation next steps.
+# Frontend implementation authorization — 2026-10-17
+
+The user asked to proceed with frontend implementation. This authorizes frontend code, the smallest supporting read-only backend contract required by the frontend, focused tests, isolated synthetic acceptance runs, and plan/memory updates. Preserve offline synchronization, the dirty worktree, and unrelated user changes. FR-10 internal availability blockouts remain deferred. No staging, commit, push, deployment, operational migration, or production-readiness claim is included.

@@ -357,7 +357,7 @@ async function checkAvailability() {
     $('#mSubmitBtn').prop('disabled', true);
   } else {
     const offline = availability.some(entry => entry.result.offline);
-    $status.html(`<span class="availability-pill available"><i class="bi bi-info-circle"></i> ${offline ? 'Offline cached check complete; the server will verify during sync' : 'Available — verified by the server'}</span>`);
+    $status.html(`<span class="availability-pill available"><i class="bi bi-info-circle"></i> ${offline ? 'No conflict in cached data; the server will verify during sync' : 'No conflict — verified by the server'}</span>`);
     $('#mSubmitBtn').prop('disabled', manualSaving);
   }
 }

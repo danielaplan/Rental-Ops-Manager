@@ -26,7 +26,7 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
       <div>
         <div class="panel-title mb-1">Report Date Range</div>
-        <div class="text-muted small">Bookings and collected payments are grouped by event date, not payment date.</div>
+        <div class="text-muted small">Booking activity uses event dates. Collected revenue uses completed-payment dates.</div>
       </div>
       <div class="d-flex align-items-center gap-2">
         <span class="badge bg-light text-dark border" id="reportRangeLabel">All booking dates</span>
@@ -73,6 +73,17 @@
   </div>
 
   <div class="row g-2 mb-3 admin-summary-cards" id="reportStatsRow"></div>
+
+  <div class="panel mb-3" id="reportOperationalSummary">
+    <div class="panel-title">Operational totals</div>
+    <div class="small text-muted mb-3">Revenue and popularity follow the selected period. Balances, deposits, completed bookings, cancellations, and approved overlaps are lifetime totals.</div>
+    <div class="row g-2 admin-summary-cards" id="reportOperationalCards"></div>
+  </div>
+
+  <div class="panel mb-3">
+    <div class="panel-title">Package Popularity</div>
+    <div class="table-wrap"><table class="admin-table"><thead><tr><th>Package</th><th>Service</th><th>Bookings</th><th>Completed</th><th>Cancelled</th></tr></thead><tbody id="packagePopularityBody"></tbody></table></div>
+  </div>
 
   <div class="panel">
     <div class="panel-title">Damaged / Missing Rental Items</div>
@@ -223,6 +234,22 @@ async function renderReport(startDate, endDate) {
         </div>
       </div>`);
   });
+
+  const balances=r.balances||{}, bookingTotals=r.bookings||{}, overlaps=r.overlaps||{};
+  const operational=[
+    ['Pending payments',BookingCalc.formatCurrency(balances.pending_payments||0)],
+    ['Failed payments',BookingCalc.formatCurrency(balances.failed_payments||0)],
+    ['Deposits held',BookingCalc.formatCurrency(balances.deposits_held||0)],
+    ['Refunds available',BookingCalc.formatCurrency(balances.refunds_available||0)],
+    ['Deductions',`${Number(balances.total_deductions||0)} · ${BookingCalc.formatCurrency(balances.total_deductions_amount||0)}`],
+    ['Upcoming in period',Number(bookingTotals.upcoming?.upcoming_count||0)],
+    ['Completed lifetime',Number(bookingTotals.completed?.completed_count||0)],
+    ['Cancelled lifetime',Number(bookingTotals.cancelled?.cancelled_count||0)],
+    ['Approved overlaps',Number(overlaps.total_overlaps||0)]
+  ];
+  $('#reportOperationalCards').html(operational.map(([label,value])=>`<div class="col-6 col-md-4 col-xl"><div class="stat-card compact-stat-card"><div class="stat-label">${escapeHtmlA(label)}</div><div class="stat-value">${escapeHtmlA(value)}</div></div></div>`).join(''));
+  const packageRows=r.popularity?.packages||[];
+  $('#packagePopularityBody').html(packageRows.length?packageRows.map(row=>`<tr><td>${escapeHtmlA(row.package_name)}</td><td>${escapeHtmlA(row.service_name)}</td><td>${Number(row.booking_count)}</td><td>${Number(row.completed_count)}</td><td>${Number(row.cancelled_count)}</td></tr>`).join(''):'<tr><td colspan="5" class="text-center text-muted py-3">No package bookings in this period.</td></tr>');
 
   reportCharts.forEach(chart => chart.destroy());
   reportCharts = [];

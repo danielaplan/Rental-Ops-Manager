@@ -341,3 +341,21 @@ test('pending offline payments remain keyed by the exact local booking ID', asyn
   assert.equal(pending.get(pendingBookingId), 250);
   assert.equal(accepted, 0, 'queued local payments must not count as server-accepted revenue');
 });
+
+test('itemized deposit deduction and refund actions remain in the offline outbox', async () => {
+  const { context } = createHarness();
+
+  await context.API.upsertDeposit('BK-001', { amount_held: 350 });
+  const deducted = await context.API.addDepositDeduction('BK-001', {
+    affected_item: 'Table cloth', reason: 'Synthetic stain', amount: 50
+  });
+  const refunded = await context.API.refundDeposit('BK-001');
+
+  assert.equal(deducted.deduction_amount, 50);
+  assert.equal(deducted.refund_amount, 300);
+  assert.equal(refunded.refund_status, 'Refunded');
+  assert.equal(
+    context.API.getSyncQueue().filter(item => item.entity === 'deposits').map(item => item.action).join(','),
+    'upsert,deduct,refund'
+  );
+});

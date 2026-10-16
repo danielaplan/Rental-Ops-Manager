@@ -291,10 +291,25 @@
     }catch(error){emit('api-read-error',{entity:'deposits',message:error.message});return await API.getDeposit(id);}
   };
   API.upsertDeposit=async(id,data)=>{
-    const held=Number(data.amount_held),ded=Number(data.deduction_amount);
+    const held=Number(data.amount_held),ded=Number(data.deduction_amount||0);
     if(!Number.isFinite(held)||!Number.isFinite(ded)||held<0||ded<0||ded>held||(ded>0&&!String(data.deduction_reason||'').trim()))throw new Error('Enter non-negative amounts, keep deductions within the deposit, and give a reason for deductions.');
-    const refundStatus=held<=0?'pending':ded<=0?'full':ded<held?'partial':'none';
-    const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));const result={...data,booking_id:id,refund_amount:held-ded,refund_status:refundStatus,pending_sync:true};rows.push(result);saveRows('deposits',rows);enqueue('deposits','upsert',result,id);return result;
+    const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));const result={...data,booking_id:id,deductions:[],deduction_amount:ded,refund_amount:held-ded,refund_status:'Held',pending_sync:true};rows.push(result);saveRows('deposits',rows);enqueue('deposits','upsert',result,id);return result;
+  };
+  API.addDepositDeduction=async(id,data)=>{
+    const deposit=await API.getDeposit(id),amount=Number(data.amount),held=Number(deposit.amount_held||0),current=Number(deposit.deduction_amount||0);
+    if(!deposit.deposit_id&&!deposit.pending_sync)throw new Error('Save the held deposit before adding deductions.');
+    if(!Number.isFinite(amount)||amount<=0||!String(data.affected_item||'').trim()||!String(data.reason||'').trim()||current+amount>held)throw new Error('Enter an affected item, reason, and amount within the held deposit.');
+    const deduction={deduction_id:'LOCAL-deduction-'+uuid(),affected_item:data.affected_item,reason:data.reason,amount,recorded_at:new Date().toISOString(),pending_sync:true};
+    Object.assign(deposit,{deductions:[...(deposit.deductions||[]),deduction],deduction_amount:current+amount,refund_amount:held-current-amount,pending_sync:true});
+    saveRows('deposits',STORAGE.getAll('deposits').map(row=>String(row.booking_id)===String(id)?deposit:row));
+    enqueue('deposits','deduct',{booking_id:id,affected_item:data.affected_item,reason:data.reason,amount},id);return deposit;
+  };
+  API.refundDeposit=async id=>{
+    const deposit=await API.getDeposit(id);
+    if(Number(deposit.refund_amount||0)<=0)throw new Error('No refundable balance remains for this deposit.');
+    Object.assign(deposit,{refund_status:'Refunded',refund_date:new Date().toISOString(),pending_sync:true});
+    saveRows('deposits',STORAGE.getAll('deposits').map(row=>String(row.booking_id)===String(id)?deposit:row));
+    enqueue('deposits','refund',{booking_id:id},id);return deposit;
   };
   API.getDelivery=async id=>STORAGE.getAll('delivery').find(r=>String(r.booking_id)===String(id))||{booking_id:id,delivery_method:'self_pickup',delivery_fee:0,fee_shouldered_by:'renter'};
   API.refreshDelivery=async id=>{
@@ -310,11 +325,11 @@
   };
   API.upsertDelivery=async(id,data)=>{
     const fee=Number(data.delivery_fee);
-    if(!['self_pickup','lalamove','owner_delivered'].includes(data.delivery_method)||!['renter','owner'].includes(data.fee_shouldered_by)||!Number.isFinite(fee)||fee<0)throw new Error('Choose a delivery method and fee arrangement, and enter a non-negative delivery fee.');
+    if(!['self_pickup','lalamove','owner_delivered'].includes(data.delivery_method)||!['renter','owner','included','Customer','Owner','Included in package'].includes(data.fee_shouldered_by)||!Number.isFinite(fee)||fee<0)throw new Error('Choose a delivery method and fee arrangement, and enter a non-negative delivery fee.');
     if(!owner())throw new Error('Sign in before saving delivery details.');
-    const record={booking_id:id,delivery_method:data.delivery_method,delivery_fee:fee,fee_shouldered_by:data.fee_shouldered_by,pending_sync:true};
+    const record={booking_id:id,delivery_method:data.delivery_method,delivery_fee:fee,fee_shouldered_by:data.fee_shouldered_by,delivery_notes:data.delivery_notes||null,pending_sync:true};
     const rows=STORAGE.getAll('delivery').filter(r=>String(r.booking_id)!==String(id));rows.push(record);saveRows('delivery',rows);
-    enqueue('delivery','upsert',{booking_id:id,delivery_method:record.delivery_method,delivery_fee:fee,fee_shouldered_by:record.fee_shouldered_by},id);
+    enqueue('delivery','upsert',{booking_id:id,delivery_method:record.delivery_method,delivery_fee:fee,fee_shouldered_by:record.fee_shouldered_by,delivery_notes:record.delivery_notes},id);
     return record;
   };
   API.getSyncQueue=queue;

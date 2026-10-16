@@ -134,8 +134,9 @@ const ADMIN_NAV = [
 
 const OWNER_ONLY_ADMIN_PAGES = new Set([
   'services.html', 'packages.html', 'categories.html', 'addons.html', 'gallery.html',
-  'content.html', 'settings.html', 'audit.html', 'owners.html'
+  'content.html', 'settings.html', 'audit.html'
 ]);
+const PRIMARY_OWNER_ONLY_ADMIN_PAGES = new Set(['owners.html']);
 let adminSpaActive = false;
 let adminSpaNavigationBound = false;
 let adminSpaNavigationVersion = 0;
@@ -147,6 +148,11 @@ const adminSpaInitializedPages = new Set();
 function isOwnerAdmin() {
   const session = STORAGE._get(STORAGE_KEYS.adminSession, {});
   return String(session?.user?.role || '').toLowerCase() === 'owner';
+}
+
+function isPrimaryOwnerAdmin() {
+  const session = STORAGE._get(STORAGE_KEYS.adminSession, {});
+  return Boolean(Number(session?.user?.is_primary_owner));
 }
 
 function getAdminBusinessName(settings) {
@@ -169,11 +175,13 @@ async function renderAdminSidebar(activeHref) {
     if (item.section) {
       const visibleInSection = ADMIN_NAV.slice(index + 1).some(next => {
         if (next.section) return false;
-        return !OWNER_ONLY_ADMIN_PAGES.has(next.href) || isOwnerAdmin();
+        return (!OWNER_ONLY_ADMIN_PAGES.has(next.href) || isOwnerAdmin()) &&
+          (!PRIMARY_OWNER_ONLY_ADMIN_PAGES.has(next.href) || isPrimaryOwnerAdmin());
       });
       if (visibleInSection) html += `<div class="nav-section-label">${item.section}</div>`;
     } else {
       if (OWNER_ONLY_ADMIN_PAGES.has(item.href) && !isOwnerAdmin()) return;
+      if (PRIMARY_OWNER_ONLY_ADMIN_PAGES.has(item.href) && !isPrimaryOwnerAdmin()) return;
       const active = item.href === activeHref ? 'active' : '';
       html += `<a class="nav-link ${active}" href="${item.href}"><i class="bi ${item.icon}"></i> ${item.label}</a>`;
     }
@@ -196,6 +204,11 @@ async function initAdminChrome(activeHref, pageTitle) {
       if (main) main.hidden = true;
       window.location.replace('dashboard.html');
     }
+    return;
+  }
+  if (PRIMARY_OWNER_ONLY_ADMIN_PAGES.has(activeHref) && !isPrimaryOwnerAdmin()) {
+    if (adminSpaActive) await navigateAdminPage('dashboard.html', { replace: true });
+    else window.location.replace('dashboard.html');
     return;
   }
   if (adminSpaActive) {
