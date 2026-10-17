@@ -1,378 +1,581 @@
-# TASK: Optimize Rental-Ops-Manager for Both Codex and Claude Code
+# AI Second Brain — Setup and Usage Guide
 
-## PROJECT
-
-Repository: `danielaplan/Rental-Ops-Manager`
-
-AI development assistants:
-- OpenAI Codex
-- Claude Code
-
-Documentation system: Unified Obsidian Second Brain
-
-## MAIN OBJECTIVE
-
-Create a shared, accurate, lightweight **AI Project Knowledge Index** that allows both Codex and Claude Code to understand and navigate the Rental-Ops-Manager repository efficiently.
-
-The project already contains extensive documentation explaining its frontend, backend, database, business workflows, requirements, implementation history, and approved development decisions.
-
-The goal is NOT to make AI read all documentation every time.
-
-The goal is to help AI identify the **smallest relevant set of files** needed to understand and safely complete a development task.
-
-Both AI assistants must use the same authoritative project knowledge, follow consistent development rules, and maintain documentation when meaningful application changes occur.
+**Project:** AKAD Sweet Party Rentals — Rental-Ops-Manager  
+**AI Assistants:** OpenAI Codex and Claude Code  
+**Knowledge Management:** Obsidian + Markdown + Git
 
 ---
 
-## PHASE 1 — INSPECT THE CURRENT PROJECT
+## 1. Introduction
 
-Before creating or modifying anything, inspect:
+Welcome to the **Rental-Ops-Manager AI Second Brain**!
 
-- `README.md`
-- `CLAUDE.md`, if present
-- `AGENTS.md`, if present
-- `.project-memory/`
-- `Understand the System/`
-- `Implementation/`
-- `Source Documents/`
-- `00 Second Brain Home/`, if present
-- `api/`
-- `js/`
-- `admin/`
-- `db/`
-- `tests/`
-- Existing repository instructions and configuration files
+The AI Second Brain is a shared knowledge system designed to help developers, AI coding assistants, and nontechnical group members understand how our rental management application works.
 
-Read relevant documents selectively.
+Instead of repeatedly exploring the entire codebase, AI assistants can use our organized documentation to locate relevant files, understand existing features, review development decisions, and make informed changes.
 
-Verify the actual repository structure and current Git state.
+The system is designed to support two AI development assistants:
 
-Do not assume that previously documented file counts, paths, functions, database schemas, or features are still accurate.
+- **OpenAI Codex** — Uses `AGENTS.md` for project-level instructions.
+- **Claude Code** — Uses `CLAUDE.md` for project-level instructions.
 
-Use the current source code to establish implementation behavior.
+Both assistants use the same `PROJECT_INDEX.md` and knowledge sources.
 
-Use approved project decisions to determine authorized scope.
+### Our main goals
 
-Preserve existing instructions that remain relevant.
+1. Help AI assistants understand the project more efficiently.
+2. Reduce unnecessary file searching and token consumption where possible.
+3. Preserve important development decisions and requirements.
+4. Keep technical and beginner-friendly documentation accurate.
+5. Record meaningful changes to frontend, backend, database, and workflows.
+6. Enable different developers and AI assistants to work with consistent project knowledge.
+
+**Important:** The AI Second Brain is not an independent AI agent that continuously monitors files. Documentation maintenance happens when the AI assistants are actively working, or when a separate automation is configured.
 
 ---
 
-## PHASE 2 — CREATE PROJECT_INDEX.md
+## 2. Project Structure
 
-Create the following file in the repository root:
+The AI Second Brain operates within the existing Rental-Ops-Manager repository.
 
-`PROJECT_INDEX.md`
+```text
+Rental-Ops-Manager/
+│
+├── AGENTS.md
+│   └── Project instructions for Codex
+│
+├── CLAUDE.md
+│   └── Project instructions for Claude Code
+│
+├── PROJECT_INDEX.md
+│   └── Shared feature-to-code navigation index
+│
+├── README-AI-SECOND-BRAIN.md
+│   └── This setup and usage guide
+│
+├── .obsidian/
+│   └── Unified Obsidian vault configuration
+│
+├── 00 Second Brain Home/
+│   └── Home.md
+│
+├── 05 Development Journal/
+│   └── Development changes and progress logs
+│
+├── 99 Templates/
+│   └── Reusable documentation templates
+│
+├── Understand the System/
+│   └── Beginner-friendly and technical explanations
+│
+├── Source Documents/
+│   └── Requirements and original designs
+│
+├── Implementation/
+│   └── Development plans and verification records
+│
+├── .project-memory/
+│   └── Project context, approvals, and decisions
+│
+├── admin/
+├── api/
+├── db/
+├── js/
+└── tests/
+```
 
-This will be the shared navigation index used by both Codex and Claude Code.
-
-It should be concise, organized, highly searchable, and optimized for efficient AI navigation.
-
-### Required sections
-
-**1. Project Overview**
-
-Briefly describe Rental-Ops-Manager, its technology stack, and its main responsibilities.
-
-**2. Quick Navigation**
-
-Provide direct links to the most important entry points, including:
-
-- Beginner-friendly System Understanding
-- Technical System Understanding
-- Current Implementation Gaps
-- Project Memory
-- Approved Requirements
-- Implementation Plans
-- Backend API Reference
-- Database Overview
-- Frontend Overview
-- Tests and Verification
-
-**3. Feature-to-Code Mapping**
-
-Create a table connecting each major feature to its actual implementation files, documentation, and relevant tests.
-
-Use this structure:
-
-| Feature | Frontend | Backend | Database | Documentation | Tests |
-|---|---|---|---|---|---|
-| Authentication | Verified paths | Verified paths | Relevant tables | Relevant notes | Relevant tests |
-| Bookings | ... | ... | ... | ... | ... |
-| Availability | ... | ... | ... | ... | ... |
-| Payments | ... | ... | ... | ... | ... |
-| Deposits | ... | ... | ... | ... | ... |
-| Equipment | ... | ... | ... | ... | ... |
-| Offline Sync | ... | ... | ... | ... | ... |
-| Reports | ... | ... | ... | ... | ... |
-
-Include other major features discovered in the actual repository, such as owner management, notifications, audit history, delivery, catalog management, and website content.
-
-Never invent mappings or tests.
-
-**4. Business Workflow Index**
-
-Map major workflows to their human-readable explanations and supporting source files.
-
-**5. Database Navigation**
-
-Explain where to find database table definitions, column descriptions, relationships, and schema verification.
-
-Do not duplicate the full schema.
-
-**6. Approved Decisions and Requirements**
-
-Identify where AI should find controlling approvals, current requirements, deferred work, and relevant implementation decisions.
-
-Clearly distinguish proposals from approvals.
-
-**7. Testing and Verification**
-
-Provide accurate commands and paths for relevant tests, with any environment prerequisites.
-
-Do not assume that a test passes simply because it exists.
-
-**8. Known Limitations**
-
-Link to the authoritative limitations and deployment documentation rather than copying long descriptions.
-
-**9. Index Maintenance**
-
-Explain when and how the index should be updated as source files, architecture, or workflows change.
-
-### Index design requirements
-
-- Prioritize navigation over lengthy explanations.
-- Avoid copying entire documentation pages.
-- Keep descriptions concise.
-- Use accurate relative Markdown links.
-- Support GitHub and Obsidian.
-- Organize the index for both humans and AI agents.
-- Avoid excessive duplication.
-- Identify authoritative sources.
-- Record the Git commit SHA used for verification.
+The three AI-related root files (`AGENTS.md`, `CLAUDE.md`, and `PROJECT_INDEX.md`) must be created or verified during setup. They are not automatically created simply by installing Obsidian.
 
 ---
 
-## PHASE 3 — CONFIGURE CODEX WITH AGENTS.md
+## 3. Prerequisites
 
-Create or update the repository-root:
+Before setting up the AI Second Brain, ensure you have:
+
+- Visual Studio Code
+- Git
+- Obsidian
+- Access to the Rental-Ops-Manager repository
+- Claude Code and/or OpenAI Codex installed and authenticated
+- The unified Obsidian vault configuration
+- The three AI configuration files
+
+Both assistants should have appropriate file access to the local repository.
+
+You do not need both AI assistants installed to use the Second Brain. Either one can follow the shared knowledge structure independently.
+
+---
+
+## 4. Setting Up the AI Second Brain
+
+### Step 1 — Open the project in VS Code
+
+Open the complete `Rental-Ops-Manager` folder in Visual Studio Code.
+
+Open the integrated terminal and confirm that you are working in the repository root.
+
+Example:
+
+```powershell
+cd C:\Users\acer\Desktop\Rental-Ops-Manager
+git status
+```
+
+The terminal should be inside the same folder that contains `admin`, `api`, `db`, and `Understand the System`.
+
+### Step 2 — Configure Codex
+
+Create or verify this file:
 
 `AGENTS.md`
 
-This is the project instruction file for Codex.
+This contains Codex's project instructions.
 
-It must tell Codex to:
+It should instruct Codex to:
 
-1. Read `PROJECT_INDEX.md` for task navigation.
-2. Consult only relevant documentation initially.
-3. Inspect actual source code before implementing changes.
-4. Respect approved project requirements and decisions.
-5. Protect existing application functionality.
-6. Preserve offline synchronization and business rules.
-7. Run appropriate tests.
-8. Update affected Second Brain documents after meaningful changes.
-9. Maintain beginner-friendly explanations and Next Lesson links.
-10. Keep `PROJECT_INDEX.md` updated when relevant code locations, dependencies, or architectural relationships change.
-11. Preserve unrelated working-tree changes.
-12. Avoid unnecessary documentation rewrites.
+- Use `PROJECT_INDEX.md` to navigate the project.
+- Read relevant existing documentation before making changes.
+- Verify behavior against actual application code.
+- Follow approved project requirements.
+- Update affected Second Brain documents after meaningful changes.
+- Run appropriate tests.
+- Preserve historical decisions and unrelated work.
 
-Do not require Codex to load all 96+ documentation pages into context for every task.
+### Step 3 — Configure Claude Code
 
-Use a progressive discovery process:
-
-`AGENTS.md → PROJECT_INDEX.md → Relevant documentation → Relevant code → Relevant tests`
-
-Codex must treat the index as a navigation aid, not as proof that the underlying code has not changed.
-
----
-
-## PHASE 4 — CONFIGURE CLAUDE WITH CLAUDE.md
-
-Create or update the repository-root:
+Create or verify this file:
 
 `CLAUDE.md`
 
-This file must provide Claude Code with the same core project instructions as Codex.
+This contains Claude Code's project instructions.
 
-Claude should follow this discovery process:
+It should follow the same development rules as Codex, including consulting the shared index and maintaining documentation after meaningful application changes.
 
-`CLAUDE.md → PROJECT_INDEX.md → Relevant documentation → Relevant code → Relevant tests`
+Do not overwrite existing useful instructions without reviewing them.
 
-Important requirements:
+### Step 4 — Set up the shared project index
 
-- Preserve useful existing `CLAUDE.md` instructions.
-- Do not blindly overwrite the file if one already exists.
-- Avoid duplicating long project documentation.
-- Reference the shared `PROJECT_INDEX.md`.
-- Maintain the same development safety rules as Codex.
-- Maintain the same documentation-update rules as Codex.
-- Make both assistants follow the same authoritative requirements and approval boundaries.
+Create or verify:
 
-Claude and Codex should behave consistently even when used in separate development sessions.
+`PROJECT_INDEX.md`
 
-Keep agent instruction files concise enough to avoid unnecessary context consumption.
+This is the central navigation map for both assistants.
+
+It should map major features to relevant files.
+
+For example:
+
+| Feature | Source code | Documentation |
+|---|---|---|
+| Authentication | `api/auth.php` and related files | Login and Authentication |
+| Booking Management | `api/bookings.php`, `api/booking_service.php` | Booking and Pricing |
+| Payments | `api/payments.php`, `api/payment_service.php` | Payments and Deposits |
+| Offline Synchronization | `api/sync.php` and relevant JavaScript | Offline Synchronization |
+| Database | `db/schema.sql` | Database Overview |
+
+These are representative entry points, not exhaustive dependency lists. The index must be verified against the current repository.
+
+### Step 5 — Open the Obsidian vault
+
+Open Obsidian and select:
+
+`Open folder as vault`
+
+Choose the entire `Rental-Ops-Manager` repository folder.
+
+Then open:
+
+`00 Second Brain Home/Home.md`
+
+This is the main Second Brain dashboard.
+
+If `.project-memory` is hidden, configure the Obsidian **Hidden Folders Access** community plugin to make that specific folder accessible. Avoid exposing other hidden folders unnecessarily.
+
+### Step 6 — Verify the setup
+
+Confirm that:
+
+- `AGENTS.md` is available at the repository root.
+- `CLAUDE.md` is available at the repository root.
+- `PROJECT_INDEX.md` contains valid links and file mappings.
+- The Obsidian dashboard opens successfully.
+- `Understand the System` lessons can be opened.
+- The beginner-friendly Next Lesson links work.
+- Existing project-memory files remain intact.
+
+If the unified Obsidian setup script is installed, you can also run:
+
+```powershell
+node scripts/setup-obsidian-vault.mjs --verify
+```
+
+This checks the vault setup; it does not validate the complete AI instruction workflow.
 
 ---
 
-## PHASE 5 — IMPLEMENT INTELLIGENT DOCUMENTATION MAINTENANCE
+## 5. How Codex and Claude Code Use the Second Brain
 
-Whenever either AI assistant implements a meaningful application change, it should evaluate which documentation is affected.
+Both assistants follow a similar process.
+
+```text
+Developer asks for a change
+            |
+            v
+AI reads AGENTS.md or CLAUDE.md
+            |
+            v
+AI consults PROJECT_INDEX.md
+            |
+            v
+AI reads relevant documentation
+            |
+            v
+AI checks actual source code
+            |
+            v
+AI implements the requested change
+            |
+            v
+AI runs appropriate verification
+            |
+            v
+AI updates affected documentation
+            |
+            v
+Developer reviews changes
+            |
+            v
+Changes are committed to Git
+```
+
+This is the intended development workflow, not a guaranteed automatic sequence. Developers should review the AI's output.
+
+The index helps assistants locate information efficiently but never replaces reading the actual code when implementation details matter.
+
+---
+
+## 6. Starting a New AI Development Session
+
+### Using Claude Code
+
+Open a terminal inside the project folder.
+
+```powershell
+cd C:\Users\acer\Desktop\Rental-Ops-Manager
+claude
+```
+
+Claude Code should load the repository-level `CLAUDE.md` instructions.
+
+### Using Codex
+
+Open a terminal inside the same project folder.
+
+```powershell
+cd C:\Users\acer\Desktop\Rental-Ops-Manager
+codex
+```
+
+Codex should use the applicable `AGENTS.md` instructions.
+
+### Recommended first-time verification prompt
+
+Use this prompt with either assistant:
+
+> Read your project instruction file and `PROJECT_INDEX.md`.
+>
+> Identify the relevant Second Brain knowledge sources and explain how you will use them during development.
+>
+> Confirm how you will handle meaningful code changes, documentation updates, tests, and project-memory decisions.
+>
+> Do not modify any files yet.
+
+This checks whether the assistant understands the intended workflow before development begins.
+
+---
+
+## 7. Recording Development Changes
+
+The Second Brain should be maintained whenever a meaningful application change is made.
+
+### Frontend changes
 
 Examples:
 
-**If the booking interface changes:**
-- Update affected frontend documentation.
-- Update booking workflow explanations if user behavior changed.
-- Update `PROJECT_INDEX.md` if relevant file locations or relationships changed.
+- Updating a booking form
+- Adding a new button
+- Changing a major interface workflow
+- Improving how data is displayed
 
-**If backend booking validation changes:**
-- Update affected backend/API documentation.
-- Update the corresponding business workflow explanation.
-- Update limitations and diagrams if necessary.
+Update affected documents in:
 
-**If the database structure changes:**
-- Update affected database table documentation.
-- Update database relationship explanations.
-- Update the feature index if dependencies changed.
+`Understand the System/System Understanding/Frontend/`
 
-**If an approved business requirement changes:**
-- Record the approved decision carefully in the appropriate project-memory documentation.
-- Update affected implementation and system-understanding notes.
-- Preserve the previous historical decision.
+Update related workflow lessons if user behavior changes.
 
-**If only formatting or an unrelated internal refactor changes:**
-- Avoid unnecessary documentation edits when the documentation remains accurate.
+### Backend changes
 
-### Automatic behavior during AI development tasks
+Examples:
 
-When Codex or Claude performs meaningful development work, instruct it to:
+- Changing PHP validation
+- Adding an API endpoint
+- Changing booking rules
+- Improving payment processing
 
-1. Identify the source changes.
-2. Determine which existing documentation is affected.
-3. Update only relevant Markdown documents.
-4. Record meaningful architectural or approved business decisions.
-5. Preserve historical project memory.
-6. Verify links and consistency.
-7. Report documentation updates alongside implementation results.
+Update affected documents in:
 
-This should become part of the AI's normal development workflow.
+`Understand the System/System Understanding/Backend/`
 
-However, clearly document that these instructions apply when the AI is actively working. They do not independently monitor external file changes.
+Also update connected workflow documentation where appropriate.
 
-Do not silently rewrite approval records or record AI assumptions as user-approved decisions.
+### Database changes
 
----
+Examples:
 
-## PHASE 6 — OPTIMIZE FILE DISCOVERY AND TOKEN USAGE
+- Adding a table
+- Changing database columns
+- Introducing a new relationship
+- Updating constraints
 
-Both agents should use efficient, task-focused file discovery.
+Update affected documents in:
 
-Requirements:
+`Understand the System/System Understanding/Database/`
 
-- Start with a concise index.
-- Read only the relevant sections and files.
-- Search for functions, symbols, and dependencies when needed.
-- Use targeted code searches rather than opening entire directories.
-- Avoid repeatedly reading long documents already summarized in the current task.
-- Follow references only when necessary.
-- Prefer current source files for exact implementation details.
-- Expand investigation when a change affects cross-cutting behavior or introduces uncertainty.
-- Never sacrifice correctness, security, or test coverage merely to reduce token usage.
+Database changes must be verified against the actual schema. Do not execute operational migrations merely to update documentation.
 
-Do not claim guaranteed token savings or faster execution.
+### Business workflow changes
 
-The optimization goal is to reduce unnecessary context and repository exploration while preserving accurate development decisions.
+Examples:
 
----
+- Changing the booking lifecycle
+- Modifying payment conditions
+- Changing equipment return procedures
+- Updating an approved business requirement
 
-## PHASE 7 — PRESERVE THE NON-DEVELOPER LEARNING SYSTEM
+Update affected documents in:
 
-The documentation under `Understand the System/` serves people with little or no programming knowledge.
+`Understand the System/System Understanding/Workflows/`
 
-Both agents must preserve:
+Preserve the beginner-friendly explanations and navigation links.
 
-- Friendly, conversational explanations
-- Ana's consistent fictional rental example
-- Step-by-step business workflows
-- Simple Mermaid diagrams
-- Previous Lesson links
-- Next Lesson links
-- Back to Start Here navigation
-- Optional technical explanations
-- Accurate business rules
+### Development journal
 
-Do not turn the beginner-friendly documentation into AI-only technical notes.
+Record significant development work in:
 
-`PROJECT_INDEX.md` should complement the existing learning handbook, not replace it.
+`05 Development Journal/`
+
+Each journal entry should include:
+
+- Date
+- Summary of changes
+- Files affected
+- Reason for the change
+- Tests actually performed
+- Known limitations or unfinished work
+
+### Project memory
+
+Use `.project-memory/` for meaningful long-term project context.
+
+Do not treat every code edit as a new approved decision.
+
+Approved requirements must be recorded only when approval actually exists.
+
+Do not overwrite historical approvals to make them match new assumptions.
 
 ---
 
-## PHASE 8 — SAFETY AND SCOPE
+## 8. Recommended Development Prompt
 
-This task is limited to creating or updating:
+When requesting a new feature or modification, you can use:
 
-- `PROJECT_INDEX.md`
-- `AGENTS.md`
-- `CLAUDE.md`
+> Implement the requested changes in Rental-Ops-Manager.
+>
+> Follow your project instructions and use `PROJECT_INDEX.md` to identify the relevant files.
+>
+> Review the applicable Second Brain documentation and verify behavior against the actual source code.
+>
+> After implementation, run appropriate checks and update the affected Second Brain documentation.
+>
+> Update `PROJECT_INDEX.md` if file relationships or architectural mappings changed.
+>
+> Add a development journal entry for meaningful changes.
+>
+> Preserve historical approvals and unrelated work.
+>
+> Explain what changed, which documentation was updated, and what tests were performed.
 
-Existing project documentation may be inspected but must not be rewritten during this initial indexing task.
-
-Do not modify application PHP, JavaScript, HTML, CSS, SQL, tests, or database data.
-
-Do not run migrations, deploy the application, or change production configuration.
-
-Preserve existing uncommitted work.
-
-Do not stage, commit, or push changes without explicit authorization.
-
-Keep internal knowledge and AI instructions out of publicly served production files.
+This prompt reinforces the standing instructions, especially during the initial setup period.
 
 ---
 
-## PHASE 9 — VALIDATION
+## 9. What If Changes Were Made Manually?
 
-After completing the index and agent instructions:
+If you edit code yourself, or another developer changes files, the Second Brain will not automatically update simply because those files changed.
 
-1. Verify that all referenced local files exist.
-2. Check Markdown links.
-3. Verify feature-to-code mappings against actual source files.
-4. Check that `AGENTS.md` and `CLAUDE.md` reference the same shared index.
-5. Ensure neither file contains contradictory instructions.
-6. Ensure the index does not duplicate entire documentation pages.
-7. Verify that approved and deferred features are labeled accurately.
-8. Run `git diff --check`.
-9. Confirm no application code was changed.
+Open Claude Code or Codex in the repository and use:
 
-### FINAL REPORT
+> Review the current Git changes and compare them with the appropriate baseline.
+>
+> Identify meaningful frontend, backend, database, and workflow changes.
+>
+> Update the affected Second Brain documentation and development journal.
+>
+> Preserve existing requirements, approvals, and historical records.
+>
+> Verify everything against the actual implementation.
+>
+> Do not modify application code during this documentation-review task.
 
-Provide:
+The AI can inspect uncommitted changes and committed Git history that are available locally.
 
-- The files created or modified.
-- The number of features mapped.
-- The number of links validated.
-- Any missing or uncertain mappings.
-- How Codex will use the index.
-- How Claude will use the index.
-- How both agents will maintain documentation after development tasks.
-- Any limitations of the setup.
-- Confirmation that application functionality was not modified.
+---
 
-## EXPECTED RESULT
+## 10. Working With Multiple Developers
 
-Both Codex and Claude Code should be able to receive a request such as:
+When multiple developers use the same repository, the Second Brain should remain synchronized through Git.
 
-"Improve the payment workflow."
+Recommended workflow:
 
-Instead of exploring the entire repository, the agent should:
+1. Pull the latest project changes.
+2. Open the repository using VS Code.
+3. Start Codex or Claude Code in the repository root.
+4. Implement the required changes.
+5. Review affected documentation updates.
+6. Review the Git diff.
+7. Commit both the implementation and relevant documentation.
+8. Push approved changes.
+9. Other developers pull the updated repository.
 
-1. Read its project instructions.
-2. Consult `PROJECT_INDEX.md`.
-3. Locate payment-related documentation and source files.
-4. Investigate the required implementation.
-5. Make and test the change.
-6. Update affected Second Brain notes.
-7. Report what changed.
+Example:
 
-**The ultimate goal is a shared, efficient, reliable AI development workflow where Codex and Claude Code use the same Second Brain, understand the system accurately, and keep relevant documentation synchronized with verified application changes.**
+```powershell
+git status
+git diff --check
+git diff
+```
 
-Start by investigating the current repository and creating the shared project index. Then configure both agent instruction files to use it.
+Review the changes before staging them.
+
+Example selective commit:
+
+```powershell
+git add AGENTS.md CLAUDE.md PROJECT_INDEX.md
+git commit -m "Add shared AI Second Brain instructions"
+git push origin main
+```
+
+Use those commands only after the files exist, have been reviewed, and the changes are ready to publish. In shared development, follow the team's branch and pull-request review process rather than pushing directly to `main` when review is required.
+
+---
+
+## 11. Important Limitations
+
+### AI does not continuously monitor changes
+
+A new VS Code window does not independently trigger documentation updates.
+
+Claude Code and Codex can follow their project instructions while actively completing tasks, but manual code edits, remote commits, and direct database changes require an additional review or automation process.
+
+### Instruction files do not guarantee perfect documentation
+
+AI can misunderstand a change or overlook a dependency.
+
+Review documentation updates, especially those involving business rules, authentication, payments, data integrity, or database relationships.
+
+### Faster searching is not guaranteed
+
+`PROJECT_INDEX.md` can reduce unnecessary exploration, but reading instruction files also consumes tokens.
+
+Actual performance depends on the task, context, code complexity, and how efficiently the assistant searches.
+
+### Obsidian is not a deployment system
+
+Obsidian stores and displays project knowledge. It does not replace Git, source control, automated tests, database backups, or deployment procedures.
+
+### Documentation must not expose internal information publicly
+
+Keep `.project-memory`, `.obsidian`, internal documentation, development instructions, test fixtures, and secrets outside the publicly accessible production web root.
+
+A `.gitignore` entry does not make files inaccessible through a web server.
+
+---
+
+## 12. Future Improvement — Automated Documentation Checks
+
+A future enhancement is to use GitHub Actions or another Git-integrated workflow to identify application changes that require documentation review.
+
+For example:
+
+```text
+Developer pushes code
+         |
+         v
+GitHub workflow runs
+         |
+         v
+Changed files are identified
+         |
+         v
+Documentation impact is checked
+         |
+         v
+Developer is prompted to review
+         |
+         v
+Documentation update is approved
+```
+
+A basic workflow can flag changes without corresponding documentation updates.
+
+An AI-enabled workflow could generate proposed documentation updates, but that requires additional configuration, permissions, and review safeguards.
+
+This automation is **not included simply by creating `AGENTS.md`, `CLAUDE.md`, or `PROJECT_INDEX.md`**.
+
+---
+
+## 13. Quick Troubleshooting
+
+| Problem | Suggested solution |
+|---|---|
+| Claude does not seem to follow project instructions | Confirm `CLAUDE.md` exists at the repository root and restart the Claude Code session. |
+| Codex does not use the index | Confirm `AGENTS.md` references `PROJECT_INDEX.md`. |
+| AI cannot find documentation | Confirm the assistant is running inside the correct repository folder. |
+| Obsidian cannot see `.project-memory` | Check the Hidden Folders Access plugin configuration. |
+| Documentation was not updated after a code change | Ask the assistant to review the relevant diff and update affected notes. |
+| Another developer sees old documentation | Pull the latest committed documentation changes from Git. |
+| AI reports a test passed without running it | Request the exact test command and verification evidence. |
+| A Git commit includes unwanted files | Review `git status` and stage only intended files. |
+
+---
+
+## 14. Responsibilities
+
+### Developers
+
+Developers are responsible for reviewing application changes, checking test results, and approving documentation before merging or deployment.
+
+### Codex and Claude Code
+
+AI assistants should inspect current code, follow project instructions, maintain relevant documentation, and report clearly what was and was not verified.
+
+### Project documentation maintainers
+
+Maintain the learning paths, keep links functional, preserve historical records, and ensure nontechnical group members can understand major system workflows.
+
+---
+
+## 15. Final Goal
+
+Our goal is to build a shared, maintainable knowledge system where:
+
+- Developers understand what they are changing.
+- Codex and Claude Code can locate relevant information efficiently.
+- Group members without coding experience can understand how the application works.
+- Important requirements and decisions are preserved.
+- Meaningful development changes are reflected in the documentation.
+- The Second Brain remains useful as the application grows.
+
+**One project. One shared knowledge base. Two AI development assistants.**
+
+The Second Brain should help the team understand the system, not merely store information about it.

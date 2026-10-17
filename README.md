@@ -87,6 +87,20 @@ Frontend-only checks:
 node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs
 ```
 
+## Developer and AI workflow
+
+Start with [PROJECT_INDEX.md](PROJECT_INDEX.md). It connects each feature to the relevant documentation, frontend, backend, database tables, and tests, so developers and AI assistants do not need to read the whole repository for every task.
+
+Use this order:
+
+1. Read `PROJECT_INDEX.md` and open only the files related to the task.
+2. Check the relevant requirements and approved decisions.
+3. Inspect the current source code before making changes—the index is a guide, not proof that the code is unchanged.
+4. Run the relevant tests.
+5. If application behavior changed, update only the affected Second Brain pages. Update `PROJECT_INDEX.md` when file locations, dependencies, workflows, or test commands change.
+
+Codex follows [AGENTS.md](AGENTS.md), while Claude Code follows [CLAUDE.md](CLAUDE.md). Both use the same project index and approval boundaries. These tools update documentation only while actively working; they do not monitor the repository automatically.
+
 ## Common problems
 
 | Problem | Fix |
