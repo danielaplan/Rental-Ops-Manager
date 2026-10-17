@@ -87,9 +87,17 @@ Frontend-only checks:
 node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs
 ```
 
-## Developer and AI workflow
+## AI-Assisted Development
 
 Start with [PROJECT_INDEX.md](PROJECT_INDEX.md). It connects each feature to the relevant documentation, frontend, backend, database tables, and tests, so developers and AI assistants do not need to read the whole repository for every task.
+
+| Assistant | Repository instructions |
+| --- | --- |
+| OpenAI Codex | [AGENTS.md](AGENTS.md) |
+| Claude Code | [CLAUDE.md](CLAUDE.md) |
+| GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
+
+All three assistants use `PROJECT_INDEX.md` and the same Obsidian Second Brain, requirements, approvals, safety rules, and documentation-maintenance workflow.
 
 Use this order:
 
@@ -97,9 +105,17 @@ Use this order:
 2. Check the relevant requirements and approved decisions.
 3. Inspect the current source code before making changes—the index is a guide, not proof that the code is unchanged.
 4. Run the relevant tests.
-5. If application behavior changed, update only the affected Second Brain pages. Update `PROJECT_INDEX.md` when file locations, dependencies, workflows, or test commands change.
+5. If application behavior changed, update only the affected Second Brain pages and add a dated development-journal entry with the verification performed. Update `PROJECT_INDEX.md` when file locations, dependencies, workflows, or test commands change.
 
-Codex follows [AGENTS.md](AGENTS.md), while Claude Code follows [CLAUDE.md](CLAUDE.md). Both use the same project index and approval boundaries. These tools update documentation only while actively working; they do not monitor the repository automatically.
+### Use GitHub Copilot in VS Code
+
+1. Clone or pull the repository and open its root folder in VS Code.
+2. Install or enable GitHub Copilot and open Copilot Chat or Agent mode.
+3. Ensure repository custom instructions are enabled in the current VS Code/Copilot settings.
+4. Ask: "Read the repository instructions and PROJECT_INDEX.md. Explain how you would find the relevant frontend, backend, and database files for a booking change, and which documentation you would update afterward. Do not modify files."
+5. Expand the response's **References** list and confirm that `.github/copilot-instructions.md` is included.
+
+Custom instructions guide supported Copilot interactions; they do not make ordinary inline suggestions update documentation automatically, independently monitor manual edits, or guarantee that documentation stays current. Automatic Git-triggered checks would require a separate workflow.
 
 ## Common problems
 

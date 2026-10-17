@@ -63,6 +63,7 @@ status: active
 
 ## Other pages
 
+- [AI-Assisted Development Setup](<../README.md#ai-assisted-development>)
 - [Knowledge Source Guide](<Knowledge Source Guide.md>)
 - [Obsidian Setup & Deployment Safety](<Obsidian Setup and Deployment Safety.md>)
 - [Development Journal](<../05 Development Journal/README.md>)

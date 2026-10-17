@@ -1,8 +1,10 @@
 # Rental-Ops-Manager Project Index
 
-Shared navigation for Codex, Claude Code, developers, and reviewers. Use this index to find the smallest relevant set of documentation, source, and tests; verify behavior in current source before changing it.
+Shared navigation for OpenAI Codex, Claude Code, GitHub Copilot, developers, and reviewers. Use this index to find the smallest relevant set of documentation, source, and tests; verify behavior in current source before changing it.
 
-**Verified worktree base:** Git commit `4024853bc89a5f38f363efe0989735cdb778f612` on 2026-10-18. The worktree already contained unrelated uncommitted documentation and Obsidian changes when this index was created.
+Assistant instructions: [Codex](AGENTS.md) · [Claude Code](CLAUDE.md) · [GitHub Copilot](.github/copilot-instructions.md)
+
+**Verified worktree base:** Git commit `b430ca7b5299eb7db57c663f8b3501e7c388da7f` on 2026-10-18. Recheck current source whenever implementation details matter.
 
 ## 1. Project Overview
 
