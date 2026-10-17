@@ -91,3 +91,8 @@ Documentation was checked against Git commit `26791d46fabd9551c3ad53b4431afb594f
 | `admin/reports.html` | `37904f3ec33c553d2615f093b630b568abeab5e5a0d6d8773dd96dee6aa359a1` |
 | `admin/services.html` | `ad12c48a82a272429943620500126ef001cbd181891e1995ea31188df2849014` |
 | `admin/settings.html` | `4fada4b900aeb728ec60db25076483365d25e284ca55eaafd471bfb5a80be89a` |
+
+
+## Technical navigation
+
+[Documentation Maintenance](Documentation%20Maintenance.md) · [Start Here](Start%20Here.md)

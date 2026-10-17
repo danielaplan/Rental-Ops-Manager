@@ -39,3 +39,8 @@ status: current-source-reviewed
 - `AVAILABILITY_BLOCKS` can be called directly despite the product decision to defer it; deployment/routing should ensure the unsupported feature is not exposed operationally.
 - Dashboard inventory metrics remain placeholders and the report compatibility damaged/missing count is not period-filtered.
 - The single-row sync receipt design needs a retention/scaling decision before high-volume production use.
+
+
+## Technical navigation
+
+[Deployment and Limitations](Deployment%20and%20Limitations.md) · [System Overview](System%20Overview.md) · [Start Here](Start%20Here.md)

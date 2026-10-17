@@ -28,3 +28,8 @@ Clean staging setup, production credentials, TLS/origin behavior, scheduler regi
 ## Sources
 
 [Backend Requirement Matrix](../../../Implementation/Backend-Requirement-Matrix.md) · [Consolidated Verification](../../../Implementation/Backend-Consolidated-Verification-2026-10-15.md) · [Owner Walkthrough](../../../Implementation/Backend-Owner-Walkthrough-2026-10-15.md)
+
+
+## Technical navigation
+
+[Backend Overview](Backend%20Overview.md) · [Deployment and Limitations](../Deployment%20and%20Limitations.md) · [Start Here](../Start%20Here.md)

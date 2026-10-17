@@ -27,3 +27,8 @@ Major learning chapters should explain purpose, business need, Ana example, owne
 ## Historical knowledge
 
 Do not delete useful history to make the current story simpler. Label legacy tables, superseded decisions, and deferred features. Requirements or plans do not prove implementation; source does not prove production acceptance.
+
+
+## Technical navigation
+
+[Source Snapshot](Source%20Snapshot.md) · [Start Here](Start%20Here.md)

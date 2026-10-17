@@ -57,3 +57,8 @@ Every current PHP file in `api/` has a linked explanation below. The list is gen
 | [websiteContent.php](Files/websiteContent.php.md) | Editable site-content JSON endpoint. |
 
 Count: **40 PHP files**. Baseline: `26791d46fabd9551c3ad53b4431afb594f38065b`.
+
+
+## Technical navigation
+
+[Backend Overview](Backend%20Overview.md) · [API Reference](API%20Reference.md) · [Start Here](../Start%20Here.md)

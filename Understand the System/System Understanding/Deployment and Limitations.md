@@ -24,3 +24,16 @@ The current decision is a clean schema initialization. Repository accounts, book
 Verify backup and restore on the target, create production owners safely, enforce TLS and origins, register the scheduler, test table-name case behavior, use representative data for latency/capacity, reconcile report definitions with owner records, run real-device/offline/storage tests, and obtain client acceptance.
 
 Local tests and the owner-approved synthetic walkthrough demonstrate behavior in those environments. They do not establish production readiness by themselves.
+
+
+## Continue Your Learning
+
+**You’ve learned:** which checks still belong to staging, production, devices, operations, and client acceptance.
+
+**Previous topic:** [Reports and Audit History](Workflows/Reports.md)
+
+**Next topic:** [Frontend Overview](Frontend/Overview.md)
+
+**Why read this next?** The non-developer journey is complete. Continue only if you want to explore how the visible screens are built.
+
+**Return to your learning dashboard:** [Start Here](Start%20Here.md)

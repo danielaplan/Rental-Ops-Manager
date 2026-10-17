@@ -4,26 +4,6 @@
     "type": "split",
     "children": [
       {
-        "id": "fc0a1a4e8a3abbcc",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "811c6aff5f51c63e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "System Understanding/Workflows/Payments and Deposits.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Payments and Deposits"
-            }
-          }
-        ]
-      },
-      {
         "id": "386ba40aa93a7694",
         "type": "tabs",
         "children": [
@@ -33,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "System Understanding/Backend/Files/auth.php.md",
+                "file": "System Understanding/Workflows/Login and Authentication.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "auth.php"
+              "title": "Login and Authentication"
             }
           }
         ]
@@ -207,8 +187,20 @@
   },
   "active": "43202704acbb4bdd",
   "lastOpenFiles": [
-    "System Understanding/Workflows/Payments and Deposits.md",
+    "System Understanding/Start Here.md",
+    "System Understanding/System Overview.md",
+    "System Understanding/Database/Tables/APP_SETTINGS.md",
+    "System Understanding/Workflows/Offline Synchronization.md",
+    "System Understanding/Backend/Backend Overview.md",
+    "System Understanding/Source Snapshot.md",
+    "System Understanding/Frontend/Overview.md",
+    "System Understanding/Frontend/File Inventory.md",
+    "System Understanding/Backend/Request Lifecycle.md",
+    "System Understanding/Database/Database Overview.md",
+    "System Understanding/Glossary.md",
+    "System Understanding/Documentation Maintenance.md",
     "System Understanding/Backend/Files/auth.php.md",
+    "System Understanding/Workflows/Payments and Deposits.md",
     "System Understanding/Frontend/Current Status.md",
     "System Understanding/Backend/Files/reports.php.md",
     "System Understanding/Current Implementation Gaps.md",
@@ -218,21 +210,9 @@
     "System Understanding/Database/Tables/ITEM_RELEASES.md",
     "System Understanding/Database/Tables/GALLERY.md",
     "System Understanding/Database/Schema and Seed Setup.md",
-    "System Understanding/Database/Database Overview.md",
     "System Understanding/Database/Tables/PACKAGES.md",
     "System Understanding/Database/Tables/BOOKING_ITEMS.md",
     "System Understanding/Database/Tables/ADDONS.md",
-    "System Understanding/Frontend/Overview.md",
-    "System Understanding/Frontend/File Inventory.md",
-    "System Understanding/Database/Tables/EQUIPMENT_CHECKLIST.md",
-    "System Understanding/Database/Tables/CUSTOMERS.md",
-    "System Understanding/Database/Table Relationships.md",
-    "System Understanding/Start Here.md",
-    "Welcome.md",
-    "System Understanding/Database/Tables/SERVICES.md",
-    "System Understanding/Database/Tables/USERS.md",
-    "System Understanding/Database/Tables/SESSIONS.md",
-    "System Understanding/Database/Tables/WEBSITE_CONTENT.md",
     "System Understanding/Database/Tables",
     "System Understanding/Backend/Files",
     "System Understanding/Workflows",

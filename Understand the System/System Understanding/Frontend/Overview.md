@@ -30,3 +30,16 @@ Existing focused browser checks include keyboard disclosure and a 390×844 layou
 ## Related documentation
 
 [Frontend File Inventory](File%20Inventory.md) · [Frontend Current Status](Current%20Status.md) · [API Reference](../Backend/API%20Reference.md)
+
+
+## Continue Your Learning
+
+**You’ve learned:** how the visible screens collect input, show results, and keep supported work during an outage.
+
+**Previous topic:** [System Overview](../System%20Overview.md)
+
+**Next topic:** [Backend Overview](../Backend/Backend%20Overview.md)
+
+**Why read this next?** The frontend sends requests somewhere; the backend lesson explains how those requests are checked and processed.
+
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

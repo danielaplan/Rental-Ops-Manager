@@ -69,3 +69,8 @@ Current source intentionally allows public reads for services, packages, add-ons
 ## Source
 
 [js/api.js](../../../js/api.js) · [api directory](../../../api/config.php)
+
+
+## Technical navigation
+
+[Backend Overview](Backend%20Overview.md) · [Backend File Inventory](File%20Inventory.md) · [Start Here](../Start%20Here.md)

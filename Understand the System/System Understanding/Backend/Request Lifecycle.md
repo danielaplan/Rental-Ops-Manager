@@ -40,3 +40,8 @@ sequenceDiagram
 6. The endpoint returns `{ "ok": true, "data": ... }`. Domain errors roll back and return validation, conflict, stale, forbidden, or not-found responses.
 
 Offline replay enters through `sync.php`, but steps 4–5 use the same services. Each queued operation owns its transaction, so the returned batch can contain accepted, conflicting, and failed results together.
+
+
+## Technical navigation
+
+[Backend Overview](Backend%20Overview.md) · [API Reference](API%20Reference.md) · [Start Here](../Start%20Here.md)

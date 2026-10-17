@@ -36,3 +36,16 @@ The schema intentionally contains old and new structures during transition. Pres
 ## Related documentation
 
 [Table Relationships](Table%20Relationships.md) · [Schema and Seed Setup](Schema%20and%20Seed%20Setup.md) · [Backend File Inventory](../Backend/File%20Inventory.md)
+
+
+## Continue Your Learning
+
+**You’ve learned:** how the system organizes customers, bookings, money, equipment, accounts, and history across 29 connected tables.
+
+**Previous topic:** [Backend Overview](../Backend/Backend%20Overview.md)
+
+**Next topic:** [API Reference](../Backend/API%20Reference.md)
+
+**Why read this next?** The API reference shows the specific requests that connect the screens, backend rules, and stored records.
+
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

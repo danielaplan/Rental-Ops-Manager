@@ -49,3 +49,8 @@ Each [table page](Database%20Overview.md#table-groups) reproduces its current co
 - `DEPOSITS` and `DELIVERY` are zero-or-one per booking because `booking_id` is unique.
 - `CATEGORIES` has no foreign key to `SERVICES`.
 - `AVAILABILITY_BLOCKS` exists structurally but its product feature is deferred.
+
+
+## Technical navigation
+
+[Database Overview](Database%20Overview.md) · [Schema and Seed Setup](Schema%20and%20Seed%20Setup.md) · [Start Here](../Start%20Here.md)

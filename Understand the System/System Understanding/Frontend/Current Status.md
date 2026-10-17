@@ -29,3 +29,8 @@ The latest matrix reports 36 automated frontend regressions plus a prior synthet
 ## Source
 
 [Frontend implementation plan](../../../Implementation/Revised-Requirements-Frontend-Implementation-Plan.md) · [Backend requirement matrix](../../../Implementation/Backend-Requirement-Matrix.md)
+
+
+## Technical navigation
+
+[Frontend Overview](Overview.md) · [Deployment and Limitations](../Deployment%20and%20Limitations.md) · [Start Here](../Start%20Here.md)

@@ -34,3 +34,16 @@ Direct endpoints and `sync.php` call shared services for booking, payment, catal
 ## Related documentation
 
 [Request Lifecycle](Request%20Lifecycle.md) · [API Reference](API%20Reference.md) · [Offline Synchronization](../Workflows/Offline%20Synchronization.md)
+
+
+## Continue Your Learning
+
+**You’ve learned:** how the server checks requests, applies business rules, and protects shared records.
+
+**Previous topic:** [Frontend Overview](../Frontend/Overview.md)
+
+**Next topic:** [Database Overview](../Database/Database%20Overview.md)
+
+**Why read this next?** After learning how rules are enforced, see how accepted records are organized and connected.
+
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

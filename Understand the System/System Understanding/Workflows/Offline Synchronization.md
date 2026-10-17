@@ -11,19 +11,23 @@ status: current-source-reviewed
 
 **Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## What is this feature?
+## Part A — Understanding the Feature
+
+This first part uses everyday language. You can continue to the next lesson without studying the technical section.
+
+### What is this feature?
 
 Supported writes can be placed in a browser outbox while the PHP server is unreachable. Reconnection replays each operation to the authoritative backend.
 
-## Why does the system need it?
+### Why does the system need it?
 
 A temporary outage should not discard the owner’s work, but local data must not silently overwrite newer server data or bypass business rules.
 
-## Realistic example
+### Follow Ana’s fictional rental
 
 An owner saves Ana’s booking while offline. The browser assigns a local ID and operation ID. After reconnection, the server validates the booking, maps the local ID to its database ID, and stores a receipt. If the reply is lost, retry returns the same acknowledgement instead of creating a duplicate.
 
-## Step-by-step workflow
+### Step-by-step workflow
 
 1. `js/api.js` detects a network failure for a supported write.
 2. `js/offline.js`/`js/storage.js` retain an operation with `client_id`, entity, action, data, owner, and optional local ID.
@@ -33,11 +37,11 @@ An owner saves Ana’s booking while offline. The browser assigns a local ID and
 6. The reply separates committed, conflict, and failed operations.
 7. Conflicts stay visible for owner review; a corrected retry receives a new operation ID.
 
-## What happens behind the scenes?
+### What Happens Behind the Scenes?
 
 The receipt ledger and local-to-server ID map live in `APP_SETTINGS` row 2. Identical retries return the stored acknowledgement; reusing an accepted operation ID with changed data fails. Booking `_base` values detect stale edits for selected reservation fields.
 
-## Visual explanation
+### Visual explanation
 
 ```mermaid
 sequenceDiagram
@@ -57,7 +61,9 @@ sequenceDiagram
   S-->>B: committed, conflicts, failed
 ```
 
-## Important rules and limitations
+The diagram shows a queued action reaching the server, being checked for an earlier receipt, and then being accepted or returned for review.
+
+### Important things to remember
 
 - A successful HTTP response may still contain conflicts or failures.
 - The batch is not atomic; one failed operation does not roll back accepted neighbors.
@@ -66,10 +72,31 @@ sequenceDiagram
 - Offline UI evidence is synthetic/local; real device, quota, network, and multi-user acceptance remain deployment checks.
 - Offline sync is approved and retained even though an older revised design document described online-only scope.
 
-## Technical details
+### Remember This
+
+The offline queue is a waiting list, not the shared database. A queued change becomes official only after the server validates and accepts it.
+
+## Part B — Technical Explanation
+
+This section names the files, routes, tables, and validation rules. Beginner readers may skip it and continue to the next lesson.
+
+### Technical details
 
 `api/sync.php`, `api/sync_state.php`, shared `*_service.php` files; `js/sync.js`, `js/offline.js`, `js/storage.js`, `js/sync-ui.js`. Storage: browser local data plus `APP_SETTINGS.settings_id=2`.
 
-## Related documentation
+### Technical references
 
 [sync.php](../Backend/Files/sync.php.md) · [sync_state.php](../Backend/Files/sync_state.php.md) · [APP_SETTINGS](../Database/Tables/APP_SETTINGS.md)
+
+
+## Continue Your Learning
+
+**You’ve learned:** the difference between saving a change temporarily on one device and having the shared server accept it.
+
+**Previous lesson:** [Post-event Completion](Post-event%20Completion.md)
+
+**Next lesson:** [Reports and Audit History](Reports.md)
+
+**Why read this next?** Once records are accepted by the shared system, the next lesson explains how owners turn them into useful summaries and history.
+
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

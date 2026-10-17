@@ -41,3 +41,8 @@ Validation and transaction behavior is defined by current source and its shared 
 ## Source
 
 [api/services.php](../../../../api/services.php)
+
+
+## Technical navigation
+
+[Return to the Backend File Inventory](../File%20Inventory.md) · [Review the API Reference](../API%20Reference.md) · [Return to Start Here](../../Start%20Here.md)

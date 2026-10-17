@@ -56,3 +56,8 @@ status: current-source-reviewed
 - [style.css](../../../css/style.css) — shared/public styling.
 
 `js/api.js` is the API mapping layer. Feature scripts should call it instead of constructing inconsistent requests. `js/config.js` supplies runtime configuration; `admin.js` supplies shared admin/session behavior; page-specific files manage their screens.
+
+
+## Technical navigation
+
+[Frontend Overview](Overview.md) · [Frontend Current Status](Current%20Status.md) · [Start Here](../Start%20Here.md)
