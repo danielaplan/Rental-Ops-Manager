@@ -1,79 +1,56 @@
 ---
 title: "USERS"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # USERS
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**Staff and owner accounts.** Each record describes a person who can sign in, their account role and the password-checking information.
+Owner accounts, password hashes, lockout state, and primary-owner flag.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `USERS` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-The staff member creating Ana’s booking has an account here. Ana’s renter details belong in CUSTOMERS.
+When this table participates in Ana’s rental, its foreign keys connect the row to the relevant booking, catalog record, or owner.
 
-## Main fields
+## Column dictionary
 
-full_name is the account name; role is owner or staff; user_id is its reference number.
+| Column | Exact schema definition |
+| --- | --- |
+| `user_id` | `INT NOT NULL AUTO_INCREMENT` |
+| `full_name` | `VARCHAR(100) NOT NULL` |
+| `role` | `ENUM('owner','staff') NOT NULL DEFAULT 'owner'` |
+| `username` | `VARCHAR(100) NULL` |
+| `account_status` | `VARCHAR(20) NOT NULL DEFAULT 'Active'` |
+| `is_primary_owner` | `TINYINT(1) NOT NULL DEFAULT 0` |
+| `failed_login_count` | `INT UNSIGNED NOT NULL DEFAULT 0` |
+| `locked_until` | `DATETIME NULL` |
+| `created_at` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP` |
+| `updated_at` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` |
+| `contact_number` | `VARCHAR(20)` |
+| `password_hash` | `VARCHAR(255) NOT NULL` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
-
-## How to use this note
-
-Read [Login and Authentication](../../Workflows/Login%20and%20Authentication.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-Owner/staff accounts. Customers do not log in through this table.
-
-**Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `user_id` | `INT` | `NOT NULL AUTO_INCREMENT` | Unique identifier for this table row. |
-| `full_name` | `VARCHAR(100)` | `NOT NULL` | Human name; USERS account name or CUSTOMERS renter name. |
-| `role` | `ENUM('owner','staff')` | `NOT NULL DEFAULT 'staff'` | Account permission group: owner or staff. |
-| `contact_number` | `VARCHAR(20)` | `Nullable; implicit NULL default` | Contact number; account login identifier in USERS. |
-| `password_hash` | `VARCHAR(255)` | `NOT NULL` | Password verifier generated/checked through PHP password functions; not plaintext. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
+## Keys and relationships
 
 - `PRIMARY KEY (user_id)`
+- `UNIQUE KEY uq_users_username (username)`
 
-Parent tables: None.
+- No foreign keys are declared for this table.
 
-Child tables: [BOOKINGS](BOOKINGS.md) via `created_by`, [EQUIPMENT_CHECKLIST](EQUIPMENT_CHECKLIST.md) via `checked_by`, [SESSIONS](SESSIONS.md) via `user_id`
+## Runtime use
 
-### Where it is used
+Source files that directly mention this table: [audit.php](../../Backend/Files/audit.php.md), [auth.php](../../Backend/Files/auth.php.md), [availability_service.php](../../Backend/Files/availability_service.php.md), [owners.php](../../Backend/Files/owners.php.md), [reports.php](../../Backend/Files/reports.php.md).
 
-[auth.php](../../Backend/Files/auth.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [equipment.php](../../Backend/Files/equipment.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Important behavior
+## Source
 
-No account registration/user-management endpoint exists. Contact number is not UNIQUE in the schema; login selects the first matching account.
-
-See [Table Relationships](../Table%20Relationships.md).
-
-## Source files
-
-- [db/schema.sql](<../../../../db/schema.sql>)
-
-## Continue reading
-
-[Previous table: SESSIONS](SESSIONS.md) · [Next table: WEBSITE_CONTENT](WEBSITE_CONTENT.md) · [Back to Start Here](../../Start%20Here.md)
+[db/schema.sql](../../../../db/schema.sql)

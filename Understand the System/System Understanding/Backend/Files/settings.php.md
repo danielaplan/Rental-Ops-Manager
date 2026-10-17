@@ -1,79 +1,43 @@
 ---
 title: "settings.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # settings.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The application-settings handler.** This file reads or replaces the saved settings object for the application.
+Application JSON settings endpoint for row 1. It is a **HTTP endpoint** at `api/settings.php`.
 
-**Where it lives:** `api/settings.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-An owner saves application preferences; later requests can read the stored settings.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Read the public application settings record.
-2. Allow the owner to replace its saved contents.
-3. Keep internal synchronization history in a separate reserved record.
+## Observed interface and access
 
-## Key points
+- **Interface:** GET get; POST update.
+- **Access:** Authenticated read; owner write.
+- **Functions declared here:** none; this file dispatches or configures other helpers.
 
-An update replaces the complete settings object. This file does not define how unfinished screens use each setting.
+## Connections
 
-Read [System Overview](../../System%20Overview.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [config.php](config.php.md), [auth.php](auth.php.md).
+- Tables named directly: [APP_SETTINGS](../../Database/Tables/APP_SETTINGS.md).
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/settings.php`
+## Source
 
-Reads/replaces the application settings object.
-
-### Routes or callable helpers
-
-GET get (default); POST ?do=update.
-
-### Access
-
-Read unauthenticated; update owner only.
-
-### Inputs
-
-JSON object representing the whole settings payload.
-
-### How it works
-
-Reads settings at settings_id=1, decoding JSON; absent row returns an empty object. Update upserts row 1 and returns the body. Does not merge omitted keys.
-
-### Current limits and details
-
-APP_SETTINGS row 2 is private sync state and is not exposed by this settings route.
-
-### Connections
-
-Includes: [config.php](config.php.md), [auth.php](auth.php.md)
-
-Tables: [APP_SETTINGS](../../Database/Tables/APP_SETTINGS.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/settings.php](<../../../../api/settings.php>)
-
-## Continue reading
-
-[Previous file: services.php](services.php.md) · [Next file: sync.php](sync.php.md) · [Back to Start Here](../../Start%20Here.md)
+[api/settings.php](../../../../api/settings.php)

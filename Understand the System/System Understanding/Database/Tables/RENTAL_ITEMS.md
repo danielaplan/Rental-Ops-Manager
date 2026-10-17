@@ -1,86 +1,53 @@
 ---
 title: "RENTAL_ITEMS"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # RENTAL_ITEMS
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**The reusable equipment list.** Each record is an equipment template under a service, used to build booking-specific item lists.
+Equipment catalog used by history and checklist links.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `RENTAL_ITEMS` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-A microphone template supplies its name and quantity when Ana’s assigned list is generated.
+When this table participates in Ana’s rental, its foreign keys connect the row to the relevant booking, catalog record, or owner.
 
-## Main fields
+## Column dictionary
 
-name identifies the item; quantity supplies the copied expected count; service_id links it to a service.
+| Column | Exact schema definition |
+| --- | --- |
+| `rental_item_id` | `INT NOT NULL AUTO_INCREMENT PRIMARY KEY` |
+| `service_id` | `INT NOT NULL` |
+| `name` | `VARCHAR(100) NOT NULL` |
+| `quantity` | `INT NOT NULL DEFAULT 1` |
+| `item_code` | `VARCHAR(50)` |
+| `required` | `TINYINT(1) NOT NULL DEFAULT 0` |
+| `tracking` | `VARCHAR(30) NOT NULL DEFAULT 'quantity'` |
+| `status` | `VARCHAR(40) NOT NULL DEFAULT 'Available'` |
+| `condition` | `VARCHAR(100) NOT NULL DEFAULT 'Good'` |
+| `notes` | `TEXT` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
-
-## How to use this note
-
-Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-Reusable item catalog by service, used as the template for booking checklists.
-
-**Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `rental_item_id` | `INT` | `NOT NULL AUTO_INCREMENT PRIMARY KEY` | Unique identifier for this table row. |
-| `service_id` | `INT` | `NOT NULL` | Service reference. |
-| `name` | `VARCHAR(100)` | `NOT NULL` | Label of this category, extra, item or checklist snapshot. |
-| `quantity` | `INT` | `NOT NULL DEFAULT 1` | Catalog quantity copied as expected booking quantity. |
-| `item_code` | `VARCHAR(50)` | `Nullable; implicit NULL default` | Optional equipment identifier. |
-| `required` | `TINYINT(1)` | `NOT NULL DEFAULT 0` | Whether this item is marked required (boolean-style flag). |
-| `tracking` | `VARCHAR(30)` | `NOT NULL DEFAULT 'quantity'` | Catalog tracking label; no database enum. |
-| `status` | `VARCHAR(40)` | `NOT NULL DEFAULT 'Available'` | Catalog availability label; no stock automation. |
-| `condition` | `VARCHAR(100)` | `NOT NULL DEFAULT 'Good'` | Catalog condition or saved booking-item return condition, depending on table. |
-| `notes` | `TEXT` | `Nullable; implicit NULL default` | Free-text record remarks. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
-
-- Primary key declared in the column definition: `rental_item_id`.
+## Keys and relationships
 
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT ON UPDATE CASCADE`
 
-Parent tables: [SERVICES](SERVICES.md) via `service_id`
+- `service_id` → [SERVICES](SERVICES.md).`service_id` (ON DELETE RESTRICT ON UPDATE CASCADE)
 
-Child tables: [EQUIPMENT_CHECKLIST](EQUIPMENT_CHECKLIST.md) via `rental_item_id`, [BOOKING_ITEMS](BOOKING_ITEMS.md) via `rental_item_id`, [ITEM_HISTORY](ITEM_HISTORY.md) via `rental_item_id`
+## Runtime use
 
-### Where it is used
+Source files that directly mention this table: [catalog_definitions.php](../../Backend/Files/catalog_definitions.php.md), [crud.php](../../Backend/Files/crud.php.md), [supporting_service.php](../../Backend/Files/supporting_service.php.md).
 
-[rentalItems.php](../../Backend/Files/rentalItems.php.md), [bookingItems.php](../../Backend/Files/bookingItems.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Important behavior
+## Source
 
-quantity is copied to expected_qty during generation. These endpoints do not maintain a physical stock-reservation ledger.
-
-See [Table Relationships](../Table%20Relationships.md).
-
-## Source files
-
-- [db/schema.sql](<../../../../db/schema.sql>)
-
-## Continue reading
-
-[Previous table: PAYMENTS](PAYMENTS.md) · [Next table: SERVICES](SERVICES.md) · [Back to Start Here](../../Start%20Here.md)
+[db/schema.sql](../../../../db/schema.sql)

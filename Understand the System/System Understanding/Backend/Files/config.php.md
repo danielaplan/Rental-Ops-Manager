@@ -1,83 +1,43 @@
 ---
 title: "config.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # config.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The shared setup.** This file gives the backend the basic tools it needs to answer a request and connect to the database. A database is the organized collection of saved records.
+Database, CORS/HTTPS bootstrap, JSON response, and scalar validation helpers. It is a **HTTP endpoint** at `api/config.php`.
 
-**Where it lives:** `api/config.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-When staff save Ana’s booking, the booking file uses this setup to reach the saved records and send back a result.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Choose the database connection settings.
-2. Provide helpers that read incoming information and format the reply.
-3. Let the file handling the booking decide which business rules to apply.
+## Observed interface and access
 
-## Key points
+- **Interface:** db(), sendJson(), readJsonBody(), input(), requireField(), asInt(), asDecimal(), asDate(), asTime().
+- **Access:** Loaded by API files.
+- **Functions declared here:** `db()`, `sendJson()`, `readJsonBody()`, `input()`, `requireField()`, `asInt()`, `asDecimal()`, `asDate()`, `asTime()`.
 
-This is supporting code, so staff do not use it as a booking feature.
+## Connections
 
-Read [Request Lifecycle](../Request%20Lifecycle.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: none via `require_once __DIR__`.
+- Tables named directly: none.
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/config.php`
+## Source
 
-Shared request bootstrap and MySQL connection helpers.
-
-### Routes or callable helpers
-
-Included by endpoint scripts; it is not a business endpoint. OPTIONS requests terminate here.
-
-### Access
-
-No authentication here. Endpoint scripts decide access.
-
-### Inputs
-
-AKAD_DB_HOST, AKAD_DB_NAME, AKAD_DB_USER, AKAD_DB_PASS environment variables. Defaults: localhost, akad_rentals, root, empty password; charset utf8mb4.
-
-### How it works
-
-Sets JSON/CORS headers. db() caches one PDO connection within a request, uses exceptions, associative rows, and native prepared statements. sendJson() sets the HTTP status, encodes JSON, then exits. readJsonBody() decodes a JSON object/array, otherwise returns an empty array. input() checks JSON, POST, GET; requireField(), asInt(), asDecimal(), asDate(), asTime() are conversion helpers.
-
-### Current limits and details
-
-asDecimal() formats numeric input but does not reject negative values itself. asTime() checks format rather than clock bounds; bookings use a stricter regex. Database connection errors become a JSON 500; other SQL errors are not centrally wrapped.
-
-### Functions defined
-
-`db()`, `sendJson()`, `readJsonBody()`, `input()`, `requireField()`, `asInt()`, `asDecimal()`, `asDate()`, `asTime()`.
-
-### Connections
-
-Includes: No include dependencies; the caller supplies shared helpers/connection.
-
-Tables: Shared infrastructure; table depends on caller.
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/config.php](<../../../../api/config.php>)
-
-## Continue reading
-
-[Previous file: categories.php](categories.php.md) · [Next file: crud.php](crud.php.md) · [Back to Start Here](../../Start%20Here.md)
+[api/config.php](../../../../api/config.php)

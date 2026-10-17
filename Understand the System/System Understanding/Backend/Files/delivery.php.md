@@ -1,79 +1,43 @@
 ---
 title: "delivery.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # delivery.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The delivery-arrangement handler.** This file records how equipment will travel and who shoulders the delivery fee.
+One-per-booking delivery read/upsert endpoint. It is a **HTTP endpoint** at `api/delivery.php`.
 
-**Where it lives:** `api/delivery.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-Ana’s booking uses Lalamove and the renter shoulders the fee. Staff record that arrangement.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Check the booking number and allowed delivery choices.
-2. Save or replace the booking’s current delivery arrangement.
-3. Return the saved method, charge and fee responsibility.
+## Observed interface and access
 
-## Key points
+- **Interface:** GET get; POST upsert.
+- **Access:** Authenticated owner.
+- **Functions declared here:** none; this file dispatches or configures other helpers.
 
-It does not book a Lalamove driver or automatically add the fee to the rental price.
+## Connections
 
-Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [auth.php](auth.php.md), [supporting_service.php](supporting_service.php.md).
+- Tables named directly: [DELIVERY](../../Database/Tables/DELIVERY.md).
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/delivery.php`
+## Source
 
-Stores the latest delivery arrangement for a booking.
-
-### Routes or callable helpers
-
-GET ?do=get&booking_id=...; POST ?do=upsert.
-
-### Access
-
-Reads unauthenticated; upsert any session.
-
-### Inputs
-
-booking_id; delivery_method self_pickup / lalamove / owner_delivered; fee_shouldered_by renter / owner; delivery_fee default 0.
-
-### How it works
-
-Validates positive booking ID and enum values. INSERT ... ON DUPLICATE KEY UPDATE uses unique booking_id to replace arrangement. Returns a row or null.
-
-### Current limits and details
-
-Records logistics only, with no Lalamove integration. Fee is not automatically added to booking total, and this script does not explicitly reject negative/non-numeric fee values.
-
-### Connections
-
-Includes: [config.php](config.php.md), [auth.php](auth.php.md)
-
-Tables: [DELIVERY](../../Database/Tables/DELIVERY.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/delivery.php](<../../../../api/delivery.php>)
-
-## Continue reading
-
-[Previous file: customers.php](customers.php.md) · [Next file: deposit_service.php](deposit_service.php.md) · [Back to Start Here](../../Start%20Here.md)
+[api/delivery.php](../../../../api/delivery.php)

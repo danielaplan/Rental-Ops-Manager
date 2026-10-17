@@ -1,81 +1,48 @@
 ---
 title: "ADDONS"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # ADDONS
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**Optional priced extras.** Each record describes an extra that can be selected under one service.
+Optional priced extras belonging to a service.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `ADDONS` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-Ana selects an extra microphone costing ₱300.
+When this table participates in Ana’s rental, its foreign keys connect the row to the relevant booking, catalog record, or owner.
 
-## Main fields
+## Column dictionary
 
-name and price describe the extra; service_id links it to the service.
+| Column | Exact schema definition |
+| --- | --- |
+| `addon_id` | `INT NOT NULL AUTO_INCREMENT PRIMARY KEY` |
+| `service_id` | `INT NOT NULL` |
+| `name` | `VARCHAR(100) NOT NULL` |
+| `price` | `DECIMAL(10,2) NOT NULL DEFAULT 0` |
+| `status` | `VARCHAR(20) NOT NULL DEFAULT 'Active'` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
-
-## How to use this note
-
-Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-Separately priced optional extras belonging to one service.
-
-**Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `addon_id` | `INT` | `NOT NULL AUTO_INCREMENT PRIMARY KEY` | Unique identifier for this table row. |
-| `service_id` | `INT` | `NOT NULL` | Service reference. |
-| `name` | `VARCHAR(100)` | `NOT NULL` | Label of this category, extra, item or checklist snapshot. |
-| `price` | `DECIMAL(10,2)` | `NOT NULL DEFAULT 0` | Current catalog price used by booking pricing. |
-| `status` | `VARCHAR(20)` | `NOT NULL DEFAULT 'Active'` | Catalog activation/status label. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
-
-- Primary key declared in the column definition: `addon_id`.
+## Keys and relationships
 
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT ON UPDATE CASCADE`
 
-Parent tables: [SERVICES](SERVICES.md) via `service_id`
+- `service_id` → [SERVICES](SERVICES.md).`service_id` (ON DELETE RESTRICT ON UPDATE CASCADE)
 
-Child tables: None.
+## Runtime use
 
-### Where it is used
+Source files that directly mention this table: [booking_pricing.php](../../Backend/Files/booking_pricing.php.md), [booking_service.php](../../Backend/Files/booking_service.php.md), [catalog_definitions.php](../../Backend/Files/catalog_definitions.php.md), [sync.php](../../Backend/Files/sync.php.md).
 
-[addons.php](../../Backend/Files/addons.php.md), [booking_pricing.php](../../Backend/Files/booking_pricing.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Important behavior
+## Source
 
-Booking add-on selections live in BOOKINGS.addon_ids JSON, not a join table; JSON values have no foreign-key validation at database level.
-
-See [Table Relationships](../Table%20Relationships.md).
-
-## Source files
-
-- [db/schema.sql](<../../../../db/schema.sql>)
-
-## Continue reading
-
-[Next table: APP_SETTINGS](APP_SETTINGS.md) · [Back to Start Here](../../Start%20Here.md)
+[db/schema.sql](../../../../db/schema.sql)

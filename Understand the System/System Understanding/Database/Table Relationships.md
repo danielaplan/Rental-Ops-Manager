@@ -1,119 +1,51 @@
 ---
-title: "Table Relationships"
-date: 2026-09-29
+title: "Database Table Relationships"
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
-# Table Relationships
+# Database Table Relationships
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](Database%20Overview.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## Why records are connected
-
-A booking needs to point to the correct customer, service and package. Its payments and equipment records need to point back to the same rental. A relationship is that connection between saved records.
-
-A reference number works like a receipt number on a related payment note: it locates the full rental without repeating all its details.
-
-## Relationship overview
-
-```mermaid
-flowchart TD
-    A[Customer details] --> B[Booking record]
-    C[Service and package] --> B
-    B --> D[Rental payments]
-    B --> E[Refundable deposit]
-    B --> F[Equipment records]
-    B --> G[Delivery arrangement]
-```
-
-The arrows show how to follow the story. The full technical diagram below shows the exact database links, including accounts and optional references.
-
-## Example
-
-Ana can have more than one booking over time. One booking can have several rental payments. In the current database, one booking can have one current deposit summary and one current delivery arrangement.
-
-A **foreign key** is a storage rule that connects one record’s reference to another record. A **primary key** is the record’s own identifying number. Exact deletion rules matter: deleting a booking can also delete attached financial/equipment records, while some history keeps the entry with its booking link removed.
-
-The overview shows how records connect. The full diagram and constraints specify the database relationships.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-BOOKINGS is the central transaction; catalog/account/customer records are its parents. The diagram reflects current SQL constraints. A required parent means exactly one parent for each child; nullable links can be absent. `o{` means zero or many children; `o|` means zero or one.
+## Main operational graph
 
 ```mermaid
 erDiagram
-    SERVICES ||--o{ ADDONS : service_id
-    SERVICES ||--o{ RENTAL_ITEMS : service_id
-    SERVICES ||--o{ PACKAGES : service_id
-    CUSTOMERS ||--o{ BOOKINGS : customer_id
-    SERVICES ||--o{ BOOKINGS : service_id
-    PACKAGES ||--o{ BOOKINGS : package_id
-    USERS ||--o{ BOOKINGS : created_by
-    BOOKINGS ||--o{ PAYMENTS : booking_id
-    BOOKINGS ||--o| DEPOSITS : booking_id
-    BOOKINGS ||--o{ EQUIPMENT_CHECKLIST : booking_id
-    RENTAL_ITEMS |o--o{ EQUIPMENT_CHECKLIST : rental_item_id
-    USERS |o--o{ EQUIPMENT_CHECKLIST : checked_by
-    BOOKINGS ||--o{ BOOKING_ITEMS : booking_id
-    RENTAL_ITEMS |o--o{ BOOKING_ITEMS : rental_item_id
-    SERVICES |o--o{ BOOKING_ITEMS : service_id
-    BOOKINGS ||--o{ ITEM_RELEASES : booking_id
-    RENTAL_ITEMS |o--o{ ITEM_HISTORY : rental_item_id
-    BOOKINGS |o--o{ ITEM_HISTORY : booking_id
-    BOOKINGS ||--o| DELIVERY : booking_id
-    USERS ||--o{ SESSIONS : user_id
+  USERS ||--o{ SESSIONS : owns
+  USERS ||--o{ BOOKINGS : creates
+  CUSTOMERS ||--o{ BOOKINGS : books
+  SERVICES ||--o{ PACKAGES : offers
+  SERVICES ||--o{ ADDONS : offers
+  SERVICES ||--o{ BOOKINGS : reserves
+  PACKAGES o|--o{ BOOKINGS : selected_by
+  PACKAGES ||--o{ CHECKLIST_TEMPLATES : defines
+  CHECKLIST_TEMPLATES ||--o{ CHECKLIST_TEMPLATE_ITEMS : contains
+  BOOKINGS ||--o{ BOOKING_CHECKLIST_ITEMS : snapshots
+  BOOKINGS ||--o{ PAYMENTS : receives
+  BOOKINGS ||--o| DEPOSITS : holds
+  DEPOSITS ||--o{ DEPOSIT_DEDUCTIONS : has
+  BOOKINGS ||--o| DELIVERY : has
+  BOOKINGS ||--o{ NOTIFICATIONS : raises
+  BOOKINGS ||--o{ BOOKING_CONFLICT_OVERRIDES : approves
+  BOOKINGS ||--o{ AUDIT_LOGS : described_by
 ```
 
-### Foreign-key map
+## How to interpret it
 
-| Child column | Parent column |
-|---|---|
-| [ADDONS](Tables/ADDONS.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
-| [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
-| [PACKAGES](Tables/PACKAGES.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
-| [BOOKINGS](Tables/BOOKINGS.md) `customer_id` | [CUSTOMERS](Tables/CUSTOMERS.md) `customer_id` |
-| [BOOKINGS](Tables/BOOKINGS.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
-| [BOOKINGS](Tables/BOOKINGS.md) `package_id` | [PACKAGES](Tables/PACKAGES.md) `package_id` |
-| [BOOKINGS](Tables/BOOKINGS.md) `created_by` | [USERS](Tables/USERS.md) `user_id` |
-| [PAYMENTS](Tables/PAYMENTS.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
-| [DEPOSITS](Tables/DEPOSITS.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
-| [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
-| [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md) `rental_item_id` | [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) `rental_item_id` |
-| [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md) `checked_by` | [USERS](Tables/USERS.md) `user_id` |
-| [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
-| [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md) `rental_item_id` | [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) `rental_item_id` |
-| [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md) `service_id` | [SERVICES](Tables/SERVICES.md) `service_id` |
-| [ITEM_RELEASES](Tables/ITEM_RELEASES.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
-| [ITEM_HISTORY](Tables/ITEM_HISTORY.md) `rental_item_id` | [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) `rental_item_id` |
-| [ITEM_HISTORY](Tables/ITEM_HISTORY.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
-| [DELIVERY](Tables/DELIVERY.md) `booking_id` | [BOOKINGS](Tables/BOOKINGS.md) `booking_id` |
-| [SESSIONS](Tables/SESSIONS.md) `user_id` | [USERS](Tables/USERS.md) `user_id` |
+The booking is the center of operational history. Catalog rows may be made inactive, while booking snapshots retain agreed package/checklist facts. Child rows such as payments and deposits are retained when a booking is cancelled because cancellation changes status instead of deleting the booking.
 
-### What deletion does
+## Exact constraints and deletion behavior
 
-- Deleting a booking cascades to its payments, deposit, delivery, assigned booking items, saved inspections and release events. ITEM_HISTORY keeps the row but its booking reference becomes NULL.
-- Deleting a customer, service, package or creating user can be blocked while required references exist (`RESTRICT`). Deleting a user cascades its sessions and sets inspection checked_by to NULL where applicable.
-- Deleting a rental item sets the linked booking-item/inspection/history reference to NULL. Saved names can survive, but complete inspection needs valid catalog item IDs.
-- `ON UPDATE CASCADE` propagates referenced key changes. The application normally uses generated stable IDs.
+Each [table page](Database%20Overview.md#table-groups) reproduces its current column definitions, keys, and foreign keys directly from `db/schema.sql`. Many catalog/account deletes use `RESTRICT`; booking-owned legacy children often use `CASCADE`; historical item links generally use `SET NULL` or are protected by service validation. Application services can be stricter than the SQL action—for example, referenced rental items are rejected before deletion to preserve history.
 
-Check each table note for exact constraints. The database does not enforce package_id and service_id as a matching pair on BOOKINGS; PHP pricing does. JSON service/add-on selections have no SQL foreign keys. CATEGORIES, GALLERY, WEBSITE_CONTENT and APP_SETTINGS have no relational parents/children.
+## Known model differences
 
-### Design text versus current cardinality
-
-The official design's narrative calls deposits and delivery one-to-many. Current schema has UNIQUE booking_id in each, making them zero-or-one records per booking. This guide shows current storage; it does not revise the official design.
-
-## Source files
-
-- [db/schema.sql](<../../../db/schema.sql>)
-- [db/seed.sql](<../../../db/seed.sql>)
-- [Documentation/AKAD_System_Design.md](<../../../Documentation/AKAD_System_Design.md>)
-
-## Continue reading
-
-[Previous: Database Overview](Database%20Overview.md) · [Next: Login and Authentication](../Workflows/Login%20and%20Authentication.md) · [Back to Start Here](../Start%20Here.md)
+- Revised operations use one service per booking even though the legacy `service_ids` JSON column remains.
+- Revised checklists use `CHECKLIST_*` and `BOOKING_CHECKLIST_ITEMS`; legacy checklist tables remain.
+- `DEPOSITS` and `DELIVERY` are zero-or-one per booking because `booking_id` is unique.
+- `CATEGORIES` has no foreign key to `SERVICES`.
+- `AVAILABILITY_BLOCKS` exists structurally but its product feature is deferred.

@@ -1,86 +1,59 @@
 ---
 title: "PAYMENTS"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # PAYMENTS
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**Rental-money entries.** Each record is one payment toward a booking. Several payments can belong to the same booking.
+Rental-payment events; only Completed rows count toward balances and revenue.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `PAYMENTS` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-Ana pays ₱250 now and can pay more toward the remaining rental balance later.
+Each recorded rental payment for Ana is a separate row.
 
-## Main fields
+## Column dictionary
 
-booking_id identifies the rental; amount records this payment; payment_date records its time.
+| Column | Exact schema definition |
+| --- | --- |
+| `payment_id` | `INT NOT NULL AUTO_INCREMENT` |
+| `booking_id` | `INT NOT NULL` |
+| `amount` | `DECIMAL(10,2) NOT NULL DEFAULT 0.00` |
+| `payment_method` | `ENUM('gcash','maribank') NOT NULL` |
+| `payment_status` | `VARCHAR(20) NOT NULL DEFAULT 'Pending'` |
+| `payment_date` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP` |
+| `notes` | `TEXT` |
+| `payment_type` | `VARCHAR(30) NULL` |
+| `payment_reference` | `VARCHAR(150) NULL` |
+| `recorded_by` | `INT NULL` |
+| `recorded_at` | `DATETIME NULL` |
+| `provenance` | `VARCHAR(30) NOT NULL DEFAULT 'owner'` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
-
-## How to use this note
-
-Read [Payments and Deposits](../../Workflows/Payments%20and%20Deposits.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-One row per rental payment; many payments can belong to a booking.
-
-**Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `payment_id` | `INT` | `NOT NULL AUTO_INCREMENT` | Unique identifier for this table row. |
-| `booking_id` | `INT` | `NOT NULL` | Parent booking reference. |
-| `amount` | `DECIMAL(10,2)` | `NOT NULL DEFAULT 0.00` | Recorded rental payment amount; not refundable deposit. |
-| `payment_method` | `ENUM('gcash','maribank')` | `NOT NULL` | Stored gcash or maribank enum. |
-| `payment_status` | `ENUM('paid','unpaid','partial')` | `NOT NULL DEFAULT 'unpaid'` | Status of this payment row; create writes paid. |
-| `payment_date` | `DATETIME` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Payment timestamp, defaults to database current time. |
-| `notes` | `TEXT` | `Nullable; implicit NULL default` | Free-text record remarks. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
+## Keys and relationships
 
 - `PRIMARY KEY (payment_id)`
+- `KEY idx_payments_date (payment_status, payment_date)`
+- `FOREIGN KEY (recorded_by) REFERENCES USERS(user_id) ON DELETE RESTRICT`
 - `FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON UPDATE CASCADE ON DELETE CASCADE`
 
-Additional indexes:
+- `recorded_by` → [USERS](USERS.md).`user_id` (ON DELETE RESTRICT)
+- `booking_id` → [BOOKINGS](BOOKINGS.md).`booking_id` (ON UPDATE CASCADE ON DELETE CASCADE)
 
-- `CREATE INDEX idx_payments_booking ON PAYMENTS(booking_id);`
+## Runtime use
 
-Parent tables: [BOOKINGS](BOOKINGS.md) via `booking_id`
+Source files that directly mention this table: [availability_service.php](../../Backend/Files/availability_service.php.md), [booking_service.php](../../Backend/Files/booking_service.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [payment_service.php](../../Backend/Files/payment_service.php.md), [payments.php](../../Backend/Files/payments.php.md), [reports.php](../../Backend/Files/reports.php.md), [sync.php](../../Backend/Files/sync.php.md).
 
-Child tables: None.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Where it is used
+## Source
 
-[payments.php](../../Backend/Files/payments.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
-
-### Important behavior
-
-PAYMENTS.payment_status is the per-record enum. BOOKINGS.payment_status is a separate aggregate string. Deposits are stored separately.
-
-See [Table Relationships](../Table%20Relationships.md).
-
-## Source files
-
-- [db/schema.sql](<../../../../db/schema.sql>)
-
-## Continue reading
-
-[Previous table: PACKAGES](PACKAGES.md) · [Next table: RENTAL_ITEMS](RENTAL_ITEMS.md) · [Back to Start Here](../../Start%20Here.md)
+[db/schema.sql](../../../../db/schema.sql)

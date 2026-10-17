@@ -1,93 +1,30 @@
 ---
 title: "Supporting Files and Evidence"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # Supporting Files and Evidence
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## What “evidence” means here
+## Evidence levels
 
-An explanation describes feature behavior. Evidence records the checks performed, their environment and their results. This page distinguishes those two types of information.
+Source inspection establishes what code says. Syntax checks establish that parsers accept files. Synthetic integration tests establish behavior in their isolated database/server setup. Browser automation establishes behavior in the recorded browser fixture. None alone proves production hosting, real-device usability, operational data reconciliation, formal accounting, or client acceptance.
 
-## Where to look
+## Current local evidence
 
-Official requirements describe intended scope. Source files show the implemented instructions. The existing implementation report and test results describe previously performed checks. They do not prove that every screen, device or production environment has been accepted.
+`Implementation/Backend-Requirement-Matrix.md` records the latest consolidated non-migration run: nine backend/sync files, all 17 offline checks, 36 frontend regressions, syntax and diff checks on a synthetic database. It also records owner approval of the implemented/tested behavior on 2026-10-16. No operational database or migration was used.
 
-For example, the recorded backend-outage check supports a tested offline workflow. It does not prove every possible offline action always uploads within a fixed time.
+The current clean-data decision makes the earlier 51-row migration worksheet Not Applicable. Migration safeguards remain testable tooling only if a real legacy source is introduced later.
 
-## Evidence references
+## Remaining gates
 
-When claiming a feature was tested, name the check and its limits. When explaining a feature, link to the relevant workflow/file note. Ask a developer to confirm commands before running setup/test scripts, because some create or alter test data.
+Clean staging setup, production credentials, TLS/origin behavior, scheduler registration, representative performance, backup/restore, real-device/offline usability, production reconciliation, and client sign-off remain external to this documentation update.
 
-## Technical details
+## Sources
 
-This section records exact file behavior, field names and implementation details.
-
-These files are relevant to backend/database understanding even though they are outside api/. They are not a complete frontend guide.
-
-| File or group | Role |
-|---|---|
-| db/schema.sql | 18 table declarations and indexes |
-| db/seed.sql | SESSIONS declaration and demo records |
-| Documentation/AKAD_Requirements_Analysis_Documentation.md | Controlling requirements, acceptance criteria and updated decisions |
-| Documentation/AKAD_System_Design.md | Official layer/entity/relationship design |
-| Documentation/AKAD_REVISED_Rentals_Proposal___RJDM_Collective.md | Project/business scope |
-| Documentation/AKAD_ERD.png, AKAD_Architecture.png, AKAD_UseCase.png | Official visual aids; code extensions are described in this guide |
-| Implementation/Offline-Sync-Verification-2026-09-28.md | Existing implementation and bounded runtime evidence |
-| tests/offline-sync.test.cjs | Live integration harness: authenticated sync, replay, conflicts, dependencies and inspections |
-| tests/start_verification.py | Creates a separate fixture database and two PHP test processes; changes test data |
-| tests/control_verification_server.py | Controls the recorded test processes |
-| tests/performance.py | Synthetic API load measurements |
-| tests/check_syntax.py | PHP/JavaScript/inline-script syntax verification |
-| tests/check_browser_results.py, browser-verification.html | Browser fixture/result verification |
-| tests/*results.json | Previously recorded integration, outage, layout and performance results |
-| tests/verification-state.json, php-8017.log, php-8018.log | Recorded local test process metadata/logs; not deployment configuration |
-| js/api.js | Local API facade definitions; its opening comment is historical and does not describe all runtime adapters |
-| js/sync.js | Server request adapter, operation envelopes, local/server ID mapping and retries |
-| js/storage.js | Device draft/snapshot persistence; not the central MySQL schema |
-| js/config.js | Browser-side constants, distinct from api/config.php server connection settings |
-| js/offline.js, sw.js | Cached-page readiness and service worker; API calls require the network |
-| js/sync-ui.js | Displays pending/failed/conflicting operations; full interface documentation deferred |
-| scripts/vendor_offline_assets.py | Prepares vendor assets for the cached shell |
-
-### What has been verified previously
-
-The 2026-09-28 implementation report records 14 live integration checks, an actual browser backend-outage workflow and a synthetic 10,000-booking load. It limits conclusions to its local fixture/environment. Human usability, physical phone and production-load acceptance remain separate. Full booking payloads and unbounded replay state are documented scaling limits.
-
-### Verification for this guide
-
-This documentation task checks file/table/column coverage, source links, Obsidian links and repository whitespace. It does not provision databases, rerun fixtures or change application behavior. Use the linked report for existing test procedures and isolation notes before running its scripts.
-
-Initial guide validation on 2026-09-29 passed: 65 notes, all 26 PHP files, all 19 tables and 127 declared columns, and all 20 foreign-key relationships. All 507 wikilinks and 114 source links resolved. Markdown table column counts, code-fence closure and note properties were checked. Visual rendering inside Obsidian was not inspected.
-### Guide revision checks
-
-All 65 notes were revised with their filenames/folders retained. The 26 PHP file notes, 19 table notes and 127 column entries remain covered. All 600 wikilinks and 114 source links resolved before this validation summary was added. Table widths, code-fence closure and trailing whitespace passed. All PHP/SQL source fingerprints were unchanged. Visual rendering inside Obsidian was not tested. An editorial review can assess the clarity of the explanations.
-
-### Navigation validation
-
-The navigation revision converted 600 note references to relative Markdown links across all 65 notes. Checks passed for 1,150 link targets and 65 reading-order heading links. Each note has a navigation bar and a return link; the main reading sequence and file/table references also have Previous/Next links. Filenames, diagrams and all 127 database column entries are retained. Link destinations were checked on disk; visual interaction inside Obsidian was not tested.
-
-## Source files
-
-- [db/schema.sql](<../../../db/schema.sql>)
-- [db/seed.sql](<../../../db/seed.sql>)
-- [Implementation/Offline-Sync-Verification-2026-09-28.md](<../../../Implementation/Offline-Sync-Verification-2026-09-28.md>)
-- [tests/offline-sync.test.cjs](<../../../tests/offline-sync.test.cjs>)
-- [tests/start_verification.py](<../../../tests/start_verification.py>)
-- [tests/check_syntax.py](<../../../tests/check_syntax.py>)
-- [tests/performance.py](<../../../tests/performance.py>)
-- [js/sync.js](<../../../js/sync.js>)
-- [js/api.js](<../../../js/api.js>)
-- [js/storage.js](<../../../js/storage.js>)
-- [sw.js](<../../../sw.js>)
-
-## Continue reading
-
-[Back to Start Here](../Start%20Here.md)
+[Backend Requirement Matrix](../../../Implementation/Backend-Requirement-Matrix.md) · [Consolidated Verification](../../../Implementation/Backend-Consolidated-Verification-2026-10-15.md) · [Owner Walkthrough](../../../Implementation/Backend-Owner-Walkthrough-2026-10-15.md)

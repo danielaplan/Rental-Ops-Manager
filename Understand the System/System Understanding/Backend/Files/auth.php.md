@@ -1,83 +1,43 @@
 ---
 title: "auth.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # auth.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The login checker.** This file checks owner/staff login details and gives a successful login a temporary session: permission to make protected requests for a period of time.
+Login, logout, current-session, and authentication helpers. It is a **HTTP endpoint** at `api/auth.php`.
 
-**Where it lives:** `api/auth.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-A staff member signs in before recording Ana’s payment. The payment request carries proof of that login.
+## Ana example
 
-## What happens
+During Ana’s rental, this component proves the request belongs to an active owner.
 
-1. Find the account using its contact number.
-2. Check its password and issue a temporary login token.
-3. Check the token and account role when protected actions are requested.
+## Observed interface and access
 
-## Key points
+- **Interface:** POST login; POST ?do=logout; GET ?do=me.
+- **Access:** Login is public; me/protected helpers require an active owner.
+- **Functions declared here:** `hashPassword()`, `verifyPassword()`, `sessionToken()`, `currentSession()`, `requireAuth()`, `requireRole()`, `createSession()`.
 
-A customer record is separate from a staff account. The logout request needs the token in its message body with the current implementation.
+## Connections
 
-Read [Login and Authentication](../../Workflows/Login%20and%20Authentication.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [config.php](config.php.md), [domain.php](domain.php.md).
+- Tables named directly: [USERS](../../Database/Tables/USERS.md), [SESSIONS](../../Database/Tables/SESSIONS.md).
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/auth.php`
+## Source
 
-Authenticates owners/staff and issues database-backed sessions.
-
-### Routes or callable helpers
-
-POST auth.php: login; POST ?do=logout: logout; GET ?do=me: current user.
-
-### Access
-
-Login accepts credentials; me requires a session. requireAuth() and requireRole() are reusable access checks.
-
-### Inputs
-
-Login: contact_number (or contact), password. Requests: Authorization: Bearer <token>; currentSession() also accepts session_token query parameter. Logout: session_token in JSON.
-
-### How it works
-
-Looks up USERS by contact number and verifies password_hash. Creates a 32-byte random token encoded as 64 hex characters. SESSIONS stores the token and 24-hour expiry. Each authenticated request extends expiry by 24 hours. Helpers execute without routing when included by another script; routing runs only when SCRIPT_NAME is auth.php.
-
-### Current limits and details
-
-The logout fallback reads session_token from currentSession(), but its SELECT does not return that field. Pass the token in the logout JSON body. Expired rows are rejected, not automatically deleted. The seeded demo password is `password`, verified against its stored hash; see the setup note.
-
-### Functions defined
-
-`hashPassword()`, `verifyPassword()`, `currentSession()`, `requireAuth()`, `requireRole()`, `createSession()`.
-
-### Connections
-
-Includes: [config.php](config.php.md)
-
-Tables: [USERS](../../Database/Tables/USERS.md), [SESSIONS](../../Database/Tables/SESSIONS.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/auth.php](<../../../../api/auth.php>)
-
-## Continue reading
-
-[Previous file: addons.php](addons.php.md) · [Next file: bookingItems.php](bookingItems.php.md) · [Back to Start Here](../../Start%20Here.md)
+[api/auth.php](../../../../api/auth.php)

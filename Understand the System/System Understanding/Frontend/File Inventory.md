@@ -1,91 +1,58 @@
 ---
 title: "Frontend File Inventory"
-date: 2026-10-08
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - frontend
-status: documented
+status: current-source-reviewed
 ---
 
 # Frontend File Inventory
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend](../../Backend/File%20Inventory.md) · [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md) · [Glossary](../../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## Purpose
+## Admin screens
 
-This inventory lists the key frontend files and their responsibilities. Each file should be understood in context of how it connects to the backend API.
+- [addons.html](../../../admin/addons.html)
+- [audit.html](../../../admin/audit.html)
+- [bookings.html](../../../admin/bookings.html)
+- [calendar.html](../../../admin/calendar.html)
+- [categories.html](../../../admin/categories.html)
+- [content.html](../../../admin/content.html)
+- [customers.html](../../../admin/customers.html)
+- [dashboard.html](../../../admin/dashboard.html)
+- [gallery.html](../../../admin/gallery.html)
+- [inventory.html](../../../admin/inventory.html)
+- [login.html](../../../admin/login.html)
+- [manual-booking.html](../../../admin/manual-booking.html)
+- [owners.html](../../../admin/owners.html)
+- [packages.html](../../../admin/packages.html)
+- [payments.html](../../../admin/payments.html)
+- [reports.html](../../../admin/reports.html)
+- [services.html](../../../admin/services.html)
+- [settings.html](../../../admin/settings.html)
 
-## File Organization
+## JavaScript
 
-```
-admin/          ← Bootstrap/jQuery admin UI pages
-js/             ← Frontend logic (api.js, app.js, admin.js, sync.js, calendar.js)
-css/            ← Stylesheets
-```
+- [admin.js](../../../js/admin.js)
+- [api.js](../../../js/api.js)
+- [app.js](../../../js/app.js)
+- [bookings.js](../../../js/bookings.js)
+- [calendar.js](../../../js/calendar.js)
+- [config.js](../../../js/config.js)
+- [customers.js](../../../js/customers.js)
+- [inventory.js](../../../js/inventory.js)
+- [offline.js](../../../js/offline.js)
+- [payments.js](../../../js/payments.js)
+- [services.js](../../../js/services.js)
+- [storage.js](../../../js/storage.js)
+- [sync-ui.js](../../../js/sync-ui.js)
+- [sync.js](../../../js/sync.js)
 
-## Key Files
+## Styling
 
-| File | Responsibility |
-|---|---|
-| `js/api.js` | **API contract layer** — ~80 methods proxying all PHP endpoints. Handles auth tokens, field mapping, ID prefixing, response normalization |
-| `js/app.js` | Initialization, page routing, shared event handling |
-| `js/admin.js` | Admin chrome: sidebar, sync panel, login/logout, async error handling |
-| `js/sync.js` | Offline queue, background refresh, conflict resolution |
-| `js/sync-ui.js` | Sync panel UI rendering (data-change events, error display) |
-| `js/calendar.js` | Calendar view with date indexing, keyboard-addressable buttons |
-| `admin/manual-booking.html` | Main booking creation/edit form |
-| `admin/bookings.html` | Booking list/view with pagination, status tabs |
-| `admin/services.html` | Service/catalog management |
-| `admin/settings.html` | App settings |
-| `admin/content.html` | Website content |
-| `admin/reports.html` | Reports dashboard |
-| `admin/dashboard.html` | Dashboard view |
-| `css/` | Stylesheets |
+- [admin.css](../../../css/admin.css) — admin layout/components.
+- [responsive.css](../../../css/responsive.css) — responsive adjustments.
+- [style.css](../../../css/style.css) — shared/public styling.
 
-## How Frontend Connects to Backend
-
-```
-Staff browser
-    ↓
-js/app.js (initialization, page routing)
-    ↓
-js/api.js (request/normalize/payload)
-    ↓
-PHP API (api/*.php)
-    ↓
-MySQL
-```
-
-## How Frontend Talks to API
-
-| Function | Purpose |
-|---|---|
-| `API.request(endpoint, options)` | Core fetch wrapper — handles URL, token, timeout, JSON parsing, error codes |
-| `API.list(endpoint, entity, query)` | GET requests → normalize response |
-| `API.create(endpoint, entity, data)` | POST create → payload mapping → normalize |
-| `API.update(endpoint, entity, id, data)` | POST update → payload mapping → normalize |
-| `API.remove(endpoint, id)` | POST delete |
-| `API.normalize(entity, value)` | Converts server keys to UI keys (e.g., `service_id` → `SVC-001`) |
-| `API.payload(entity, input)` | Converts UI keys to server keys (e.g., `name` → `service_name`) |
-
-## ID Prefixes (Used in normalize/payload)
-
-| Prefix | Entity | Example |
-|---|---|---|
-| `SVC-` | Services | `SVC-001` |
-| `ADD-` | Add-ons | `ADD-001` |
-| `CAT-` | Categories | `CAT-001` |
-| `CUS-` | Customers | `CUS-001` |
-| `PKG-` | Packages | `PKG-001` |
-| `BI-` | Booking items | `BI-001` |
-| `RI-` | Rental items | `RI-001` |
-| `HIST-` | Item history | `HIST-001` |
-| `REL-` | Item releases | `REL-001` |
-| `PAY-` | Payments | `PAY-001` |
-| `IMG-` | Gallery | `IMG-001` |
-| `LOCAL-` | Local (pre-sync) records | `LOCAL-abc123` |
-
-## Continue reading
-
-[Previous: Current Status](Current%20Status.md) · [Next: Overview](Overview.md) · [Back to Start Here](../Start%20Here.md)
+`js/api.js` is the API mapping layer. Feature scripts should call it instead of constructing inconsistent requests. `js/config.js` supplies runtime configuration; `admin.js` supplies shared admin/session behavior; page-specific files manage their screens.

@@ -1,79 +1,43 @@
 ---
 title: "rentalItems.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # rentalItems.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The reusable-equipment catalog handler.** This file stores the equipment templates used when building a booking’s equipment list.
+Equipment catalog endpoint. It is a **HTTP endpoint** at `api/rentalItems.php`.
 
-**Where it lives:** `api/rentalItems.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-A microphone entry belongs to karaoke and has a catalog quantity that can be copied into Ana’s assigned list.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Keep item names, service links, quantities and descriptive fields.
-2. Allow an owner to maintain the catalog.
-3. Supply templates for booking-specific equipment lists.
+## Observed interface and access
 
-## Key points
+- **Interface:** Generic all/get/forService/create/update/delete.
+- **Access:** Authenticated reads and owner writes.
+- **Functions declared here:** none; this file dispatches or configures other helpers.
 
-Catalog quantity is not automatically reduced when a booking is created or an item is released.
+## Connections
 
-Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [catalog_definitions.php](catalog_definitions.php.md).
+- Tables named directly: none.
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/rentalItems.php`
+## Source
 
-Reusable equipment catalog used to generate booking checklists.
-
-### Routes or callable helpers
-
-Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=....
-
-### Access
-
-Reads are unauthenticated. Every POST requires owner via authWrite().
-
-### Inputs
-
-Primary key: rental_item_id. Accepted JSON fields: service_id, name, quantity, item_code, required, tracking, status, condition, notes. Create defaults: quantity=1; required=0; tracking=quantity; status=Available; condition=Good.
-
-### How it works
-
-Includes crud.php and dispatches tableCrud() with a fixed table/field allowlist. Reusable equipment catalog used to generate booking checklists.
-
-### Current limits and details
-
-Only use filters that correspond to actual columns. See crud.php for default precedence and limited field validation. Foreign-key constraints can reject referenced deletions.
-
-### Connections
-
-Includes: [crud.php](crud.php.md)
-
-Tables: [RENTAL_ITEMS](../../Database/Tables/RENTAL_ITEMS.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/rentalItems.php](<../../../../api/rentalItems.php>)
-
-## Continue reading
-
-[Previous file: payments.php](payments.php.md) · [Next file: reports.php](reports.php.md) · [Back to Start Here](../../Start%20Here.md)
+[api/rentalItems.php](../../../../api/rentalItems.php)
