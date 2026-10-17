@@ -1,0 +1,17 @@
+{
+  "alwaysUpdateLinks": true,
+  "attachmentFolderPath": "06 Vault Attachments",
+  "userIgnoreFilters": [
+    "admin/",
+    "api/",
+    "css/",
+    "db/",
+    "js/",
+    "tests/",
+    "vendor/",
+    "uploads/",
+    "event-rental/",
+    "scripts/",
+    "docs/"
+  ]
+}

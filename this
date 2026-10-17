@@ -1,428 +1,378 @@
-# TASK: Make "Understand the System" More Beginner-Friendly, Interactive, and Easy to Navigate
+# TASK: Optimize Rental-Ops-Manager for Both Codex and Claude Code
 
 ## PROJECT
 
 Repository: `danielaplan/Rental-Ops-Manager`
 
-Target directory: `Understand the System/`
+AI development assistants:
+- OpenAI Codex
+- Claude Code
+
+Documentation system: Unified Obsidian Second Brain
 
 ## MAIN OBJECTIVE
 
-Improve the entire **Understand the System** Markdown documentation so that people with little or no programming knowledge can easily understand how the Rental-Ops-Manager application works.
+Create a shared, accurate, lightweight **AI Project Knowledge Index** that allows both Codex and Claude Code to understand and navigate the Rental-Ops-Manager repository efficiently.
 
-This documentation will be read by our group members, including those who are not developers and do not understand PHP, JavaScript, SQL, APIs, databases, or how software works behind the scenes.
+The project already contains extensive documentation explaining its frontend, backend, database, business workflows, requirements, implementation history, and approved development decisions.
 
-Think of this documentation as a **friendly, interactive learning handbook** that gradually teaches someone how the entire system operates.
+The goal is NOT to make AI read all documentation every time.
 
-The reader should feel guided through the application rather than overwhelmed by technical information.
+The goal is to help AI identify the **smallest relevant set of files** needed to understand and safely complete a development task.
 
-**IMPORTANT:** The documentation was recently modernized to match the current implementation. Do not undo that work, reintroduce outdated information, or change the application's functionality.
-
----
-
-## 1. MAKE THE WRITING FRIENDLY AND EASY TO UNDERSTAND
-
-Rewrite explanations where necessary using natural, conversational, beginner-friendly language.
-
-Follow these principles:
-
-- Explain concepts as if teaching a classmate who has never built a software system.
-- Use simple English without sacrificing technical accuracy.
-- Avoid unnecessary jargon and complicated terminology.
-- Introduce unfamiliar terms gradually and explain them immediately.
-- Use realistic everyday examples.
-- Prefer short, clear paragraphs over lengthy technical explanations.
-- Make the documentation engaging without becoming childish or unprofessional.
-- Explain not only WHAT happens, but also WHY it happens and HOW it affects the business.
-- Do not assume readers understand programming concepts.
-
-### Example of the writing style
-
-**Before — Too technical:**
-
-"The frontend dispatches an authenticated HTTP POST request containing JSON payload data to the PHP endpoint, which validates the request and persists the transaction through PDO."
-
-**After — Beginner-friendly:**
-
-"When the owner clicks **Save Booking**, the website sends the booking information to the system's server.
-
-The server checks whether the information is valid. For example, it checks whether the selected service is available and whether the required details have been provided.
-
-If everything is correct, the system saves the booking in the database.
-
-You can think of the database as a digital filing cabinet where the business keeps its important records.
-
-Behind the scenes, this process uses technologies called PHP and MySQL. We will explain those later, so you don't need to understand them yet."
-
-Use this style throughout the beginner-facing sections.
+Both AI assistants must use the same authoritative project knowledge, follow consistent development rules, and maintain documentation when meaningful application changes occur.
 
 ---
 
-## 2. ADD A GUIDED READING PATH TO EVERY MAJOR DOCUMENT
+## PHASE 1 — INSPECT THE CURRENT PROJECT
 
-This is one of the most important improvements.
-
-Readers should never feel lost or wonder what to read next.
-
-At the end of every major learning document, include a friendly navigation section with meaningful links.
-
-Use a consistent format such as:
-
-### Continue Your Learning
-
-**You've learned:** How the booking process works and why the system checks service availability.
-
-**Next lesson:** [Understanding Payments and Deposits](../Workflows/Payments%20and%20Deposits.md)
-
-**Why read this next?** Now that Ana's booking is saved, let's discover how the system records her payments and tracks her remaining balance.
-
-**Want to review something?** [Return to the System Overview](../System%20Overview.md)
-
-These links are examples only. Determine the correct next lesson based on the actual learning sequence and document locations.
-
-### Navigation requirements
-
-1. Every main lesson must have a clearly identified next lesson.
-2. Provide a previous lesson link where applicable.
-3. Provide a link back to the main learning dashboard or `Start Here.md`.
-4. Add related-topic links when they genuinely help understanding.
-5. Make link text meaningful and friendly rather than showing only filenames.
-6. Explain why the next topic is relevant.
-7. Avoid circular navigation and dead ends.
-8. Ensure the recommended learning order matches `Start Here.md`.
-9. Verify that all relative Markdown links point to existing files.
-10. Keep links compatible with GitHub Markdown and Obsidian.
-
-Technical reference pages may use simpler navigation, such as returning to their parent topic and the next related technical page.
-
----
-
-## 3. CREATE A CLEAR LEARNING JOURNEY FOR NON-DEVELOPERS
-
-Improve `Start Here.md` so it feels like the first page of a beginner's textbook.
-
-It should welcome readers, briefly introduce the application, explain what they will learn, and tell them how to navigate the handbook.
-
-Include a section similar to:
-
-# Welcome to Understanding Rental-Ops-Manager!
-
-You don't need to know programming to understand this system.
-
-This guide will walk you through how our rental management application works, from creating a customer booking to collecting payments, preparing equipment, and completing a rental transaction.
-
-We'll also introduce the technologies working behind the scenes, using simple examples.
-
-By the end, you'll understand how the major parts of the system work together.
-
-### Choose Your Learning Path
-
-**Path 1: I'm Not a Developer**
-
-Start with the system overview, then follow the booking and business-workflow lessons in order.
-
-Focus on understanding what users do, what the system does, and why each feature matters.
-
-**Path 2: I Want to Understand the Technical Side**
-
-Start with the system overview, then continue to the frontend, backend, database, API reference, and individual file explanations.
-
-**Path 3: I Just Want to Find a Specific Feature**
-
-Use topic links to go directly to bookings, payments, equipment, availability, synchronization, reporting, or other relevant areas.
-
-Create working links for all three paths.
-
-Non-developer readers should not be required to read technical PHP or database reference pages to finish the basic learning journey.
-
----
-
-## 4. USE ONE CONTINUOUS EXAMPLE THROUGHOUT THE SYSTEM
-
-Continue using the fictional customer **Ana**, who already appears in the documentation.
-
-Maintain a consistent example rental so readers can follow what happens from beginning to end.
-
-For example:
-
-- Ana contacts AKAD to rent a karaoke package.
-- The owner checks the event date and available schedule.
-- The booking is created and confirmed.
-- Ana makes a partial payment.
-- The rental equipment is prepared and released.
-- The event takes place.
-- Equipment is checked after the event.
-- The owner reviews the rental.
-- If a balance remains, the booking enters Awaiting Payment.
-- Once the remaining payment is completed, the booking can be marked Completed.
-
-Verify all transitions and business rules against the actual source code before writing them.
-
-Use clear numbers when explaining financial operations, and keep the sample figures consistent between chapters.
-
-Clearly label examples as fictional.
-
----
-
-## 5. EXPLAIN WHAT HAPPENS BEHIND THE SCENES IN SIMPLE TERMS
-
-For each major workflow, add a section titled:
-
-### What Happens Behind the Scenes?
-
-Explain the process using a simple sequence:
-
-1. **The owner performs an action.**
-2. **The website sends the information.**
-3. **The server checks the information and applies business rules.**
-4. **The database stores or retrieves the relevant records.**
-5. **The website displays the result.**
-
-Only describe steps that apply to that specific workflow.
-
-Explain the role of each technology in plain language before showing technical filenames, API routes, or database fields.
-
-Use an analogy when it genuinely improves understanding, such as:
-
-- Frontend = the part of the system people see and interact with.
-- Backend = the part that processes requests and enforces rules.
-- Database = the organized storage for business records.
-- API = the communication method between the website and its server.
-- Offline queue = a temporary list of changes waiting to be submitted when the server becomes available again.
-
-Make sure analogies remain technically accurate.
-
----
-
-## 6. USE SIMPLE VISUAL DIAGRAMS
-
-Maintain existing Mermaid diagrams and improve them where necessary.
-
-Diagrams should be understandable even without programming knowledge.
-
-Example:
-
-```mermaid
-flowchart TD
-    A[Owner creates a booking]
-    B[System checks the details]
-    C{Is the booking valid?}
-    D[Save the booking]
-    E[Show an explanation of the problem]
-    F[Booking appears in the system]
-
-    A --> B
-    B --> C
-    C -->|Yes| D
-    C -->|No| E
-    D --> F
-```
-
-Guidelines:
-
-- Prefer simple flowcharts for beginner lessons.
-- Use everyday language in node labels.
-- Avoid overwhelming diagrams with too many technical details.
-- Explain the diagram briefly underneath it.
-- Retain more detailed technical diagrams in developer-oriented sections.
-- Do not introduce diagrams that misrepresent system behavior.
-
----
-
-## 7. SEPARATE BEGINNER EXPLANATIONS FROM DEVELOPER DETAILS
-
-Do not remove important technical documentation.
-
-Instead, organize each major chapter into two clear levels.
-
-### Part A — Understanding the Feature
-
-Written for non-developers.
-
-Include:
-
-- What the feature does
-- Why it matters
-- A practical example
-- Step-by-step explanations
-- Simple diagrams
-- Important things to remember
-
-### Part B — Technical Explanation
-
-Written for developers or readers who want to learn more.
-
-Include:
-
-- Relevant frontend files
-- PHP endpoints and services
-- Database tables and relationships
-- Business rules and validations
-- Error handling
-- Current limitations
-- Links to detailed technical reference documents
-
-Make it clear that beginner readers can continue to the next lesson without needing to master Part B.
-
-Preserve the verified accuracy and coverage of the current technical documentation.
-
----
-
-## 8. ADD SMALL LEARNING AIDS
-
-Where helpful, add short sections such as:
-
-### In Simple Words
-
-A one- or two-sentence explanation of a difficult concept.
-
-### Real-Life Example
-
-A fictional scenario demonstrating why a feature matters.
-
-### Remember This
-
-The most important lesson from the topic.
-
-### What You've Learned
-
-A short summary of what readers should now understand.
-
-### Before You Continue
-
-Briefly explain how the current lesson connects to the next topic.
-
-Use these learning aids only where they genuinely help. Avoid making every page repetitive or unnecessarily long.
-
----
-
-## 9. MAKE THE GUIDE USEFUL TO OUR GROUP MEMBERS
-
-Our group members may need to understand and explain the system during:
-
-- Group discussions
-- System presentations
-- Demonstrations
-- Project documentation reviews
-- Questions about how a feature works
-- Technical discussions with developers
-
-Write the beginner-facing sections so someone can confidently explain the system using their own words after reading them.
-
-Where helpful, include brief practical explanations of common questions such as:
-
-- What happens when a booking is saved?
-- Why does the system check availability?
-- Where are customer records stored?
-- How does the system know if a customer still has a balance?
-- What happens if there is no internet connection?
-- Why is equipment inspected after a rental?
-- How does the system calculate report figures?
-- What is the difference between saving something locally and saving it to the shared database?
-
-Answer these using the actual implementation.
-
----
-
-## 10. MAINTAIN TECHNICAL ACCURACY
-
-Before modifying a document, inspect the current source code and relevant project decisions.
-
-Read and respect:
+Before creating or modifying anything, inspect:
 
 - `README.md`
+- `CLAUDE.md`, if present
+- `AGENTS.md`, if present
 - `.project-memory/`
+- `Understand the System/`
 - `Implementation/`
 - `Source Documents/`
+- `00 Second Brain Home/`, if present
 - `api/`
-- `admin/`
 - `js/`
-- `db/schema.sql`
+- `admin/`
+- `db/`
+- `tests/`
+- Existing repository instructions and configuration files
 
-Preserve the recently verified documentation coverage, including:
+Read relevant documents selectively.
 
-- 40 PHP API files
-- 29 database tables
-- All current database fields and constraints
-- Current booking lifecycle rules
-- Package checklist templates
-- Payment and deposit workflows
-- Offline synchronization
-- Current authentication behavior
-- Implementation limitations
+Verify the actual repository structure and current Git state.
 
-Do not present deferred or unverified features as complete.
+Do not assume that previously documented file counts, paths, functions, database schemas, or features are still accurate.
 
-When simplifying explanations, never change the meaning of the underlying business rules.
+Use the current source code to establish implementation behavior.
 
----
+Use approved project decisions to determine authorized scope.
 
-## 11. STRICT SCOPE AND SAFETY
-
-This is a DOCUMENTATION-ONLY task.
-
-You may edit and create Markdown documents inside:
-
-`Understand the System/`
-
-Do not modify:
-
-- PHP application code
-- JavaScript
-- HTML
-- CSS
-- SQL or database migrations
-- Test files
-- `.project-memory/`
-- `Implementation/`
-- `Source Documents/`
-- Existing Obsidian configuration files
-
-Do not restructure the repository or perform the unified Obsidian vault migration during this task.
-
-Preserve unrelated working-tree changes.
-
-Do not run production operations or migrations.
-
-Do not stage, commit, or push changes unless explicitly authorized.
+Preserve existing instructions that remain relevant.
 
 ---
 
-## 12. FINAL VERIFICATION
+## PHASE 2 — CREATE PROJECT_INDEX.md
 
-After making the documentation more beginner-friendly:
+Create the following file in the repository root:
 
-1. Verify that the original technical information remains accurate.
-2. Check every Markdown link.
-3. Confirm that each main lesson has a working next-lesson link.
-4. Confirm that previous, next, and home navigation is consistent.
-5. Confirm that the non-developer learning path is complete.
-6. Ensure technical reference pages remain accessible.
-7. Check that fictional examples remain consistent across documents.
-8. Verify Mermaid diagrams where supported.
-9. Run `git diff --check`.
-10. Confirm that no application source code was modified.
+`PROJECT_INDEX.md`
+
+This will be the shared navigation index used by both Codex and Claude Code.
+
+It should be concise, organized, highly searchable, and optimized for efficient AI navigation.
+
+### Required sections
+
+**1. Project Overview**
+
+Briefly describe Rental-Ops-Manager, its technology stack, and its main responsibilities.
+
+**2. Quick Navigation**
+
+Provide direct links to the most important entry points, including:
+
+- Beginner-friendly System Understanding
+- Technical System Understanding
+- Current Implementation Gaps
+- Project Memory
+- Approved Requirements
+- Implementation Plans
+- Backend API Reference
+- Database Overview
+- Frontend Overview
+- Tests and Verification
+
+**3. Feature-to-Code Mapping**
+
+Create a table connecting each major feature to its actual implementation files, documentation, and relevant tests.
+
+Use this structure:
+
+| Feature | Frontend | Backend | Database | Documentation | Tests |
+|---|---|---|---|---|---|
+| Authentication | Verified paths | Verified paths | Relevant tables | Relevant notes | Relevant tests |
+| Bookings | ... | ... | ... | ... | ... |
+| Availability | ... | ... | ... | ... | ... |
+| Payments | ... | ... | ... | ... | ... |
+| Deposits | ... | ... | ... | ... | ... |
+| Equipment | ... | ... | ... | ... | ... |
+| Offline Sync | ... | ... | ... | ... | ... |
+| Reports | ... | ... | ... | ... | ... |
+
+Include other major features discovered in the actual repository, such as owner management, notifications, audit history, delivery, catalog management, and website content.
+
+Never invent mappings or tests.
+
+**4. Business Workflow Index**
+
+Map major workflows to their human-readable explanations and supporting source files.
+
+**5. Database Navigation**
+
+Explain where to find database table definitions, column descriptions, relationships, and schema verification.
+
+Do not duplicate the full schema.
+
+**6. Approved Decisions and Requirements**
+
+Identify where AI should find controlling approvals, current requirements, deferred work, and relevant implementation decisions.
+
+Clearly distinguish proposals from approvals.
+
+**7. Testing and Verification**
+
+Provide accurate commands and paths for relevant tests, with any environment prerequisites.
+
+Do not assume that a test passes simply because it exists.
+
+**8. Known Limitations**
+
+Link to the authoritative limitations and deployment documentation rather than copying long descriptions.
+
+**9. Index Maintenance**
+
+Explain when and how the index should be updated as source files, architecture, or workflows change.
+
+### Index design requirements
+
+- Prioritize navigation over lengthy explanations.
+- Avoid copying entire documentation pages.
+- Keep descriptions concise.
+- Use accurate relative Markdown links.
+- Support GitHub and Obsidian.
+- Organize the index for both humans and AI agents.
+- Avoid excessive duplication.
+- Identify authoritative sources.
+- Record the Git commit SHA used for verification.
+
+---
+
+## PHASE 3 — CONFIGURE CODEX WITH AGENTS.md
+
+Create or update the repository-root:
+
+`AGENTS.md`
+
+This is the project instruction file for Codex.
+
+It must tell Codex to:
+
+1. Read `PROJECT_INDEX.md` for task navigation.
+2. Consult only relevant documentation initially.
+3. Inspect actual source code before implementing changes.
+4. Respect approved project requirements and decisions.
+5. Protect existing application functionality.
+6. Preserve offline synchronization and business rules.
+7. Run appropriate tests.
+8. Update affected Second Brain documents after meaningful changes.
+9. Maintain beginner-friendly explanations and Next Lesson links.
+10. Keep `PROJECT_INDEX.md` updated when relevant code locations, dependencies, or architectural relationships change.
+11. Preserve unrelated working-tree changes.
+12. Avoid unnecessary documentation rewrites.
+
+Do not require Codex to load all 96+ documentation pages into context for every task.
+
+Use a progressive discovery process:
+
+`AGENTS.md → PROJECT_INDEX.md → Relevant documentation → Relevant code → Relevant tests`
+
+Codex must treat the index as a navigation aid, not as proof that the underlying code has not changed.
+
+---
+
+## PHASE 4 — CONFIGURE CLAUDE WITH CLAUDE.md
+
+Create or update the repository-root:
+
+`CLAUDE.md`
+
+This file must provide Claude Code with the same core project instructions as Codex.
+
+Claude should follow this discovery process:
+
+`CLAUDE.md → PROJECT_INDEX.md → Relevant documentation → Relevant code → Relevant tests`
+
+Important requirements:
+
+- Preserve useful existing `CLAUDE.md` instructions.
+- Do not blindly overwrite the file if one already exists.
+- Avoid duplicating long project documentation.
+- Reference the shared `PROJECT_INDEX.md`.
+- Maintain the same development safety rules as Codex.
+- Maintain the same documentation-update rules as Codex.
+- Make both assistants follow the same authoritative requirements and approval boundaries.
+
+Claude and Codex should behave consistently even when used in separate development sessions.
+
+Keep agent instruction files concise enough to avoid unnecessary context consumption.
+
+---
+
+## PHASE 5 — IMPLEMENT INTELLIGENT DOCUMENTATION MAINTENANCE
+
+Whenever either AI assistant implements a meaningful application change, it should evaluate which documentation is affected.
+
+Examples:
+
+**If the booking interface changes:**
+- Update affected frontend documentation.
+- Update booking workflow explanations if user behavior changed.
+- Update `PROJECT_INDEX.md` if relevant file locations or relationships changed.
+
+**If backend booking validation changes:**
+- Update affected backend/API documentation.
+- Update the corresponding business workflow explanation.
+- Update limitations and diagrams if necessary.
+
+**If the database structure changes:**
+- Update affected database table documentation.
+- Update database relationship explanations.
+- Update the feature index if dependencies changed.
+
+**If an approved business requirement changes:**
+- Record the approved decision carefully in the appropriate project-memory documentation.
+- Update affected implementation and system-understanding notes.
+- Preserve the previous historical decision.
+
+**If only formatting or an unrelated internal refactor changes:**
+- Avoid unnecessary documentation edits when the documentation remains accurate.
+
+### Automatic behavior during AI development tasks
+
+When Codex or Claude performs meaningful development work, instruct it to:
+
+1. Identify the source changes.
+2. Determine which existing documentation is affected.
+3. Update only relevant Markdown documents.
+4. Record meaningful architectural or approved business decisions.
+5. Preserve historical project memory.
+6. Verify links and consistency.
+7. Report documentation updates alongside implementation results.
+
+This should become part of the AI's normal development workflow.
+
+However, clearly document that these instructions apply when the AI is actively working. They do not independently monitor external file changes.
+
+Do not silently rewrite approval records or record AI assumptions as user-approved decisions.
+
+---
+
+## PHASE 6 — OPTIMIZE FILE DISCOVERY AND TOKEN USAGE
+
+Both agents should use efficient, task-focused file discovery.
+
+Requirements:
+
+- Start with a concise index.
+- Read only the relevant sections and files.
+- Search for functions, symbols, and dependencies when needed.
+- Use targeted code searches rather than opening entire directories.
+- Avoid repeatedly reading long documents already summarized in the current task.
+- Follow references only when necessary.
+- Prefer current source files for exact implementation details.
+- Expand investigation when a change affects cross-cutting behavior or introduces uncertainty.
+- Never sacrifice correctness, security, or test coverage merely to reduce token usage.
+
+Do not claim guaranteed token savings or faster execution.
+
+The optimization goal is to reduce unnecessary context and repository exploration while preserving accurate development decisions.
+
+---
+
+## PHASE 7 — PRESERVE THE NON-DEVELOPER LEARNING SYSTEM
+
+The documentation under `Understand the System/` serves people with little or no programming knowledge.
+
+Both agents must preserve:
+
+- Friendly, conversational explanations
+- Ana's consistent fictional rental example
+- Step-by-step business workflows
+- Simple Mermaid diagrams
+- Previous Lesson links
+- Next Lesson links
+- Back to Start Here navigation
+- Optional technical explanations
+- Accurate business rules
+
+Do not turn the beginner-friendly documentation into AI-only technical notes.
+
+`PROJECT_INDEX.md` should complement the existing learning handbook, not replace it.
+
+---
+
+## PHASE 8 — SAFETY AND SCOPE
+
+This task is limited to creating or updating:
+
+- `PROJECT_INDEX.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+
+Existing project documentation may be inspected but must not be rewritten during this initial indexing task.
+
+Do not modify application PHP, JavaScript, HTML, CSS, SQL, tests, or database data.
+
+Do not run migrations, deploy the application, or change production configuration.
+
+Preserve existing uncommitted work.
+
+Do not stage, commit, or push changes without explicit authorization.
+
+Keep internal knowledge and AI instructions out of publicly served production files.
+
+---
+
+## PHASE 9 — VALIDATION
+
+After completing the index and agent instructions:
+
+1. Verify that all referenced local files exist.
+2. Check Markdown links.
+3. Verify feature-to-code mappings against actual source files.
+4. Check that `AGENTS.md` and `CLAUDE.md` reference the same shared index.
+5. Ensure neither file contains contradictory instructions.
+6. Ensure the index does not duplicate entire documentation pages.
+7. Verify that approved and deferred features are labeled accurately.
+8. Run `git diff --check`.
+9. Confirm no application code was changed.
 
 ### FINAL REPORT
 
 Provide:
 
-- Number of documents improved.
-- Number of new learning/navigation sections added.
-- Summary of changes to `Start Here.md`.
-- Description of the non-developer and developer learning paths.
-- Markdown link validation results.
-- Any documentation gaps or unresolved issues.
-- Confirmation that the application functionality remains unchanged.
+- The files created or modified.
+- The number of features mapped.
+- The number of links validated.
+- Any missing or uncertain mappings.
+- How Codex will use the index.
+- How Claude will use the index.
+- How both agents will maintain documentation after development tasks.
+- Any limitations of the setup.
+- Confirmation that application functionality was not modified.
 
 ## EXPECTED RESULT
 
-The updated **Understand the System** documentation should feel like a connected, easy-to-follow digital textbook.
+Both Codex and Claude Code should be able to receive a request such as:
 
-A group member who has never learned programming should be able to open `Start Here.md`, read one lesson, click the recommended next lesson, and gradually understand how Rental-Ops-Manager works from beginning to end.
+"Improve the payment workflow."
 
-At the same time, developers must still have access to accurate technical explanations and detailed references.
+Instead of exploring the entire repository, the agent should:
 
-**The ultimate goal is not simply to have documentation. It is to make the entire system understandable to everyone on the team.**
+1. Read its project instructions.
+2. Consult `PROJECT_INDEX.md`.
+3. Locate payment-related documentation and source files.
+4. Investigate the required implementation.
+5. Make and test the change.
+6. Update affected Second Brain notes.
+7. Report what changed.
 
-Begin by reviewing the current learning path and existing documentation, then improve readability and navigation without undoing the recent technical modernization.
+**The ultimate goal is a shared, efficient, reliable AI development workflow where Codex and Claude Code use the same Second Brain, understand the system accurately, and keep relevant documentation synchronized with verified application changes.**
+
+Start by investigating the current repository and creating the shared project index. Then configure both agent instruction files to use it.
