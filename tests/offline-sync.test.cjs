@@ -104,7 +104,7 @@ const booking = (name, date = "2099-05-01", service = 1) => ({
   customer_name: name + " " + RUN,
   contact: "TEST-" + crypto.randomUUID().slice(0, 12),
   service_ids: ["SVC-" + String(service).padStart(3, "0")],
-  package_id: service === 1 ? 1 : 3,
+  package_id: service === 1 ? 1 : 10,
   event_date: date.replace("2099", String(YEAR)),
   start_time: "14:00",
   end_time: "18:00",
@@ -244,7 +244,7 @@ async function get(path, origin = BASE) {
     const row = await get("api/bookings.php?do=get&id=" + serverId);
     assert.equal(Number(row.amount_paid), 200);
     assert.equal(Number(row.agreed_total), 2500);
-    assert.equal(row.package_name_snapshot, "Standard Karaoke (up to 4 hrs)");
+    assert.equal(row.package_name_snapshot, "Karaoke Setup — 12 Hours");
     assert.equal(row.payment_status, "Partially Paid");
     const dep = await get("api/deposits.php?do=get&booking_id=" + serverId);
     assert.equal(Number(dep.refund_amount), 300);
@@ -419,7 +419,7 @@ async function get(path, origin = BASE) {
     assert.equal(response.status, 201, JSON.stringify(createResult));
     const saved = createResult.data;
     let items = await get("api/bookingItems.php?do=forBooking&booking_id=" + saved.id);
-    assert.equal(items.length, 1);
+    assert.equal(items.length, testChecklistCount);
     const update = await fetch(BASE + "api/bookingItems.php?do=update&id=" + items[0].booking_item_id, {
       method: "POST",
       headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
@@ -433,7 +433,7 @@ async function get(path, origin = BASE) {
     });
     assert.equal(regenerate.status, 200);
     items = await get("api/bookingItems.php?do=forBooking&booking_id=" + saved.id);
-    assert.equal(items.length, 1);
+    assert.equal(items.length, testChecklistCount);
     assert.equal(Number(items[0].quantity_released), Number(items[0].expected_quantity));
   });
   await test("new services preserve a submitted inactive status", async () => {

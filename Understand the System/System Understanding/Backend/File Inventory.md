@@ -1,6 +1,6 @@
 ---
 title: "Backend File Inventory"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
@@ -24,7 +24,7 @@ The list includes helper files as well as request handlers. A helper performs a 
 
 This section records exact file behavior, field names and implementation details.
 
-Every PHP file present on the review date is listed below. Helpers are included because endpoints depend on them.
+Every PHP file present in the api/ directory is listed below. Helper files are included because endpoints depend on them.
 
 | File | Purpose |
 |---|---|
@@ -54,6 +54,20 @@ Every PHP file present on the review date is listed below. Helpers are included 
 | [sync.php](Files/sync.php.md) | Validates and commits offline operations with per-operation receipts. |
 | [sync_state.php](Files/sync_state.php.md) | Receipt ledger and temporary-to-server ID mapping for replay safety. |
 | [websiteContent.php](Files/websiteContent.php.md) | Reads/replaces the website content object. |
+| [audit.php](Files/audit.php.md) | Audit logging and compliance tracking. |
+| [availability_service.php](Files/availability_service.php.md) | Shared service for checking resource availability and conflicts. |
+| [availabilityBlocks.php](Files/availabilityBlocks.php.md) | Manages time-based availability blocks for resources. |
+| [booking_items_service.php](Files/booking_items_service.php.md) | Shared service for managing booking-item relationships and operations. |
+| [booking_service.php](Files/booking_service.php.md) | Shared service for core booking lifecycle operations and workflow coordination. |
+| [catalog_definitions.php](Files/catalog_definitions.php.md) | Defines and manages service catalog structures and pricing rules. |
+| [checklist_service.php](Files/checklist_service.php.md) | Shared service for equipment checklist generation and validation. |
+| [checklistTemplates.php](Files/checklistTemplates.php.md) | Manages equipment checklist templates and standard configurations. |
+| [domain.php](Files/domain.php.md) | Handles domain-specific business rules and validation logic. |
+| [gallery-upload.php](Files/gallery-upload.php.md) | Specialized handler for gallery content uploads and processing. |
+| [notifications.php](Files/notifications.php.md) | Manages system notifications, alerts, and communication templates. |
+| [owners.php](Files/owners.php.md) | Manages owner profiles, preferences, and account-level settings. |
+| [payment_service.php](Files/payment_service.php.md) | Shared service for payment processing, validation, and financial operations. |
+| [supporting_service.php](Files/supporting_service.php.md) | Provides shared utility functions and cross-cutting concerns support. |
 
 ## Continue reading
 

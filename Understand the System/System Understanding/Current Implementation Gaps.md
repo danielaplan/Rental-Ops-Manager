@@ -1,6 +1,6 @@
 ---
 title: "Current Implementation Gaps"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
@@ -36,7 +36,7 @@ Use the exact findings below when checking a technical claim. A developer should
 
 This section records exact file behavior, field names and implementation details.
 
-These findings come from source inspection on 2026-09-29. They are explanation limits and possible follow-up work, not changes made by this guide or a claim that existing tests failed. They help the next person distinguish intended rules from what every code path currently enforces.
+These findings come from source inspection and were last reviewed on 2026-10-17. They are explanation limits and possible follow-up work, not changes made by this guide or a claim that existing tests failed. They help the next person distinguish intended rules from what every code path currently enforces.
 
 | Area                     | Current behavior / limitation                                                                                                                                                                                                                          | Source                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
@@ -60,10 +60,9 @@ These findings come from source inspection on 2026-09-29. They are explanation l
 | Cardinality              | Official design says one-to-many deposits/delivery; current unique booking keys implement zero-or-one.                                                                                                                                                 | System Design vs schema.sql                       |
 | Catalog linkage          | CATEGORIES has no relationship to SERVICES; JSON selections have no SQL foreign keys.                                                                                                                                                                  | schema.sql                                        |
 | Scope / deferred work    | FR-10 blockouts absent and explicitly skipped. Frontend remains unfinished and its full guide is deferred. Content/gallery support does not prove alignment with the internal-only requirement.                                                        | requirements, current user scope, vault decisions |
+| Deprecation notes        | Some gaps have been addressed as noted above (e.g., Create defaults and Completion bypass fixed 2026-10-08). Review needed for current status of all items.                                                                                            |                                                   |
 
 No fixed minimum for down payment or held deposit is a current approved decision, not a gap. Existing focused runtime evidence remains valid within the documented test scope; it does not certify every path above.
-
-See [File Inventory](Backend/File%20Inventory.md) and [Supporting Files and Evidence](Backend/Supporting%20Files%20and%20Evidence.md).
 
 ## Source files
 

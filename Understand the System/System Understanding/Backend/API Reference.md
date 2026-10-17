@@ -1,6 +1,6 @@
 ---
 title: "API Reference"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding

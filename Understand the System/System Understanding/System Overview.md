@@ -1,6 +1,6 @@
 ---
 title: "System Overview"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
@@ -45,7 +45,7 @@ The booking is the central rental record. Its reference number connects customer
 
 If the server cannot be reached, supported changes can stay on the device as Pending Sync. They become shared records only after the server accepts them. That process is called synchronization.
 
-Start with [Booking and Pricing](Workflows/Booking%20and%20Pricing.md) for the booking story. Keep [Current Implementation Gaps](Current%20Implementation%20Gaps.md) in mind when writing about what is finished.
+Start with [Booking and Pricing](Workshops/Booking%20and%20Pricing.md) for the booking story. Keep [Current Implementation Gaps](Current%20Implementation%20Gaps.md) in mind when writing about what is finished.
 
 ## Technical details
 
@@ -75,8 +75,8 @@ The official design describes nine core entities; the current SQL scripts define
 ## Source files
 
 - [Documentation/AKAD_System_Design.md](<../../Documentation/AKAD_System_Design.md>)
-- [api/config.php](<../../api/config.php>)
-- [api/sync.php](<../../api/sync.php>)
+- [api/config.php](<../../../api/config.php>)
+- [api/sync.php](<../../../api/sync.php>)
 
 ## Continue reading
 

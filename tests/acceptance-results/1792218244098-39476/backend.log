@@ -1,0 +1,72 @@
+Synthetic database: akad_verify_plan_1792218244299_12096; servers: http://127.0.0.1:56848/, http://127.0.0.1:56858/
+EXCLUDED legacy internal blockout draft checks: deferred scope
+PASS authenticated boundaries/notifications, financial/history rules, concurrent conflicts, owner administration, and reports
+✔ catalog defaults, booking snapshots, eligibility, and retained cancellation (1319.0606ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1332.13
+✔ scheduled reconciler refuses an implicit operational database (268.0617ms)
+✔ scheduled reconciliation and reviewed checklist release are atomic and idempotent (2323.6408ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2603.8272
+PASS finance validation, retained report details, report definitions, and payment-date revenue
+PASS auth multi-device revocation, expiry, parallel lockout/reset race, primary permissions, production HTTPS/CORS bootstrap
+✔ offline sync honors revised shared booking, financial, catalog, and history rules (1173.3557ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1181.1734
+✔ sync rejects non-text deduction reasons atomically and permits a corrected retry (527.1746ms)
+✔ direct and sync history reject invalid booking links without appending rows (477.8655ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1012.6059
+✔ direct and offline rental deletion retain every historical item link (2506.3739ms)
+✔ template validation rejects malformed text and quantities without partial writes (2705.2446ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5223.7285
+PASS offline booking, deposit, payment, and full checklist survive reload
+PASS reconnect uploads all entries in under 30 seconds with correct database links
+PASS independent device retrieves the same accepted booking and negotiated amounts
+PASS conflicting offline booking and dependent checklist are retained through reload
+PASS lost response retries without duplicate bookings or payments
+PASS stale status edits require review instead of overwriting another device
+PASS non-karaoke bookings do not conflict with karaoke; invalid ranges stay rejected
+PASS direct booking creation generates an idempotent checklist
+PASS new services preserve a submitted inactive status
+PASS deposit bounds and deduction reasons are enforced without a fixed minimum
+PASS future bookings cannot be finalized before the post-event review
+PASS completed package inspection and explicit post-event review release a due booking
+PASS different signed-in user cannot upload another user outbox
+PASS simultaneous karaoke confirmations serialize across two PHP processes
+PASS online event automatically uploads a persisted offline draft
+PASS periodic retry uploads when connection returns without an online event
+PASS incomplete inspection cannot finalize a return
+17 integration checks passed.
+PASS 9 test file(s). Synthetic database retained for inspection: akad_verify_plan_1792218244299_12096

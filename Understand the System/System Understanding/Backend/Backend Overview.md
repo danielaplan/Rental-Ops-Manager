@@ -1,6 +1,6 @@
 ---
 title: "Backend Overview"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
@@ -31,7 +31,7 @@ For Ana’s booking, different files have different jobs: one checks staff login
 
 ## File organization
 
-There are 26 PHP files, including shared helpers. Workflow notes link to the files involved in each process. [File Inventory](File%20Inventory.md) lists every file and its responsibility.
+There are 34 PHP files, including shared helpers. Workflow notes link to the files involved in each process. [File Inventory](File%20Inventory.md) lists every file and its responsibility.
 
 Each file may have its own access rules. “Internal staff tool” is the intended scope, but current code does not require login for every read request. Check the exact behavior before making a claim about permissions.
 
@@ -39,7 +39,7 @@ Each file may have its own access rules. “Internal staff tool” is the intend
 
 This section records exact file behavior, field names and implementation details.
 
-There are 26 PHP source files in `api/`: 20 HTTP endpoint files and six shared helper/bootstrap files (`config.php`, `crud.php`, `booking_pricing.php`, `deposit_service.php`, `equipment_service.php`, `sync_state.php`). `auth.php` is both an endpoint and a reusable authentication module.
+There are 34 PHP source files in `api/` and related directories: 28 HTTP endpoint files and six shared helper/bootstrap files (`config.php`, `crud.php`, `booking_pricing.php`, `deposit_service.php`, `equipment_service.php`, `sync_state.php`). `auth.php` is both an endpoint and a reusable authentication module.
 
 | Area | Main files | Responsibility |
 |---|---|---|
