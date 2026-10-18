@@ -1,0 +1,160 @@
+{
+  "run_at": "2026-10-16T04:49:09.244Z",
+  "database": "akad_verify_plan_1792046564392_28220",
+  "base": "http://127.0.0.1:8035/",
+  "results": [
+    {
+      "id": "W01",
+      "status": "PASS",
+      "elapsed_ms": 2262,
+      "evidence": {
+        "booking_ids": [
+          3,
+          1,
+          2,
+          4
+        ],
+        "secondary_owner_admin_http": 403,
+        "revenue": "500.00",
+        "balances": {
+          "A": "750.00",
+          "D": "750.00"
+        }
+      }
+    },
+    {
+      "id": "W02",
+      "status": "PASS",
+      "elapsed_ms": 637,
+      "evidence": {
+        "http": 409,
+        "conflict_booking_ids": [
+          1,
+          4
+        ],
+        "unresolved_notification_count": 1
+      }
+    },
+    {
+      "id": "W03",
+      "status": "PASS",
+      "elapsed_ms": 549,
+      "evidence": {
+        "http": 400,
+        "error": "Inspect all checklist items and document missing or damaged returns before release.",
+        "booking_status": "Awaiting Completion",
+        "unresolved_notification_count": 1
+      }
+    },
+    {
+      "id": "W04",
+      "status": "PASS",
+      "elapsed_ms": 486,
+      "evidence": {
+        "invalid_http": 400,
+        "invalid_error": "Quantities must satisfy returned <= released <= expected.",
+        "saved": [
+          {
+            "id": 10,
+            "released": 1,
+            "returned": 1,
+            "condition": "Good",
+            "checked_by": 1
+          },
+          {
+            "id": 11,
+            "released": 2,
+            "returned": 2,
+            "condition": "Good",
+            "checked_by": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "W05",
+      "status": "PASS",
+      "elapsed_ms": 628,
+      "evidence": {
+        "booking_balance": "0.00",
+        "held": "350.00",
+        "deduction": "50.00",
+        "refundable": "300.00",
+        "revenue": "1250.00"
+      }
+    },
+    {
+      "id": "W06",
+      "status": "PASS",
+      "elapsed_ms": 585,
+      "evidence": {
+        "first_http": 200,
+        "retry_http": 200,
+        "status": "Refunded",
+        "refund_audit_count": 1,
+        "revenue": "1250.00"
+      }
+    },
+    {
+      "id": "W07",
+      "status": "PASS",
+      "elapsed_ms": 422,
+      "evidence": {
+        "status": "Completed",
+        "released_by": 1,
+        "completed_at": "2026-10-16 12:49:07",
+        "unresolved_notification_count": 0,
+        "manual_release_audit": true
+      }
+    },
+    {
+      "id": "W08",
+      "status": "PASS",
+      "elapsed_ms": 679,
+      "evidence": {
+        "first_http": 409,
+        "remaining_conflict_booking_ids": [
+          1
+        ],
+        "status": "Confirmed",
+        "markers": {
+          "A": true,
+          "B": true
+        },
+        "override_audit": true
+      }
+    },
+    {
+      "id": "W09",
+      "status": "PASS",
+      "elapsed_ms": 548,
+      "evidence": {
+        "status": "Cancelled",
+        "cancellation_reason": "Synthetic walkthrough cancellation",
+        "retained_payment_count": 1,
+        "cancellation_audit": true,
+        "revenue": "1350.00"
+      }
+    },
+    {
+      "id": "W10",
+      "status": "PASS",
+      "elapsed_ms": 396,
+      "evidence": {
+        "before_note": "SYNTHETIC delivery note",
+        "after_note": "SYNTHETIC updated delivery note",
+        "pending_payment_count": 1,
+        "accepted_paid": "250.00",
+        "outstanding_balance": "750.00",
+        "revenue": "1350.00"
+      }
+    }
+  ],
+  "passed": 10,
+  "failed": 0,
+  "not_executed": [
+    "W11 browser offline/reconnect walkthrough",
+    "W12 two-browser stale-draft usability walkthrough",
+    "owner policy decisions and sign-off"
+  ]
+}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [Tue Oct  6 16:02:57 2026] PHP 8.2.12 Development Server (http://127.0.0.1:8018) started
 [Tue Oct  6 16:02:59 2026] 127.0.0.1:54172 Accepted
 [Tue Oct  6 16:02:59 2026] 127.0.0.1:54172 [200]: POST /api/auth.php
@@ -809,3 +810,60 @@
 [Wed Oct 14 20:04:01 2026] 127.0.0.1:55790 Accepted
 [Wed Oct 14 20:04:01 2026] 127.0.0.1:55790 [201]: POST /api/bookings.php?do=create
 [Wed Oct 14 20:04:01 2026] 127.0.0.1:55790 Closing
+=======
+[Thu Oct 15 05:36:52 2026] PHP 8.2.12 Development Server (http://127.0.0.1:8018) started
+[Thu Oct 15 05:37:02 2026] 127.0.0.1:55466 Accepted
+[Thu Oct 15 05:37:02 2026] 127.0.0.1:55466 [200]: POST /api/auth.php
+[Thu Oct 15 05:37:02 2026] 127.0.0.1:55466 Closing
+[Thu Oct 15 05:45:05 2026] 127.0.0.1:63752 Accepted
+[Thu Oct 15 05:45:05 2026] 127.0.0.1:63752 [409]: POST /api/bookings.php?do=create
+[Thu Oct 15 05:45:05 2026] 127.0.0.1:63752 Closing
+[Thu Oct 15 05:45:27 2026] 127.0.0.1:63791 Accepted
+[Thu Oct 15 05:45:27 2026] 127.0.0.1:63791 [409]: POST /api/deposits.php?do=refund
+[Thu Oct 15 05:45:27 2026] 127.0.0.1:63791 Closing
+[Thu Oct 15 05:45:27 2026] 127.0.0.1:63795 Accepted
+[Thu Oct 15 05:45:27 2026] 127.0.0.1:63795 [409]: POST /api/bookings.php?do=create
+[Thu Oct 15 05:45:27 2026] 127.0.0.1:63795 Closing
+[Thu Oct 15 05:47:02 2026] 127.0.0.1:63529 Accepted
+[Thu Oct 15 05:47:02 2026] 127.0.0.1:63529 [409]: POST /api/deposits.php?do=refund
+[Thu Oct 15 05:47:02 2026] 127.0.0.1:63529 Closing
+[Thu Oct 15 05:47:02 2026] 127.0.0.1:63533 Accepted
+[Thu Oct 15 05:47:02 2026] 127.0.0.1:63533 [409]: POST /api/bookings.php?do=create
+[Thu Oct 15 05:47:02 2026] 127.0.0.1:63533 Closing
+[Thu Oct 15 05:49:22 2026] 127.0.0.1:54623 Accepted
+[Thu Oct 15 05:49:22 2026] 127.0.0.1:54623 [409]: POST /api/deposits.php?do=refund
+[Thu Oct 15 05:49:22 2026] 127.0.0.1:54623 Closing
+[Thu Oct 15 05:49:22 2026] 127.0.0.1:54627 Accepted
+[Thu Oct 15 05:49:22 2026] 127.0.0.1:54627 [409]: POST /api/bookings.php?do=create
+[Thu Oct 15 05:49:22 2026] 127.0.0.1:54627 Closing
+[Thu Oct 15 05:50:36 2026] 127.0.0.1:59121 Accepted
+[Thu Oct 15 05:50:36 2026] 127.0.0.1:59121 [409]: POST /api/deposits.php?do=refund
+[Thu Oct 15 05:50:36 2026] 127.0.0.1:59121 Closing
+[Thu Oct 15 05:50:36 2026] 127.0.0.1:59125 Accepted
+[Thu Oct 15 05:50:36 2026] 127.0.0.1:59125 [409]: POST /api/bookings.php?do=create
+[Thu Oct 15 05:50:36 2026] 127.0.0.1:59125 Closing
+[Thu Oct 15 05:52:01 2026] 127.0.0.1:56338 Accepted
+[Thu Oct 15 05:52:01 2026] 127.0.0.1:56338 [409]: POST /api/deposits.php?do=refund
+[Thu Oct 15 05:52:01 2026] 127.0.0.1:56338 Closing
+[Thu Oct 15 05:52:01 2026] 127.0.0.1:56342 Accepted
+[Thu Oct 15 05:52:01 2026] 127.0.0.1:56342 [409]: POST /api/bookings.php?do=create
+[Thu Oct 15 05:52:01 2026] 127.0.0.1:56342 Closing
+[Thu Oct 15 05:52:54 2026] 127.0.0.1:49683 Accepted
+[Thu Oct 15 05:52:54 2026] 127.0.0.1:49683 [200]: POST /api/auth.php
+[Thu Oct 15 05:52:54 2026] 127.0.0.1:49683 Closing
+[Thu Oct 15 05:54:00 2026] 127.0.0.1:52184 Accepted
+[Thu Oct 15 05:54:00 2026] 127.0.0.1:52184 [409]: POST /api/deposits.php?do=refund
+[Thu Oct 15 05:54:00 2026] 127.0.0.1:52184 Closing
+[Thu Oct 15 05:54:00 2026] 127.0.0.1:52188 Accepted
+[Thu Oct 15 05:54:00 2026] 127.0.0.1:52188 [409]: POST /api/bookings.php?do=create
+[Thu Oct 15 05:54:00 2026] 127.0.0.1:52188 Closing
+[Thu Oct 15 05:54:21 2026] 127.0.0.1:54659 Accepted
+[Thu Oct 15 05:54:21 2026] 127.0.0.1:54659 [409]: POST /api/deposits.php?do=refund
+[Thu Oct 15 05:54:21 2026] 127.0.0.1:54659 Closing
+[Thu Oct 15 05:54:21 2026] 127.0.0.1:54663 Accepted
+[Thu Oct 15 05:54:21 2026] 127.0.0.1:54663 [409]: POST /api/bookings.php?do=create
+[Thu Oct 15 05:54:21 2026] 127.0.0.1:54663 Closing
+[Thu Oct 15 06:26:32 2026] 127.0.0.1:60423 Accepted
+[Thu Oct 15 06:26:33 2026] 127.0.0.1:60423 [200]: POST /api/auth.php
+[Thu Oct 15 06:26:33 2026] 127.0.0.1:60423 Closing
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7

@@ -10,10 +10,9 @@ const CONFIG = {
   aboutFallback: "We provide karaoke rental, Sweet Corner packages, and balloon decorations. Contact our team to discuss preferred dates and delivery arrangements.",
 
   bookingStatuses: [
-    "Pending", "Confirmed", "Reserved", "Preparing", "Released",
-    "Event Completed", "Returned", "Inspected", "Completed",
-    "Cancelled", "Rejected"
+    "Pending", "Confirmed", "Awaiting Completion", "Awaiting Payment", "Completed", "Cancelled"
   ],
+  bookingEditableStatuses: ["Pending", "Confirmed", "Cancelled"],
 
   // Status colors for badges (Bootstrap contextual classes)
   bookingStatusColors: {
@@ -25,6 +24,8 @@ const CONFIG = {
     "Event Completed": "secondary",
     "Returned": "secondary",
     "Inspected": "secondary",
+    "Awaiting Completion": "warning",
+    "Awaiting Payment": "danger",
     "Completed": "success",
     "Cancelled": "dark",
     "Rejected": "danger"

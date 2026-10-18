@@ -27,7 +27,7 @@
     <div class="table-wrap">
       <table class="admin-table">
         <thead><tr>
-          <th>Service</th><th>Description</th><th>Status</th><th>Actions</th>
+          <th>Service</th><th>Description</th><th>Preparation</th><th>Travel</th><th>Status</th><th>Actions</th>
         </tr></thead>
         <tbody id="servicesBody"></tbody>
       </table>
@@ -66,6 +66,14 @@
             <div class="mt-2" id="svcImagePreviewWrap" hidden>
               <img id="svcImagePreview" alt="Service image preview" style="display:block;max-width:100%;max-height:200px;object-fit:contain;border-radius:8px;">
             </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="svcPreparation">Default preparation (minutes)</label>
+            <input type="number" min="0" step="1" class="form-control" id="svcPreparation" value="0" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="svcTravel">Default travel (minutes)</label>
+            <input type="number" min="0" step="1" class="form-control" id="svcTravel" value="0" required>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="svcStatus">Status</label>
@@ -108,6 +116,10 @@ adminReady(async function () {
     serviceImage.reset();
     $('#serviceFormTitle').text('Add Service');
     $('#svcStatus').val('Active');
+<<<<<<< HEAD
+=======
+    $('#svcPreparation, #svcTravel').val(0);
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
@@ -119,10 +131,16 @@ adminReady(async function () {
     $('#svcId').val(s.service_id);
     $('#svcName').val(s.name);
     $('#svcDescription').val(s.description);
+<<<<<<< HEAD
     $('#svcImage').val(s.image);
     $('#svcStatus').val(s.status);
     serviceImage.reset();
     serviceImage.refresh();
+=======
+    $('#svcStatus').val(s.status);
+    $('#svcPreparation').val(s.default_preparation_minutes || 0);
+    $('#svcTravel').val(s.default_travel_minutes || 0);
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     $('#serviceFormTitle').text('Edit Service');
     new bootstrap.Modal('#serviceFormModal').show();
   });
@@ -158,6 +176,13 @@ adminReady(async function () {
   $('#serviceForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const id = $('#svcId').val();
+<<<<<<< HEAD
+=======
+    const data = {
+      name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val(),
+      default_preparation_minutes: Number($('#svcPreparation').val()), default_travel_minutes: Number($('#svcTravel').val())
+    };
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
       const data = { name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), image: await serviceImage.resolve(), status: $('#svcStatus').val() };
@@ -178,7 +203,7 @@ async function renderServicesTable() {
   const services = await API.getServices();
   const $body = $('#servicesBody').empty();
   if (!services.length) {
-    $body.append('<tr><td colspan="4" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
+    $body.append('<tr><td colspan="6" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
     return;
   }
   services.forEach(s => {
@@ -191,6 +216,8 @@ async function renderServicesTable() {
           </div>
         </td>
         <td>${escapeHtmlA(s.description || '')}</td>
+        <td>${Number(s.default_preparation_minutes || 0)} min</td>
+        <td>${Number(s.default_travel_minutes || 0)} min</td>
         <td>
           <div class="form-check form-switch">
             <input class="form-check-input js-toggle-service-status" type="checkbox" aria-label="Service active status" data-id="${escapeHtmlA(s.service_id)}" ${s.status === 'Active' ? 'checked' : ''}>

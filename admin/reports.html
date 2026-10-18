@@ -211,6 +211,7 @@ async function renderReport(startDate, endDate) {
     { label: "Total Revenue", value: BookingCalc.formatCurrency(r.total_revenue), icon: "bi-cash-stack" },
     { label: "Payments Pending Sync", value: BookingCalc.formatCurrency(pendingPaymentTotal), icon: "bi-cloud-arrow-up", cls: pendingPaymentTotal > 0 ? "warn" : "" },
     { label: "Outstanding Balance", value: BookingCalc.formatCurrency(r.outstanding_balance), icon: "bi-hourglass-split", cls: "warn" },
+    { label: "Awaiting Payment", value: r.awaiting_payment, icon: "bi-cash-coin", cls: Number(r.awaiting_payment) > 0 ? "warn" : "" },
     { label: "Damaged / Missing Items", value: r.damaged_or_missing, icon: "bi-exclamation-triangle", cls: "danger" }
   ].forEach(s => {
     $stats.append(`
@@ -229,10 +230,10 @@ async function renderReport(startDate, endDate) {
   reportCharts.push(new Chart(document.getElementById('statusChart'), {
     type: 'doughnut',
     data: {
-      labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled/Rejected'],
+      labels: ['Pending', 'Confirmed', 'Awaiting Payment', 'Completed', 'Cancelled/Rejected'],
       datasets: [{
-        data: [r.pending, r.confirmed, r.completed, r.cancelled],
-        backgroundColor: ['#D9A441', '#2E6E5F', '#1F4E45', '#B0AC9E']
+        data: [r.pending, r.confirmed, r.awaiting_payment, r.completed, r.cancelled],
+        backgroundColor: ['#D9A441', '#2E6E5F', '#C77800', '#1F4E45', '#B0AC9E']
       }]
     },
     options: {

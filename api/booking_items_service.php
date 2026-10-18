@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 function bookingItemEntityId($value): ?int
 {
@@ -25,4 +26,10 @@ function ensureBookingItems(PDO $pdo, int $bookingId, array $serviceIds): array
     $items = $pdo->prepare('SELECT * FROM booking_items WHERE booking_id=? ORDER BY booking_item_id');
     $items->execute([$bookingId]);
     return $items->fetchAll();
+=======
+require_once __DIR__.'/checklist_service.php';
+function ensureBookingItems(PDO $pdo,int $bookingId,array $serviceIds=[]): array {
+    $booking=lockBooking($pdo,$bookingId);
+    return copyBookingChecklist($pdo,$bookingId,$booking['package_id']?(int)$booking['package_id']:null);
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
 }

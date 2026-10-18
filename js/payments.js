@@ -11,16 +11,17 @@ const PaymentsHelper = {
     const queue = API.getSyncQueue();
     queue.forEach(op => {
       if (op.entity !== 'payments' || op.action !== 'create' || op.status === 'synced') return;
-      const bid = String(op.data?.booking_id).replace(/[^0-9]/g, '') || op.data?.booking_id;
-      if (!bid) return;
+      const bookingId = op.data?.booking_id;
+      if (bookingId === null || bookingId === undefined || bookingId === '') return;
+      const bid = String(bookingId);
       const amount = Number(op.data?.amount || 0);
-      pending.set(String(bid), (pending.get(String(bid)) || 0) + amount);
+      pending.set(bid, (pending.get(bid) || 0) + amount);
     });
     // Also surface server-side pending_sync rows for completeness.
     const payments = await API.getPayments();
     payments.forEach(payment => {
       if (payment.sync_status !== 'pending_sync') return;
-      const key = String(payment.booking_id).replace(/[^0-9]/g, '');
+      const key = String(payment.booking_id);
       pending.set(key, (pending.get(key) || 0) + Number(payment.amount || 0));
     });
     return pending;
@@ -45,14 +46,15 @@ const PaymentsHelper = {
     return Math.max(Number(booking.total || 0) - await PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts), 0);
   },
 
-  recordPayment(bookingId, amount, method, notes) {
+  recordPayment(bookingId, amount, method, notes, details = {}) {
     const paymentAmount = Number(amount);
     if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) return Promise.resolve(null);
     return API.createPayment({
       booking_id: bookingId,
       amount: paymentAmount,
       method: method,
-      notes: notes || ""
+      notes: notes || "",
+      ...details
     });
   },
 
@@ -68,9 +70,9 @@ const PaymentsHelper = {
       <tr>
         <td>${BookingCalc.formatDate(p.date)}</td>
         <td>${BookingCalc.formatCurrency(p.amount)}</td>
-        <td>${escapeHtmlA(PaymentsHelper.methodLabel(p.method))}</td>
+        <td>${escapeHtmlA(PaymentsHelper.methodLabel(p.method))}<br><small>${escapeHtmlA(p.payment_type || '')}</small></td>
         <td class="text-muted">${escapeHtmlA(p.notes || '')}</td>
-        <td>${p.pending_sync ? '<span class="badge bg-warning text-dark">Pending Sync</span>' : '<span class="badge bg-success">Recorded</span>'}</td>
+        <td>${badgeStatus(p.payment_status || 'Completed',{Completed:'success',Pending:'warning',Failed:'danger'})}${p.pending_sync ? '<br><span class="badge bg-warning text-dark">Pending Sync</span>' : ''}</td>
       </tr>`).join('');
     $wrap.append(`<table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Notes</th><th>Sync</th></tr></thead><tbody>${rows}</tbody></table>`);
   },

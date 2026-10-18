@@ -1,0 +1,53 @@
+{
+  "run_at": "2026-10-16T05:12:21.486Z",
+  "database": "akad_verify_plan_1792046564392_28220",
+  "results": [
+    {
+      "id": "W11",
+      "status": "PASS",
+      "api_evidence": {
+        "booking_id": 5,
+        "matching_booking_count": 1,
+        "payment_count": 1,
+        "completed_payment": 100,
+        "agreed_total": 1000,
+        "outstanding_balance": 900,
+        "second_owner_can_read_booking": true,
+        "october_revenue_after_sync": 1450
+      },
+      "recorded_browser_observations": {
+        "offline_reload_retained_draft": true,
+        "queued_operation_count": 3,
+        "queued_payment_excluded_until_sync": true,
+        "final_pending_sync_count": 0,
+        "automatic_commit_observed_about_seconds_after_reconnect": 4,
+        "visible_zero_queue_confirmed_within_seconds": 12
+      }
+    },
+    {
+      "id": "W12",
+      "status": "PASS",
+      "api_evidence": {
+        "second_client_accepted_location": "SYNTHETIC client B accepted location",
+        "reviewed_final_location": "SYNTHETIC reviewed final location"
+      },
+      "recorded_browser_observations": {
+        "stale_write_blocked": true,
+        "draft_retained": true,
+        "conflict_count": 1,
+        "three_way_location_comparison_visible": true,
+        "retry_completed": true,
+        "final_pending_sync_count": 0,
+        "keyboard_disclosure_worked": true,
+        "phone_viewport": {
+          "width": 390,
+          "height": 844,
+          "usable": true
+        },
+        "acceptance_defect_fixed": "Location conflicts now show previous/server/local values and accept a reviewed location on retry."
+      }
+    }
+  ],
+  "passed": 2,
+  "failed": 0
+}

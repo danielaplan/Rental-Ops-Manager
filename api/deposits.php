@@ -1,5 +1,29 @@
 <?php
-require_once __DIR__.'/config.php';require_once __DIR__.'/auth.php';require_once __DIR__.'/deposit_service.php';$do=$_GET['do']??'';$p=db();
-if($_SERVER['REQUEST_METHOD']==='GET'&&$do==='get'){$s=$p->prepare('SELECT * FROM deposits WHERE booking_id=? ORDER BY deposit_id DESC LIMIT 1');$s->execute([asInt($_GET['booking_id']??null,1)]);$row=$s->fetch();if($row)$row['refund_amount']=number_format((float)$row['amount_held']-(float)$row['deduction_amount'],2,'.','');sendJson(['ok'=>true,'data'=>$row?:null]);}
-if($_SERVER['REQUEST_METHOD']==='POST'&&$do==='upsert'){requireAuth();$b=readJsonBody();try{$row=saveDeposit($p,asInt($b['booking_id']??null,1)??0,$b);sendJson(['ok'=>true,'data'=>$row]);}catch(InvalidArgumentException $e){sendJson(['ok'=>false,'error'=>$e->getMessage(),'code'=>'validation'],400);}}
+require_once __DIR__.'/auth.php';
+require_once __DIR__.'/deposit_service.php';
+$owner=requireAuth();
+$do=$_GET['do'] ?? 'get';
+if ($_SERVER['REQUEST_METHOD']==='GET' && $do==='get') sendJson(['ok'=>true,'data'=>depositView(db(),asInt($_GET['booking_id'] ?? null,1) ?? 0)]);
+if ($_SERVER['REQUEST_METHOD']==='POST' && in_array($do,['create','upsert','deduct','refund'],true)) {
+    $body=readJsonBody();
+    $row=domainTransaction(function(PDO $pdo) use ($body,$do,$owner) {
+        $bid=asInt($body['booking_id'] ?? null,1);
+        if (!$bid) domainFail('A valid booking is required.');
+        lockBooking($pdo,$bid);
+        if (in_array($do,['create','upsert'],true)) return saveDeposit($pdo,$bid,$body,(int)$owner['user_id']);
+        $lock=$pdo->prepare('SELECT deposit_id FROM deposits WHERE booking_id=? FOR UPDATE');
+        $lock->execute([$bid]);
+        $deposit=depositView($pdo,$bid);
+        if (!$deposit) domainFail('Deposit not found.',404,'not_found');
+        if ($do==='deduct') addDepositDeduction($pdo,(int)$deposit['deposit_id'],$body,(int)$owner['user_id']);
+        if ($do==='refund' && $deposit['refund_status']!=='Refunded') {
+            $refundCents = moneyCents($deposit['refund_amount'] ?? '0.00');
+            if ($refundCents <= 0) domainFail('No refundable balance remains for this deposit.',409,'invalid_state');
+            $pdo->prepare("UPDATE deposits SET refund_status='Refunded',refund_date=NOW(),updated_at=NOW() WHERE deposit_id=?")->execute([$deposit['deposit_id']]);
+            auditWrite($pdo,$owner['user_id'],'deposit_refunded','deposit',$deposit['deposit_id'],json_encode(['refund_amount'=>$deposit['refund_amount']]));
+        }
+        return depositView($pdo,$bid);
+    });
+    sendJson(['ok'=>true,'data'=>$row]);
+}
 sendJson(['ok'=>false,'error'=>'Method not allowed.','code'=>'server_error'],405);

@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-16T05:30:52.068Z",
+  "environment": "Two independent storage clients, live PHP/MySQL, synthetic isolated database",
+  "results": [
+    {
+      "name": "offline booking, deposit, payment, and full checklist survive reload",
+      "passed": true,
+      "ms": 53.58
+    },
+    {
+      "name": "reconnect uploads all entries in under 30 seconds with correct database links",
+      "passed": true,
+      "ms": 504.43
+    },
+    {
+      "name": "independent device retrieves the same accepted booking and negotiated amounts",
+      "passed": true,
+      "ms": 236.45
+    },
+    {
+      "name": "conflicting offline booking and dependent checklist are retained through reload",
+      "passed": true,
+      "ms": 452.16
+    },
+    {
+      "name": "lost response retries without duplicate bookings or payments",
+      "passed": true,
+      "ms": 1123.7
+    },
+    {
+      "name": "stale status edits require review instead of overwriting another device",
+      "passed": true,
+      "ms": 942.59
+    },
+    {
+      "name": "non-karaoke bookings do not conflict with karaoke; invalid ranges stay rejected",
+      "passed": true,
+      "ms": 1189.57
+    },
+    {
+      "name": "direct booking creation generates an idempotent checklist",
+      "passed": true,
+      "ms": 223.48
+    },
+    {
+      "name": "new services preserve a submitted inactive status",
+      "passed": true,
+      "ms": 24.42
+    },
+    {
+      "name": "deposit bounds and deduction reasons are enforced without a fixed minimum",
+      "passed": true,
+      "ms": 33.23
+    },
+    {
+      "name": "future bookings cannot be finalized before the post-event review",
+      "passed": true,
+      "ms": 482.56
+    },
+    {
+      "name": "completed package inspection and explicit post-event review release a due booking",
+      "passed": true,
+      "ms": 799.85
+    },
+    {
+      "name": "different signed-in user cannot upload another user outbox",
+      "passed": true,
+      "ms": 14.08
+    },
+    {
+      "name": "simultaneous karaoke confirmations serialize across two PHP processes",
+      "passed": true,
+      "ms": 254.83
+    },
+    {
+      "name": "online event automatically uploads a persisted offline draft",
+      "passed": true,
+      "ms": 450.87
+    },
+    {
+      "name": "periodic retry uploads when connection returns without an online event",
+      "passed": true,
+      "ms": 999.38
+    },
+    {
+      "name": "incomplete inspection cannot finalize a return",
+      "passed": true,
+      "ms": 443.25
+    }
+  ]
+}

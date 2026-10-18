@@ -22,10 +22,18 @@ USE akad_rentals;
 CREATE TABLE IF NOT EXISTS USERS (
     user_id        INT          NOT NULL AUTO_INCREMENT,
     full_name      VARCHAR(100) NOT NULL,
-    role           ENUM('owner','staff') NOT NULL DEFAULT 'staff',
+    role           ENUM('owner','staff') NOT NULL DEFAULT 'owner',
+    username VARCHAR(100) NULL,
+    account_status VARCHAR(20) NOT NULL DEFAULT 'Active',
+    is_primary_owner TINYINT(1) NOT NULL DEFAULT 0,
+    failed_login_count INT UNSIGNED NOT NULL DEFAULT 0,
+    locked_until DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     contact_number VARCHAR(20),
     password_hash  VARCHAR(255) NOT NULL,
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (user_id),
+    UNIQUE KEY uq_users_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
@@ -48,6 +56,8 @@ CREATE TABLE IF NOT EXISTS SERVICES (
     service_id   INT          NOT NULL AUTO_INCREMENT,
     service_name VARCHAR(50)  NOT NULL,
     description  TEXT,
+    default_preparation_minutes INT UNSIGNED NOT NULL DEFAULT 0,
+    default_travel_minutes INT UNSIGNED NOT NULL DEFAULT 0,
     status       VARCHAR(20) NOT NULL DEFAULT 'Active',
     image        TEXT,
     PRIMARY KEY (service_id)
@@ -109,6 +119,17 @@ CREATE TABLE IF NOT EXISTS PACKAGES (
     service_id   INT           NOT NULL,
     package_name VARCHAR(100)  NOT NULL,
     price        DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    description TEXT,
+    inclusions TEXT,
+    duration_minutes INT UNSIGNED NOT NULL DEFAULT 0,
+    requires_deposit TINYINT(1) NOT NULL DEFAULT 0,
+    deposit_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    is_promotional TINYINT(1) NOT NULL DEFAULT 0,
+    promotion_start_date DATE NULL,
+    promotion_end_date DATE NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Active',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (package_id),
     FOREIGN KEY (service_id) REFERENCES SERVICES(service_id)
         ON UPDATE CASCADE ON DELETE RESTRICT
@@ -124,7 +145,7 @@ CREATE TABLE IF NOT EXISTS BOOKINGS (
     booking_id      INT          NOT NULL AUTO_INCREMENT,
     customer_id     INT          NOT NULL,
     service_id      INT          NOT NULL,
-    package_id      INT          NOT NULL,
+    package_id      INT          NULL,
     created_by      INT          NOT NULL,
     event_date      DATE         NOT NULL,
     start_time      TIME         NOT NULL,
@@ -148,7 +169,27 @@ CREATE TABLE IF NOT EXISTS BOOKINGS (
     special_requests TEXT,
     email VARCHAR(255),
     customer_type VARCHAR(100),
+    booking_reference VARCHAR(50) NULL,
+    event_start_datetime DATETIME NULL,
+    event_end_datetime DATETIME NULL,
+    preparation_minutes INT UNSIGNED NOT NULL DEFAULT 0,
+    travel_minutes INT UNSIGNED NOT NULL DEFAULT 0,
+    blocked_start_datetime DATETIME NULL,
+    blocked_end_datetime DATETIME NULL,
+    theme_notes TEXT,
+    package_name_snapshot VARCHAR(100) NULL,
+    package_price_snapshot DECIMAL(10,2) NULL,
+    agreed_total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    cancellation_reason TEXT,
+    awaiting_completion_at DATETIME NULL,
+    completed_at DATETIME NULL,
+    released_by INT NULL,
+    review_notes TEXT,
+    created_at DATETIME NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (booking_id),
+    UNIQUE KEY uq_bookings_reference (booking_reference),
+    KEY idx_bookings_blocked (service_id, status, blocked_start_datetime, blocked_end_datetime),
     FOREIGN KEY (customer_id) REFERENCES CUSTOMERS(customer_id)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     FOREIGN KEY (service_id) REFERENCES SERVICES(service_id)
@@ -169,11 +210,17 @@ CREATE TABLE IF NOT EXISTS PAYMENTS (
     booking_id       INT           NOT NULL,
     amount           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     payment_method   ENUM('gcash','maribank') NOT NULL,
-    payment_status   ENUM('paid','unpaid','partial')
-                    NOT NULL DEFAULT 'unpaid',
+    payment_status   VARCHAR(20) NOT NULL DEFAULT 'Pending',
     payment_date     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     notes            TEXT,
+    payment_type VARCHAR(30) NULL,
+    payment_reference VARCHAR(150) NULL,
+    recorded_by INT NULL,
+    recorded_at DATETIME NULL,
+    provenance VARCHAR(30) NOT NULL DEFAULT 'owner',
     PRIMARY KEY (payment_id),
+    KEY idx_payments_date (payment_status, payment_date),
+    FOREIGN KEY (recorded_by) REFERENCES USERS(user_id) ON DELETE RESTRICT,
     FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id)
         ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -190,8 +237,12 @@ CREATE TABLE IF NOT EXISTS DEPOSITS (
     amount_held       DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     deduction_amount  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     deduction_reason  TEXT,
-    refund_status     ENUM('pending','partial','full','none')
-                    NOT NULL DEFAULT 'pending',
+    refund_status     VARCHAR(20) NOT NULL DEFAULT 'Held',
+    refund_date DATETIME NULL,
+    recorded_by INT NULL,
+    provenance VARCHAR(30) NOT NULL DEFAULT 'owner',
+    created_at DATETIME NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (deposit_id),
     FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id)
         ON UPDATE CASCADE ON DELETE CASCADE
@@ -278,14 +329,159 @@ CREATE TABLE IF NOT EXISTS DELIVERY (
     delivery_method     ENUM('self_pickup','lalamove','owner_delivered')
                     NOT NULL DEFAULT 'self_pickup',
     delivery_fee        DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    fee_shouldered_by   ENUM('renter','owner')
-                    NOT NULL DEFAULT 'renter',
+    fee_shouldered_by   VARCHAR(30) NOT NULL DEFAULT 'Customer',
+    delivery_notes TEXT,
+    created_at DATETIME NULL,
     PRIMARY KEY (delivery_id),
     FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id)
         ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
+-- Revised operational tables. Legacy columns above remain for transition compatibility.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS SESSIONS (
+    session_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    session_token VARCHAR(64) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    UNIQUE KEY uq_sessions_token (session_token),
+    KEY idx_sessions_user (user_id),
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS AVAILABILITY_BLOCKS (
+    block_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    service_id INT NULL,
+    start_datetime DATETIME NOT NULL,
+    end_datetime DATETIME NOT NULL,
+    reason TEXT NOT NULL,
+    created_by INT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Active',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_blocks_interval (service_id, status, start_datetime, end_datetime),
+    FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON DELETE RESTRICT,
+    FOREIGN KEY (created_by) REFERENCES USERS(user_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS BOOKING_CONFLICT_OVERRIDES (
+    override_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT NOT NULL,
+    conflicting_booking_id INT NOT NULL,
+    approved_by INT NOT NULL,
+    reason TEXT NOT NULL,
+    approved_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_override_booking (booking_id, conflicting_booking_id),
+    FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE RESTRICT,
+    FOREIGN KEY (conflicting_booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE RESTRICT,
+    FOREIGN KEY (approved_by) REFERENCES USERS(user_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS DEPOSIT_DEDUCTIONS (
+    deduction_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    deposit_id INT NOT NULL,
+    affected_item VARCHAR(255) NOT NULL,
+    reason TEXT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    recorded_by INT NULL,
+    recorded_at DATETIME NULL,
+    provenance VARCHAR(30) NOT NULL DEFAULT 'owner',
+    legacy_deposit_id INT NULL,
+    UNIQUE KEY uq_deduction_legacy (legacy_deposit_id),
+    FOREIGN KEY (deposit_id) REFERENCES DEPOSITS(deposit_id) ON DELETE RESTRICT,
+    FOREIGN KEY (recorded_by) REFERENCES USERS(user_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS CHECKLIST_TEMPLATES (
+    template_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    package_id INT NOT NULL,
+    template_name VARCHAR(150) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Active',
+    FOREIGN KEY (package_id) REFERENCES PACKAGES(package_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS CHECKLIST_TEMPLATE_ITEMS (
+    template_item_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    template_id INT NOT NULL,
+    item_name VARCHAR(100) NOT NULL,
+    expected_quantity INT UNSIGNED NOT NULL DEFAULT 0,
+    FOREIGN KEY (template_id) REFERENCES CHECKLIST_TEMPLATES(template_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS BOOKING_CHECKLIST_ITEMS (
+    checklist_item_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT NOT NULL,
+    template_item_id INT NULL,
+    rental_item_id INT NULL,
+    item_name_snapshot VARCHAR(100) NOT NULL,
+    expected_quantity INT UNSIGNED NOT NULL DEFAULT 0,
+    quantity_released INT UNSIGNED NULL DEFAULT 0,
+    quantity_returned INT UNSIGNED NOT NULL DEFAULT 0,
+    condition_out VARCHAR(255) NULL,
+    condition_in VARCHAR(255) NULL,
+    return_status VARCHAR(30) NOT NULL DEFAULT 'pending',
+    checked_by INT NULL,
+    checked_at DATETIME NULL,
+    legacy_checklist_id INT NULL,
+    UNIQUE KEY uq_checklist_legacy (legacy_checklist_id),
+    FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE RESTRICT,
+    FOREIGN KEY (template_item_id) REFERENCES CHECKLIST_TEMPLATE_ITEMS(template_item_id) ON DELETE RESTRICT,
+    FOREIGN KEY (rental_item_id) REFERENCES RENTAL_ITEMS(rental_item_id) ON DELETE RESTRICT,
+    FOREIGN KEY (checked_by) REFERENCES USERS(user_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS NOTIFICATIONS (
+    notification_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    booking_id INT NOT NULL,
+    notification_type VARCHAR(50) NOT NULL,
+    message TEXT NOT NULL,
+    requires_action TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    resolved_at DATETIME NULL,
+    UNIQUE KEY uq_notification_recipient (user_id, booking_id, notification_type),
+    KEY idx_notifications_unresolved (user_id, resolved_at, created_at),
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS AUDIT_LOGS (
+    audit_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,
+    action VARCHAR(80) NOT NULL,
+    record_type VARCHAR(50) NOT NULL,
+    record_id INT NOT NULL,
+    description TEXT NOT NULL,
+    old_status VARCHAR(30) NULL,
+    new_status VARCHAR(30) NULL,
+    origin VARCHAR(20) NOT NULL DEFAULT 'owner',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_audit_record (record_type, record_id, created_at, audit_id),
+    KEY idx_audit_actor (user_id, created_at),
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS MIGRATION_ARCHIVE (
+    archive_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    migration_key VARCHAR(80) NOT NULL,
+    source_table VARCHAR(64) NOT NULL,
+    source_id VARCHAR(100) NOT NULL,
+    target_table VARCHAR(64) NULL,
+    target_id VARCHAR(100) NULL,
+    source_record JSON NOT NULL,
+    resolution JSON NULL,
+    imported_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_archive_source (migration_key, source_table, source_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS SCHEMA_MIGRATIONS (
+    migration_key VARCHAR(80) NOT NULL PRIMARY KEY,
+    applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    summary JSON NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Indexes (for reporting performance — FR-07)
 -- ============================================================================
 

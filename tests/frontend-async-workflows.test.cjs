@@ -250,6 +250,16 @@ test('booking details retain the newer booking when the older lookup resolves la
   assert.equal(shown, 1);
 });
 
+test('booking UI keeps Awaiting Payment visible until full-payment completion', () => {
+  const source = fs.readFileSync(path.join(root, 'admin/bookings.html'), 'utf8');
+  const config = fs.readFileSync(path.join(root, 'js/config.js'), 'utf8');
+  assert.match(config, /"Awaiting Payment": "danger"/);
+  assert.match(source, /\['Awaiting Completion', 'Awaiting Payment'\]\.includes\(b\.status\)/);
+  assert.match(source, /Record the remaining .* as a completed payment before completing this booking/);
+  assert.match(source, /await API\.finalizeReturn\(bookingId\);/);
+  assert.match(source, /syncResult\?\.failed/);
+});
+
 test('a failed down payment does not permit creating the saved booking twice', async () => {
   let creates = 0;
   const h = harness('admin/manual-booking.html', {
@@ -297,4 +307,42 @@ test('manual synchronization locks immediately and displays rejected refreshes',
   assert.equal(element('#syncNow').disabled, false);
   assert.equal(element('#syncReadError').hidden, false);
   assert.equal(element('#syncReadError').textContent, 'Refresh unavailable');
+});
+
+test('stale booking location conflicts expose the location comparison and retry field', () => {
+  let panel;
+  const controls = new Map();
+  function element(key) {
+    if (!controls.has(key)) controls.set(key, {
+      listeners: {}, innerHTML: '', addEventListener(type, callback) { this.listeners[type] = callback; },
+      querySelector: element, after() {}, closest() { return null; }
+    });
+    return controls.get(key);
+  }
+  const operation = {
+    client_id: 'stale-location', entity: 'bookings', action: 'update', local_id: 5, status: 'conflict',
+    reason: 'Booking changed on another device. Review your draft before retrying.',
+    data: {
+      event_date: '2030-11-07', start_time: '10:00', end_time: '12:00',
+      event_location: 'Client A location', _base: { event_location: 'Original location' }
+    },
+    server_record: { booking_id: 5, event_location: 'Client B location' }
+  };
+  const context = vm.createContext({
+    API: { getSyncQueue: () => [operation] }, STORAGE: { getAll: () => [{ id: 5, customer_name: 'Synthetic client' }] },
+    escapeHtmlA: String, navigator: { onLine: true },
+    document: {
+      querySelector: selector => selector === '#syncPanel' ? panel : element(selector), querySelectorAll: () => [],
+      createElement: () => (panel = element('#syncPanel')), addEventListener() {}, activeElement: null
+    },
+    window: { addEventListener() {}, akadOfflineReady: true, clearTimeout() {}, setTimeout() {} }
+  });
+  vm.runInContext(fs.readFileSync(path.join(root, 'js/sync-ui.js'), 'utf8'), context);
+  context.window.initSyncPanel();
+  const html = element('#syncOperations').innerHTML;
+  assert.match(html, /Edit booking event details and retry/);
+  assert.match(html, /name="event_location"/);
+  assert.match(html, /Original location/);
+  assert.match(html, /Client B location/);
+  assert.match(html, /Client A location/);
 });

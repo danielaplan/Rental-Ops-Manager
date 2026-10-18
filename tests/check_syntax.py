@@ -4,7 +4,7 @@ failures=[]
 for p in Path("api").glob("*.php"):
     r=subprocess.run(["C:/xampp/php/php.exe","-l",str(p)],capture_output=True,text=True)
     if r.returncode:failures.append((str(p),r.stdout+r.stderr))
-for p in [*Path("js").glob("*.js"),Path("sw.js"),Path("tests/offline-sync.test.cjs")]:
+for p in [*Path("js").glob("*.js"),Path("sw.js"),*Path("tests").glob("*.test.cjs")]:
     if not p.exists():continue
     r=subprocess.run(["node","--check",str(p)],capture_output=True,text=True)
     if r.returncode:failures.append((str(p),r.stderr))

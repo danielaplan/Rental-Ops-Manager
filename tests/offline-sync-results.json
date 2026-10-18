@@ -1,86 +1,159 @@
 {
+<<<<<<< HEAD
   "date": "2026-10-14T12:04:02.211Z",
+=======
+  "date": "2026-10-16T11:28:54.036Z",
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
   "environment": "Two independent storage clients, live PHP/MySQL, synthetic isolated database",
   "results": [
     {
       "name": "offline booking, deposit, payment, and full checklist survive reload",
       "passed": true,
+<<<<<<< HEAD
       "ms": 13.3
+=======
+      "ms": 35.06
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "reconnect uploads all entries in under 30 seconds with correct database links",
       "passed": true,
+<<<<<<< HEAD
       "ms": 154.41
+=======
+      "ms": 327.11
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "independent device retrieves the same accepted booking and negotiated amounts",
       "passed": true,
+<<<<<<< HEAD
       "ms": 55.51
+=======
+      "ms": 157.3
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "conflicting offline booking and dependent checklist are retained through reload",
       "passed": true,
+<<<<<<< HEAD
       "ms": 130.52
+=======
+      "ms": 210.28
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "lost response retries without duplicate bookings or payments",
       "passed": true,
+<<<<<<< HEAD
       "ms": 135.26
+=======
+      "ms": 343.1
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "stale status edits require review instead of overwriting another device",
       "passed": true,
+<<<<<<< HEAD
       "ms": 130.46
+=======
+      "ms": 2556.32
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "non-karaoke bookings do not conflict with karaoke; invalid ranges stay rejected",
       "passed": true,
+<<<<<<< HEAD
       "ms": 99.09
+=======
+      "ms": 1678.95
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "direct booking creation generates an idempotent checklist",
       "passed": true,
+<<<<<<< HEAD
       "ms": 80.65
+=======
+      "ms": 607.57
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "new services preserve a submitted inactive status",
       "passed": true,
+<<<<<<< HEAD
       "ms": 13.53
+=======
+      "ms": 497.59
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "deposit bounds and deduction reasons are enforced without a fixed minimum",
       "passed": true,
+<<<<<<< HEAD
       "ms": 18.35
+=======
+      "ms": 475.08
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
-      "name": "finalize return succeeds only after a complete saved inspection",
+      "name": "future bookings cannot be finalized before the post-event review",
       "passed": true,
+<<<<<<< HEAD
       "ms": 143.14
+=======
+      "ms": 1481.9
+    },
+    {
+      "name": "completed package inspection and explicit post-event review release a due booking",
+      "passed": true,
+      "ms": 7086.24
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "different signed-in user cannot upload another user outbox",
       "passed": true,
+<<<<<<< HEAD
       "ms": 3.92
+=======
+      "ms": 49.74
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "simultaneous karaoke confirmations serialize across two PHP processes",
       "passed": true,
+<<<<<<< HEAD
       "ms": 31.5
+=======
+      "ms": 169.31
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "online event automatically uploads a persisted offline draft",
       "passed": true,
+<<<<<<< HEAD
       "ms": 110.49
+=======
+      "ms": 554.36
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "periodic retry uploads when connection returns without an online event",
       "passed": true,
+<<<<<<< HEAD
       "ms": 145.04
+=======
+      "ms": 3074.98
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     },
     {
       "name": "incomplete inspection cannot finalize a return",
       "passed": true,
+<<<<<<< HEAD
       "ms": 64.99
+=======
+      "ms": 513.15
+>>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     }
   ]
 }

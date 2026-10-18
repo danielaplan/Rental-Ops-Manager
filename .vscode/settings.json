@@ -1,0 +1,13 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^node --test tests/\\*\\.test\\.cjs$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "ForEach-Object": true,
+        "/^python tests/start_verification\\.py$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

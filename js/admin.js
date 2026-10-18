@@ -204,6 +204,7 @@ const ADMIN_NAV = [
   { label: "Calendar", href: "calendar.html", icon: "bi-calendar3" },
   { section: "Catalog" },
   { label: "Services", href: "services.html", icon: "bi-boxes" },
+  { label: "Packages & Checklists", href: "packages.html", icon: "bi-box-seam" },
   { label: "Categories", href: "categories.html", icon: "bi-tags" },
   { label: "Add-ons", href: "addons.html", icon: "bi-plus-square" },
   { label: "Inventory", href: "inventory.html", icon: "bi-clipboard-check" },
@@ -215,12 +216,14 @@ const ADMIN_NAV = [
   { label: "Website Content", href: "content.html", icon: "bi-file-earmark-text" },
   { section: "System" },
   { label: "Reports", href: "reports.html", icon: "bi-bar-chart" },
+  { label: "Audit History", href: "audit.html", icon: "bi-clock-history" },
+  { label: "Owner Accounts", href: "owners.html", icon: "bi-person-gear" },
   { label: "Settings", href: "settings.html", icon: "bi-gear" }
 ];
 
 const OWNER_ONLY_ADMIN_PAGES = new Set([
-  'services.html', 'categories.html', 'addons.html', 'gallery.html',
-  'content.html', 'settings.html'
+  'services.html', 'packages.html', 'categories.html', 'addons.html', 'gallery.html',
+  'content.html', 'settings.html', 'audit.html', 'owners.html'
 ]);
 let adminSpaActive = false;
 let adminSpaNavigationBound = false;
@@ -294,6 +297,7 @@ async function initAdminChrome(activeHref, pageTitle) {
   $('#adminPageTitle').text(pageTitle);
   initAdminSpaNavigation();
   window.initSyncPanel?.();
+  await renderActionNotifications();
 
   $('#sidebarToggleBtn').off('click.adminChrome').on('click.adminChrome', function () {
     const isOpen = !$('#adminSidebar').hasClass('show');
@@ -306,6 +310,21 @@ async function initAdminChrome(activeHref, pageTitle) {
     $(this).removeClass('show');
     $('#sidebarToggleBtn').attr('aria-expanded', 'false');
   });
+}
+
+async function renderActionNotifications() {
+  const topbar = document.querySelector('.admin-topbar');
+  if (!topbar || document.getElementById('adminNotifications')) return;
+  const wrap = document.createElement('div');
+  wrap.id = 'adminNotifications';
+  wrap.className = 'dropdown ms-auto me-2';
+  topbar.appendChild(wrap);
+  try {
+    const rows = await API.getNotifications();
+    wrap.innerHTML = `<button class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Action-required notifications"><i class="bi bi-bell"></i>${rows.length ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${rows.length}</span>` : ''}</button><div class="dropdown-menu dropdown-menu-end p-2" style="min-width:min(92vw,24rem);max-height:70vh;overflow:auto"><h6 class="dropdown-header">Action required</h6>${rows.length ? rows.map(row => `<a class="dropdown-item text-wrap" href="bookings.html?booking_id=${encodeURIComponent(row.booking_id)}"><strong>${escapeHtmlA(row.booking_reference || `Booking ${row.booking_id}`)}</strong><br><small>${escapeHtmlA(row.message)}</small></a>`).join('') : '<span class="dropdown-item-text text-muted">No action-required bookings.</span>'}</div>`;
+  } catch (error) {
+    wrap.innerHTML = '<span class="small text-muted">Notifications unavailable</span>';
+  }
 }
 
 function initAdminSpaNavigation() {

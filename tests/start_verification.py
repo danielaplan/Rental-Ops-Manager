@@ -8,7 +8,7 @@ DB="akad_verify_20260928"
 def sql(text):
     r=subprocess.run([str(MYSQL),"-u","root","--default-character-set=utf8mb4"],input=text,text=True,capture_output=True)
     if r.returncode:raise RuntimeError(r.stderr)
-sql("CREATE DATABASE IF NOT EXISTS "+DB+" CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
+sql("DROP DATABASE IF EXISTS "+DB+"; CREATE DATABASE "+DB+" CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
 schema=(ROOT/"db/schema.sql").read_text(encoding="utf-8").replace("akad_rentals",DB)
 seed=(ROOT/"db/seed.sql").read_text(encoding="utf-8").replace("akad_rentals",DB)
 sql(schema);sql(seed)
