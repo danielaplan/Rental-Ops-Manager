@@ -1,82 +1,55 @@
 ---
 title: "SESSIONS"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # SESSIONS
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**Temporary login records.** Each record links a login token to a staff/owner account and an expiry time.
+Revocable owner bearer-token sessions.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `SESSIONS` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-The staff member handling Ana’s booking receives a token after signing in.
+When this table participates in Ana’s rental, its foreign keys connect the row to the relevant booking, catalog record, or owner.
 
-## Main fields
+## Column dictionary
 
-user_id identifies the account; session_token is temporary proof of login; expires_at says when it stops being valid.
+| Column | Exact schema definition |
+| --- | --- |
+| `session_id` | `INT NOT NULL AUTO_INCREMENT PRIMARY KEY` |
+| `user_id` | `INT NOT NULL` |
+| `session_token` | `VARCHAR(64) NOT NULL` |
+| `created_at` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP` |
+| `expires_at` | `DATETIME NOT NULL` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
+## Keys and relationships
 
-## How to use this note
-
-Read [Login and Authentication](../../Workflows/Login%20and%20Authentication.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-Database-backed login tokens and expiration timestamps.
-
-**Definition:** `db/seed.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `session_id` | `INT` | `NOT NULL AUTO_INCREMENT` | Unique identifier for this table row. |
-| `user_id` | `INT` | `NOT NULL` | Account reference. |
-| `session_token` | `VARCHAR(64)` | `NOT NULL` | Unique 64-character login bearer token. |
-| `created_at` | `DATETIME` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Session creation time. |
-| `expires_at` | `DATETIME` | `NOT NULL` | Session validity cutoff extended on authenticated use. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
-
-- `PRIMARY KEY (session_id)`
 - `UNIQUE KEY uq_sessions_token (session_token)`
 - `KEY idx_sessions_user (user_id)`
-- `CONSTRAINT fk_sessions_user FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON UPDATE CASCADE ON DELETE CASCADE`
+- `FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE`
 
-Parent tables: [USERS](USERS.md) via `user_id`
+- `user_id` → [USERS](USERS.md).`user_id` (ON DELETE CASCADE)
 
-Child tables: None.
+## Runtime use
 
-### Where it is used
+Source files that directly mention this table: [auth.php](../../Backend/Files/auth.php.md), [owners.php](../../Backend/Files/owners.php.md).
 
-[auth.php](../../Backend/Files/auth.php.md). Relevant read/write behavior is explained in each file note.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Important behavior
+## Source
 
-Created in seed.sql, not schema.sql. Expired sessions remain stored until explicitly cleaned; currentSession only rejects expired tokens.
+[db/schema.sql](../../../../db/schema.sql)
 
-See [Table Relationships](../Table%20Relationships.md).
 
-## Source files
+## Technical navigation
 
-- [db/seed.sql](<../../../../db/seed.sql>)
-
-## Continue reading
-
-[Previous table: SERVICES](SERVICES.md) · [Next table: USERS](USERS.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Database Overview](../Database%20Overview.md) · [See Table Relationships](../Table%20Relationships.md) · [Return to Start Here](../../Start%20Here.md)

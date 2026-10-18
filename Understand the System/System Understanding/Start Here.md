@@ -1,75 +1,91 @@
 ---
 title: "System Understanding — Start Here"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
-# System Understanding — Start Here
+# Welcome to Understanding Rental-Ops-Manager!
 
-**Navigate:** [Start Here](Start%20Here.md) · [Reading order](Start%20Here.md#recommended-reading-order) · [Backend files](Backend/File%20Inventory.md) · [Database tables](Database/Database%20Overview.md) · [Glossary](Glossary.md)
+You do not need to know programming to understand this system.
 
-## Purpose of this guide
+This handbook walks you through how AKAD manages a rental—from creating Ana’s fictional karaoke booking to collecting payments, preparing equipment, completing the return review, and checking business reports. When a technical term first appears, the guide explains it in simple language.
 
-This guide introduces the system’s backend and database, starting with an overview and progressing to technical details.
+By the end, you should be able to explain what the major parts do, why the business needs them, and how they work together.
 
-It explains each part’s purpose, the information it handles, and its connections to the rest of the system.
+## Meet Ana: the example you will follow
 
-## How to read each note
+Ana is a fictional customer used throughout the lessons. She rents a karaoke package for an event.
 
-Each note begins with an overview and example. The **Technical details** section provides exact field names, code behavior and storage rules.
+- Package: **₱2,500**
+- Add-on: **₱300**
+- Discount: **₱100**
+- Additional fee: **₱50**
+- Agreed rental total: **₱2,750**
+- First completed payment: **₱2,000**
+- Remaining rental balance: **₱750**
+- Separate refundable deposit: **₱500**
+- Example equipment deduction: **₱100**
+- Refundable deposit after deduction: **₱400**
 
-The navigation bar links to the reading order, file inventory, table overview and glossary. Previous/Next links follow the main reading sequence; file and table references have their own alphabetical sequence.
+These numbers stay the same across the handbook so you can concentrate on the process instead of learning a new example on every page.
 
-File notes explain server instructions. Table notes explain saved information. Workflow notes explain how several parts work together. A filename is a location in the project, not a screen the user operates.
+## Choose Your Learning Path
 
-## Recommended reading order
+### Path 1 — I’m not a developer
 
-1. [System Overview](System%20Overview.md) — understand the purpose and follow the example customer, Ana.
-2. [Backend Overview](Backend/Backend%20Overview.md) and [Request Lifecycle](Backend/Request%20Lifecycle.md) — trace what happens behind an action.
-3. [Database Overview](Database/Database%20Overview.md) and [Table Relationships](Database/Table%20Relationships.md) — follow the connections between saved records.
-4. [Login and Authentication](Workflows/Login%20and%20Authentication.md) — understand staff access.
-5. [Booking and Pricing](Workflows/Booking%20and%20Pricing.md) — follow a rental from details to calculated price.
-6. [Payments and Deposits](Workflows/Payments%20and%20Deposits.md) — separate rental money from held refundable money.
-7. [Equipment Release and Return](Workflows/Equipment%20Release%20and%20Return.md) — follow the assigned items and return inspection.
-8. [Offline Synchronization](Workflows/Offline%20Synchronization.md) — trace how a local draft becomes a shared record.
-9. [Reports](Workflows/Reports.md) — understand what the summaries count.
-10. [Frontend Overview](Frontend/Overview.md) — understand the staff interface and how it connects to the backend.
-11. [Frontend Current Status](Frontend/Current%20Status.md) — check what is implemented and what still needs acceptance testing.
-12. [Current Implementation Gaps](Current%20Implementation%20Gaps.md) — check the limits before describing a feature as complete.
+Follow the business story in order. Technical sections are clearly marked and optional.
 
-[Glossary](Glossary.md) defines terms used throughout the guide. Linked file and table notes provide references for specific topics, including all 26 PHP files, 127 database columns, and the full frontend file inventory.
+1. [See the whole system in simple terms](System%20Overview.md)
+2. [Learn how owners sign in safely](Workflows/Login%20and%20Authentication.md)
+3. [Create and price Ana’s booking](Workflows/Booking%20and%20Pricing.md)
+4. [Understand schedule and availability checks](Workflows/Availability%20and%20Conflicts.md)
+5. [Follow payments, deposits, and balances](Workflows/Payments%20and%20Deposits.md)
+6. [Prepare, release, and inspect equipment](Workflows/Equipment%20Release%20and%20Return.md)
+7. [Complete the post-event review](Workflows/Post-event%20Completion.md)
+8. [See what happens during an internet outage](Workflows/Offline%20Synchronization.md)
+9. [Understand reports and audit history](Workflows/Reports.md)
+10. [Learn what still needs deployment verification](Deployment%20and%20Limitations.md)
 
-## Documentation checklist
+### Path 2 — I want to understand the technical side
 
-For each topic, document its purpose, the information supplied by staff, the records saved or results returned, and current limits or unfinished work. Link technical claims to the relevant file or table note and include technical review.
+Start with the [System Overview](System%20Overview.md), then follow the three main technical layers:
 
-For example: “The booking record connects the customer, event and chosen service. Its number lets the system find related payments and equipment records.”
+1. [Frontend: the screens people use](Frontend/Overview.md)
+2. [Backend: the rules and processing behind the screens](Backend/Backend%20Overview.md)
+3. [Database: the organized storage for business records](Database/Database%20Overview.md)
+4. [API Reference: how the website and server communicate](Backend/API%20Reference.md)
+5. [Backend File Inventory](Backend/File%20Inventory.md) and [Database Table Relationships](Database/Table%20Relationships.md)
 
-## Where to look up details
+### Path 3 — I need a specific answer
 
-- [File Inventory](Backend/File%20Inventory.md) and [API Reference](Backend/API%20Reference.md) — locate specific files and requests.
-- [Schema and Seed Setup](Database/Schema%20and%20Seed%20Setup.md) — understand how the initial database is prepared.
-- [Supporting Files and Evidence](Backend/Supporting%20Files%20and%20Evidence.md) — find existing verification and its limits.
-- [Documentation Maintenance](Documentation%20Maintenance.md) and [Source Snapshot](Source%20Snapshot.md) — keep the explanations tied to the code they describe.
+- **What happens when a booking is saved?** [Booking and Pricing](Workflows/Booking%20and%20Pricing.md)
+- **Why does the system check availability?** [Availability and Conflicts](Workflows/Availability%20and%20Conflicts.md)
+- **How does it know what Ana still owes?** [Payments and Deposits](Workflows/Payments%20and%20Deposits.md)
+- **Why is equipment inspected?** [Equipment Release and Return](Workflows/Equipment%20Release%20and%20Return.md)
+- **What if there is no internet?** [Offline Synchronization](Workflows/Offline%20Synchronization.md)
+- **Where do report figures come from?** [Reports and Audit History](Workflows/Reports.md)
+- **Where are records stored?** [Database Overview](Database/Database%20Overview.md)
+- **What is unfinished or limited?** [Current Implementation Gaps](Current%20Implementation%20Gaps.md)
+- **What does a technical term mean?** [Glossary](Glossary.md)
 
-## Scope and authority
+## Four simple ideas before you begin
 
-This guide describes the reviewed implementation, including its gaps. The official requirements and design in `Documentation/` describe intended scope; these notes do not change them. Previously recorded tests are evidence within their recorded environments, not proof that every feature is finished.
+- **Frontend:** the screens, buttons, and forms people see and use.
+- **Backend:** the part behind the screens that checks information and applies business rules.
+- **Database:** the organized digital filing cabinet where shared business records are stored.
+- **API:** the agreed way the website asks the backend to read or save information.
 
-Frontend documentation is documented in `System Understanding/Frontend/` (Overview, Current Status, File Inventory). FR-10 service/date blockouts remain skipped. Code and database behavior are unchanged by this guide revision. Every filename and folder name is retained.
+You will see these ideas again with examples. You do not need to memorize them now.
 
-Related memory: [MEMORY](../MEMORY.md), [AKAD Project State Engine](../AKAD%20Project%20State%20Engine.md), [AKAD Requirements Analysis Changes](../AKAD%20Requirements%20Analysis%20Changes.md), [AKAD Requirements Analysis Ideas and Concepts](../AKAD%20Requirements%20Analysis%20Ideas%20and%20Concepts.md), [AKAD Requirements Analysis Approval](../AKAD%20Requirements%20Analysis%20Approval.md).
+## Accuracy and evidence
 
-## Source files
+The handbook describes the source code at Git commit `3c4d86e36fd4a0fa92c883f304dd73671ffe9d55`, reviewed on 2026-10-17. Source inspection and local synthetic tests do not by themselves prove production readiness, real-device usability, formal accounting accuracy, or client acceptance. [Deployment and Limitations](Deployment%20and%20Limitations.md) explains those boundaries.
 
-- [Documentation/AKAD_Requirements_Analysis_Documentation.md](<../../Documentation/AKAD_Requirements_Analysis_Documentation.md>)
-- [Documentation/AKAD_System_Design.md](<../../Documentation/AKAD_System_Design.md>)
-- [Implementation/Offline-Sync-Verification-2026-09-28.md](<../../Implementation/Offline-Sync-Verification-2026-09-28.md>)
+## Start the first lesson
 
-## Continue reading
+**Next lesson:** [System Overview](System%20Overview.md)
 
-[Next: System Overview](System%20Overview.md) · [Back to Start Here](Start%20Here.md)
+**Why start there?** It gives you one simple picture of the people, screens, server, and records before you explore individual features.

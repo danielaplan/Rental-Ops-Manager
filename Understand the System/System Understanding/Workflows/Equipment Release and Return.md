@@ -1,86 +1,90 @@
 ---
 title: "Equipment Release and Return"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # Equipment Release and Return
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## The purpose
+## Part A — Understanding the Feature
 
-Equipment tracking connects the reusable item catalog, the items assigned to a rental, and the inspection saved when they return.
+This first part uses everyday language. You can continue to the next lesson without studying the technical section.
 
-## Follow Ana’s equipment
+### What is this feature?
 
-1. A booking-specific list is copied from the service’s equipment catalog.
-2. Release quantities and a handover note can be recorded separately.
-3. Staff count every assigned item at return and record condition and notes.
-4. The backend saves the full checked inspection together.
-5. The return-completion action checks that all quantities are back and no item is marked Missing before completing the booking.
+Package checklist templates define expected equipment. A booking receives its own copied checklist so later template edits do not rewrite rental history.
+
+### Why does the system need it?
+
+Owners need to know what left, what returned, its condition, and what must be deducted from a deposit.
+
+### Follow Ana’s fictional rental
+
+Ana’s karaoke package template contains two microphones and one speaker. The booking snapshot records those names and quantities. At return, the owner records quantities and conditions against that snapshot.
+
+### Step-by-step workflow
+
+1. Maintain a versioned template and items for a package.
+2. Creating or changing a Pending booking’s package copies the current template.
+3. Record quantity released and outgoing condition.
+4. After the event, record returned quantity, incoming condition, and inspected/damaged/missing status.
+5. The final review rejects incomplete or inconsistent rows.
+6. Any deductions are saved against the booking deposit before service release.
+
+### What Happens Behind the Scenes?
+
+`BOOKING_CHECKLIST_ITEMS` keeps snapshots plus release/return facts. `checklist_service.php` owns copies and item updates. `equipment_service.php` owns inspection and finalization. The older `EQUIPMENT_CHECKLIST` and `BOOKING_ITEMS` tables remain for transition compatibility; the revised post-event workflow uses booking checklist items.
+
+### Visual explanation
 
 ```mermaid
 flowchart LR
-    A[Reusable catalog] --> B[Items assigned to booking]
-    B --> C[Count and inspect returns]
-    C --> D[Save full inspection]
-    D --> E[Check return completion]
+  T[Package template] -->|copy| B[Booking checklist snapshot]
+  B --> O[Outgoing quantity and condition]
+  O --> I[Incoming inspection]
+  I --> R[Post-event review and release]
 ```
 
-If two microphones were expected and only one returned, the missing quantity can be saved. That short return prevents completion through the guarded return action. Fully returned damaged items may complete, but a deposit deduction is a separate decision/action.
+The diagram follows equipment information from the reusable package template to Ana’s booking, outgoing release, return inspection, and final review.
 
-## Key points
+### Important things to remember
 
-“The assigned list says what should return; the saved inspection records what actually returned.” Generating the list again replaces its progress. Catalog stock is not automatically reduced, and the guarded completion check is not enforced on every direct booking-status edit.
+- Template changes affect future copies, not existing booking snapshots.
+- A package cannot change after checklist work has started.
+- Returned quantity cannot exceed released quantity. A short return must be marked missing.
+- Every reviewed row needs a return condition and inspected/damaged/missing state.
+- Checklist rows document equipment; catalog quantity is not a real-time stock-reservation engine.
 
-See [BOOKING_ITEMS](../Database/Tables/BOOKING_ITEMS.md), [EQUIPMENT_CHECKLIST](../Database/Tables/EQUIPMENT_CHECKLIST.md) and [equipment_service.php](../Backend/Files/equipment_service.php.md).
+### Remember This
 
-## Technical details
+The booking keeps its own checklist copy. Editing the package template later does not rewrite what Ana actually received.
 
-This section records exact file behavior, field names and implementation details.
+## Part B — Technical Explanation
 
-There are four related stores with different jobs:
+This section names the files, routes, tables, and validation rules. Beginner readers may skip it and continue to the next lesson.
 
-| Table | Job |
-|---|---|
-| RENTAL_ITEMS | Reusable per-service catalog |
-| BOOKING_ITEMS | Assigned item snapshot, expected/released/returned quantities |
-| EQUIPMENT_CHECKLIST | Saved outgoing/incoming condition and inspection outcome |
-| ITEM_RELEASES / ITEM_HISTORY | Explicit release metadata and equipment events |
+### Technical details
 
-### Assignment and release
+`checklistTemplates.php`, `checklist_service.php`, `bookingItems.php`, `booking_items_service.php`, `equipment.php`, `equipment_service.php`. Primary tables: `CHECKLIST_TEMPLATES`, `CHECKLIST_TEMPLATE_ITEMS`, `BOOKING_CHECKLIST_ITEMS`.
 
-bookingItems.generate deletes previous assigned rows for a booking and copies the selected services' catalog items. It copies names, quantities and required flags, not a live reservation of catalog stock. Updating release quantities/check flags and writing ITEM_RELEASES are explicit operations. A release record alone does not change status or inventory automatically.
+### Technical references
 
-### Saving a complete return inspection
+[Post-event Completion](Post-event%20Completion.md) · [BOOKING_CHECKLIST_ITEMS](../Database/Tables/BOOKING_CHECKLIST_ITEMS.md)
 
-Send every assigned catalog-linked item once, including returned quantity, condition and notes. For example, an expected quantity of two may return zero with condition Missing; zero remains a valid stored quantity.
 
-The service checks the booking and expected items, locks matching BOOKING_ITEMS, rejects duplicate/unknown item IDs, excessive quantities, invalid conditions and incomplete inspections. In one transaction it updates BOOKING_ITEMS and upserts EQUIPMENT_CHECKLIST. checked_by comes from the authenticated inspector.
+## Continue Your Learning
 
-Condition choices are Good, Minor Damage, Damaged, Missing. Short quantity or Missing yields return_status=missing; a Damage condition yields damaged; otherwise inspected. Notes are at most 2,000 bytes.
+**You’ve learned:** how a reusable package checklist becomes a permanent checklist for Ana’s rental and records what leaves and returns.
 
-### Completing the return
+**Previous lesson:** [Payments and Deposits](Payments%20and%20Deposits.md)
 
-finalizeReturn reloads the saved inspections, revalidates the full checklist and rejects any short/Missing return. Fully returned damaged equipment can complete. It then sets BOOKINGS.status=completed. It does not automatically calculate a damage deduction, refund a deposit, settle balance, restore catalog stock or append history.
+**Next lesson:** [Post-event Completion](Post-event%20Completion.md)
 
-This guard belongs to finalizeReturn. A direct booking update can set completed without it, so teaching material must not claim every completion path enforces inspection. Nullable/unlinked manual rows and duplicate assignments can also prevent full inspection.
+**Why read this next?** After the equipment comes back, the owner must review the whole rental before releasing the service and completing the booking.
 
-See [bookingItems.php](../Backend/Files/bookingItems.php.md), [equipment_service.php](../Backend/Files/equipment_service.php.md) and [Current Implementation Gaps](../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/bookingItems.php](<../../../api/bookingItems.php>)
-- [api/equipment_service.php](<../../../api/equipment_service.php>)
-- [api/equipment.php](<../../../api/equipment.php>)
-- [api/itemReleases.php](<../../../api/itemReleases.php>)
-- [api/itemHistory.php](<../../../api/itemHistory.php>)
-
-## Continue reading
-
-[Previous: Payments and Deposits](Payments%20and%20Deposits.md) · [Next: Offline Synchronization](Offline%20Synchronization.md) · [Back to Start Here](../Start%20Here.md)
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

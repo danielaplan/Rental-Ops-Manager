@@ -1,79 +1,48 @@
 ---
 title: "itemHistory.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # itemHistory.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The item-history recorder.** This file records equipment actions that are explicitly logged and lets someone read those past entries.
+Append-only equipment history endpoint. It is a **HTTP endpoint** at `api/itemHistory.php`.
 
-**Where it lives:** `api/itemHistory.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-Staff add a history entry for a microphone after noting its condition.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Accept an item, action, quantity and optional booking link.
-2. Store the event with a time.
-3. Show the item’s newest history entries first.
+## Observed interface and access
 
-## Key points
+- **Interface:** GET forItem; POST create.
+- **Access:** Authenticated owner.
+- **Functions declared here:** none; this file dispatches or configures other helpers.
 
-This is not an automatic record of every change in the system. Some changes have no history entry unless one is separately written.
+## Connections
 
-Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [auth.php](auth.php.md), [supporting_service.php](supporting_service.php.md).
+- Tables named directly: [ITEM_HISTORY](../../Database/Tables/ITEM_HISTORY.md).
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/itemHistory.php`
+## Source
 
-Reads and appends equipment history entries.
+[api/itemHistory.php](../../../../api/itemHistory.php)
 
-### Routes or callable helpers
 
-GET forItem (default) with rental_item_id; POST create.
+## Technical navigation
 
-### Access
-
-Reads unauthenticated; create owner only.
-
-### Inputs
-
-rental_item_id, booking_id, action (default Updated), qty (default 0), condition.
-
-### How it works
-
-Selects newest events first and aliases event_date to date. Creates a row with database timestamp and returns history_id with 201.
-
-### Current limits and details
-
-Entries are explicitly written. A generic rental-item update, release, or return does not automatically append server history.
-
-### Connections
-
-Includes: [config.php](config.php.md), [auth.php](auth.php.md)
-
-Tables: [ITEM_HISTORY](../../Database/Tables/ITEM_HISTORY.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/itemHistory.php](<../../../../api/itemHistory.php>)
-
-## Continue reading
-
-[Previous file: gallery.php](gallery.php.md) · [Next file: itemReleases.php](itemReleases.php.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Backend File Inventory](../File%20Inventory.md) · [Review the API Reference](../API%20Reference.md) · [Return to Start Here](../../Start%20Here.md)

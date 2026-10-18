@@ -1,89 +1,95 @@
 ---
 title: "Booking and Pricing"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # Booking and Pricing
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## The purpose
+## Part A — Understanding the Feature
 
-A booking records who is renting, the event details and the selected primary service/package. Its booking number connects the later money, delivery and equipment records.
+This first part uses everyday language. You can continue to the next lesson without studying the technical section.
 
-## Follow Ana’s booking
+### What is this feature?
 
-1. Staff identify Ana and enter October 20, 2 PM to 6 PM, with a venue.
-2. They select karaoke and a package.
-3. The backend checks the details and relevant karaoke availability.
-4. It reads the saved package/extra prices and calculates the rental total.
-5. Accepted information is saved with the staff account that created it. The new booking starts unpaid.
+A booking is the central rental record. It connects one customer to one service, an optional package, optional add-ons, an event interval, an agreed price, and later operational records.
+
+### Why does the system need it?
+
+The system must preserve what the owner and customer agreed even when catalog names or prices change later.
+
+### Follow Ana’s fictional rental
+
+Ana chooses one karaoke service, a ₱2,500 package, and a ₱300 add-on. With a ₱100 discount and ₱50 fee, the calculated total is ₱2,750. The owner may set a different negotiated `agreed_total`; that becomes the balance basis.
+
+### Step-by-step workflow
+
+1. Select or create Ana’s customer record.
+2. Select exactly one active service and, optionally, a package belonging to it.
+3. Enter start/end datetimes, location, preparation and travel allowances.
+4. Select add-ons, discount, fees, and the agreed total.
+5. Save as Pending or Confirmed. Confirmation checks availability.
+6. The server creates a unique `AKAD-…` reference, snapshots package name/price, and copies the package checklist template.
+
+### What Happens Behind the Scenes?
+
+`saveBooking()` is shared by direct and sync paths. It validates catalog relationships, promotion dates, dates, location, allowances, pricing inputs, status transitions, and conflicts in one transaction. Catalog pricing is package + add-ons − discount + fees, never below zero. `agreed_total` is the contractual booking total used for balances.
+
+### Visual explanation
 
 ```mermaid
-flowchart LR
-    A[Customer and event details] --> B[Check time and selections]
-    B --> C[Calculate rental price]
-    C --> D[Save accepted booking]
+flowchart TD
+  C[Customer] --> S[One active service]
+  S --> P[Optional eligible package]
+  S --> A[Add-ons]
+  P --> T[Catalog total]
+  A --> T
+  T --> N[Discount and fees]
+  N --> G[Agreed total snapshot]
+  G --> B[Pending or Confirmed booking]
 ```
 
-## Price in ordinary numbers
+The diagram shows how the selected package, add-ons, discount, and fees lead to the agreed booking total.
 
-Ana’s example: ₱2,500 package + ₱300 extra − ₱100 discount + ₱50 fee = **₱2,750 rental total**. A refundable deposit is separate. Delivery charges are not automatically added by the delivery-record handler.
+### Important things to remember
 
-## What a time conflict means
+- A booking cannot contain several services.
+- Service/package changes are allowed only while Pending.
+- A package-free booking is valid; the owner supplies the agreed total.
+- Cancelling requires a reason and retains linked history. A confirmed booking cannot move back to Pending.
+- Pending and Confirmed are the only create states. Post-event states require the release workflow.
+- Delivery fees are stored separately and are not automatically added to the booking total.
 
-The single karaoke set cannot serve overlapping blocking bookings on the same date. If one blocking karaoke booking runs from 2 PM to 6 PM, another blocking karaoke booking from 4 PM to 7 PM conflicts. One ending exactly when another starts does not overlap. A pending booking does not reserve the slot under current code.
+### Remember This
 
-## Key points
+Ana’s fictional example uses a ₱2,500 package, a ₱300 add-on, a ₱100 discount, and a ₱50 fee. Her agreed rental total is ₱2,750.
 
-“The backend checks the rental details and calculates a price from its saved catalog before accepting the booking.” The direct and offline-save paths have differences described below. A booking saved locally is still awaiting acceptance.
+## Part B — Technical Explanation
 
-See [bookings.php](../Backend/Files/bookings.php.md), [booking_pricing.php](../Backend/Files/booking_pricing.php.md) and [BOOKINGS](../Database/Tables/BOOKINGS.md).
+This section names the files, routes, tables, and validation rules. Beginner readers may skip it and continue to the next lesson.
 
-## Technical details
+### Technical details
 
-This section records exact file behavior, field names and implementation details.
+`api/bookings.php` exposes list/get/availability and create/update/cancel/release/complete actions. Shared logic: `booking_service.php`, `booking_pricing.php`, `availability_service.php`, `checklist_service.php`. Tables: `BOOKINGS`, `CUSTOMERS`, `SERVICES`, `PACKAGES`, `ADDONS`, `BOOKING_CHECKLIST_ITEMS`.
 
-A booking ties together a renter, an event date/time/location, a primary service/package, prices and the staff account that created it. These are not separate disconnected calendar entries: the saved booking ID links finance, logistics and equipment.
+### Technical references
 
-### Direct create/update
+[Availability and Conflicts](Availability%20and%20Conflicts.md) · [BOOKINGS](../Database/Tables/BOOKINGS.md) · [bookings.php](../Backend/Files/bookings.php.md)
 
-1. Authenticate the writer and start a transaction. Lock service row 1 to serialize competing karaoke writes.
-2. Resolve the customer. Direct create accepts an existing customer ID or name/contact; it may reuse a contact and update that customer.
-3. Validate the date and same-day start/end times.
-4. Resolve the first service and selected package. If omitted, choose the first package for the primary service.
-5. When the primary service is id 1 and status is confirmed/reserved/preparing/released, test overlap with existing blocking karaoke bookings.
-6. Validate package/add-ons against that service and calculate totals from current database prices.
-7. Insert/update BOOKINGS and commit. New bookings start with amount_paid=0 and payment_status=Unpaid. Creation records the authenticated account as created_by.
 
-### Price example
+## Continue Your Learning
 
-Suppose an existing package costs 2,500, selected distinct extras total 300, discount is 100 and fees are 50. The rental total is `max(2500 + 300 - 100 + 50, 0) = 2750`. A held deposit is separate and does not raise this rental total. Delivery fee is also not automatically copied into BOOKINGS.fees.
+**You’ve learned:** how Ana’s customer, service, package, extras, schedule, and agreed price become one booking.
 
-### Karaoke conflict rule
+**Previous lesson:** [Login and Authentication](Login%20and%20Authentication.md)
 
-Intervals overlap when `existing.start_time < requested.end_time` and `existing.end_time > requested.start_time`, on the same event date and primary karaoke service. Adjacent intervals such as 14:00–16:00 and 16:00–18:00 do not overlap. Current code recognizes service id 1 as karaoke; pending bookings do not reserve the slot.
+**Next lesson:** [Availability and Conflicts](Availability%20and%20Conflicts.md)
 
-Direct overlap produces HTTP 409. Sync returns an item in conflicts instead, keeping the draft available for review. A sync service-only edit is a documented gap in overlap triggering. See [Current Implementation Gaps](../Current%20Implementation%20Gaps.md).
+**Why read this next?** A confirmed booking must reserve the correct time, so the next lesson explains how the system detects schedule conflicts.
 
-### Further operations
-
-The direct booking endpoint does not automatically create its equipment assignment. The current browser sync adapter queues bookingItems.generate after a booking create; callers using direct HTTP must arrange checklist generation separately.
-
-The intended lifecycle is reflected by labels such as pending, confirmed, preparing, released and completed, but BOOKINGS.status is a VARCHAR and booking writes do not enforce a full state machine. Guarded return completion is implemented through equipment.finalizeReturn; it is not a universal guard on every booking status update.
-
-## Source files
-
-- [api/bookings.php](<../../../api/bookings.php>)
-- [api/booking_pricing.php](<../../../api/booking_pricing.php>)
-- [api/sync.php](<../../../api/sync.php>)
-- [js/sync.js](<../../../js/sync.js>)
-
-## Continue reading
-
-[Previous: Login and Authentication](Login%20and%20Authentication.md) · [Next: Payments and Deposits](Payments%20and%20Deposits.md) · [Back to Start Here](../Start%20Here.md)
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

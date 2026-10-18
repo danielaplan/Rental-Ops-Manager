@@ -1,84 +1,56 @@
 ---
 title: "DELIVERY"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # DELIVERY
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**The transport arrangement.** Each booking can have one current record describing delivery and fee responsibility.
+One optional delivery arrangement per booking.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `DELIVERY` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-Ana’s equipment travels by Lalamove and the renter shoulders the fee.
+When this table participates in Ana’s rental, its foreign keys connect the row to the relevant booking, catalog record, or owner.
 
-## Main fields
+## Column dictionary
 
-delivery_method describes transport; delivery_fee records the charge; fee_shouldered_by records responsibility.
+| Column | Exact schema definition |
+| --- | --- |
+| `delivery_id` | `INT NOT NULL AUTO_INCREMENT` |
+| `booking_id` | `INT NOT NULL UNIQUE` |
+| `delivery_method` | `ENUM('self_pickup','lalamove','owner_delivered') NOT NULL DEFAULT 'self_pickup'` |
+| `delivery_fee` | `DECIMAL(10,2) NOT NULL DEFAULT 0.00` |
+| `fee_shouldered_by` | `VARCHAR(30) NOT NULL DEFAULT 'Customer'` |
+| `delivery_notes` | `TEXT` |
+| `created_at` | `DATETIME NULL` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
-
-## How to use this note
-
-Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-One current delivery arrangement per booking.
-
-**Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `delivery_id` | `INT` | `NOT NULL AUTO_INCREMENT` | Unique identifier for this table row. |
-| `booking_id` | `INT` | `NOT NULL UNIQUE` | Parent booking reference. |
-| `delivery_method` | `ENUM('self_pickup','lalamove','owner_delivered')` | `NOT NULL DEFAULT 'self_pickup'` | self_pickup/lalamove/owner_delivered transport choice. |
-| `delivery_fee` | `DECIMAL(10,2)` | `NOT NULL DEFAULT 0.00` | Recorded logistics charge. |
-| `fee_shouldered_by` | `ENUM('renter','owner')` | `NOT NULL DEFAULT 'renter'` | renter/owner fee responsibility. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
+## Keys and relationships
 
 - `PRIMARY KEY (delivery_id)`
 - `FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON UPDATE CASCADE ON DELETE CASCADE`
 
-Additional indexes:
+- `booking_id` → [BOOKINGS](BOOKINGS.md).`booking_id` (ON UPDATE CASCADE ON DELETE CASCADE)
 
-- `CREATE INDEX idx_delivery_booking ON DELIVERY(booking_id);`
+## Runtime use
 
-Parent tables: [BOOKINGS](BOOKINGS.md) via `booking_id`
+Source files that directly mention this table: [delivery.php](../../Backend/Files/delivery.php.md), [supporting_service.php](../../Backend/Files/supporting_service.php.md), [sync.php](../../Backend/Files/sync.php.md).
 
-Child tables: None.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Where it is used
+## Source
 
-[delivery.php](../../Backend/Files/delivery.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
+[db/schema.sql](../../../../db/schema.sql)
 
-### Important behavior
 
-UNIQUE booking_id makes this zero-or-one, not many. Delivery fee is separate from BOOKINGS.fees unless caller coordinates it.
+## Technical navigation
 
-See [Table Relationships](../Table%20Relationships.md).
-
-## Source files
-
-- [db/schema.sql](<../../../../db/schema.sql>)
-
-## Continue reading
-
-[Previous table: CUSTOMERS](CUSTOMERS.md) · [Next table: DEPOSITS](DEPOSITS.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Database Overview](../Database%20Overview.md) · [See Table Relationships](../Table%20Relationships.md) · [Return to Start Here](../../Start%20Here.md)

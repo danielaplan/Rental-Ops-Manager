@@ -1,0 +1,45 @@
+✔ cached reads resolve through the async facade while sync.js refreshes with bearer auth (24.5304ms)
+✔ server refresh preserves cached presentation fields that PHP does not store (15.2628ms)
+✔ writes resolve to a pending local draft and enqueue an authenticated sync operation (13.726ms)
+✔ booking-scoped reads return cached rows and request the matching server collection (6.9615ms)
+✔ item history writes resolve to a pending draft with an addressable queue entry (5.9382ms)
+✔ item history reads refresh only the requested item and retain pending history (6.9485ms)
+✔ release and return side effects enqueue their local item history rows (7.9197ms)
+✔ shared refresh includes every unscoped admin collection (9.6698ms)
+✔ flush removes acknowledged operations and records temporary-to-server ID aliases (11.2438ms)
+✔ the facade exposes methods required by current pages and the sync UI (5.3187ms)
+✔ pending offline payments remain keyed by the exact local booking ID (4.1371ms)
+✔ itemized deposit deduction and refund actions remain in the offline outbox (8.418ms)
+✔ reads use the script-relative API base, bearer auth, and frontend normalization (17.4665ms)
+✔ CRUD writes use PHP action parameters, numeric IDs, and mapped fields (7.9326ms)
+✔ special workflows target their actual PHP actions (6.3996ms)
+✔ gallery image uploads use authenticated multipart form data (4.7174ms)
+✔ non-JSON and API errors produce useful typed errors (18.7998ms)
+✔ manual booking locks before availability and permits retry after a rejected read (14.8487ms)
+✔ manual initialization populates controls before restoring the saved draft (35.8049ms)
+✔ availability ignores an older conflict after a newer date is available (4.6447ms)
+✔ calendar ignores an older month render that resolves last (61.9685ms)
+✔ report keeps newest filters and renders numeric receipt totals (6.0321ms)
+✔ dashboard keeps the newest response and charts numeric accepted payments (5.351ms)
+✔ admin event boundary prevents repeat writes and reports rejection without clearing input (2.6984ms)
+✔ admin login explains when its PHP endpoint cannot be reached (3.2374ms)
+✔ settings refresh updates the sidebar brand without replacing navigation (2.8325ms)
+✔ late checklist and payment history reads cannot overwrite another booking (2.7241ms)
+✔ booking details retain the newer booking when the older lookup resolves last (4.2816ms)
+✔ booking UI keeps Awaiting Payment visible until full-payment completion (1.2661ms)
+✔ a failed down payment does not permit creating the saved booking twice (6.1741ms)
+✔ manual synchronization locks immediately and displays rejected refreshes (3.6068ms)
+✔ stale booking location conflicts expose the location comparison and retry field (3.8034ms)
+✔ public refresh loads settings, content, services, and gallery from PHP (36.7843ms)
+✔ public refresh retains cached presentation fields and pending local records (8.6914ms)
+✔ public page rerenders services and gallery after server refresh (10.6401ms)
+✔ public outage retains cached data while successful endpoints still refresh (10.0378ms)
+✔ public refresh preserves pending edits and removes accepted records deleted on the server (5.8227ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 543.8282

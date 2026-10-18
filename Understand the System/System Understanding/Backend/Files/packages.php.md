@@ -1,79 +1,48 @@
 ---
 title: "packages.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # packages.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The fixed-package handler.** This file manages priced package choices belonging to a service.
+Package catalog endpoint. It is a **HTTP endpoint** at `api/packages.php`.
 
-**Where it lives:** `api/packages.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-Ana selects a ₱2,500 karaoke package rather than entering an unrelated price.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Link the package to a service.
-2. Let an owner maintain the package name and price.
-3. Provide those records to booking pricing.
+## Observed interface and access
 
-## Key points
+- **Interface:** Generic all/get/create/update/delete.
+- **Access:** Public reads; owner-authenticated writes.
+- **Functions declared here:** none; this file dispatches or configures other helpers.
 
-The price calculator checks that a selected package belongs to the booking’s primary service.
+## Connections
 
-Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [catalog_definitions.php](catalog_definitions.php.md).
+- Tables named directly: none.
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/packages.php`
+## Source
 
-Fixed-price packages under a service. Supplied service_id on create/update is checked for existence.
+[api/packages.php](../../../../api/packages.php)
 
-### Routes or callable helpers
 
-Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=....
+## Technical navigation
 
-### Access
-
-Reads are unauthenticated. Every POST requires owner via authWrite().
-
-### Inputs
-
-Primary key: package_id. Accepted JSON fields: service_id, package_name, price. Create defaults: none.
-
-### How it works
-
-Includes crud.php and dispatches tableCrud() with a fixed table/field allowlist. Fixed-price packages under a service. Supplied service_id on create/update is checked for existence.
-
-### Current limits and details
-
-Only use filters that correspond to actual columns. See crud.php for default precedence and limited field validation. Foreign-key constraints can reject referenced deletions.
-
-### Connections
-
-Includes: [crud.php](crud.php.md)
-
-Tables: [PACKAGES](../../Database/Tables/PACKAGES.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/packages.php](<../../../../api/packages.php>)
-
-## Continue reading
-
-[Previous file: itemReleases.php](itemReleases.php.md) · [Next file: payments.php](payments.php.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Backend File Inventory](../File%20Inventory.md) · [Review the API Reference](../API%20Reference.md) · [Return to Start Here](../../Start%20Here.md)

@@ -12,9 +12,9 @@ if ($archive) {
     if (isset($_GET['source_id'])) { $sql.=' AND source_id=?'; $args[]=$_GET['source_id']; }
     $sql.=' ORDER BY archive_id';
 } else {
-    $sql='SELECT * FROM audit_logs WHERE audit_id>?';
+    $sql='SELECT a.*,u.full_name AS actor_name FROM audit_logs a LEFT JOIN users u ON u.user_id=a.user_id WHERE a.audit_id>?';
     if (isset($_GET['booking_id'])) { $sql.=" AND record_type='booking' AND record_id=?"; $args[]=asInt($_GET['booking_id'],1); }
-    $sql.=' ORDER BY audit_id';
+    $sql.=' ORDER BY a.audit_id';
 }
 $q=db()->prepare($sql.' LIMIT '.$limit); $q->execute($args);
 sendJson(['ok'=>true,'data'=>$q->fetchAll()]);

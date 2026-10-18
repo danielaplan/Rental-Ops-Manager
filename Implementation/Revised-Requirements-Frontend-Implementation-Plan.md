@@ -76,6 +76,41 @@ The frontend remains an active implementation. Do **not** mark this plan complet
 
 These files contain edits started on 2026-10-16 that were interrupted before syntax or regression testing. Review them as incomplete work; do not treat the presence of a field, method, or navigation link as implementation evidence.
 
+## Implementation progress — 2026-10-17
+
+The interrupted drafts above have now been stabilized and verified. This section supersedes their earlier “unverified” labels while retaining the original handoff for history.
+
+| Area | Status | Implemented and verified evidence |
+| --- | --- | --- |
+| F1 owner administration | Implemented | Added `admin/owners.html`; only the primary owner sees or can open it. It supports the two-owner limit, activation/deactivation, password reset, and communicates session revocation. |
+| F1 notifications | Implemented, acceptance pending | The persistent bell loads unresolved action-required notifications on every admin page and links to the affected booking. Backend resolution is covered by the isolated suites; final owner interaction acceptance remains pending. |
+| F2 services | Implemented | Preparation/travel defaults, non-negative inputs, status, save/reload, and regression coverage are present. |
+| F2 packages and checklist templates | Implemented | Added `admin/packages.html` with revised package fields, regular/upcoming/active/expired promotion presentation, activation/deactivation, checklist version creation, old-version deactivation, and historical-version guidance. Live browser verification loaded all six synthetic packages. |
+| F3 booking creation and availability | Implemented | Added authenticated `GET api/bookings.php?do=availability` using the shared server availability service. The existing manual-booking conflict dialog, exact conflict IDs, allowance inputs, optional package, agreed total, offline fallback, and final authoritative save are retained. |
+| F3 cancellation/history | Implemented | Removed Cancelled from generic status editing and added a dedicated required-reason cancellation dialog. Booking details prefer saved package name/price snapshots. |
+| F3 calendar | Implemented | Approved overlaps now have a distinct warning border/icon and accessible label. Legacy internal blockouts remain deferred. |
+| F4 payments | Implemented | Payment type, GCash/MariBank method, status, date/time, optional reference, derived balance, accepted-payment totals, pending-sync exclusion, and history remain integrated. |
+| F4 deposits/deductions | Implemented | Booking details render itemized deductions, add affected-item/reason/amount deductions, show refundable totals, and expose the refund action. Held-deposit, deduction, and refund operations now remain in the offline outbox and replay through the shared backend deposit rules. |
+| F4 delivery | Implemented | Added delivery notes and explicit Customer, Included in package, and Owner fee responsibility values. |
+| F5 post-event workflow | Implemented | Awaiting Completion review, service release, Awaiting Payment, full-payment completion, and notification resolution remain enforced by shared backend rules and covered by direct/offline tests. |
+| F6 reports | Implemented | Corrected payment-date revenue wording and added visible period/lifetime operational totals plus package popularity. |
+| F6 audit | Implemented | Added `admin/audit.html`, read-only filters for actor/action/record/date, actor names, and responsive table containment. Live verification displayed 19 synthetic audit entries. |
+| F7 offline sync | Preserved | Existing service worker, cached reads, outbox, retry, conflict retention, receipts, mappings, and offline integration suite remain present. No online-only conversion was made. |
+
+Verification from the final code state:
+
+- Complete final isolated acceptance run: 9 backend/sync test files passed, 17 offline integration checks passed, and 37 frontend regression tests passed.
+- PHP, JavaScript, service worker, and every admin inline script passed syntax checks.
+- Evidence directory: `tests/acceptance-results/1792178839273-14600` using synthetic database `akad_verify_plan_1792178839615_32200` on isolated ports 51926/51927.
+- Focused and complete checks include the itemized deposit deduction/refund offline-outbox regression.
+- Live browser checks: package, owner, audit, and booking pages had no document-level horizontal overflow at 375×812; package names/values and audit rows rendered from the local synthetic database.
+
+Remaining acceptance and implementation work:
+
+1. Perform the complete create/edit/deactivate/reset/cancel/deduct/refund interaction walkthrough on a disposable synthetic database. The current live browser pass was read-only to avoid changing the developer’s active sample records.
+2. Run physical-phone, additional-browser, staging/hosting, deployment configuration, production workload, and owner acceptance. Local synthetic evidence does not establish those gates.
+3. Keep FR-10 internal availability blockouts deferred unless separately reauthorized.
+
 ## Dependencies
 
 - Backend authentication, revised schema, domain services, reports, notifications, audit, and offline replay contracts are implemented and locally verified.

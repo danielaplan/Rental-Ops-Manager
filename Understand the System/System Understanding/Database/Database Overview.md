@@ -1,82 +1,51 @@
 ---
 title: "Database Overview"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # Database Overview
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](Database%20Overview.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## Overview
+## What the database does
 
-The database is the shared organized storage for accepted records. Think of it as a collection of connected spreadsheets: customers in one table, bookings in another, payments in another. MySQL is the software that manages this storage.
+MySQL/MariaDB is the shared record after the PHP backend accepts a request. It contains **29 tables** in the current clean schema. A table is like a structured ledger: each row describes one account, booking, payment, checklist item, or other record, and keys connect related rows.
 
-Each table stores one kind of information. A row is one record; a column is one detail, such as a customer name or event date. Reference numbers connect the records.
+## Ana's connected records
 
-## Example: Ana’s records
-
-Ana’s contact details are in CUSTOMERS. Her event details are in BOOKINGS. Her ₱250 rental payment is in PAYMENTS. Her held ₱350 deposit is in DEPOSITS. The payment and deposit each refer to the booking number, so the system can find the right rental without copying every event detail into each record.
+Ana has one `CUSTOMERS` row. Her `BOOKINGS` row points to that customer, one `SERVICES` row, an optional `PACKAGES` row, and the owner in `USERS`. Payments, a deposit, delivery, booking checklist items, notifications, conflict approvals, and audit history point back to the booking.
 
 ## Table groups
 
-| Group | What it keeps |
-|---|---|
-| People and login | Customers, staff/owner accounts and temporary logins |
-| Catalog | Services, packages, extras, categories and equipment templates |
-| Rental records | Bookings, rental payments, deposits and delivery |
-| Equipment records | Assigned items, saved inspections, release events and history |
-| Supporting information | Settings, accepted-sync memory, content and image records |
+- **Accounts:** [USERS](Tables/USERS.md), [SESSIONS](Tables/SESSIONS.md)
+- **Catalog/content:** [SERVICES](Tables/SERVICES.md), [PACKAGES](Tables/PACKAGES.md), [ADDONS](Tables/ADDONS.md), [CATEGORIES](Tables/CATEGORIES.md), [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md), [CHECKLIST_TEMPLATES](Tables/CHECKLIST_TEMPLATES.md), [CHECKLIST_TEMPLATE_ITEMS](Tables/CHECKLIST_TEMPLATE_ITEMS.md), [GALLERY](Tables/GALLERY.md), [WEBSITE_CONTENT](Tables/WEBSITE_CONTENT.md), [APP_SETTINGS](Tables/APP_SETTINGS.md)
+- **Rental operations:** [CUSTOMERS](Tables/CUSTOMERS.md), [BOOKINGS](Tables/BOOKINGS.md), [BOOKING_CHECKLIST_ITEMS](Tables/BOOKING_CHECKLIST_ITEMS.md), [PAYMENTS](Tables/PAYMENTS.md), [DEPOSITS](Tables/DEPOSITS.md), [DEPOSIT_DEDUCTIONS](Tables/DEPOSIT_DEDUCTIONS.md), [DELIVERY](Tables/DELIVERY.md), [NOTIFICATIONS](Tables/NOTIFICATIONS.md), [BOOKING_CONFLICT_OVERRIDES](Tables/BOOKING_CONFLICT_OVERRIDES.md), [ITEM_RELEASES](Tables/ITEM_RELEASES.md), [ITEM_HISTORY](Tables/ITEM_HISTORY.md), [AUDIT_LOGS](Tables/AUDIT_LOGS.md)
+- **Deferred/legacy compatibility:** [AVAILABILITY_BLOCKS](Tables/AVAILABILITY_BLOCKS.md), [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md), [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md)
+- **Migration tooling:** [MIGRATION_ARCHIVE](Tables/MIGRATION_ARCHIVE.md), [SCHEMA_MIGRATIONS](Tables/SCHEMA_MIGRATIONS.md)
 
-The source scripts define 19 tables. [Table Relationships](Table%20Relationships.md) explains their connections, and the linked table notes describe each table’s fields and role in its workflow.
+## Important rules
 
-## Technical details
+Foreign keys prevent many broken relationships. Unique keys enforce one delivery and one deposit per booking, unique booking references, one legacy-linked migration/deduction record, and one notification type per recipient/booking. Transactions in shared services protect multi-row changes. `db/schema.sql` is the structural source of truth; PHP services establish how the structure is used.
 
-This section records exact file behavior, field names and implementation details.
+The schema intentionally contains old and new structures during transition. Presence in the schema does not prove that a table is the primary current workflow. Read each table page’s status note.
 
-MySQL is the central shared record store. `api/config.php` chooses the database connection; default name is `akad_rentals`. PDO queries use prepared values. The schema uses InnoDB, utf8mb4 and utf8mb4_unicode_ci.
+## Related documentation
 
-The checked-in scripts define 18 tables in schema.sql and SESSIONS in seed.sql: **19 tables total**. No PHP CREATE TABLE statement is used for an additional runtime table; sync initializes a reserved row in APP_SETTINGS. A live deployment may differ, so this inventory is based on checked-in definitions, not a live schema audit.
+[Table Relationships](Table%20Relationships.md) · [Schema and Seed Setup](Schema%20and%20Seed%20Setup.md) · [Backend File Inventory](../Backend/File%20Inventory.md)
 
-| Table | Purpose | Defined in |
-|---|---|---|
-| [USERS](Tables/USERS.md) | Owner/staff accounts. Customers do not log in through this table. | `db/schema.sql` |
-| [CUSTOMERS](Tables/CUSTOMERS.md) | People renting services; one customer can have many bookings. | `db/schema.sql` |
-| [SERVICES](Tables/SERVICES.md) | The service catalog: seed id 1 Karaoke, id 2 Sweet Corner, id 3 Balloon Decoration. | `db/schema.sql` |
-| [CATEGORIES](Tables/CATEGORIES.md) | Independent category labels. | `db/schema.sql` |
-| [ADDONS](Tables/ADDONS.md) | Separately priced optional extras belonging to one service. | `db/schema.sql` |
-| [RENTAL_ITEMS](Tables/RENTAL_ITEMS.md) | Reusable item catalog by service, used as the template for booking checklists. | `db/schema.sql` |
-| [GALLERY](Tables/GALLERY.md) | Image text and featured metadata. | `db/schema.sql` |
-| [WEBSITE_CONTENT](Tables/WEBSITE_CONTENT.md) | A JSON content document at content_id=1. | `db/schema.sql` |
-| [APP_SETTINGS](Tables/APP_SETTINGS.md) | JSON configuration row 1 and reserved sync-state row 2. | `db/schema.sql` |
-| [PACKAGES](Tables/PACKAGES.md) | Fixed price choices belonging to a service. | `db/schema.sql` |
-| [BOOKINGS](Tables/BOOKINGS.md) | Central rental record linking customer, primary service/package, and creating account. | `db/schema.sql` |
-| [PAYMENTS](Tables/PAYMENTS.md) | One row per rental payment; many payments can belong to a booking. | `db/schema.sql` |
-| [DEPOSITS](Tables/DEPOSITS.md) | One current refundable deposit summary per booking. | `db/schema.sql` |
-| [EQUIPMENT_CHECKLIST](Tables/EQUIPMENT_CHECKLIST.md) | Saved inspection rows: outgoing/incoming condition, return result and inspecting user. | `db/schema.sql` |
-| [BOOKING_ITEMS](Tables/BOOKING_ITEMS.md) | Per-booking equipment assignment snapshot and release/return progress. | `db/schema.sql` |
-| [ITEM_RELEASES](Tables/ITEM_RELEASES.md) | Explicit release-event metadata linked to a booking. | `db/schema.sql` |
-| [ITEM_HISTORY](Tables/ITEM_HISTORY.md) | Explicit equipment action log retaining nullable booking/item references. | `db/schema.sql` |
-| [DELIVERY](Tables/DELIVERY.md) | One current delivery arrangement per booking. | `db/schema.sql` |
-| [SESSIONS](Tables/SESSIONS.md) | Database-backed login tokens and expiration timestamps. | `db/seed.sql` |
 
-### How to read a table note
+## Continue Your Learning
 
-Each note has a column dictionary, exact type/default/nullability declarations, keys, parent/child links, API consumers and behavioral caveats. A foreign key protects record references, but does not implement a business workflow. A JSON column validates JSON structure at the storage level, not references inside it.
+**You’ve learned:** how the system organizes customers, bookings, money, equipment, accounts, and history across 29 connected tables.
 
-See [Table Relationships](Table%20Relationships.md), [Schema and Seed Setup](Schema%20and%20Seed%20Setup.md) and [Glossary](../Glossary.md).
+**Previous topic:** [Backend Overview](../Backend/Backend%20Overview.md)
 
-## Source files
+**Next topic:** [API Reference](../Backend/API%20Reference.md)
 
-- [db/schema.sql](<../../../db/schema.sql>)
-- [db/seed.sql](<../../../db/seed.sql>)
-- [api/config.php](<../../../api/config.php>)
-- [api/sync.php](<../../../api/sync.php>)
+**Why read this next?** The API reference shows the specific requests that connect the screens, backend rules, and stored records.
 
-## Continue reading
-
-[Previous: Request Lifecycle](../Backend/Request%20Lifecycle.md) · [Next: Table Relationships](Table%20Relationships.md) · [Back to Start Here](../Start%20Here.md)
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

@@ -12,7 +12,7 @@ const CONFIG = {
   bookingStatuses: [
     "Pending", "Confirmed", "Awaiting Completion", "Awaiting Payment", "Completed", "Cancelled"
   ],
-  bookingEditableStatuses: ["Pending", "Confirmed", "Cancelled"],
+  bookingEditableStatuses: ["Pending", "Confirmed"],
 
   // Status colors for badges (Bootstrap contextual classes)
   bookingStatusColors: {

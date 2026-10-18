@@ -1,0 +1,12 @@
+Error: ERROR 2002 (HY000): Can't connect to MySQL server on 'localhost' (10061)
+
+    at sql (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\run_revised_backend.cjs:15:66)
+    at main (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\run_revised_backend.cjs:40:3)
+    at Object.<anonymous> (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\run_revised_backend.cjs:61:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)

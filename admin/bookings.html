@@ -85,6 +85,9 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="editBookingBtn">
                   <i class="bi bi-pencil me-1"></i> Edit event details
                 </button>
+                <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="cancelBookingBtn">
+                  <i class="bi bi-x-circle me-1"></i> Cancel booking
+                </button>
               </div>
               <div class="col-md-6">
                 <h6>Services &amp; Add-ons</h6>
@@ -129,13 +132,15 @@
                 <h6>Negotiated refundable deposit</h6><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
                 <div class="row g-2">
                   <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0" step="0.01"></div>
-                  <div class="col-sm-6"><label for="depositDeduction">Deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01"></div>
-                  <div class="col-sm-6"><label for="depositReason">Deduction reason</label><input id="depositReason" class="form-control" type="text"></div>
+                  <div class="col-sm-6"><label for="depositDeduction">Legacy aggregate deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01" readonly></div>
+                  <div class="col-sm-6"><label for="depositReason">Deduction summary</label><input id="depositReason" class="form-control" type="text" readonly></div>
                   <div class="col-sm-6"><label for="depositRefund">Refundable amount (₱)</label><input id="depositRefund" class="form-control" readonly></div>
                 </div><div id="depositError" role="alert" tabindex="-1" class="text-danger my-2" hidden></div>
                 <div class="small mt-2" id="depositRefundState" role="status" aria-live="polite">Refund status has not been loaded.</div>
                 <div class="small text-muted">This status records the agreed refund amount; it does not confirm a money transfer.</div>
-                <button type="button" class="btn btn-outline-secondary mt-2" id="saveDepositBtn">Save deposit</button>
+                <div id="depositDeductions" class="mt-3"></div>
+                <div class="row g-2 mt-2"><div class="col-md-4"><label for="deductionItem">Affected item</label><input id="deductionItem" class="form-control" maxlength="255"></div><div class="col-md-3"><label for="deductionAmount">Amount (₱)</label><input id="deductionAmount" class="form-control" type="number" min="0.01" step="0.01"></div><div class="col-md-5"><label for="deductionReasonNew">Reason</label><input id="deductionReasonNew" class="form-control"></div></div>
+                <div class="d-flex gap-2 mt-2 flex-wrap"><button type="button" class="btn btn-outline-secondary" id="saveDepositBtn">Save held deposit</button><button type="button" class="btn btn-outline-danger" id="addDeductionBtn">Add deduction</button><button type="button" class="btn btn-outline-success" id="refundDepositBtn">Mark refundable balance refunded</button></div>
                 </div>
               </div>
               <div class="col-12">
@@ -157,10 +162,12 @@
                   <div class="col-md-4">
                     <label class="form-label" for="deliveryResponsibility">Fee arrangement</label>
                     <select class="form-select" id="deliveryResponsibility">
-                      <option value="renter">Paid by renter</option>
-                      <option value="owner">Included / paid by AKAD</option>
+                      <option value="Customer">Paid by customer</option>
+                      <option value="Included in package">Included in package</option>
+                      <option value="Owner">Paid by owner</option>
                     </select>
                   </div>
+                  <div class="col-12"><label class="form-label" for="deliveryNotes">Delivery notes</label><textarea class="form-control" id="deliveryNotes" rows="2" maxlength="5000"></textarea></div>
                 </div>
                 <div id="deliverySaveError" class="text-danger small mt-2" role="alert" tabindex="-1" hidden></div>
                 <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mt-2">
@@ -293,6 +300,8 @@
   </div>
 </div>
 
+<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingTitle" aria-hidden="true"><div class="modal-dialog"><form class="modal-content" id="cancelBookingForm"><div class="modal-header"><h5 class="modal-title" id="cancelBookingTitle">Cancel booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>This keeps the booking in history and releases its reserved schedule.</p><label class="form-label" for="cancellationReason">Cancellation reason</label><textarea class="form-control" id="cancellationReason" rows="3" maxlength="5000" required></textarea><div id="cancellationError" class="text-danger small mt-2" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button><button type="submit" class="btn btn-danger">Confirm cancellation</button></div></form></div></div>
+
 <div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <form class="modal-content" id="editBookingForm" novalidate>
@@ -392,6 +401,20 @@ adminReady(async function () {
     } else {
       new bootstrap.Modal('#editBookingModal').show();
     }
+  });
+
+  $('#cancelBookingBtn').onAdmin('click', function () {
+    $('#cancellationReason').val(''); $('#cancellationError').prop('hidden', true).text('');
+    bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
+    new bootstrap.Modal('#cancelBookingModal').show();
+  });
+  $('#cancelBookingForm').onAdmin('submit', async function (event) {
+    event.preventDefault(); const reason=$('#cancellationReason').val().trim();
+    if(!reason){$('#cancellationError').text('Enter a cancellation reason.').prop('hidden',false);return;}
+    const button=$(this).find('[type=submit]').prop('disabled',true);
+    try{await API.updateBooking(currentBookingId,{status:'Cancelled',cancellation_reason:reason});bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal')).hide();await renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());showAdminToast(API.savedMessage());}
+    catch(error){$('#cancellationError').text(error.message).prop('hidden',false);}
+    finally{button.prop('disabled',false);}
   });
 
   $('#editBookingModal').onAdmin('hidden.bs.modal', function () {
@@ -571,12 +594,21 @@ adminReady(async function () {
   });
   $('#saveDepositBtn').onAdmin('click', async function () {
     try {
-      const saved = await API.upsertDeposit(currentBookingId, { amount_held: Number($('#depositHeld').val()), deduction_amount: Number($('#depositDeduction').val()), deduction_reason: $('#depositReason').val() });
-      renderDepositRefundState(saved);
+      const saved = await API.upsertDeposit(currentBookingId, { amount_held: Number($('#depositHeld').val()) });
+      setDepositForm(saved);
       $('#depositError').prop('hidden', true); showAdminToast(API.savedMessage());
     } catch (error) { $('#depositError').prop('hidden', false).text(error.message).trigger('focus'); }
   });
-  $('#deliveryMethod, #deliveryFee, #deliveryResponsibility').onAdmin('input change', function () {
+  $('#addDeductionBtn').onAdmin('click', async function () {
+    const data={affected_item:$('#deductionItem').val().trim(),amount:$('#deductionAmount').val(),reason:$('#deductionReasonNew').val().trim()};
+    if(!data.affected_item||!data.reason||!(Number(data.amount)>0)){return $('#depositError').prop('hidden',false).text('Enter an affected item, positive amount, and reason.');}
+    $(this).prop('disabled',true);try{const saved=await API.addDepositDeduction(currentBookingId,data);setDepositForm(saved);$('#deductionItem,#deductionAmount,#deductionReasonNew').val('');$('#depositError').prop('hidden',true);showAdminToast('Deduction recorded.');}catch(error){$('#depositError').prop('hidden',false).text(error.message);}finally{$(this).prop('disabled',false);}
+  });
+  $('#refundDepositBtn').onAdmin('click', async function () {
+    if(!confirm('Mark the current refundable balance as refunded?'))return;
+    $(this).prop('disabled',true);try{setDepositForm(await API.refundDeposit(currentBookingId));$('#depositError').prop('hidden',true);showAdminToast('Deposit refund recorded.');}catch(error){$('#depositError').prop('hidden',false).text(error.message);}finally{$(this).prop('disabled',false);}
+  });
+  $('#deliveryMethod, #deliveryFee, #deliveryResponsibility, #deliveryNotes').onAdmin('input change', function () {
     deliveryFormRevision++;
     $('#deliverySaveState').text('Unsaved changes');
   });
@@ -585,7 +617,8 @@ adminReady(async function () {
       await API.upsertDelivery(currentBookingId, {
         delivery_method: $('#deliveryMethod').val(),
         delivery_fee: $('#deliveryFee').val(),
-        fee_shouldered_by: $('#deliveryResponsibility').val()
+        fee_shouldered_by: $('#deliveryResponsibility').val(),
+        delivery_notes: $('#deliveryNotes').val().trim() || null
       });
       $('#deliverySaveError').prop('hidden', true).text('');
       $('#deliverySaveState').text(API.savedMessage());
@@ -594,7 +627,7 @@ adminReady(async function () {
       $('#deliverySaveError').text(error.message).prop('hidden', false).trigger('focus');
     }
   });
-  $('#depositHeld,#depositDeduction,#depositReason').onAdmin('input',function(){
+  $('#depositHeld').onAdmin('input',function(){
     $('#depositHeld').data('revision',(Number($('#depositHeld').data('revision')||0)+1));
     $('#depositRefund').val(Math.max(Number($('#depositHeld').val())-Number($('#depositDeduction').val()),0).toFixed(2));
     $('#depositRefundState').text('Unsaved changes');
@@ -631,6 +664,7 @@ adminReady(async function () {
   });
 });
 
+const BOOKING_PAGE_SIZE=15;
 let bookingPage=0;
 async function renderBookingsTable(statusFilter, search) {
   const version = ++bookingsVersion;
@@ -639,7 +673,13 @@ async function renderBookingsTable(statusFilter, search) {
     API.getServices(),
     PaymentsHelper.pendingAmountsByBooking()
   ]);
-  let bookings = bookingsData.slice().sort((a, b) => (a.event_date < b.event_date ? 1 : -1));
+  let bookings = bookingsData.slice().sort((a, b) => {
+    const aId=Number(a._server_id ?? a.id),bId=Number(b._server_id ?? b.id);
+    if(Number.isFinite(aId)&&Number.isFinite(bId))return aId-bId;
+    if(Number.isFinite(aId))return -1;
+    if(Number.isFinite(bId))return 1;
+    return String(a.created_at||'').localeCompare(String(b.created_at||''));
+  });
 
   if (statusFilter) bookings = bookings.filter(b => b.status === statusFilter);
   if (search) {
@@ -650,7 +690,7 @@ async function renderBookingsTable(statusFilter, search) {
   const paymentStatuses = new Map(await Promise.all(bookings.map(async booking =>
     [String(booking.id), await PaymentsHelper.paymentStatus(booking, pendingPaymentIndex)])));
   if (version !== bookingsVersion) return;
-  if(bookingPage*50>=bookings.length)bookingPage=0;
+  if(bookingPage*BOOKING_PAGE_SIZE>=bookings.length)bookingPage=0;
   const $body = $('#bookingsBody').empty();
   if (!bookings.length) {
     $body.append('<tr><td colspan="8" class="text-center text-muted py-4">No bookings found.</td></tr>');
@@ -658,7 +698,7 @@ async function renderBookingsTable(statusFilter, search) {
     return;
   }
   const total=bookings.length;
-  for (const b of bookings.slice(bookingPage * 50, (bookingPage + 1) * 50)) {
+  for (const b of bookings.slice(bookingPage * BOOKING_PAGE_SIZE, (bookingPage + 1) * BOOKING_PAGE_SIZE)) {
     const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name).filter(Boolean).join(', ');
     const paymentStatus = paymentStatuses.get(String(b.id));
     $body.append(`
@@ -687,8 +727,8 @@ async function renderBookingsTable(statusFilter, search) {
   }
   if(!$('#bookingPagination').length)$('<div id="bookingPagination" class="d-flex align-items-center flex-wrap gap-2 mt-3"></div>').insertAfter($('#bookingsBody').closest('.table-wrap'));
   $('#bookingPagination').prop('hidden', false);
-  const firstShown=total?bookingPage*50+1:0;
-  $('#bookingPagination').html('<button type="button" id="bookingPrev" class="btn btn-sm btn-outline-secondary" '+(bookingPage===0?'disabled':'')+'>Previous</button><span aria-live="polite">Showing '+firstShown+'–'+Math.min((bookingPage+1)*50,total)+' of '+total+'</span><button type="button" id="bookingNext" class="btn btn-sm btn-outline-secondary" '+((bookingPage+1)*50>=total?'disabled':'')+'>Next</button>');
+  const firstShown=total?bookingPage*BOOKING_PAGE_SIZE+1:0;
+  $('#bookingPagination').html('<button type="button" id="bookingPrev" class="btn btn-sm btn-outline-secondary" '+(bookingPage===0?'disabled':'')+'>Previous</button><span aria-live="polite">Showing '+firstShown+'–'+Math.min((bookingPage+1)*BOOKING_PAGE_SIZE,total)+' of '+total+'</span><button type="button" id="bookingNext" class="btn btn-sm btn-outline-secondary" '+((bookingPage+1)*BOOKING_PAGE_SIZE>=total?'disabled':'')+'>Next</button>');
   $('#bookingPrev').onAdmin('click', async () => { bookingPage--; await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val()); });
   $('#bookingNext').onAdmin('click', async () => { bookingPage++; await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val()); });
 }
@@ -734,7 +774,9 @@ async function loadBookingDetail(id) {
   (b.service_ids || []).forEach(sid => {
     const s = services.find(x => x.service_id === sid);
     const pack = packages.find(p => String(p.package_id) === String(b.package_id));
-    if (s) $svcList.append(`<li>${escapeHtmlA(s.name)}${pack ? ' — ' + escapeHtmlA(pack.package_name) + ' — ' + BookingCalc.formatCurrency(pack.price) : ''}</li>`);
+    const packageName = b.package_name_snapshot || pack?.name;
+    const packagePrice = b.package_price_snapshot ?? pack?.price;
+    if (s) $svcList.append(`<li>${escapeHtmlA(s.name)}${packageName ? ' — ' + escapeHtmlA(packageName) + ' — ' + BookingCalc.formatCurrency(packagePrice) : ''}</li>`);
   });
   (b.addon_ids || []).forEach(aid => {
     const a = addons.find(x => x.addon_id === aid);
@@ -752,6 +794,7 @@ async function loadBookingDetail(id) {
   $('#dStatusSelect').val(b.status);
   $('#dPaymentStatusSelect').val(paymentStatus);
   $('#dPaymentPendingNote').text(pendingPaymentAmount > 0 ? `${BookingCalc.formatCurrency(pendingPaymentAmount)} is Pending Sync and is not included as accepted payment yet.` : '').prop('hidden', pendingPaymentAmount <= 0);
+  $('#cancelBookingBtn').prop('hidden', ['Cancelled','Completed','Awaiting Completion','Awaiting Payment'].includes(b.status));
 
   await Promise.all([
     InventoryHelper.renderChecklist(id, '#releaseChecklistWrap', 'release', isCurrent),
@@ -793,12 +836,16 @@ function setDepositForm(deposit) {
   $('#depositDeduction').val(deposit.deduction_amount||0);
   $('#depositReason').val(deposit.deduction_reason||'');
   $('#depositRefund').val(Number(deposit.refund_amount ?? (Number(deposit.amount_held||0)-Number(deposit.deduction_amount||0))).toFixed(2));
+  const deductions=deposit.deductions||[];
+  $('#depositDeductions').html(deductions.length?`<div class="table-wrap"><table class="admin-table"><thead><tr><th>Affected item</th><th>Reason</th><th>Amount</th><th>Recorded</th></tr></thead><tbody>${deductions.map(row=>`<tr><td>${escapeHtmlA(row.affected_item)}</td><td>${escapeHtmlA(row.reason)}</td><td>${BookingCalc.formatCurrency(row.amount)}</td><td>${escapeHtmlA(row.recorded_at)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="small text-muted">No deposit deductions recorded.</div>');
+  const refunded=String(deposit.refund_status||'').toLowerCase()==='refunded';
+  $('#addDeductionBtn').prop('disabled',!deposit.deposit_id||refunded);$('#refundDepositBtn').prop('disabled',!deposit.deposit_id||refunded||Number(deposit.refund_amount)<=0);
   renderDepositRefundState(deposit);
 }
 
 function renderDepositRefundState(deposit) {
-  const labels={pending:'Pending',partial:'Partially refundable',full:'Fully refundable',none:'No refund due'};
-  const label=labels[deposit.refund_status]||'Not recorded';
+  const labels={held:'Held — refund not yet recorded',refunded:'Refunded'};
+  const label=labels[String(deposit.refund_status||'').toLowerCase()]||'Not recorded';
   const operation=API.getSyncQueue().find(item=>item.entity==='deposits'&&String(item.local_id)===String(deposit.booking_id));
   if(operation?.status==='failed'||operation?.status==='conflict'){
     $('#depositRefundState').text(`${label} · ${operation.status==='conflict'?'Needs review':'Save failed'}: ${operation.reason||'Retry from the sync panel.'}`);
@@ -810,7 +857,8 @@ function renderDepositRefundState(deposit) {
 function setDeliveryForm(delivery) {
   $('#deliveryMethod').val(delivery.delivery_method || 'self_pickup');
   $('#deliveryFee').val(Number(delivery.delivery_fee || 0));
-  $('#deliveryResponsibility').val(delivery.fee_shouldered_by || 'renter');
+  $('#deliveryResponsibility').val(delivery.fee_shouldered_by || 'Customer');
+  $('#deliveryNotes').val(delivery.delivery_notes || '');
   $('#deliverySaveState').text(delivery.pending_sync ? API.savedMessage() : '');
   $('#deliverySaveError').prop('hidden', true).text('');
 }

@@ -1,79 +1,64 @@
 ---
 title: "PACKAGES"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # PACKAGES
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**Fixed choices and prices.** Each record describes a package under one service.
+Priced service packages, promotions, deposit requirements, and lifecycle status.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `PACKAGES` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-Ana’s karaoke package costs ₱2,500 in the example.
+When this table participates in Ana’s rental, its foreign keys connect the row to the relevant booking, catalog record, or owner.
 
-## Main fields
+## Column dictionary
 
-package_name describes the choice; price supplies its base price; service_id identifies the service.
+| Column | Exact schema definition |
+| --- | --- |
+| `package_id` | `INT NOT NULL AUTO_INCREMENT` |
+| `service_id` | `INT NOT NULL` |
+| `package_name` | `VARCHAR(100) NOT NULL` |
+| `price` | `DECIMAL(10,2) NOT NULL DEFAULT 0.00` |
+| `description` | `TEXT` |
+| `inclusions` | `TEXT` |
+| `duration_minutes` | `INT UNSIGNED NOT NULL DEFAULT 0` |
+| `requires_deposit` | `TINYINT(1) NOT NULL DEFAULT 0` |
+| `deposit_amount` | `DECIMAL(10,2) NOT NULL DEFAULT 0.00` |
+| `is_promotional` | `TINYINT(1) NOT NULL DEFAULT 0` |
+| `promotion_start_date` | `DATE NULL` |
+| `promotion_end_date` | `DATE NULL` |
+| `status` | `VARCHAR(20) NOT NULL DEFAULT 'Active'` |
+| `created_at` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP` |
+| `updated_at` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
-
-## How to use this note
-
-Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-Fixed price choices belonging to a service.
-
-**Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `package_id` | `INT` | `NOT NULL AUTO_INCREMENT` | Unique identifier for this table row. |
-| `service_id` | `INT` | `NOT NULL` | Service reference. |
-| `package_name` | `VARCHAR(100)` | `NOT NULL` | Display label of the package. |
-| `price` | `DECIMAL(10,2)` | `NOT NULL DEFAULT 0.00` | Current catalog price used by booking pricing. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
+## Keys and relationships
 
 - `PRIMARY KEY (package_id)`
 - `FOREIGN KEY (service_id) REFERENCES SERVICES(service_id) ON UPDATE CASCADE ON DELETE RESTRICT`
 
-Parent tables: [SERVICES](SERVICES.md) via `service_id`
+- `service_id` → [SERVICES](SERVICES.md).`service_id` (ON UPDATE CASCADE ON DELETE RESTRICT)
 
-Child tables: [BOOKINGS](BOOKINGS.md) via `package_id`
+## Runtime use
 
-### Where it is used
+Source files that directly mention this table: [booking_pricing.php](../../Backend/Files/booking_pricing.php.md), [booking_service.php](../../Backend/Files/booking_service.php.md), [catalog_definitions.php](../../Backend/Files/catalog_definitions.php.md), [checklistTemplates.php](../../Backend/Files/checklistTemplates.php.md), [crud.php](../../Backend/Files/crud.php.md), [reports.php](../../Backend/Files/reports.php.md), [sync.php](../../Backend/Files/sync.php.md).
 
-[packages.php](../../Backend/Files/packages.php.md), [booking_pricing.php](../../Backend/Files/booking_pricing.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Important behavior
+## Source
 
-Package/service compatibility is checked in pricing; separate booking foreign keys do not enforce that pairing alone.
+[db/schema.sql](../../../../db/schema.sql)
 
-See [Table Relationships](../Table%20Relationships.md).
 
-## Source files
+## Technical navigation
 
-- [db/schema.sql](<../../../../db/schema.sql>)
-
-## Continue reading
-
-[Previous table: ITEM_RELEASES](ITEM_RELEASES.md) · [Next table: PAYMENTS](PAYMENTS.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Database Overview](../Database%20Overview.md) · [See Table Relationships](../Table%20Relationships.md) · [Return to Start Here](../../Start%20Here.md)

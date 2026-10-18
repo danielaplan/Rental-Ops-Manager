@@ -19,6 +19,30 @@ $ownerId = (int)$actor['user_id'];
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['do'] ?? ($method === 'GET' ? 'all' : '');
 $id = asInt($_GET['id'] ?? null,1);
+if ($method === 'GET' && $action === 'availability') {
+    $serviceId = asInt($_GET['service_id'] ?? null,1);
+    $excludeId = asInt($_GET['exclude_booking_id'] ?? 0,0) ?? 0;
+    if (!$serviceId) domainFail('A valid service is required.');
+    $start = bookingDatetime($_GET['event_start_datetime'] ?? null);
+    $end = bookingDatetime($_GET['event_end_datetime'] ?? null);
+    $preparation = bookingMinutes($_GET['preparation_minutes'] ?? 0);
+    $travel = bookingMinutes($_GET['travel_minutes'] ?? 0);
+    [$blockedStart,$blockedEnd] = blockedInterval($start,$end,$preparation,$travel);
+    $result = domainTransaction(function(PDO $pdo) use ($serviceId,$excludeId,$blockedStart,$blockedEnd) {
+        $q = $pdo->prepare("SELECT 1 FROM services WHERE service_id=? AND status='Active'");
+        $q->execute([$serviceId]);
+        if (!$q->fetchColumn()) domainFail('Select an active service.');
+        reconcileBookings($pdo);
+        $now = $pdo->query('SELECT NOW()')->fetchColumn();
+        return availabilityConflicts($pdo,$serviceId,$blockedStart,$blockedEnd,$excludeId,$blockedEnd>$now);
+    });
+    sendJson(['ok'=>true,'data'=>[
+        'available'=>!$result['bookings'] && !$result['blocks'],
+        'blocked_start_datetime'=>$blockedStart,
+        'blocked_end_datetime'=>$blockedEnd,
+        'conflicts'=>$result
+    ]]);
+}
 if ($method === 'GET' && in_array($action,['all','get'],true)) {
     domainTransaction(fn(PDO $pdo) => reconcileBookings($pdo));
     if ($action === 'get') {

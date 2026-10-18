@@ -1,52 +1,34 @@
 ---
 title: "Documentation Maintenance"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # Documentation Maintenance
 
-**Navigate:** [Start Here](Start%20Here.md) · [Reading order](Start%20Here.md#recommended-reading-order) · [Backend files](Backend/File%20Inventory.md) · [Database tables](Database/Database%20Overview.md) · [Glossary](Glossary.md)
+**Guide:** [Start Here](Start%20Here.md) · [System Overview](System%20Overview.md) · [Glossary](Glossary.md) · [Known Limits](Current%20Implementation%20Gaps.md)
 
-## Keeping the guide accurate
+## Review order
 
-When code changes, its explanation may also need to change. A source file is the actual project file used to check a technical claim.
+1. Record the Git SHA and date in [Source Snapshot](Source%20Snapshot.md).
+2. Read current source and schema before changing behavior claims.
+3. Use revised requirements/project-memory to label approved, deferred, or superseded scope.
+4. Update the connected workflow, endpoint page, table page, glossary, gaps, and navigation together.
+5. Run the Markdown link checker with URL decoding and verify every documented endpoint/function/table/column against source.
+6. Label evidence precisely: source inspection, syntax, synthetic test, browser fixture, physical device, production, or client acceptance.
 
-1. Find the changed feature’s workflow, file notes and table notes.
-2. Update the overview and example.
-3. Have a developer check the exact behavior, fields and known limits.
-4. Check that links still open and diagrams still describe the implemented flow.
-5. Record verification only when the relevant checks were actually performed.
+## Writing pattern
 
-Keep the existing filenames and folder names to preserve links. Add frontend documentation when that work is ready and authorized.
+Major learning chapters should explain purpose, business need, Ana example, owner/system steps, behind-the-scenes behavior, a useful diagram, rules/limits, technical references, and related reading. Reference pages should stay concise and exact.
 
-## A useful review question
+## Historical knowledge
 
-Does the overview explain the feature’s purpose, flow and result? Check that the example supports the explanation and that technical details match the implementation.
+Do not delete useful history to make the current story simpler. Label legacy tables, superseded decisions, and deferred features. Requirements or plans do not prove implementation; source does not prove production acceptance.
 
-## Technical details
 
-This section records exact file behavior, field names and implementation details.
+## Technical navigation
 
-This is a manually written explanation supported by a source inventory. It must be reviewed when backend/database behavior changes.
-
-1. Compare changed PHP/SQL files against the source snapshot below.
-2. Update affected file notes, table column dictionaries, route reference and workflows together.
-3. Recheck direct and sync paths: they have separate dispatch/validation code.
-4. Keep requirements/design differences explicit. Do not remove a gap just because one path was fixed.
-5. Check all source links and Obsidian links; maintain relative Markdown links to the actual note files to avoid ambiguous filenames.
-6. Record new verification evidence separately from previously recorded tests. Frontend documentation should be added later under its own folder when authorized/ready.
-
-### Source snapshot
-
-SHA-256 fingerprints are recorded in [Source Snapshot](Source%20Snapshot.md) for every PHP file and SQL script reviewed. They identify this guide's source baseline, not a live database state. A changed fingerprint signals a review is needed.
-
-Properties date/status/tags follow the vault's existing convention. Notes use relative Markdown links with encoded spaces, concise labels and Mermaid diagrams; no additional Obsidian plugin or skill is required.
-
-## Continue reading
-
-[Back to Start Here](Start%20Here.md)
+[Source Snapshot](Source%20Snapshot.md) · [Start Here](Start%20Here.md)

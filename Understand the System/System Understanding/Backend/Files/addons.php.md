@@ -1,79 +1,48 @@
 ---
 title: "addons.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # addons.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The optional-extra handler.** This file manages separately priced extras belonging to a service.
+Add-on catalog endpoint. It is a **HTTP endpoint** at `api/addons.php`.
 
-**Where it lives:** `api/addons.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-Ana adds an extra microphone priced at ₱300.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Read extras and their service links.
-2. Allow an owner to maintain their names, prices and status.
-3. Provide selected extras to the booking price calculator.
+## Observed interface and access
 
-## Key points
+- **Interface:** GET all/get/forService; POST create/update/delete.
+- **Access:** Public reads; owner-authenticated writes.
+- **Functions declared here:** none; this file dispatches or configures other helpers.
 
-An extra is distinct from the base package and from the equipment list expected back.
+## Connections
 
-Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [catalog_definitions.php](catalog_definitions.php.md).
+- Tables named directly: none.
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/addons.php`
+## Source
 
-Optional extras priced under a service.
+[api/addons.php](../../../../api/addons.php)
 
-### Routes or callable helpers
 
-Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=....
+## Technical navigation
 
-### Access
-
-Reads are unauthenticated. Every POST requires owner via authWrite().
-
-### Inputs
-
-Primary key: addon_id. Accepted JSON fields: service_id, name, price, status. Create defaults: status=Active.
-
-### How it works
-
-Includes crud.php and dispatches tableCrud() with a fixed table/field allowlist. Optional extras priced under a service.
-
-### Current limits and details
-
-Only use filters that correspond to actual columns. See crud.php for default precedence and limited field validation. Foreign-key constraints can reject referenced deletions.
-
-### Connections
-
-Includes: [crud.php](crud.php.md)
-
-Tables: [ADDONS](../../Database/Tables/ADDONS.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/addons.php](<../../../../api/addons.php>)
-
-## Continue reading
-
-[Next file: auth.php](auth.php.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Backend File Inventory](../File%20Inventory.md) · [Review the API Reference](../API%20Reference.md) · [Return to Start Here](../../Start%20Here.md)

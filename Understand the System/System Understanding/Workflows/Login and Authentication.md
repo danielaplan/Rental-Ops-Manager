@@ -1,74 +1,95 @@
 ---
 title: "Login and Authentication"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # Login and Authentication
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## The purpose
+## Part A — Understanding the Feature
 
-Login identifies the owner or staff member making a protected request. Authentication means checking who they are. Authorization means checking what they are allowed to do.
+This first part uses everyday language. You can continue to the next lesson without studying the technical section.
 
-## Example
+### What is this feature?
 
-A staff member signs in before recording Ana’s payment. The backend checks the contact number and password. If correct, it returns a temporary token: proof of login that later requests carry.
+Authentication proves that a request belongs to an active owner. Owner management lets the primary owner create accounts, deactivate or reactivate them, and reset passwords.
 
-1. Submit the account contact and password.
-2. The server checks the saved account and password information.
-3. A successful login gets a token and expiry time.
-4. Protected requests carry that token; the server checks it again and applies the role rules.
+### Why does the system need it?
 
-The accounts use owner or staff roles. Customer contact records are separate and do not create customer login access here. Some reads currently do not require login.
+Bookings and financial records should not be changed by an anonymous browser or an account that has been disabled.
 
-## Key points
+### Follow Ana’s fictional rental
 
-“Signing in lets the backend identify a staff member and check protected actions. It uses a temporary session rather than trusting a flag on the page.”
+The owner signs in with a username and password before recording Ana’s booking. Five failed attempts lock that account for 15 minutes. A successful login resets the failure count.
 
-An already-prepared device can hold supported offline drafts, but reconnecting still needs a valid server login. First-time offline login is unavailable.
+### Step-by-step workflow
 
-See [auth.php](../Backend/Files/auth.php.md) and [SESSIONS](../Database/Tables/SESSIONS.md).
+1. The browser posts credentials to `api/auth.php`.
+2. PHP locks the matching user row, verifies the password hash, and creates a random session token.
+3. JavaScript stores the token and sends it as `Authorization: Bearer …`.
+4. Each protected request validates the owner and extends the session.
+5. Logout deletes the current token. Deactivation or password reset deletes all sessions for that account.
 
-## Technical details
+### What Happens Behind the Scenes?
 
-This section records exact file behavior, field names and implementation details.
+`currentSession()` accepts only active users whose role is `owner`. Sessions last 24 hours from the most recent accepted request. Owner-administration actions run through `api/owners.php`; primary-owner rules prevent unsafe removal of the last controlling account.
 
-An owner or staff member sends a contact number and password to auth.php. PHP retrieves the account, calls password_verify(), creates a random bearer token, and inserts it into SESSIONS with an expiry. The returned user omits the password hash.
+### Visual explanation
 
 ```mermaid
 sequenceDiagram
-    participant B as Browser
-    participant A as auth.php
-    participant D as MySQL
-    B->>A: POST contact_number and password
-    A->>D: Find USERS account
-    D-->>A: Account and password_hash
-    A->>A: Verify password; generate token
-    A->>D: Insert SESSIONS row
-    A-->>B: Token, user, expires_in
-    B->>A: Protected request with Bearer token
-    A->>D: Join valid SESSIONS and USERS; extend expiry
-    A-->>B: Authorized result or 401/403
+  participant O as Owner
+  participant A as auth.php
+  participant U as USERS
+  participant S as SESSIONS
+  O->>A: username and password
+  A->>U: lock and verify active owner
+  A->>S: create token with expiry
+  A-->>O: token and owner profile
+  O->>A: protected request with bearer token
+  A->>S: validate and refresh expiry
 ```
 
-`requireAuth()` accepts either role; `requireRole(['owner'])` limits catalog/configuration and some manual equipment operations. Expiry is sliding: each authenticated call extends by 24 hours. The helper's returned session row contains user identity and the previous expiry, but not the token itself.
+The diagram follows the login information from the owner to the server, then shows the temporary pass being checked on later requests.
 
-Logout should send `{ "session_token": "<token>" }` in its JSON body, because the header-only fallback does not obtain a token field from currentSession(). Expiration rejects a token without deleting its row.
+### Important things to remember
 
-An offline local session enables already-authorized cached entry but does not bypass server validation when reconnecting. First-time offline login is not supported. See [auth.php](../Backend/Files/auth.php.md), [SESSIONS](../Database/Tables/SESSIONS.md) and [Current Implementation Gaps](../Current%20Implementation%20Gaps.md).
+- Current login support is owner-only. The legacy `staff` enum value does not grant a session.
+- Passwords are hashed; tokens are random 64-character hexadecimal strings.
+- Invalid credentials do not reveal whether the username exists.
+- HTTPS and the configured production-origin allowlist must be correct at deployment.
+- Seed credentials are development material and must not be deployed.
 
-## Source files
+### Remember This
 
-- [api/auth.php](<../../../api/auth.php>)
-- [js/sync.js](<../../../js/sync.js>)
-- [Implementation/Offline-Sync-Verification-2026-09-28.md](<../../../Implementation/Offline-Sync-Verification-2026-09-28.md>)
+A login token is like a temporary digital pass. Deactivating an account or resetting its password cancels that owner’s existing passes.
 
-## Continue reading
+## Part B — Technical Explanation
 
-[Previous: Table Relationships](../Database/Table%20Relationships.md) · [Next: Booking and Pricing](Booking%20and%20Pricing.md) · [Back to Start Here](../Start%20Here.md)
+This section names the files, routes, tables, and validation rules. Beginner readers may skip it and continue to the next lesson.
+
+### Technical details
+
+`POST api/auth.php`, `POST api/auth.php?do=logout`, `GET api/auth.php?do=me`; `GET/POST api/owners.php`. Tables: `USERS`, `SESSIONS`. Frontend: `admin/login.html`, `js/api.js`, `js/admin.js`.
+
+### Technical references
+
+[auth.php](../Backend/Files/auth.php.md) · [owners.php](../Backend/Files/owners.php.md) · [USERS](../Database/Tables/USERS.md) · [SESSIONS](../Database/Tables/SESSIONS.md)
+
+
+## Continue Your Learning
+
+**You’ve learned:** why only an active owner can enter the system and how sessions protect business records.
+
+**Previous lesson:** [System Overview](../System%20Overview.md)
+
+**Next lesson:** [Booking and Pricing](Booking%20and%20Pricing.md)
+
+**Why read this next?** Now that the owner can safely enter the system, follow how Ana’s rental is created and priced.
+
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

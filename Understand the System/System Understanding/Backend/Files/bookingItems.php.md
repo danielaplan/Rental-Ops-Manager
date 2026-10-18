@@ -1,79 +1,48 @@
 ---
 title: "bookingItems.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # bookingItems.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The assigned-equipment handler.** This file prepares and edits the equipment list for a particular booking. It copies item names and expected quantities from the reusable catalog.
+Booking checklist read/generate/update endpoint. It is a **HTTP endpoint** at `api/bookingItems.php`.
 
-**Where it lives:** `api/bookingItems.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-Ana’s karaoke booking gets a list of the catalog items staff expect to release and receive back.
+## Ana example
 
-## What happens
+During Ana’s rental, this component helps validate, price, save, or inspect her booking.
 
-1. Read the items belonging to the selected service.
-2. Create a booking-specific list with expected quantities.
-3. Allow release/return progress to be recorded on those assigned items.
+## Observed interface and access
 
-## Key points
+- **Interface:** GET forBooking; POST generate/update.
+- **Access:** Authenticated owner.
+- **Functions declared here:** none; this file dispatches or configures other helpers.
 
-Generating the list again replaces its previous progress. This action does not automatically reserve or reduce catalog stock.
+## Connections
 
-Read [Equipment Release and Return](../../Workflows/Equipment%20Release%20and%20Return.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [auth.php](auth.php.md), [checklist_service.php](checklist_service.php.md).
+- Tables named directly: [BOOKING_CHECKLIST_ITEMS](../../Database/Tables/BOOKING_CHECKLIST_ITEMS.md).
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/bookingItems.php`
+## Source
 
-Maintains the equipment checklist snapshot assigned to a booking.
+[api/bookingItems.php](../../../../api/bookingItems.php)
 
-### Routes or callable helpers
 
-GET forBooking (default) with booking_id; POST generate; POST create, update, delete (id in query where applicable).
+## Technical navigation
 
-### Access
-
-Read unauthenticated; generate any session; manual CRUD owner only.
-
-### Inputs
-
-Generate: booking_id, service_ids array of numeric service IDs. Create uses BOOKING_ITEMS fields; update expected_qty, released_qty, returned_qty, required, checked_released, condition, notes by id or body booking_id+rental_item_id.
-
-### How it works
-
-generate deletes existing checklist rows and copies RENTAL_ITEMS for each service into BOOKING_ITEMS in one transaction. Initializes quantities/flags to zero except expected_qty from catalog quantity and required from catalog. Manual update preserves omitted fields; create requires booking and name.
-
-### Current limits and details
-
-Generate replaces saved release/return progress. No unique booking/item constraint here; duplicate selections can create duplicates. Generation does not filter inactive/unavailable items or decrement inventory. Nullable rental_item_id is allowed by schema, but complete return inspection requires valid catalog IDs.
-
-### Connections
-
-Includes: [config.php](config.php.md), [auth.php](auth.php.md)
-
-Tables: [BOOKING_ITEMS](../../Database/Tables/BOOKING_ITEMS.md), [RENTAL_ITEMS](../../Database/Tables/RENTAL_ITEMS.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/bookingItems.php](<../../../../api/bookingItems.php>)
-
-## Continue reading
-
-[Previous file: auth.php](auth.php.md) · [Next file: booking_pricing.php](booking_pricing.php.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Backend File Inventory](../File%20Inventory.md) · [Review the API Reference](../API%20Reference.md) · [Return to Start Here](../../Start%20Here.md)

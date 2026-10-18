@@ -1,60 +1,92 @@
 ---
-title: "Reports"
-date: 2026-09-29
+title: "Reports and Audit History"
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
-# Reports
+# Reports and Audit History
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](../Backend/File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## The purpose
+## Part A — Understanding the Feature
 
-Reports summarize accepted shared records so the owners can see bookings, recorded rental revenue and outstanding balances. Unsynced local drafts do not contribute yet.
+This first part uses everyday language. You can continue to the next lesson without studying the technical section.
 
-## Follow Ana’s booking into a report
+### What is this feature?
 
-Ana’s event is in October. Her recorded ₱250 rental payment contributes through the booking’s paid summary when that booking is included in the event-date report. Her refundable deposit is separate from rental revenue.
+Reports summarize operational records. Audit history explains who or what changed sensitive records and when.
 
-1. The server reads accepted bookings and related records.
-2. Where supported, it filters bookings by event date.
-3. It counts bookings/customers, summarizes paid amounts and calculates remaining balances.
-4. It returns figures that the application can display.
+### Why does the system need it?
 
-## What the figures do and do not mean
+Owners need inspectable business summaries without treating deposits, pending payments, or booking value as collected rental income.
 
-An October report here follows October events, even if money was collected earlier. It is not a payment-date cash ledger. Some dashboard inventory figures remain zero placeholders, and the damaged/missing count is global even when the booking report uses a date range.
+### Follow Ana’s fictional rental
 
-## Key points
+Ana’s Completed GCash payment is counted as collected revenue on its `payment_date`. Her deposit is shown separately. If her event was cancelled, it appears in cancellation counts and retained detail rows but is not silently erased.
 
-“These reports summarize the saved booking records, with event dates as the date-filter basis.” Explain that basis beside the figures rather than calling every number a complete accounting report.
+### Step-by-step workflow
 
-See [reports.php](../Backend/Files/reports.php.md) and [BOOKINGS](../Database/Tables/BOOKINGS.md).
+1. Choose a date range for the detailed report.
+2. Revenue sums Completed payments whose payment date is in the range.
+3. Event counts and popularity use booking event-start dates in the range.
+4. Outstanding balances use agreed totals minus all Completed payments and exclude Cancelled bookings.
+5. Deposits, refundable balances, and deductions are lifetime operational figures.
+6. Upcoming, cancellation, and overlap endpoints return inspectable rows.
+7. Audit logs are read-only and paginated by audit ID.
 
-## Technical details
+### What Happens Behind the Scenes?
 
-This section records exact file behavior, field names and implementation details.
+`reports.php` returns metric definitions with its data. Dashboard defaults to the current month in Asia/Manila. Compatibility fields remain for current screens. `audit.php` reads append-only `AUDIT_LOGS`; migration archive rows may also be included as historical evidence.
 
-reports.php requires authentication and uses SQL aggregation, rather than reading a browser's local drafts. Only accepted database records contribute.
+### Visual explanation
 
-Dashboard counts bookings/statuses, sums BOOKINGS.amount_paid as revenue, counts active services and joins customers for five upcoming nonterminal bookings. Its inventory metrics are currently placeholders set to zero.
+```mermaid
+flowchart TD
+  P[Completed payments by payment date] --> R[Collected revenue]
+  B[Bookings by event start] --> C[Counts and popularity]
+  D[Deposits and deductions] --> F[Separate held and refundable figures]
+  A[Audit rows] --> H[Who, what, when, origin]
+```
 
-The report route optionally filters by inclusive event_date start/end. It counts bookings and distinct customers, sums amount_paid, calculates outstanding balances using max(total-paid,0), and ranks primary service counts. Damaged/missing inspection rows are counted globally, outside that date filter.
+The diagram groups the source records by purpose: payments feed revenue, bookings feed activity counts, deposits remain separate, and audit rows explain changes.
 
-For a booking scheduled in October whose payment was collected in September, an October event-date report can include that payment amount through the booking summary. This is not a September payment-date cash ledger. Deposits do not count as rental revenue in this implementation.
+### Important things to remember
 
-Invalid date filters are ignored after asDate() returns null. The route does not supply a dedicated payment-date report, CSV export or true inventory aggregation. Other devices see newly synced records after read/refresh; there is no server push channel in these PHP scripts.
+- Reports are operational summaries, not formal accounting statements or proof of bank settlement.
+- Pending and Failed payments do not count as revenue. Deposits never count as rental revenue.
+- Completed and cancellation totals are lifetime in `reportsBookings()`, while upcoming is period-filtered; definitions in the response disclose this.
+- `damaged_or_missing` is a global checklist count in the compatibility report field.
+- Dashboard inventory counts are placeholders set to zero.
+- Production reconciliation and representative-data performance remain external acceptance work.
 
-See [reports.php](../Backend/Files/reports.php.md), [BOOKINGS](../Database/Tables/BOOKINGS.md) and [PAYMENTS](../Database/Tables/PAYMENTS.md).
+### Remember This
 
-## Source files
+Collected revenue uses Completed payments and their payment dates. Deposits are separate, and audit history records who or what changed important records.
 
-- [api/reports.php](<../../../api/reports.php>)
+## Part B — Technical Explanation
 
-## Continue reading
+This section names the files, routes, tables, and validation rules. Beginner readers may skip it and continue to the next lesson.
 
-[Previous: Offline Synchronization](Offline%20Synchronization.md) · [Next: Current Implementation Gaps](../Current%20Implementation%20Gaps.md) · [Back to Start Here](../Start%20Here.md)
+### Technical details
+
+`GET api/reports.php?do=dashboard`, `?do=report&start=YYYY-MM-DD&end=YYYY-MM-DD`, `?do=upcoming|cancellations|overlaps`. `GET api/audit.php?after_id=…&limit=…`. Tables: `PAYMENTS`, `BOOKINGS`, `DEPOSITS`, `DEPOSIT_DEDUCTIONS`, `BOOKING_CONFLICT_OVERRIDES`, `AUDIT_LOGS`.
+
+### Technical references
+
+[reports.php](../Backend/Files/reports.php.md) · [audit.php](../Backend/Files/audit.php.md) · [AUDIT_LOGS](../Database/Tables/AUDIT_LOGS.md)
+
+
+## Continue Your Learning
+
+**You’ve learned:** where report figures come from and why operational summaries are different from formal accounting.
+
+**Previous lesson:** [Offline Synchronization](Offline%20Synchronization.md)
+
+**Next lesson:** [Deployment and Limitations](../Deployment%20and%20Limitations.md)
+
+**Why read this next?** You now understand the complete business journey. Finish the non-developer path by learning what still needs verification before real deployment.
+
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

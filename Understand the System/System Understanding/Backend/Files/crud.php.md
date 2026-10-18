@@ -1,83 +1,48 @@
 ---
 title: "crud.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # crud.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The reusable record handler.** CRUD means create, read, update and delete. This helper supplies those common actions so simple catalog files can share the same routine.
+Allowlisted generic table CRUD shared by small catalog endpoints and sync. It is a **HTTP endpoint** at `api/crud.php`.
 
-**Where it lives:** `api/crud.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-An owner adds an extra microphone to the catalog. The add-ons file tells this helper which fields and table it may use.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Receive the table and allowed fields from another backend file.
-2. Carry out the requested add, view, edit or delete action.
-3. Return the saved record or an error.
+## Observed interface and access
 
-## Key points
+- **Interface:** tableCrudSave(), tableCrud(), authWrite().
+- **Access:** Reads may be public only when a definition explicitly allows it; direct writes require owner.
+- **Functions declared here:** `tableCrudSave()`, `tableCrud()`, `authWrite()`.
 
-Sharing this routine does not mean every type of record has the same business rules. Some creation defaults override the supplied values; exact details are below.
+## Connections
 
-Read [Backend Overview](../Backend%20Overview.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [config.php](config.php.md), [auth.php](auth.php.md), [domain.php](domain.php.md).
+- Tables named directly: [CUSTOMERS](../../Database/Tables/CUSTOMERS.md), [SERVICES](../../Database/Tables/SERVICES.md), [RENTAL_ITEMS](../../Database/Tables/RENTAL_ITEMS.md), [PACKAGES](../../Database/Tables/PACKAGES.md), [BOOKINGS](../../Database/Tables/BOOKINGS.md), [EQUIPMENT_CHECKLIST](../../Database/Tables/EQUIPMENT_CHECKLIST.md), [BOOKING_ITEMS](../../Database/Tables/BOOKING_ITEMS.md), [ITEM_HISTORY](../../Database/Tables/ITEM_HISTORY.md), [BOOKING_CHECKLIST_ITEMS](../../Database/Tables/BOOKING_CHECKLIST_ITEMS.md).
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/crud.php`
+## Source
 
-Reusable CRUD dispatcher for simple tables, plus the owner-only write guard.
+[api/crud.php](../../../../api/crud.php)
 
-### Routes or callable helpers
 
-tableCrud(): all, forService, forBooking, get; POST create, update, delete. authWrite(): owner check.
+## Technical navigation
 
-### Access
-
-The caller must invoke authWrite(); tableCrud() does not authenticate by itself.
-
-### Inputs
-
-Table name, primary-key name, allowed fields, creation defaults, optional filters argument. HTTP id, service_id, booking_id, and JSON fields.
-
-### How it works
-
-Selects all rows by descending primary key, optionally filters by service/booking, fetches a record, or inserts/updates/deletes allowed fields using prepared values. Creates return 201; missing records 404; missing fields 400. Table/column names come from code allowlists.
-
-### Current limits and details
-
-The filters argument is unused. List/get branches do not restrict HTTP method. **PHP array union `$vals + $defaults` now gives submitted values precedence: defaults fill only missing fields.** Update accepts those fields. Required fields and many domain rules rely on database constraints.
-
-### Functions defined
-
-`tableCrud()`, `authWrite()`.
-
-### Connections
-
-Includes: [config.php](config.php.md), [auth.php](auth.php.md)
-
-Tables: Shared infrastructure; table depends on caller.
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/crud.php](<../../../../api/crud.php>)
-
-## Continue reading
-
-[Previous file: config.php](config.php.md) · [Next file: customers.php](customers.php.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Backend File Inventory](../File%20Inventory.md) · [Review the API Reference](../API%20Reference.md) · [Return to Start Here](../../Start%20Here.md)

@@ -1,0 +1,79 @@
+Synthetic database: akad_verify_plan_1792216011689_14752; servers: http://127.0.0.1:49858/, http://127.0.0.1:49859/
+EXCLUDED legacy internal blockout draft checks: deferred scope
+PASS authenticated boundaries/notifications, financial/history rules, concurrent conflicts, owner administration, and reports
+✔ catalog defaults, booking snapshots, eligibility, and retained cancellation (5234.0351ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5258.498
+✔ scheduled reconciler refuses an implicit operational database (338.3455ms)
+✔ scheduled reconciliation and reviewed checklist release are atomic and idempotent (3068.8412ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3419.4444
+PASS finance validation, retained report details, report definitions, and payment-date revenue
+PASS auth multi-device revocation, expiry, parallel lockout/reset race, primary permissions, production HTTPS/CORS bootstrap
+✔ offline sync honors revised shared booking, financial, catalog, and history rules (1712.399ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1729.0852
+✔ sync rejects non-text deduction reasons atomically and permits a corrected retry (821.2398ms)
+✔ direct and sync history reject invalid booking links without appending rows (679.9267ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1516.1185
+✔ direct and offline rental deletion retain every historical item link (4528.7162ms)
+✔ template validation rejects malformed text and quantities without partial writes (4099.9534ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8644.3631
+PASS offline booking, deposit, payment, and full checklist survive reload
+PASS reconnect uploads all entries in under 30 seconds with correct database links
+PASS independent device retrieves the same accepted booking and negotiated amounts
+PASS conflicting offline booking and dependent checklist are retained through reload
+PASS lost response retries without duplicate bookings or payments
+PASS stale status edits require review instead of overwriting another device
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+2 !== 0
+
+    at C:\Users\acer\Desktop\Rental-Ops-Manager\tests\offline-sync.test.cjs:381:12
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async test (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\offline-sync.test.cjs:20:3)
+    at async C:\Users\acer\Desktop\Rental-Ops-Manager\tests\offline-sync.test.cjs:374:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+Error: tests/offline-sync.test.cjs failed (1)
+    at ChildProcess.<anonymous> (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\run_revised_backend.cjs:56:56)
+    at Object.onceWrapper (node:events:623:26)
+    at ChildProcess.emit (node:events:508:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:294:12)

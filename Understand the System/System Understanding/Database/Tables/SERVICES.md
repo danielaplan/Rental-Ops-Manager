@@ -1,78 +1,54 @@
 ---
 title: "SERVICES"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # SERVICES
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**The main offerings.** Each record names one service line. The initial catalog includes karaoke, Sweet Corner and balloon decoration.
+Service catalog plus default preparation and travel allowances.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `SERVICES` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-Ana selects karaoke as her service.
+When this table participates in Ana’s rental, its foreign keys connect the row to the relevant booking, catalog record, or owner.
 
-## Main fields
+## Column dictionary
 
-service_name names the offering; service_id links packages, extras and bookings to it.
+| Column | Exact schema definition |
+| --- | --- |
+| `service_id` | `INT NOT NULL AUTO_INCREMENT` |
+| `service_name` | `VARCHAR(50) NOT NULL` |
+| `description` | `TEXT` |
+| `default_preparation_minutes` | `INT UNSIGNED NOT NULL DEFAULT 0` |
+| `default_travel_minutes` | `INT UNSIGNED NOT NULL DEFAULT 0` |
+| `status` | `VARCHAR(20) NOT NULL DEFAULT 'Active'` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
-
-## How to use this note
-
-Read [Booking and Pricing](../../Workflows/Booking%20and%20Pricing.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-The service catalog: seed id 1 Karaoke, id 2 Sweet Corner, id 3 Balloon Decoration.
-
-**Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `service_id` | `INT` | `NOT NULL AUTO_INCREMENT` | Unique identifier for this table row. |
-| `service_name` | `VARCHAR(50)` | `NOT NULL` | Display name of the service. |
-| `description` | `TEXT` | `Nullable; implicit NULL default` | Free-text catalog explanation. |
-| `status` | `VARCHAR(20)` | `NOT NULL DEFAULT 'Active'` | Catalog activation/status label. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
+## Keys and relationships
 
 - `PRIMARY KEY (service_id)`
 
-Parent tables: None.
+- No foreign keys are declared for this table.
 
-Child tables: [ADDONS](ADDONS.md) via `service_id`, [RENTAL_ITEMS](RENTAL_ITEMS.md) via `service_id`, [PACKAGES](PACKAGES.md) via `service_id`, [BOOKINGS](BOOKINGS.md) via `service_id`, [BOOKING_ITEMS](BOOKING_ITEMS.md) via `service_id`
+## Runtime use
 
-### Where it is used
+Source files that directly mention this table: [availability_service.php](../../Backend/Files/availability_service.php.md), [availabilityBlocks.php](../../Backend/Files/availabilityBlocks.php.md), [booking_service.php](../../Backend/Files/booking_service.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [catalog_definitions.php](../../Backend/Files/catalog_definitions.php.md), [crud.php](../../Backend/Files/crud.php.md), [reports.php](../../Backend/Files/reports.php.md), [sync.php](../../Backend/Files/sync.php.md).
 
-[services.php](../../Backend/Files/services.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [booking_pricing.php](../../Backend/Files/booking_pricing.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Important behavior
+## Source
 
-Karaoke scheduling and locking depend on service_id=1. No category_id relationship exists.
+[db/schema.sql](../../../../db/schema.sql)
 
-See [Table Relationships](../Table%20Relationships.md).
 
-## Source files
+## Technical navigation
 
-- [db/schema.sql](<../../../../db/schema.sql>)
-
-## Continue reading
-
-[Previous table: RENTAL_ITEMS](RENTAL_ITEMS.md) · [Next table: SESSIONS](SESSIONS.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Database Overview](../Database%20Overview.md) · [See Table Relationships](../Table%20Relationships.md) · [Return to Start Here](../../Start%20Here.md)

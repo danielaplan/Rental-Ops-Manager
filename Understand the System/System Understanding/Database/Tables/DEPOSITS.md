@@ -1,85 +1,60 @@
 ---
 title: "DEPOSITS"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # DEPOSITS
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../../Backend/File%20Inventory.md) · [Database tables](../Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Database Overview](../Database%20Overview.md) · [Relationships](../Table%20Relationships.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What this table stores
 
-**The refundable-money summary.** Each booking can have one current deposit summary, separate from its rental payments.
+One held refundable deposit per booking.
 
-A database **table** is like a spreadsheet for one type of information. A **row** is one saved record. A **column** is one detail within that record. The name `DEPOSITS` is the label used by the code.
+**Status:** current schema table.
 
-## Example
+## Ana example
 
-Ana’s held ₱350 minus a ₱50 cleaning deduction leaves a calculated ₱300 refund.
+When this table participates in Ana’s rental, its foreign keys connect the row to the relevant booking, catalog record, or owner.
 
-## Main fields
+## Column dictionary
 
-amount_held is the deposit; deduction_amount reduces it; deduction_reason explains why. The refund amount is calculated, not stored as a column.
+| Column | Exact schema definition |
+| --- | --- |
+| `deposit_id` | `INT NOT NULL AUTO_INCREMENT` |
+| `booking_id` | `INT NOT NULL UNIQUE` |
+| `amount_held` | `DECIMAL(10,2) NOT NULL DEFAULT 0.00` |
+| `deduction_amount` | `DECIMAL(10,2) NOT NULL DEFAULT 0.00` |
+| `deduction_reason` | `TEXT` |
+| `refund_status` | `VARCHAR(20) NOT NULL DEFAULT 'Held'` |
+| `refund_date` | `DATETIME NULL` |
+| `recorded_by` | `INT NULL` |
+| `provenance` | `VARCHAR(30) NOT NULL DEFAULT 'owner'` |
+| `created_at` | `DATETIME NULL` |
+| `updated_at` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` |
 
-A number ending in `_id` usually identifies a record or points to another one. It lets the system connect records without repeating all their details. The exact relationships appear below.
-
-## How to use this note
-
-Read [Payments and Deposits](../../Workflows/Payments%20and%20Deposits.md) for the workflow. The overview describes the table’s purpose and use. The column dictionary records exact field names and storage rules.
-
-## Technical details
-
-This section records exact file behavior, field names and implementation details.
-
-One current refundable deposit summary per booking.
-
-**Definition:** `db/schema.sql`. Table names in SQL definitions are uppercase; PHP queries use lowercase. Case sensitivity depends on the MySQL host settings.
-
-### Column dictionary
-
-| Column | SQL type | Declaration rules | Meaning |
-|---|---|---|---|
-| `deposit_id` | `INT` | `NOT NULL AUTO_INCREMENT` | Unique identifier for this table row. |
-| `booking_id` | `INT` | `NOT NULL UNIQUE` | Parent booking reference. |
-| `amount_held` | `DECIMAL(10,2)` | `NOT NULL DEFAULT 0.00` | Negotiated refundable deposit amount. |
-| `deduction_amount` | `DECIMAL(10,2)` | `NOT NULL DEFAULT 0.00` | Aggregate deduction from deposit. |
-| `deduction_reason` | `TEXT` | `Nullable; implicit NULL default` | Reason required by service when deduction > 0. |
-| `refund_status` | `ENUM('pending','partial','full','none')` | `NOT NULL DEFAULT 'pending'` | Calculated pending/full/partial/none refund category. |
-
-Required/default/nullability rules above reproduce the declaration. Columns without NOT NULL are nullable unless a primary key makes them non-null. AUTO_INCREMENT means MySQL allocates the row ID.
-
-### Keys and relationships
+## Keys and relationships
 
 - `PRIMARY KEY (deposit_id)`
 - `FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON UPDATE CASCADE ON DELETE CASCADE`
 
-Additional indexes:
+- `booking_id` → [BOOKINGS](BOOKINGS.md).`booking_id` (ON UPDATE CASCADE ON DELETE CASCADE)
 
-- `CREATE INDEX idx_deposits_booking ON DEPOSITS(booking_id);`
+## Runtime use
 
-Parent tables: [BOOKINGS](BOOKINGS.md) via `booking_id`
+Source files that directly mention this table: [availability_service.php](../../Backend/Files/availability_service.php.md), [deposit_service.php](../../Backend/Files/deposit_service.php.md), [deposits.php](../../Backend/Files/deposits.php.md), [reports.php](../../Backend/Files/reports.php.md), [sync.php](../../Backend/Files/sync.php.md).
 
-Child tables: None.
+The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
 
-### Where it is used
+## Source
 
-[deposits.php](../../Backend/Files/deposits.php.md), [deposit_service.php](../../Backend/Files/deposit_service.php.md), [sync.php](../../Backend/Files/sync.php.md). Relevant read/write behavior is explained in each file note.
+[db/schema.sql](../../../../db/schema.sql)
 
-### Important behavior
 
-UNIQUE booking_id means zero or one deposit, despite older design text describing one-to-many. refund_amount is computed by PHP and is not a column. No itemized deductions or refund transfer timestamp.
+## Technical navigation
 
-See [Table Relationships](../Table%20Relationships.md).
-
-## Source files
-
-- [db/schema.sql](<../../../../db/schema.sql>)
-
-## Continue reading
-
-[Previous table: DELIVERY](DELIVERY.md) · [Next table: EQUIPMENT_CHECKLIST](EQUIPMENT_CHECKLIST.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Database Overview](../Database%20Overview.md) · [See Table Relationships](../Table%20Relationships.md) · [Return to Start Here](../../Start%20Here.md)

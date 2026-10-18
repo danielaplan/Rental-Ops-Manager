@@ -1,52 +1,45 @@
 ---
 title: "Frontend Overview"
-date: 2026-10-08
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - frontend
-status: documented
+status: current-source-reviewed
 ---
 
 # Frontend Overview
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend](../Backend/Backend%20Overview.md) · [Current Implementation Gaps](../Current%20Implementation%20Gaps.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
 ## What the frontend is for
 
-The frontend is the staff/admin interface — the pages and controls that people use to manage rentals. Staff enter booking details, view the calendar, process payments, handle deposits and deliveries, inspect equipment returns, and read reports.
+The frontend is the owner’s browser interface: 18 admin HTML screens, 14 JavaScript files, and shared CSS. Screens collect input and show results; `js/api.js` is the main contract layer that converts UI IDs/fields, attaches the bearer token, sends requests, normalizes responses, and offers offline fallback for supported writes.
 
-## How it fits with the backend
+## Main owner journey
 
-The frontend **never** talks directly to MySQL. It communicates only through the PHP API via `js/api.js`:
+Login → dashboard/calendar → customer and booking → payment/deposit/delivery → equipment return and post-event review → reports/audit/settings. Catalog screens maintain services, packages, add-ons, rental items, categories, gallery, and editable content.
 
-```
-Staff browser → js/app.js → js/api.js (request/normalize/payload) → PHP API → MySQL
-```
+## Offline behavior
 
-| Part | Role |
-|---|---|
-| `admin/` (HTML pages) | The screens staff interact with |
-| `js/api.js` | **The contract layer** — maps UI actions to PHP endpoints, handles auth tokens, normalizes data |
-| `js/app.js` | Initialization, page routing, shared event handling |
-| `js/admin.js` | Admin chrome (sidebar, sync panel, login/logout) |
-| `js/sync.js` | Offline queue, background refresh, conflict resolution |
-| `js/sync-ui.js` | Sync panel UI rendering |
-| `js/calendar.js` | Calendar view with date indexing |
-| `css/` | Stylesheets |
+`offline.js`, `storage.js`, `sync.js`, and `sync-ui.js` retain supported operations, replay them, surface stale/conflict records, and let the owner review a retry. Server acceptance remains authoritative.
 
-## Offline-first design
+## Accessibility and responsive evidence
 
-Changes made while offline are queued locally (IndexedDB/localStorage) and synced to the server when connectivity returns. The sync panel shows pending operations and conflicts.
+Existing focused browser checks include keyboard disclosure and a 390×844 layout in a synthetic walkthrough. That is bounded evidence, not complete physical-device, assistive-technology, or production acceptance.
 
-## Authentication
+## Related documentation
 
-Staff login through `admin/login.html` → `api/auth.php`. Bearer tokens stored in localStorage. Every API request includes the token in the `Authorization` header.
+[Frontend File Inventory](File%20Inventory.md) · [Frontend Current Status](Current%20Status.md) · [API Reference](../Backend/API%20Reference.md)
 
-## Current status
 
-See [Frontend Current Status](Current%20Status.md).
+## Continue Your Learning
 
-## Continue reading
+**You’ve learned:** how the visible screens collect input, show results, and keep supported work during an outage.
 
-[Previous: System Overview](../System%20Overview.md) · [Next: File Inventory](File%20Inventory.md) · [Back to Start Here](../Start%20Here.md)
+**Previous topic:** [System Overview](../System%20Overview.md)
+
+**Next topic:** [Backend Overview](../Backend/Backend%20Overview.md)
+
+**Why read this next?** The frontend sends requests somewhere; the backend lesson explains how those requests are checked and processed.
+
+**Return to your learning dashboard:** [Start Here](../Start%20Here.md)

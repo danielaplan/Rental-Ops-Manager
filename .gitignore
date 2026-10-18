@@ -6,13 +6,21 @@ memory/
 **/memory/
 # Local project planning and assistant memory
 
-!.project-memory/sync-vault.sh
 /uploads/gallery/*
 !/uploads/gallery/.htaccess
 !/uploads/gallery/index.html
+<<<<<<< HEAD
 /uploads/content/*
 !/uploads/content/.htaccess
 !/uploads/content/index.html
 /uploads/services/*
 !/uploads/services/.htaccess
 !/uploads/services/index.html
+=======
+
+# Obsidian: keep local window/plugin runtime state out of Git
+/.obsidian/workspace.json
+/.obsidian/workspace-mobile.json
+/.obsidian/plugins/
+/.obsidian/cache/
+>>>>>>> a79cfd4dbf0799fd6cd6bddc623061867ee3e90f

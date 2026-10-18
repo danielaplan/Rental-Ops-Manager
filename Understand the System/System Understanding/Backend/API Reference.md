@@ -1,81 +1,76 @@
 ---
 title: "API Reference"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # API Reference
 
-**Navigate:** [Start Here](../Start%20Here.md) · [Reading order](../Start%20Here.md#recommended-reading-order) · [Backend files](File%20Inventory.md) · [Database tables](../Database/Database%20Overview.md) · [Glossary](../Glossary.md)
+**Guide:** [Start Here](../Start%20Here.md) · [System Overview](../System%20Overview.md) · [Glossary](../Glossary.md) · [Known Limits](../Current%20Implementation%20Gaps.md)
 
-## What this reference is for
+## Contract
 
-An API is the agreed way the application asks the server to read information or perform an action. This page lists those requests for detailed checking; it is not a list of buttons a user must press.
+Requests use JSON unless an upload is multipart. Successful responses normally use `{ "ok": true, "data": ... }`; failures use `{ "ok": false, "error": "...", "code": "..." }` with an appropriate HTTP status. Protected requests send `Authorization: Bearer <token>`. Query parameter `do` selects an action; IDs may be numeric or supported UI-prefixed values where `entityId()`/`serverId()` is used.
 
-## Request example
+## Endpoint inventory
 
-In `POST /api/deposits.php?do=upsert`, `api/deposits.php` identifies the receiving file. `do=upsert` selects the save-or-replace action. POST means information is being submitted. The booking number and amounts travel in the request message. The reply contains the saved result or a problem.
+| File | Observed actions | Purpose |
+| --- | --- | --- |
+| [addons.php](Files/addons.php.md) | GET all/get/forService; POST create/update/delete. | Public reads; owner-authenticated writes. |
+| [audit.php](Files/audit.php.md) | GET with after_id and limit. | Authenticated owner. |
+| [auth.php](Files/auth.php.md) | POST login; POST ?do=logout; GET ?do=me. | Login is public; me/protected helpers require an active owner. |
+| [availabilityBlocks.php](Files/availabilityBlocks.php.md) | GET all/get; POST create/update/deactivate/reactivate. Product use remains deferred. | Authenticated; writes enforce owner role. |
+| [booking_items_service.php](Files/booking_items_service.php.md) | ensureBookingItems(). | Caller-controlled. |
+| [booking_pricing.php](Files/booking_pricing.php.md) | calculateBookingTotals(). | Caller-controlled. |
+| [booking_service.php](Files/booking_service.php.md) | bookingView(), bookingRow(), entityId(), saveBooking(). | Caller supplies authenticated owner. |
+| [bookingItems.php](Files/bookingItems.php.md) | GET forBooking; POST generate/update. | Authenticated owner. |
+| [bookings.php](Files/bookings.php.md) | GET availability/all/get; POST create/update/cancel/delete/release/complete. | Authenticated owner. |
+| [categories.php](Files/categories.php.md) | Generic all/get/create/update/delete. | Authenticated reads and owner writes. |
+| [checklist_service.php](Files/checklist_service.php.md) | checklistRows(), copyBookingChecklist(), updateChecklistItem(). | Caller-controlled. |
+| [checklistTemplates.php](Files/checklistTemplates.php.md) | GET all; POST create/update/delete. | Authenticated owner. |
+| [config.php](Files/config.php.md) | db(), sendJson(), readJsonBody(), input(), requireField(), asInt(), asDecimal(), asDate(), asTime(). | Loaded by API files. |
+| [crud.php](Files/crud.php.md) | tableCrudSave(), tableCrud(), authWrite(). | Reads may be public only when a definition explicitly allows it; direct writes require owner. |
+| [customers.php](Files/customers.php.md) | GET all/get/search/history; POST create/update/delete. | Authenticated owner. |
+| [delivery.php](Files/delivery.php.md) | GET get; POST upsert. | Authenticated owner. |
+| [deposit_service.php](Files/deposit_service.php.md) | depositView(), addDepositDeduction(), saveDeposit(). | Caller-controlled. |
+| [deposits.php](Files/deposits.php.md) | GET get; POST create/upsert/deduct/refund. | Authenticated owner. |
+| [domain.php](Files/domain.php.md) | domainFail(), domainTransaction(), moneyCents(), centsDecimal(), auditWrite(), lockBooking(). | Shared helper. |
+| [equipment_service.php](Files/equipment_service.php.md) | saveReturnInspection(), finalizeBookingReturn(). | Caller supplies authenticated owner. |
+| [equipment.php](Files/equipment.php.md) | GET checklist data; POST inspect/finalizeReturn. | Authenticated owner. |
+| [gallery-upload.php](Files/gallery-upload.php.md) | POST upload. | Owner role required. |
+| [gallery.php](Files/gallery.php.md) | Generic all/get/create/update/delete. | Public reads; owner-authenticated writes. |
+| [itemHistory.php](Files/itemHistory.php.md) | GET forItem; POST create. | Authenticated owner. |
+| [itemReleases.php](Files/itemReleases.php.md) | GET all/forBooking/get; POST create. | Authenticated owner. |
+| [notifications.php](Files/notifications.php.md) | GET all/unresolved. Resolution is workflow-controlled. | Authenticated owner. |
+| [owners.php](Files/owners.php.md) | GET all; POST create/deactivate/reactivate/resetPassword. | Authenticated; primary-owner restrictions apply. |
+| [packages.php](Files/packages.php.md) | Generic all/get/create/update/delete. | Public reads; owner-authenticated writes. |
+| [payment_service.php](Files/payment_service.php.md) | savePayment(). | Caller supplies authenticated owner. |
+| [payments.php](Files/payments.php.md) | GET all with optional booking filter; POST create/update. | Authenticated owner. |
+| [rentalItems.php](Files/rentalItems.php.md) | Generic all/get/forService/create/update/delete. | Authenticated reads and owner writes. |
+| [reports.php](Files/reports.php.md) | GET dashboard/report/upcoming/cancellations/overlaps. | Authenticated owner. |
+| [services.php](Files/services.php.md) | Generic all/get/create/update/delete. | Public reads; owner-authenticated writes. |
+| [settings.php](Files/settings.php.md) | GET get; POST update. | Authenticated read; owner write. |
+| [supporting_service.php](Files/supporting_service.php.md) | saveDelivery(), saveItemHistory(), saveItemRelease(). | Caller supplies authenticated owner. |
+| [sync_state.php](Files/sync_state.php.md) | syncState(), syncReference(), saveSyncReceipt(). | Scoped by authenticated owner in sync transactions. |
+| [sync.php](Files/sync.php.md) | GET queue placeholder; POST commit up to 100 operations. | Authenticated owner. |
+| [websiteContent.php](Files/websiteContent.php.md) | GET get; POST update. | Public read; owner write. |
 
-For Ana’s deposit, the message includes the booking number, held ₱350, deduction ₱50 and reason Cleaning. The returned calculated refund is ₱300. This records an amount; it does not transfer the money.
+## Conflict and retry responses
 
-Read the relevant workflow first, then use the entries below to confirm request names, permitted accounts and accepted fields.
+Booking conflicts use HTTP 409 and include current booking/block details. Sync commit itself returns HTTP success with three arrays—`committed`, `conflicts`, and `failed`—because each operation is handled separately. Callers must inspect those arrays.
 
-## Technical details
+## Public reads
 
-This section records exact file behavior, field names and implementation details.
+Current source intentionally allows public reads for services, packages, add-ons, gallery, and website content. Other internal records require authentication. This is a source fact, not a statement that a public booking workflow is approved.
 
-Endpoints are relative to the project web root `/api/`. Query selectors use `?do=...`; do not assume REST PUT/DELETE routes from the CORS header. Fields and validation are in the linked notes.
+## Source
 
-| Endpoint | Routes / default | Access |
-|---|---|---|
-| [addons.php](Files/addons.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [auth.php](Files/auth.php.md) | POST auth.php: login; POST ?do=logout: logout; GET ?do=me: current user. | Login accepts credentials; me requires a session. requireAuth() and requireRole() are reusable access checks. |
-| [bookingItems.php](Files/bookingItems.php.md) | GET forBooking (default) with booking_id; POST generate; POST create, update, delete (id in query where applicable). | Read unauthenticated; generate any session; manual CRUD owner only. |
-| [bookings.php](Files/bookings.php.md) | GET all (default), GET ?do=get&id=...; POST create, update&id=..., delete&id=.... | Reads unauthenticated; writes require an owner or staff session. |
-| [categories.php](Files/categories.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [customers.php](Files/customers.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [delivery.php](Files/delivery.php.md) | GET ?do=get&booking_id=...; POST ?do=upsert. | Reads unauthenticated; upsert any session. |
-| [deposits.php](Files/deposits.php.md) | GET ?do=get&booking_id=...; POST ?do=upsert. | Reads unauthenticated; upsert requires any authenticated owner/staff. |
-| [equipment.php](Files/equipment.php.md) | GET all (default), forBooking&booking_id=..., get&id=...; POST inspect, finalizeReturn; owner POST create/update/delete. | Reads unauthenticated. inspect/finalizeReturn any session. Manual CRUD owner only. |
-| [gallery.php](Files/gallery.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [itemHistory.php](Files/itemHistory.php.md) | GET forItem (default) with rental_item_id; POST create. | Reads unauthenticated; create owner only. |
-| [itemReleases.php](Files/itemReleases.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [packages.php](Files/packages.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [payments.php](Files/payments.php.md) | GET all (default), optionally booking_id; POST ?do=create. | Reads unauthenticated; create requires any authenticated owner/staff. |
-| [rentalItems.php](Files/rentalItems.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [reports.php](Files/reports.php.md) | ?do=dashboard; ?do=report&start=YYYY-MM-DD&end=YYYY-MM-DD. Intended usage GET; script branches on do rather than method. | Any authenticated owner/staff, for every route. |
-| [services.php](Files/services.php.md) | Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=.... | Reads are unauthenticated. Every POST requires owner via authWrite(). |
-| [settings.php](Files/settings.php.md) | GET get (default); POST ?do=update. | Read unauthenticated; update owner only. |
-| [sync.php](Files/sync.php.md) | GET ?do=queue returns {queue: []}; POST ?do=commit accepts {queue: [...]}. | Commit requires session. Owner-only entity group: services, categories, addons, packages, customers, rentalItems, gallery, settings, websiteContent. Other supported operations accept owner/staff. Queue GET unauthenticated. |
-| [websiteContent.php](Files/websiteContent.php.md) | GET get (default); POST ?do=update. | Read unauthenticated; update owner only. |
+[js/api.js](../../../js/api.js) · [api directory](../../../api/config.php)
 
-### Direct write example
 
-This is an illustrative request, not an executed operation. IDs must exist in the target database.
+## Technical navigation
 
-```http
-POST /api/deposits.php?do=upsert
-Authorization: Bearer <session token>
-Content-Type: application/json
-
-{"booking_id":42,"amount_held":350,"deduction_amount":50,"deduction_reason":"Cleaning"}
-```
-
-The response includes a refund_amount of 300.00. This saves a ledger value, not an actual bank refund. See [Payments and Deposits](../Workflows/Payments%20and%20Deposits.md).
-
-### Field and ID conventions
-
-Database primary keys are integers. Browser display IDs can be prefixed (for example SVC-001); only routes/helpers that explicitly parse these accept them. Most direct `id` query parameters use asInt(), so send numeric IDs. Sync resolves supported prefixed and LOCAL- references. JSON amounts may return as decimal strings through PDO, and boolean-like SQL columns are numeric flags.
-
-## Source files
-
-- [api/config.php](<../../../api/config.php>)
-- [api/sync.php](<../../../api/sync.php>)
-
-## Continue reading
-
-[Back to Start Here](../Start%20Here.md)
+[Backend Overview](Backend%20Overview.md) · [Backend File Inventory](File%20Inventory.md) · [Start Here](../Start%20Here.md)

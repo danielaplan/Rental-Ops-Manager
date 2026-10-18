@@ -1,79 +1,48 @@
 ---
 title: "gallery.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # gallery.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The gallery-record handler.** This file stores image references or image text plus titles and featured flags.
+Gallery CRUD endpoint. It is a **HTTP endpoint** at `api/gallery.php`.
 
-**Where it lives:** `api/gallery.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-An owner adds a gallery record with a title and image value.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Receive the allowed image-record fields.
-2. Use the shared record handler to add, read, edit or remove them.
-3. Return the record.
+## Observed interface and access
 
-## Key points
+- **Interface:** Generic all/get/create/update/delete.
+- **Access:** Public reads; owner-authenticated writes.
+- **Functions declared here:** none; this file dispatches or configures other helpers.
 
-It stores information about images; it does not itself implement a file-upload service.
+## Connections
 
-Read [System Overview](../../System%20Overview.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [catalog_definitions.php](catalog_definitions.php.md).
+- Tables named directly: [GALLERY](../../Database/Tables/GALLERY.md).
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/gallery.php`
+## Source
 
-Image/content records. image is text; this script does not implement a file upload processor.
+[api/gallery.php](../../../../api/gallery.php)
 
-### Routes or callable helpers
 
-Shared CRUD: GET ?do=all (also the default GET), ?do=get&id=...; ?do=forService&service_id=... or ?do=forBooking&booking_id=... where the table has that column; POST ?do=create, ?do=update&id=..., ?do=delete&id=....
+## Technical navigation
 
-### Access
-
-Reads are unauthenticated. Every POST requires owner via authWrite().
-
-### Inputs
-
-Primary key: image_id. Accepted JSON fields: title, image, featured. Create defaults: featured=0.
-
-### How it works
-
-Includes crud.php and dispatches tableCrud() with a fixed table/field allowlist. Image/content records. image is text; this script does not implement a file upload processor.
-
-### Current limits and details
-
-Only use filters that correspond to actual columns. See crud.php for default precedence and limited field validation. Foreign-key constraints can reject referenced deletions.
-
-### Connections
-
-Includes: [crud.php](crud.php.md)
-
-Tables: [GALLERY](../../Database/Tables/GALLERY.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/gallery.php](<../../../../api/gallery.php>)
-
-## Continue reading
-
-[Previous file: equipment_service.php](equipment_service.php.md) · [Next file: itemHistory.php](itemHistory.php.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Backend File Inventory](../File%20Inventory.md) · [Review the API Reference](../API%20Reference.md) · [Return to Start Here](../../Start%20Here.md)

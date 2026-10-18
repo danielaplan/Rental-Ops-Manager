@@ -1,5 +1,3 @@
-This is your new *vault*.
+# Rental-Ops-Manager system guide
 
-Make a note of something, [[create a link]], or try [the Importer](obsidian://show-plugin?id=obsidian-importer)!
-
-When you're ready, delete this note and make the vault your own.
+Open [System Understanding — Start Here](System%20Understanding/Start%20Here.md). This vault is maintained as both a beginner handbook and a source-linked developer reference.

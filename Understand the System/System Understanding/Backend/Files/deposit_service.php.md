@@ -1,83 +1,48 @@
 ---
 title: "deposit_service.php"
-date: 2026-09-29
+date: 2026-10-17
 tags:
   - akad
   - system-understanding
-  - backend-database
-status: documented
+status: current-source-reviewed
 ---
 
 # deposit_service.php
 
-**Navigate:** [Start Here](../../Start%20Here.md) · [Reading order](../../Start%20Here.md#recommended-reading-order) · [Backend files](../File%20Inventory.md) · [Database tables](../../Database/Database%20Overview.md) · [Glossary](../../Glossary.md)
+**Guide:** [Backend Overview](../Backend%20Overview.md) · [API Reference](../API%20Reference.md) · [File Inventory](../File%20Inventory.md) · [Start Here](../../Start%20Here.md)
 
-## Overview
+## What is this file?
 
-**The deposit rule checker.** This helper checks held and deducted amounts and works out how much is refundable.
+Deposit view, itemized deduction, and upsert validation. It is a **shared helper/service** at `api/deposit_service.php`.
 
-**Where it lives:** `api/deposit_service.php`. A `.php` file contains instructions the server runs; it is not a screen the staff member reads.
+## Why it exists
 
-## Example
+It keeps this responsibility in one backend location so direct callers and, where applicable, offline replay can apply the same rule.
 
-For Ana’s ₱350 deposit, a deduction of ₱50 needs a reason. A deduction of ₱400 is rejected because it exceeds the held amount.
+## Ana example
 
-## What happens
+During Ana’s rental, this component supports the connected catalog, financial, equipment, content, or audit operation.
 
-1. Check that the booking exists and amounts are not negative.
-2. Require a reason for a positive deduction and keep it within the deposit.
-3. Save the current summary and calculate the amount left.
+## Observed interface and access
 
-## Key points
+- **Interface:** depositView(), addDepositDeduction(), saveDeposit().
+- **Access:** Caller-controlled.
+- **Functions declared here:** `depositView()`, `addDepositDeduction()`, `saveDeposit()`.
 
-There is no fixed minimum deposit. The system stores one combined deduction and reason, rather than a separate row for each charge.
+## Connections
 
-Read [Payments and Deposits](../../Workflows/Payments%20and%20Deposits.md) for the wider story. Definitions are available in [Glossary](../../Glossary.md).
+- Includes: [domain.php](domain.php.md).
+- Tables named directly: [DEPOSITS](../../Database/Tables/DEPOSITS.md), [DEPOSIT_DEDUCTIONS](../../Database/Tables/DEPOSIT_DEDUCTIONS.md).
 
-## Technical details
+## Important rules and limitations
 
-This section records exact file behavior, field names and implementation details.
+Validation and transaction behavior is defined by current source and its shared dependencies. Do not infer product readiness from the file’s presence.
 
-**Location:** `api/deposit_service.php`
+## Source
 
-Shared deposit validation and calculation.
+[api/deposit_service.php](../../../../api/deposit_service.php)
 
-### Routes or callable helpers
 
-saveDeposit(PDO, bookingId, body); helper only.
+## Technical navigation
 
-### Access
-
-Caller authenticates.
-
-### Inputs
-
-Positive booking ID; numeric non-negative held/deducted amounts; nonblank reason when deduction > 0.
-
-### How it works
-
-Requires existing booking, deduction <= held. Upserts DEPOSITS by unique booking_id. Derives pending if held <= 0, full if deduction <= 0, partial if deduction < held, otherwise none; returns stored row plus refund_amount.
-
-### Current limits and details
-
-No fixed amount or minimum. One aggregate deduction and reason, not an itemized deduction ledger. The helper does not begin its own transaction; sync invokes it inside the operation transaction.
-
-### Functions defined
-
-`saveDeposit()`.
-
-### Connections
-
-Includes: No include dependencies; the caller supplies shared helpers/connection.
-
-Tables: [DEPOSITS](../../Database/Tables/DEPOSITS.md), [BOOKINGS](../../Database/Tables/BOOKINGS.md)
-
-See [API Reference](../API%20Reference.md) and [Current Implementation Gaps](../../Current%20Implementation%20Gaps.md).
-
-## Source files
-
-- [api/deposit_service.php](<../../../../api/deposit_service.php>)
-
-## Continue reading
-
-[Previous file: delivery.php](delivery.php.md) · [Next file: deposits.php](deposits.php.md) · [Back to Start Here](../../Start%20Here.md)
+[Return to the Backend File Inventory](../File%20Inventory.md) · [Review the API Reference](../API%20Reference.md) · [Return to Start Here](../../Start%20Here.md)
