@@ -185,12 +185,6 @@ async function get(path, origin = BASE) {
         JSON.stringify(localId) +
         ",amount:200,method:'GCash',notes:'Negotiated down payment'});",
     );
-<<<<<<< HEAD
-    const item = (await evalIn(
-      a,
-      "API.getBookingItems(" + JSON.stringify(localId) + ")",
-    ))[0];
-=======
     const offlineChecklist = await evalIn(
       a,
       "API.getBookingItems(" + JSON.stringify(localId) + ")",
@@ -215,7 +209,6 @@ async function get(path, origin = BASE) {
           ",{checked_released:true});",
       );
     }
->>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     await evalIn(
       a,
       "API.recordReturn(" +
@@ -401,15 +394,6 @@ async function get(path, origin = BASE) {
     assert.equal(r.status, 400);
   });
   await test("direct booking creation generates an idempotent checklist", async () => {
-<<<<<<< HEAD
-    const response = await fetch(BASE + "api/bookings.php?do=create", {
-      method: "POST",
-      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
-      body: JSON.stringify({ ...booking("Direct checklist", "2099-05-06"), status: "Pending" }),
-    });
-    assert.equal(response.status, 201);
-    const saved = (await response.json()).data;
-=======
     const customerResponse = await fetch(BASE + "api/customers.php?do=create", {
       method: "POST",
       headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
@@ -434,7 +418,6 @@ async function get(path, origin = BASE) {
     const createResult = await response.json();
     assert.equal(response.status, 201, JSON.stringify(createResult));
     const saved = createResult.data;
->>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     let items = await get("api/bookingItems.php?do=forBooking&booking_id=" + saved.id);
     assert.equal(items.length, testChecklistCount);
     const update = await fetch(BASE + "api/bookingItems.php?do=update&id=" + items[0].booking_item_id, {
@@ -450,16 +433,8 @@ async function get(path, origin = BASE) {
     });
     assert.equal(regenerate.status, 200);
     items = await get("api/bookingItems.php?do=forBooking&booking_id=" + saved.id);
-<<<<<<< HEAD
-    assert.equal(items.length, 1);
-<<<<<<< HEAD
-    assert.equal(Number(items[0].checked_released), 1);
-=======
-=======
     assert.equal(items.length, testChecklistCount);
->>>>>>> a79cfd4dbf0799fd6cd6bddc623061867ee3e90f
     assert.equal(Number(items[0].quantity_released), Number(items[0].expected_quantity));
->>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
   });
   await test("new services preserve a submitted inactive status", async () => {
     const response = await fetch(BASE + "api/services.php?do=create", {
@@ -497,12 +472,8 @@ async function get(path, origin = BASE) {
   });
   await test("future bookings cannot be finalized before the post-event review", async () => {
     const c = device(token);
-<<<<<<< HEAD
-    await evalIn(c, "API.finalizeReturn(" + serverId + ");");
-=======
     const draft = await create(c, { ...booking("Future pending review", "2099-05-11"), status: "Pending" });
     await evalIn(c, "API.finalizeReturn(" + JSON.stringify(draft.id) + ");");
->>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
     c.navigator.onLine = true;
     const data = await evalIn(c, "API.flushSyncQueue()");
     assert.equal(data.failed.length, 1);

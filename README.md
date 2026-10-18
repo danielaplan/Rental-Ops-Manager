@@ -26,27 +26,7 @@ cd C:\path\to\Rental-Ops-Manager
 
 ### 2. Initialize the database once
 
-<<<<<<< HEAD
-> **⚠️ Only run seed.sql on a test database.** It resets demo data.
-
-> **Upgrading an existing database?** `schema.sql` only *creates* missing tables, so
-> it will not add a new column to a table you already have. If your database predates
-> 2026-10-14, run the migrations once:
->
-> ```powershell
-> C:\xampp\mysql\bin\mysql.exe -u root -e "source db/migrations/2026-10-14_services_image.sql"
-> ```
->
-> That adds `SERVICES.image`, which stores each service's card image.
-
----
-
-## 3. Start the PHP server
-
-Keep this terminal window open — it's the backend server.
-=======
 Run these commands only for a new local setup:
->>>>>>> a79cfd4dbf0799fd6cd6bddc623061867ee3e90f
 
 ```powershell
 & 'C:\xampp\mysql\bin\mysql.exe' -u root `
@@ -90,20 +70,6 @@ $env:AKAD_DB_NAME = 'akad_rentals'
 $env:AKAD_DB_USER = 'root'
 $env:AKAD_DB_PASS = 'your-local-password'
 ```
-<<<<<<< HEAD
-Rental-Ops-Manager/
-├── admin/           Admin HTML pages
-├── api/             PHP backend files
-├── db/
-│   ├── schema.sql   Creates the database tables
-│   ├── seed.sql     Inserts demo data
-│   └── migrations/  One-off ALTERs for databases created before a change
-├── css/             CSS files
-├── js/              JavaScript files
-├── index.html       Public-facing home page
-├── README.md        This file
-└── ...
-=======
 
 ## Run tests
 
@@ -191,4 +157,3 @@ tests/             Isolated backend and frontend tests
 ```
 
 Production deployment requires separate HTTPS, credentials, backups, scheduler, performance, device, offline, and owner-acceptance checks.
->>>>>>> a79cfd4dbf0799fd6cd6bddc623061867ee3e90f

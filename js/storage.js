@@ -323,7 +323,6 @@ function seedDatabase(force) {
     hero_button_text: "Contact us",
     about_title: "We handle the set-up, you host the party",
     about_description: "We provide karaoke rental, Sweet Corner packages, and balloon decorations. Contact our team to discuss preferred dates and delivery arrangements.",
-    about_image: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80",
     contact_phone: "",
     contact_email: "",
     contact_address: "",

@@ -78,7 +78,7 @@ function createHarness() {
   };
 
   const serverRows = {
-    services: [{ service_id: 1, service_name: 'Karaoke Rental', status: 'Active', image: null }],
+    services: [{ service_id: 1, service_name: 'Karaoke Rental', status: 'Active' }],
     bookingItems: [{
       booking_item_id: 1, booking_id: 1, rental_item_id: 1,
       service_id: 1, name: 'Speaker'
@@ -154,7 +154,7 @@ function createHarness() {
   const syncSource = fs.readFileSync(path.join(root, 'js', 'sync.js'), 'utf8');
   vm.runInContext(syncSource, context, { filename: 'js/sync.js' });
 
-  return { context, requests, collections, values, serverRows };
+  return { context, requests, collections, values };
 }
 
 async function settle() {
@@ -179,27 +179,13 @@ test('cached reads resolve through the async facade while sync.js refreshes with
   assert.equal(refresh.options.headers.Authorization, 'Bearer test-token');
 });
 
-test('a null server image keeps the cached picture while a stored one wins', async () => {
-  // A service whose image was never set (or whose row predates the SERVICES.image
-  // column) comes back from PHP as null. That must not wipe the cached picture.
-  const unset = createHarness();
-  await unset.context.API.getServices();
+test('server refresh preserves cached presentation fields that PHP does not store', async () => {
+  const { context, collections } = createHarness();
 
-  assert.equal(unset.collections.services[0].name, 'Karaoke Rental');
-  assert.equal(
-    unset.collections.services[0].image, 'cached-service.jpg',
-    'a null image from PHP must not wipe the cached picture'
-  );
+  await context.API.getServices();
 
-  // Once PHP does store one, it wins over the cache.
-  const stored = createHarness();
-  stored.serverRows.services[0].image = '/uploads/services/saved.jpg';
-  await stored.context.API.getServices();
-
-  assert.equal(
-    stored.collections.services[0].image, '/uploads/services/saved.jpg',
-    'an image stored in PHP wins over the cached one'
-  );
+  assert.equal(collections.services[0].name, 'Karaoke Rental');
+  assert.equal(collections.services[0].image, 'cached-service.jpg');
 });
 
 test('writes resolve to a pending local draft and enqueue an authenticated sync operation', async () => {

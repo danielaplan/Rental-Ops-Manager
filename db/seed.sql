@@ -11,26 +11,6 @@ INSERT INTO SERVICES (service_id,service_name,description,default_preparation_mi
     (2,'Sweet Corner Setup','Dessert and candy table setup.',0,0),
     (3,'Balloon Decoration','Balloon garlands, arches, and backdrops.',0,0);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
--- ----------------------------------------------------------------------------
--- Services + packages. One service, one package per booking (FR-05/FE-06).
--- ----------------------------------------------------------------------------
-INSERT INTO SERVICES (service_id, service_name, description, image) VALUES
-    (1, 'Karaoke Rental',   'Full karaoke setup with a huge song library, wireless mics, and a big screen.', 'https://images.unsplash.com/photo-1516873240891-4bf014598ab4?w=800&q=80'),
-    (2, 'Sweet Corner',     'A beautifully arranged dessert and candy table your guests will photograph before they taste it.', 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=800&q=80'),
-    (3, 'Balloon Decoration', 'Custom balloon garlands, arches, and backdrops styled around your event theme and colors.', 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80')
-ON DUPLICATE KEY UPDATE service_name = VALUES(service_name), description = VALUES(description), image = VALUES(image);
-=======
-INSERT INTO PACKAGES (package_id,service_id,package_name,price,duration_minutes) VALUES
-    (1,1,'Standard Karaoke (up to 4 hrs)',2500.00,240),
-    (2,1,'Extended Karaoke (up to 8 hrs)',4500.00,480),
-    (3,2,'Sweet Corner Mini (20 pax)',3500.00,0),
-    (4,2,'Sweet Corner Full (30 pax)',5500.00,0),
-    (5,3,'Balloon Arch Starter',4000.00,0),
-    (6,3,'Balloon Arch Premium',7000.00,0);
->>>>>>> 5594e032c3ee1168d1ac00d34d9a9ab7151967a7
-=======
 INSERT INTO PACKAGES (package_id,service_id,package_name,price,description,inclusions,duration_minutes) VALUES
     (1,1,'Karaoke Setup — 12 Hours',999.00,'Twelve-hour karaoke setup rental.','1 Smart TV 32"\n1 karaoke set\n1 JBL Speaker 520\n2 JBL battery microphones',720),
     (2,1,'Karaoke Setup — 24 Hours',1499.00,'Twenty-four-hour karaoke setup rental.','1 Smart TV 32"\n1 karaoke set\n1 JBL Speaker 520\n2 JBL battery microphones',1440),
@@ -90,7 +70,6 @@ INSERT INTO CHECKLIST_TEMPLATE_ITEMS (template_id,item_name,expected_quantity) V
     (10,'Donut wall display',1),(10,'Round cake stand',1),(10,'Two-tier display stand set',1),(10,'White-gold round stand set',1),(10,'White tray',3),(10,'Tongs',3),(10,'Board name',1),
     (11,'Donut wall display',1),(11,'Round cake stand',1),(11,'Two-tier display stand set',1),(11,'White-gold round stand set',1),(11,'White-gold square stand set',1),(11,'Large white tray',2),(11,'Medium white tray',2),(11,'Tongs',3),(11,'Board name',1),
     (12,'Donut wall display',1),(12,'Round cake stand',1),(12,'Two-tier display stand set',1),(12,'Three-tier display stand set',1),(12,'White-gold round stand set',1),(12,'White-gold square stand set',1),(12,'Large white tray',4),(12,'Medium white tray',2),(12,'Small chocolate fountain',1),(12,'Tongs',5),(12,'Cup holder',1),(12,'Board name',1);
->>>>>>> a79cfd4dbf0799fd6cd6bddc623061867ee3e90f
 
 INSERT INTO CATEGORIES (category_id,name,status) VALUES
     (1,'Entertainment','Active'),(2,'Food & Treats','Active'),(3,'Decorations','Active');

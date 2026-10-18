@@ -112,28 +112,6 @@ test('gallery image uploads use authenticated multipart form data', async () => 
   assert.deepEqual(requests[0].options.body.fields, [['image', file]]);
 });
 
-test('general image uploads post multipart form data to the typed destination', async () => {
-  const file = { name: 'hero.jpg', type: 'image/jpeg' };
-  const { API, requests } = harness(() => ({ data: '/rental/uploads/services/saved.jpg' }));
-
-  const image = await API.uploadImage(file, 'services');
-
-  assert.equal(image, '/rental/uploads/services/saved.jpg');
-  assert.equal(requests[0].url, 'http://localhost/rental/api/image-upload.php?type=services');
-  assert.equal(requests[0].options.headers.Authorization, 'Bearer test-token');
-  assert.equal(requests[0].options.headers['Content-Type'], undefined);
-  assert.deepEqual(requests[0].options.body.fields, [['image', file]]);
-});
-
-test('general image uploads default to the content destination', async () => {
-  const file = { name: 'logo.png', type: 'image/png' };
-  const { API, requests } = harness(() => ({ data: '/rental/uploads/content/logo.png' }));
-
-  await API.uploadImage(file);
-
-  assert.equal(requests[0].url, 'http://localhost/rental/api/image-upload.php?type=content');
-});
-
 test('non-JSON and API errors produce useful typed errors', async () => {
   const invalid = harness(() => ({ status: 500, raw: '<?php error' }));
   await assert.rejects(invalid.API.getServices(), error => error.code === 'invalid_response' && error.status === 500);

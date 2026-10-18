@@ -59,7 +59,6 @@ CREATE TABLE IF NOT EXISTS SERVICES (
     default_preparation_minutes INT UNSIGNED NOT NULL DEFAULT 0,
     default_travel_minutes INT UNSIGNED NOT NULL DEFAULT 0,
     status       VARCHAR(20) NOT NULL DEFAULT 'Active',
-    image        TEXT,
     PRIMARY KEY (service_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

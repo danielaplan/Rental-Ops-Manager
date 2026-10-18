@@ -168,8 +168,6 @@ async function renderAbout() {
   $('#aboutDesc').text(aboutDescription === CONFIG.aboutFallback
     ? CONFIG.aboutFallback
     : aboutDescription);
-  const aboutImage = safeWebUrl(c.about_image);
-  if (aboutImage) $('#aboutImg').attr('src', aboutImage);
 }
 
 async function renderServices() {
