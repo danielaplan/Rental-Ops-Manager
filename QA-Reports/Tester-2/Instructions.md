@@ -1,6 +1,6 @@
 # Tester 2 — Scheduling, Conflicts, Statuses, and Cancellations
 
-Read the [common instructions](../README.md) first. Record every result in the [Tester 2 report](Report.md); do not edit this instruction file while testing.
+Complete [Tester 2 setup](Setup.md), then read the [common instructions](../README.md). Record every result in the [Tester 2 report](Report.md); do not edit this instruction file while testing.
 
 ## Scenario 11 — Preparation and travel block availability
 

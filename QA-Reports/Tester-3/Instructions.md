@@ -1,6 +1,6 @@
 # Tester 3 — Payments, Deposits, and Delivery
 
-Read the [common instructions](../README.md) first. Record every result in the [Tester 3 report](Report.md); do not edit this instruction file while testing.
+Complete [Tester 3 setup](Setup.md), then read the [common instructions](../README.md). Record every result in the [Tester 3 report](Report.md); do not edit this instruction file while testing.
 
 ## Scenario 21 — Partial and full Completed payments
 

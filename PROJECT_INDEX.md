@@ -27,7 +27,7 @@ All repository accounts, fixtures, and records are synthetic development data. L
 | Database overview | [Database Overview](<Understand the System/System Understanding/Database/Database Overview.md>) · [`db/schema.sql`](db/schema.sql) |
 | Frontend overview | [Frontend Overview](<Understand the System/System Understanding/Frontend/Overview.md>) · [File Inventory](<Understand the System/System Understanding/Frontend/File Inventory.md>) |
 | Tests and verification | [`README.md`](README.md#run-tests) · [Consolidated Verification](Implementation/Backend-Consolidated-Verification-2026-10-15.md) · [`tests/`](tests/) |
-| Manual booking browser QA | [Common Instructions and Tester Files](QA-Reports/README.md) · [Consolidated Report](QA-Reports/Consolidated-Report.md) |
+| Manual booking browser QA | [Common Instructions and Tester Files](QA-Reports/README.md) · [Simultaneous Setup](QA-Reports/Simultaneous-Testing-Setup.md) · [Consolidated Report](QA-Reports/Consolidated-Report.md) |
 
 ## 3. Feature-to-Code Mapping
 

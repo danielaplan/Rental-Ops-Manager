@@ -4,7 +4,7 @@ Complete this coordinator report after reviewing all four tester reports listed 
 
 ## Combined results
 
-| Scenario | Tester   | Outcome | Booking reference(s) | Bug ID(s) | Retest required? |
+| Scenario | Tester   | Outcome | Booking ID(s) | Bug ID(s) | Retest required? |
 | -------: | -------- | ------- | -------------------- | --------- | ---------------- |
 |        1 | Tester 1 |         |                      |           |                  |
 |        2 | Tester 1 |         |                      |           |                  |
@@ -110,5 +110,5 @@ Complete this coordinator report after reviewing all four tester reports listed 
 
 ## Evidence boundary
 
-This plan records manual browser evidence from four separate local test environments executed one at a time. Differences between laptops may be environment-specific, so every report must identify the laptop, browser, PHP version, and database baseline used. A complete local result does not prove production hosting, physical-device behavior, real-network reliability, security acceptance, or client acceptance. Those require separate verification.
+This plan records manual browser evidence from four separate local test environments that may run simultaneously. Differences between laptops may be environment-specific, so every report must identify the laptop, browser, starting Git commit, and database baseline used. A complete local result does not prove production hosting, physical-device behavior, real-network reliability, security acceptance, or client acceptance. Those require separate verification.
 

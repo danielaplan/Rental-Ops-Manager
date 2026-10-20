@@ -74,5 +74,33 @@ INSERT INTO CHECKLIST_TEMPLATE_ITEMS (template_id,item_name,expected_quantity) V
 INSERT INTO CATEGORIES (category_id,name,status) VALUES
     (1,'Entertainment','Active'),(2,'Food & Treats','Active'),(3,'Decorations','Active');
 
+INSERT INTO RENTAL_ITEMS (rental_item_id,service_id,name,quantity,item_code,required,tracking,status,notes) VALUES
+    (1,1,'JBL speaker',4,'KAR-SPK',1,'quantity','Available','Synthetic demo inventory'),
+    (2,1,'Wireless microphone',6,'KAR-MIC',1,'quantity','Available','Synthetic demo inventory'),
+    (3,1,'Audio mixer',2,'KAR-MIX',1,'individual','Available','Synthetic demo inventory'),
+    (4,2,'Buffet table',4,'SWT-TBL',1,'quantity','Available','Synthetic demo inventory'),
+    (5,2,'Cake stand',8,'SWT-CAKE',1,'quantity','Available','Synthetic demo inventory'),
+    (6,2,'Serving tray',20,'SWT-TRAY',1,'quantity','Available','Synthetic demo inventory'),
+    (7,2,'Chocolate fountain',2,'SWT-CHOCO',0,'individual','Available','Synthetic demo inventory'),
+    (8,3,'Backdrop panel',6,'BAL-PANEL',1,'quantity','Available','Synthetic demo inventory'),
+    (9,3,'Grass carpet',4,'BAL-GRASS',1,'quantity','Available','Synthetic demo inventory'),
+    (10,3,'Bending light',6,'BAL-LIGHT',1,'quantity','Available','Synthetic demo inventory'),
+    (11,3,'HBD LED light',4,'BAL-HBD',1,'individual','Available','Synthetic demo inventory'),
+    (12,3,'Spotlight',8,'BAL-SPOT',0,'quantity','Available','Synthetic demo inventory'),
+    (13,3,'Celebrant chair',3,'BAL-CHAIR',0,'individual','Available','Synthetic demo inventory'),
+    (14,3,'Souvenir rack',3,'BAL-RACK',0,'individual','Available','Synthetic demo inventory'),
+    (15,3,'LED number light',10,'BAL-NUM',0,'quantity','Available','Synthetic demo inventory');
+
+INSERT INTO GALLERY (image_id,title,image,featured) VALUES
+    (1,'Balloon Package A','/uploads/gallery/package-a.png',1),
+    (2,'Balloon Package K','/uploads/gallery/package-k.png',1),
+    (3,'Balloon Package D','/uploads/gallery/package-d.png',1),
+    (4,'Sweet Corner Set A','/uploads/gallery/sweet-set-a.png',1),
+    (5,'Sweet Corner Set K','/uploads/gallery/sweet-set-k.png',1),
+    (6,'Sweet Corner Set D','/uploads/gallery/sweet-set-d.png',1),
+    (7,'Sweet Corner Additional Rentals','/uploads/gallery/sweet-addons.png',0),
+    (8,'October Promo Reference','/uploads/gallery/october-promo.png',0),
+    (9,'Karaoke Packages','/uploads/gallery/karaoke-packages.png',1);
+
 -- Customer, booking, and payment examples are omitted: enter transactions through
 -- owner APIs so snapshots and audit records agree.

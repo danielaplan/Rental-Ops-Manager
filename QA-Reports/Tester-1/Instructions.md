@@ -1,6 +1,6 @@
 # Tester 1 — Booking Creation and Editing
 
-Read the [common instructions](../README.md) first. Record every result in the [Tester 1 report](Report.md); do not edit this instruction file while testing.
+Complete [Tester 1 setup](Setup.md), then read the [common instructions](../README.md). Record every result in the [Tester 1 report](Report.md); do not edit this instruction file while testing.
 
 ## Scenario 1 — Basic new Karaoke booking
 
@@ -8,7 +8,7 @@ Read the [common instructions](../README.md) first. Record every result in the [
 
 **Book:** `T1 Ana Basic`, `09171000101`; January 4, 2027, 10:00 AM–12:00 PM; Birthday Party; 30 guests; `T1 Basic Venue`; JBL Karaoke Rental → Karaoke Setup — 12 Hours; no add-ons; ₱0 discount; ₱0 fees; agreed total ₱999; preparation/travel 0/0.
 
-**Steps:** Create as Pending. Record its reference. Refresh Bookings, reopen it, and compare Details, Calendar, and Customers.
+**Steps:** Create as Pending. Record its Booking ID from the Bookings page. Refresh Bookings, reopen it, and compare Details, Calendar, and Customers.
 
 **Expected:** Exactly one customer and booking exist. Package snapshot, ₱999 total, Pending status, schedule, and venue match everywhere.
 

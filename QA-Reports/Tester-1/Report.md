@@ -1,94 +1,73 @@
-# Tester 1 QA Report — Creation, Catalog, Pricing, and Editing
+# Tester 1 QA Report
 
-Use the [Tester 1 instructions](Instructions.md) for your assigned scenarios and the [common instructions](../README.md) for shared rules. Edit only this report and files under `Evidence/`.
+Follow the [Tester 1 setup](Setup.md), [scenario instructions](Instructions.md), [common instructions](../README.md), and [screenshot naming rules](Evidence/README.md). Edit only this report and files under `Evidence/`.
 
-## Environment
+## Test setup
 
-- **Tester:**
-- **Laptop / environment:**
-- **Browser and version:**
-- **PHP / MySQL version:**
-- **Database baseline file or Git commit:**
-- **Starting counts — bookings / customers / payments / pending sync:**
+- **Tester:** <!-- Enter your full name. -->
+- **Test date:** <!-- Enter YYYY-MM-DD, for example 2026-10-21. -->
+- **Laptop / browser:** <!-- Example: Windows 11 laptop / Chrome 141. -->
+- **QA database:** <!-- Must be akad_rentals_qa_t1. -->
+- **Database baseline:** <!-- Enter the baseline filename or Git commit used before testing. -->
 
 ## Results
 
-Enter exactly `PASS`, `FAIL`, `BLOCKED`, or `NOT RUN`. Use `N/A` when no booking was created and `None` when no screenshot or note is needed.
+For every row:
 
-| Scenario | Outcome | Booking reference(s) | Screenshot filename | Notes / Bug ID |
-| ---: | --- | --- | --- | --- |
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
-| 6 |  |  |  |  |
-| 7 |  |  |  |  |
-| 8 |  |  |  |  |
-| 9 |  |  |  |  |
-| 10 |  |  |  |  |
-| 41 |  |  |  |  |
-| 42 |  |  |  |  |
-| 43 |  |  |  |  |
-| 44 |  |  |  |  |
+- Replace `YYYY-MM-DD` with the date you ran that scenario.
+- Enter `PASS`, `FAIL`, `BLOCKED`, or `NOT RUN` under **Result**.
+- After saving, open **Bookings** and copy the visible Booking ID from the first column or booking-detail title. Enter `N/A` if no booking was created.
+- Under **Notes / Bug ID**, briefly explain the result. For a failure, include its Bug ID, such as `T1-BUG-01 — Package missing after refresh`.
 
-## Screenshot evidence
+| Test ID           | Result | Booking ID | Notes / Bug ID |
+| ----------------- | ------ | ----------------- | ---------------- |
+| T1-S01-YYYY-MM-DD |        |                   |                  |
+| T1-S02-YYYY-MM-DD |        |                   |                  |
+| T1-S03-YYYY-MM-DD |        |                   |                  |
+| T1-S04-YYYY-MM-DD |        |                   |                  |
+| T1-S05-YYYY-MM-DD |        |                   |                  |
+| T1-S06-YYYY-MM-DD |        |                   |                  |
+| T1-S07-YYYY-MM-DD |        |                   |                  |
+| T1-S08-YYYY-MM-DD |        |                   |                  |
+| T1-S09-YYYY-MM-DD |        |                   |                  |
+| T1-S10-YYYY-MM-DD |        |                   |                  |
+| T1-S41-YYYY-MM-DD |        |                   |                  |
+| T1-S42-YYYY-MM-DD |        |                   |                  |
+| T1-S43-YYYY-MM-DD |        |                   |                  |
+| T1-S44-YYYY-MM-DD |        |                   |                  |
 
-Save images in `Evidence/` using `T1-S<scenario>-<short-description>.png`. Add one subsection per screenshot.
+## Problems found
 
-### Formatting example — not test evidence
+If there are no application bugs, delete the example below. For every bug, copy the example once and replace the heading and blank fields.
 
-This screenshot only demonstrates how an Obsidian image appears in the Markdown source. Remove this example before recording live test evidence.
+| Field | What to enter |
+| --- | --- |
+| **Scenario / Booking ID** | Copy the scenario number from `Instructions.md`. After saving, find the Booking ID in the first column of **Bookings** or in the booking-detail title. Example: `Scenario 3 / Booking 16`. Use `N/A` if no booking was created. |
+| **Severity** | `Critical` for data loss, security exposure, or a major money error; `High` when a main workflow cannot continue safely; `Medium` when a workaround exists or screens materially disagree; `Low` for wording, layout, or another minor issue. Judge impact, not repair difficulty. |
+| **What happened** | Describe the actual incorrect behavior, affected data or status, exact error message, and whether it remained after refresh or reopen. Do not write only “It did not work.” |
+| **Expected** | Copy or summarize what the scenario's **Expected** section says should have happened. |
+| **How to reproduce** | Write numbered steps with the starting condition, test data, controls used, save/refresh actions, and the exact step where the problem appears. Another tester should be able to repeat it without asking questions. |
+| **Retest needed** | Enter `Yes` when the scenario must be run again after a fix. Enter `No` only when no repair verification is required. |
 
-![Obsidian pasted-image formatting example](Evidence/Obsidian-paste-example.png)
+Save screenshots only in [`Evidence/`](Evidence/README.md). For a bug, use `T1-S<scenario>-BUG-<number>-<description>-<image-number>.png`, such as `T1-S03-BUG-01-package-missing-01.png`. Do not paste or link the screenshot in this report.
 
-<!-- Example for another screenshot:
-### Scenario 3
+### T1-BUG-01 — Short issue
 
-![Tester 1 Scenario 3 - package missing](Evidence/T1-S03-package-missing.png)
--->
+- **Scenario / Booking ID:**
+- **Severity:**
+- **What happened:**
+- **Expected:**
+- **How to reproduce:**
+- **Retest needed:**
 
-## Bug list
+## Final summary
 
-Use IDs `T1-BUG-01`, `T1-BUG-02`, and so on.
+- **PASS / FAIL / BLOCKED / NOT RUN:** <!-- Enter four totals, for example 12 / 1 / 1 / 0. -->
+- **Bugs requiring retest:** <!-- List Bug IDs or enter None. -->
+- **Overall result:** <!-- Write one sentence describing whether the tested workflow is usable and what remains unresolved. -->
 
-| Bug ID | Scenario | Severity | Short issue | Screenshot | Retest? |
-| --- | ---: | --- | --- | --- | --- |
-|  |  |  |  |  |  |
+## Handoff
 
-## Detailed bug records
-
-Copy this subsection once for every bug.
-
-### Bug ID — short title
-
-- **Scenario / booking reference:**
-- **Process section:**
-- **Severity:** Critical / High / Medium / Low
-- **Exact steps to reproduce:**
-- **Expected result:**
-- **Actual result:**
-- **Exact error message:**
-- **Does it still happen after refresh/reopen?**
-- **Which screens disagree?**
-- **Screenshot filename:**
-- **Recommended fix or clarification:**
-
-## Summary and handoff
-
-- **PASS:**
-- **FAIL:**
-- **BLOCKED:**
-- **NOT RUN:**
-- **Critical / High / Medium / Low bugs:**
-- **Scenarios needing retest:**
-- **Workflow stages not reached:**
-- **Overall assessment:**
-
-Before handoff:
-
-- [ ] Restore or deactivate every `TEMP QA` catalog record.
-- [ ] Verify every FAIL and BLOCKED result has screenshot evidence.
-- [ ] Verify image links render in this report.
-- [ ] Commit and push this report and the `Evidence/` files.
-- [ ] Tell the coordinator that Tester 1 is complete.
+- [ ] Temporary test records were restored.
+- [ ] FAIL and BLOCKED results have evidence.
+- [ ] This report and the `Evidence/` files were committed and pushed.

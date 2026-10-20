@@ -9,6 +9,15 @@ memory/
 /uploads/gallery/*
 !/uploads/gallery/.htaccess
 !/uploads/gallery/index.html
+!/uploads/gallery/package-a.png
+!/uploads/gallery/package-k.png
+!/uploads/gallery/package-d.png
+!/uploads/gallery/sweet-set-a.png
+!/uploads/gallery/sweet-set-k.png
+!/uploads/gallery/sweet-set-d.png
+!/uploads/gallery/sweet-addons.png
+!/uploads/gallery/october-promo.png
+!/uploads/gallery/karaoke-packages.png
 
 # Obsidian: keep local window/plugin runtime state out of Git
 /.obsidian/workspace.json

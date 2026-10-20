@@ -1,6 +1,6 @@
 # Tester 4 — Equipment, Returns, Notifications, and Synchronization
 
-Read the [common instructions](../README.md) first. Record every result in the [Tester 4 report](Report.md); do not edit this instruction file while testing.
+Complete [Tester 4 setup](Setup.md), then read the [common instructions](../README.md). Record every result in the [Tester 4 report](Report.md); do not edit this instruction file while testing.
 
 ## Scenario 31 — Checklist generation and persistence
 
