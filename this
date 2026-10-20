@@ -422,3 +422,53 @@ Current summary after fixes: **8 PASS, 1 PARTIAL, 1 BLOCKED, 0 currently failing
 - **QA-02 fixed for new writes:** a fresh browser submission with a 101-character name, 21-character contact, and 256-character location stayed on Manual Booking and displayed `Customer name must be at most 100 characters and contact must be at most 20 characters.` The sync badge remained `2 Pending Sync · 2 need attention`, proving the rejected attempt added no new draft or queue entry.
 - The earlier invalid Offline draft and its two attention-needed operations remain retained as audit evidence; this fix prevents new invalid drafts and does not silently delete old evidence.
 - Focused local verification: 36 Node regression checks passed, the repository syntax check passed, and `git diff --check` reported no new whitespace errors.
+
+## Browser rerun: remaining Scenarios 11–40 — October 20, 2026
+
+Environment: local admin at `http://127.0.0.1:8000`, XAMPP MariaDB on port `3307`, and the retained synthetic records from the earlier audit. The committed QA-01, QA-02, and QA-05 fixes were present. Existing invalid Scenario 9 operations remained in the browser queue as required by the audit; new rejected operations were also retained.
+
+Summary: **6 PASS, 6 FAIL, 5 BLOCKED, 13 NOT RUN**. All PASS/FAIL evidence below was observed through the browser UI and checked after reload where the scenario required persistence.
+
+| # | Outcome | Browser-observed evidence / booking reference | Issue ID |
+| --- | --- | --- | --- |
+| 11 | PASS | Booking 16 (Ivy Test) confirmed normally. Booking 17 (Jon Test) displayed one conflict for Booking 16, remained Pending until the listed overlap was approved with `Approved duplicate test schedule`, and reopened as Confirmed. |  |
+| 12 | PASS | Booking 18 (Kai Test) recorded a Completed GCash payment of ₱500, corrected it to ₱450 with a reason, and reopened with Paid ₱450 / Balance ₱549. A ₱300 held deposit reopened read-only and remained separate from rental payments. |  |
+| 13 | FAIL | Booking 19 (Lia Test) correctly disabled release while Pending and until all four checklist boxes were checked. One release was submitted, but after reload **Confirm Items Released** was enabled again; a second submission was accepted locally as another Pending Sync operation instead of being rejected in the UI. | QA-06 |
+| 14 | NOT RUN | The full damaged/missing return, deposit deduction, and outstanding-balance workflow was not recreated with Max Test after Scenario 13 contaminated the sync queue with duplicate release attempts. | QA-06 |
+| 15 | BLOCKED | A clean offline lifecycle replay cannot be distinguished from the retained invalid Scenario 9 operations and the new rejected duplicate-release operations. | QA-02, QA-06 |
+| 16 | NOT RUN | Olivia's full-details case was not repeated in this post-fix run; the earlier QA-03 failure remains recorded above. | QA-03 |
+| 17 | NOT RUN | The two-Alex identity case was already completed in the original run and was not repeated. |  |
+| 18 | NOT RUN | Draft recovery was already completed in the original run and was not repeated. |  |
+| 19 | NOT RUN | A new adjacent-boundary pair was not created in this continuation. |  |
+| 20 | NOT RUN | A fresh three-booking multi-conflict set was not created in this continuation. |  |
+| 21 | NOT RUN | Stale conflict approval after editing the candidate schedule was not executed. |  |
+| 22 | NOT RUN | Confirmed rescheduling into another accepted booking was not executed. |  |
+| 23 | NOT RUN | Pending cancellation was completed in the original run and was not repeated after the identity fix. |  |
+| 24 | NOT RUN | Confirmed cancellation with a retained accepted payment was not executed. |  |
+| 25 | FAIL | Booking 16 (Ivy Test) exposed Pending in the status selector after confirmation. Saving it showed `Saved on this device. Pending Sync until accepted`; after reload the row visibly showed `Pending` and `Pending Sync` instead of rejecting the reverse transition. | QA-10 |
+| 26 | NOT RUN | The seeded package snapshot was not edited because catalog restoration would require another native confirmation while the transactional queue was already dirty. |  |
+| 27 | NOT RUN | A second temporary inactive package was not created. |  |
+| 28 | PASS | Vic Email Test stayed on Manual Booking when `invalid-email` was submitted. Correcting it to `vic@example.test` produced one accepted booking and navigated to Bookings. The oversized-input atomicity portion is covered by the QA-02 post-fix verification above. |  |
+| 29 | FAIL | Booking 21 (Wes Payment Status) retained a ₱300 Pending payment and excluded Pending/Failed amounts from Paid, leaving Balance ₱999. After adding a Completed ₱999 payment and reloading, history contained Completed and Pending rows but the submitted ₱200 Failed row had disappeared. | QA-09 |
+| 30 | PASS | The Completed payment correction dialog rejected zero, negative, and blank-reason submissions with `Enter a positive amount and explain why this correction is required.` A positive correction with `Corrected QA amount` saved. |  |
+| 31 | PASS | Booking 22 (Zane Deposit Limit) retained a ₱300 deposit and ₱200 deduction. A second ₱101 deduction was rejected with `Enter an affected item, reason, and amount within the held deposit`; refundable amount stayed ₱100. |  |
+| 32 | BLOCKED | Booking 23 (Ari Refund Test) retained a ₱500 deposit, ₱125 deduction, and ₱375 refundable amount. Refund changed the state to `Refunded · Pending Sync` and disabled further deductions, but the refund button remained enabled; the browser interaction timed out on the native confirmation, so repeat-refund idempotency was not established. |  |
+| 33 | NOT RUN | Delivery arrangements were covered by the original run and were not repeated. |  |
+| 34 | FAIL | Booking 19's Checklist & Release tab contained only one checkbox and expected-quantity label per item. It provided no outgoing quantity or outgoing-condition controls, so the required blank-condition and incomplete-quantity validation cannot be performed. | QA-11 |
+| 35 | BLOCKED | The release UI has no editable outgoing quantity, so an expected-plus-one value cannot be entered through the browser. | QA-11 |
+| 36 | PASS | After Booking 19 reached Awaiting Completion, entering returned quantity 2 for an item expecting 1 was rejected with `Enter whole returned quantities between zero and the expected quantity.` |  |
+| 37 | FAIL | Booking 19 accepted a return with the first item at quantity 0, condition Good, and blank notes. Completing the review advanced it to Awaiting Payment. Reopening showed persisted values `[0,1,1,2]` with every condition Good, so the short return was not required to be Missing or documented. | QA-07 |
+| 38 | BLOCKED | Good, Minor Damage, Damaged, and Missing saved and persisted; the selector offered only Good, Minor Damage, Damaged, Missing, and Unwashed. A fifth row was unavailable for Unwashed, and an invalid forged value cannot be submitted through the visible UI, so the full scenario was not established. |  |
+| 39 | FAIL | The bell showed Booking 19/Lia Test as Awaiting Payment and linked to `bookings.html?booking_id=19&tab=payments`. Clicking it changed the URL, but the booking modal did not open and no Payments tab became active. | QA-08 |
+| 40 | BLOCKED | The browser queue contained the retained Scenario 9 failures plus duplicate-release/reverse-transition failures from this run, so a clean offline booking-and-payment idempotency result could not be isolated without deleting audit evidence. | QA-02, QA-06, QA-10 |
+
+### Issues found in the remaining-scenario rerun
+
+| Issue ID | Scenario | Severity | Expected | Actual | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| QA-06 | 13, 14, 15, 40 | High | A booking should have at most one equipment release, and the UI should stop a duplicate submission. | After the first release and a reload, the release action was enabled again and queued another local release operation. | Browser-observed on Booking 19; pending/attention counts increased. |
+| QA-07 | 37 | Critical | A short return must be marked Missing and documented before post-event release. | Quantity 0 with condition Good and blank notes was accepted and the booking advanced to Awaiting Payment. | Browser-observed and reopened on Booking 19. |
+| QA-08 | 39 | High | A notification link should open the referenced booking on its requested workflow tab. | The link changed the URL to Booking 19 with `tab=payments`, but no booking modal opened. | Browser-observed from Lia Test's Awaiting Payment notification. |
+| QA-09 | 29 | Medium | Completed, Pending, and Failed payment attempts should remain visible in payment history. | The Failed ₱200 row disappeared after reload while Completed and Pending rows remained. | Browser-observed on Booking 21. |
+| QA-10 | 25 | Critical | A Confirmed booking cannot return to Pending. | The selector offered Pending; the local row changed to Pending/Pending Sync and remained so after reload. | Browser-observed on Booking 16. |
+| QA-11 | 34, 35 | High | Release preparation should capture and validate each outgoing quantity and condition. | The release tab exposes only completion checkboxes; quantities and conditions cannot be entered or validated. | Browser-observed on Booking 19's four generated checklist rows. |
