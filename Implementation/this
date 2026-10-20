@@ -1,0 +1,929 @@
+# Four-Person Manual Booking QA Plan — 55 Scenarios
+
+## Purpose
+
+This document divides a complete booking-process audit among four testers. Each tester owns a primary set of ten scenarios plus assigned extended edge cases and records defects in a section-specific bug table. Testing is sequential: only one tester runs at a time on that tester's own laptop and local XAMPP/MySQL installation. There is no host laptop or shared live database. The goal is to test booking creation through scheduling, payments, equipment release, return inspection, completion, notifications, reporting, audit history, and offline synchronization.
+
+This is a manual browser test plan. Do not change application code while executing it. Use fictional data only.
+
+## Read this first
+
+You do not need to read all 55 scenarios before starting. Find your tester section, complete its scenarios from top to bottom, and fill in the result line immediately after each test.
+
+### Quick navigation
+
+| Tester | Start here | Assigned scenarios | Finish here |
+| --- | --- | --- | --- |
+| Tester 1 | Booking Creation and Editing | 1–10 and 41–44 | Tester 1 bug report and summary |
+| Tester 2 | Scheduling, Conflicts, Statuses, and Cancellations | 11–20 and 45–48 | Tester 2 bug report and summary |
+| Tester 3 | Payments, Deposits, and Delivery | 21–30 and 49–52 | Tester 3 bug report and summary |
+| Tester 4 | Equipment, Returns, Notifications, and Synchronization | 31–40 and 53–55 | Tester 4 bug report and summary |
+
+### Meaning of each outcome
+
+| Outcome | Use it when |
+| --- | --- |
+| **PASS** | The actual result matches every expected result after refresh/reopen. |
+| **FAIL** | The application behaves incorrectly, loses data, duplicates data, or shows inconsistent screens. |
+| **BLOCKED** | A setup or earlier failure prevents the scenario from reaching the behavior being tested. |
+| **NOT RUN** | The scenario was intentionally not attempted. State why. |
+
+### Simple working method
+
+1. Read only one scenario.
+2. Prepare the exact data written under **Book** or **Setup**.
+3. Perform the **Steps** in order.
+4. Refresh or reopen before comparing with **Expected**.
+5. Fill in **Result** immediately.
+6. If it failed, add a short row to your bug list and complete one detailed bug record.
+
+### Severity guide
+
+| Severity | Meaning |
+| --- | --- |
+| **Critical** | Data loss, security exposure, major financial error, or the complete booking flow cannot continue. |
+| **High** | A main booking step fails and there is no safe practical workaround. |
+| **Medium** | The feature works only with a workaround or screens show materially inconsistent information. |
+| **Low** | Wording, layout, minor feedback, or another problem that does not stop the workflow. |
+
+## Shared test instructions
+
+1. Run the project locally on the current tester's laptop using that laptop's own XAMPP/MySQL installation and local application URL. Do not connect to another tester's laptop.
+2. Sign in with an authorized synthetic owner account. Never record passwords, tokens, or real customer information.
+3. Before each tester starts, import the agreed clean test-database baseline. Record the baseline file or Git commit and the starting counts for bookings, customers, payments, and pending-sync operations.
+4. Run scenarios in order within your assigned section. Only the active tester may execute tests; the next tester starts after the current tester finishes the report and hands it over.
+5. After every save, refresh or leave and reopen the record. A success message alone is not a PASS.
+6. Compare reference, customer, schedule, service, package, amount, payment state, booking status, and selected tab across every named screen.
+7. Capture a screenshot for every FAIL or BLOCKED result without exposing credentials or tokens.
+8. Do not retry a successful create action. If the response is unclear, search Bookings and Customers first to avoid duplicates.
+9. Preserve failed records as evidence. Delete only when a scenario explicitly requires it.
+10. Prefix temporary catalog records with `TEMP QA`, restore them before ending your session, and verify restoration.
+11. Report network, PHP, MySQL, login, or environment failures as setup blockers unless the application handles the failure incorrectly.
+12. Use only PASS, FAIL, BLOCKED, or NOT RUN. Record the booking reference and actual result for every scenario.
+
+## Sequential testing order
+
+| Tester | Scenarios | Contact range | Suggested dates | Primary focus |
+| --- | ---: | --- | --- | --- |
+| Tester 1 | 1–10 and 41–44 | `09171000101`–`09171000114` | January 4–30, 2027 | Creation, catalog, pricing, editing, validation |
+| Tester 2 | 11–20 and 45–48 | `09172000101`–`09172000114` | February 2–28, 2027 | Availability, conflicts, status, cancellation |
+| Tester 3 | 21–30 and 49–52 | `09173000101`–`09173000114` | March 2–28, 2027 | Payments, deposits, delivery, reporting |
+| Tester 4 | 31–40 and 53–55 | `09174000101`–`09174000113` | April 2–26, 2027 | Checklist, release, return, notifications, offline sync |
+
+Run the sessions in this order: Tester 1 → Tester 2 → Tester 3 → Tester 4.
+
+Each tester uses an independent local database restored from the same clean baseline. Do not pass the previous tester's live MySQL data to the next tester and do not rely on records created by another tester. Dependencies inside a ten-scenario section are created by that same tester.
+
+At the end of a session, the tester must:
+
+1. Finish the tester summary and bug table.
+2. Save evidence in a clearly named folder such as `Tester-1-Evidence`.
+3. Export a database copy only for defect evidence when needed; do not use it as the next tester's baseline.
+4. Restore any `TEMP QA` catalog change.
+5. Send the completed report and evidence to the coordinator.
+6. Tell the next tester that testing may begin.
+
+The coordinator combines the four reports after Tester 4 finishes. Cross-tester comparison uses the written reports and screenshots, not a shared live database.
+
+## Session and result record
+
+Complete the environment details once at the start of your tester section:
+
+- **Laptop / tester environment:**
+- **Browser and version:**
+- **PHP / MySQL version:**
+- **Database baseline file or Git commit:**
+- **Outcome:** PASS / FAIL / BLOCKED / NOT RUN
+- **Tester:**
+- **Booking reference:**
+- **Actual result after refresh/reopen:**
+- **Screenshot filename:**
+- **Notes / Bug ID:**
+
+For each scenario, the short **Result** line is enough when it passes. For FAIL or BLOCKED, also complete the detailed bug record at the end of your tester section.
+
+---
+
+# Tester 1 — Booking Creation and Editing
+
+## Scenario 1 — Basic new Karaoke booking
+
+**Purpose:** Verify the simplest valid manual booking persists accurately.
+
+**Book:** `T1 Ana Basic`, `09171000101`; January 4, 2027, 10:00 AM–12:00 PM; Birthday Party; 30 guests; `T1 Basic Venue`; JBL Karaoke Rental → Karaoke Setup — 12 Hours; no add-ons; ₱0 discount; ₱0 fees; agreed total ₱999; preparation/travel 0/0.
+
+**Steps:** Create as Pending. Record its reference. Refresh Bookings, reopen it, and compare Details, Calendar, and Customers.
+
+**Expected:** Exactly one customer and booking exist. Package snapshot, ₱999 total, Pending status, schedule, and venue match everywhere.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 2 — Reuse an existing customer
+
+**Book:** Reuse `T1 Ana Basic`; January 6, 2027, 1:00–3:00 PM; Karaoke Setup — 24 Hours; agreed total ₱1,499.
+
+**Steps:** Select Ana from Existing Customer. Save, refresh, reopen, then inspect Customers.
+
+**Expected:** One Ana customer has two bookings. Booking 2 retains the 24-hour package and ₱1,499 total.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 3 — Sweet Corner add-on calculation
+
+**Book:** `T1 Bea Sweet`, `09171000103`; January 8, 2027, 10:00 AM–1:00 PM; Sweet Corner Setup → Sweet Corner Set A ₱250; Donut Wall Display ₱50; 4 Rectangular Lace Serving Trays ₱30; total ₱330.
+
+**Steps:** Confirm only matching packages/add-ons appear. Save, refresh, and reopen Details.
+
+**Expected:** Subtotal ₱250, add-ons ₱80, and total ₱330 persist with both add-on names.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 4 — Balloon package isolation
+
+**Book:** `T1 Carlo Balloon`, `09171000104`; January 10, 2027, 2:00–5:00 PM; Balloon Decoration → Package A ₱2,799.
+
+**Steps:** Inspect the package list. Save as Pending, confirm, refresh, and reopen.
+
+**Expected:** Karaoke and Sweet Corner packages never appear. Package A and ₱2,799 persist; status remains Confirmed.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___ 
+
+## Scenario 5 — Package-free negotiated booking
+
+**Book:** `T1 Dina Negotiated`, `09171000105`; January 12, 2027, 9:00–11:00 AM; JBL Karaoke Rental → No package; agreed total ₱1,250.
+
+**Steps:** Save as Pending, refresh, reopen Details and Checklist & Release.
+
+**Expected:** ₱1,250 persists. No package snapshot or package checklist is silently attached.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 6 — Discounts, fees, and active add-ons
+
+**Book:** `T1 Eli Pricing`, `09171000106`; January 14, 2027, 4:00–6:00 PM; Karaoke Setup — 12 Hours ₱999; Wireless Microphone ₱200; Microphone Stand ₱100; discount ₱50; fee ₱25; total ₱1,274.
+
+**Steps:** Check the displayed formula. Confirm inactive add-ons are absent. Save, refresh, and reopen.
+
+**Expected:** ₱999 + ₱300 − ₱50 + ₱25 = ₱1,274. Only selected active add-ons persist.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 7 — Event-date promotion eligibility
+
+**Setup:** Create active Karaoke package `TEMP QA T1 PROMO`, price ₱800, promotion January 15–17, 2027.
+
+**Book:** `T1 Faye Promo`, `09171000107`; initially January 16, 2027, 10:00 AM–12:00 PM.
+
+**Steps:** Verify promotion appears on January 16. Change to January 18 and verify it disappears. Return to January 16, select it, save, refresh, and reopen. Deactivate the temporary package.
+
+**Expected:** Eligibility follows event date; saved booking retains the ₱800 snapshot after deactivation.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 8 — Edit every Pending commercial field
+
+**Book initially:** `T1 Gio Edit`, `09171000108`; January 18, 2027, 10:00 AM–12:00 PM; Karaoke Setup — 12 Hours; ₱999.
+
+**Modify before confirmation:** Existing Tester 1 customer; Sweet Corner Set A + Donut Wall; January 19, 1:00–4:00 PM; `T1 Updated Venue`; preparation/travel 15/20; discount ₱10; fee ₱5; total ₱295.
+
+**Steps:** Save edits, refresh, and reopen. Confirm, reopen the editor, and inspect editable fields.
+
+**Expected:** Every change persists. After confirmation, customer, service, package, add-ons, discount, fees, and total are locked; scheduling follows approved rescheduling rules.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 9 — Invalid schedule and field limits
+
+**Attempt:** `T1 Hana Limits`, `09171000109`; January 20, 2027; Karaoke Setup — 12 Hours.
+
+**Steps:** Try equal and reversed times. Try name over 100 characters, contact over 20, email over 100, and location over 255. Check Bookings, Customers, and Pending Sync. Correct all values and save once.
+
+**Expected:** Each invalid attempt shows a useful error and creates no partial data or sync entry. Corrected data creates exactly one booking.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 10 — Complete customer and event details
+
+**Book:** `T1 Ivy Details`, `09171000110`, `ivy.t1@example.test`; Returning client; January 22, 2027, 3:00–6:00 PM; Reunion; 42 guests; `T1 Full Details Venue`; JBL Speaker 520 Only — 12 Hours; special request `Ground-floor setup`; theme note `Blue and silver`.
+
+**Steps:** Save, reopen Details, refresh, and reopen again. Compare Customers and Calendar.
+
+**Expected:** Every supplied field remains consistent. Theme notes and special requests remain distinct.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 41 — Different services at the same time
+
+**Purpose:** Verify conflict rules do not incorrectly block unrelated services.
+
+**Book:** Create and confirm `T1 Jona Cross Service`, `09171000111`, January 24, 2027, 2:00–4:00 PM, Karaoke Setup — 12 Hours. Create `T1 Kara Cross Service`, `09171000112`, at the exact same time using Sweet Corner Set A.
+
+**Steps:** Check availability for the second booking, save it as Pending, confirm it, refresh, and compare Calendar and both booking records.
+
+**Expected:** The second booking is allowed without a same-service conflict approval. Both references appear independently with the correct service and package.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 42 — Package checklist snapshot after template change
+
+**Purpose:** Verify an existing booking keeps its historical checklist snapshot.
+
+**Setup:** Create `TEMP QA T1 SNAPSHOT` package with two fictional checklist items. Book `T1 Lani Snapshot`, `09171000113`, January 26, 2027, using that package.
+
+**Steps:** Record the booking checklist. Change the package template by renaming one item, changing a quantity, and adding an item. Refresh the existing booking, then create a second booking with the updated package. Restore/deactivate the temporary package.
+
+**Expected:** The first booking keeps the original item names and quantities. Only the second booking receives the updated template. Neither checklist contains duplicates.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 43 — Repeated submission does not duplicate a booking
+
+**Purpose:** Test rapid double-click, refresh, and uncertain-response behavior.
+
+**Book:** `T1 Mika Duplicate Submit`, `09171000114`; January 28, 2027, 10:00 AM–12:00 PM; Sweet Corner Set A.
+
+**Steps:** Double-click the final Save control rapidly. If the UI permits, repeat once under a throttled connection. Wait, then search Bookings and Customers before taking any other action.
+
+**Expected:** Exactly one customer and one booking are created. The Save control prevents repeat submission or the server safely treats the repeated request as one operation.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 44 — Session expiry during save
+
+**Purpose:** Verify authorization failure does not create partial data or falsely report success.
+
+**Attempt:** Prepare a valid manual booking named `T1 Nori Expired Session` for January 30, 2027 without saving it.
+
+**Steps:** In a safe test environment, let the session expire or sign out in another tab. Submit the prepared booking. Sign back in and inspect Bookings, Customers, Pending Sync, and Audit History.
+
+**Expected:** The UI clearly requires sign-in. No partial customer, booking, checklist, or misleading success message exists. If the operation is queued offline, it is visibly identified and requires valid authentication before replay.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Tester 1 bug report — Creation, catalog, pricing, and editing
+
+### Bug list
+
+| Bug ID | Scenario | Severity | Short issue | Screenshot | Retest? |
+| --- | ---: | --- | --- | --- | --- |
+| T1-BUG-01 | | | | | |
+
+### Detailed bug record — copy once for every bug
+
+- **Bug ID / scenario / booking reference:**
+- **Process section:**
+- **Severity:** Critical / High / Medium / Low
+- **Exact steps to reproduce:**
+- **Expected result:**
+- **Actual result:**
+- **Exact error message:**
+- **Does it still happen after refresh/reopen?**
+- **Which screens disagree?**
+- **Screenshot filename:**
+- **Recommended fix or clarification:**
+
+**Tester 1 summary:** PASS ___ · FAIL ___ · BLOCKED ___ · NOT RUN ___ · Critical ___ · High ___ · Medium ___ · Low ___
+
+Scenarios needing retest: ___
+
+Workflow stages not reached: ___
+
+Overall assessment: ___
+
+---
+
+# Tester 2 — Scheduling, Conflicts, Statuses, and Cancellations
+
+## Scenario 11 — Preparation and travel block availability
+
+**Book:** `T2 Jon Allowance`, `09172000101`; February 2, 2027, 2:00–4:00 PM; Karaoke Setup — 12 Hours; preparation 30; travel 45; confirm.
+
+**Steps:** Start another same-service booking at 1:45–2:15 PM. Try confirmation without approval. Move it to 5:00–6:00 PM and confirm.
+
+**Expected:** First booking blocks 1:30–4:45 PM. Overlap warns and cannot confirm silently; free interval confirms.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 12 — Exact adjacent boundary
+
+**Book:** `T2 Kai Boundary A`, `09172000102`; February 4, 2027, 2:00–4:00 PM; preparation 30; travel 45; confirm.
+
+**Steps:** Create `T2 Kai Boundary B`, `09172000103`, starting exactly 4:45 PM. Then change it to 4:44 PM.
+
+**Expected:** 4:45 PM is available; 4:44 PM reports a one-minute overlap.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 13 — Explicit single-conflict approval
+
+**Book:** `T2 Lia Conflict A`, `09172000104`; February 6, 2:00–4:00 PM; confirm. Create `T2 Max Conflict B`, `09172000105`, same service/time.
+
+**Steps:** Save B as Pending. Try confirming with no reason, then approve the listed overlap with `Owner approved separate equipment allocation`.
+
+**Expected:** Blank reason fails. Correct conflicting reference is listed. Approval confirms and appears in Audit History.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 14 — Approve all simultaneous conflicts
+
+**Setup:** Create two Confirmed Karaoke bookings for February 8, 2:00–4:00 PM using approved overlap reasons.
+
+**Book:** `T2 Nia Triple`, `09172000106`, same interval.
+
+**Steps:** Attempt approval of only one displayed conflict, then approve the complete current list.
+
+**Expected:** Partial approval fails. Full approval succeeds and Audit History identifies every overlap.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 15 — Stale approval after schedule change
+
+**Setup:** One Confirmed Karaoke booking on February 10, 2:00–4:00 PM. Start confirmation for an overlapping Pending booking.
+
+**Steps:** After viewing the conflict, change the Pending booking to February 11 before submitting the old approval.
+
+**Expected:** Old conflict list is rejected as stale. Free date confirms without obsolete approval.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 16 — Reschedule Confirmed booking into conflict
+
+**Book:** `T2 Olivia Reschedule`, `09172000107`, February 12, 2:00–4:00 PM; and another Confirmed Karaoke booking February 14, same time.
+
+**Steps:** Reschedule Olivia to February 14. Save without approval, then provide an approval reason or choose a free interval.
+
+**Expected:** Rescheduling rechecks allowances and never silently creates an unapproved overlap.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 17 — Cancel Pending with required reason
+
+**Book:** `T2 Paolo Cancel Pending`, `09172000108`; February 16, 10:00 AM–12:00 PM; leave Pending.
+
+**Steps:** Cancel with blank reason, then with `Customer changed plans`. Refresh and test the same interval with a new draft.
+
+**Expected:** Blank reason fails. Valid cancellation persists, remains in history, and releases availability.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 18 — Cancel Confirmed and retain records
+
+**Book:** `T2 Quinn Cancel Confirmed`, `09172000109`; February 18, 10:00 AM–12:00 PM; confirm and add a Completed ₱200 payment.
+
+**Steps:** Cancel with `Event cancelled by customer`, refresh, inspect Payments, Audit History, and availability.
+
+**Expected:** Booking stays Cancelled, payment remains linked, reason is audited, and schedule is free.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 19 — Confirmed cannot return to Pending
+
+**Book:** `T2 Rae Transition`, `09172000110`; February 20, 10:00 AM–12:00 PM; confirm.
+
+**Steps:** Attempt to change it back to Pending through every visible status control; refresh.
+
+**Expected:** Reverse transition is unavailable or rejected. Booking remains Confirmed; cancellation is the supported alternative.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 20 — Cross-screen schedule consistency
+
+**Use:** Any active Tester 2 booking; change its date to February 24, 2027, 3:00–5:00 PM with preparation/travel 20/30 under the permitted workflow.
+
+**Steps:** Compare Bookings, Details, Calendar, availability warning, Dashboard, and Audit History after refresh.
+
+**Expected:** All screens show the same reference, customer, schedule, status, and blocked interval. Old schedule no longer blocks availability.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 45 — Overdue unreleased booking keeps blocking availability
+
+**Purpose:** Verify equipment that has not been released back cannot be treated as available merely because the scheduled time passed.
+
+**Setup:** Create and confirm `T2 Sela Overdue`, `09172000111`, for an approved past test interval using Karaoke. Do not complete release/return review.
+
+**Steps:** Trigger normal reconciliation by opening Dashboard or Bookings. Attempt a new same-service booking whose blocked interval overlaps the overdue record.
+
+**Expected:** The overdue booking becomes Awaiting Completion and continues to block the same service until the release workflow is completed.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 46 — Released Awaiting Payment no longer blocks service
+
+**Purpose:** Separate equipment availability from an unpaid financial balance.
+
+**Setup:** Create `T2 Tomas Released Unpaid`, `09172000112`, for an approved past date. Confirm, release equipment, complete return review, but leave a rental balance so it becomes Awaiting Payment.
+
+**Steps:** Attempt a new same-service booking for an interval that would have conflicted with the old booking. Refresh Calendar and Details.
+
+**Expected:** The old booking remains Awaiting Payment, but its service/equipment is released and no longer blocks availability.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 47 — Invalid status skips are rejected
+
+**Purpose:** Ensure ordinary controls cannot bypass the approved lifecycle.
+
+**Book:** `T2 Uli Status Guard`, `09172000113`; February 26, 2027; leave Pending.
+
+**Steps:** Attempt every visible or editable path that could move Pending directly to Awaiting Completion, Awaiting Payment, or Completed. Confirm it normally, then attempt to skip the event/review requirements.
+
+**Expected:** Invalid transitions are absent or rejected without partial review, release, payment, or history records. Only approved transitions remain possible.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 48 — Cancellation restrictions across late lifecycle states
+
+**Purpose:** Determine and verify cancellation behavior after operational work has begun.
+
+**Setup:** Create separate synthetic bookings in Released/ongoing, Awaiting Completion, Awaiting Payment, and Completed states, using `T2 Vina Cancel State`, `09172000114`, as the base identity where permitted.
+
+**Steps:** Attempt cancellation from each state. Refresh Booking Details, Payments, Checklist, Calendar, Reports, and Audit History after every attempt.
+
+**Expected:** Only states permitted by the approved workflow can cancel. Rejected attempts make no changes. Any allowed cancellation preserves money, equipment, reason, and audit history consistently.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Tester 2 bug report — Scheduling, conflicts, status, and cancellation
+
+### Bug list
+
+| Bug ID | Scenario | Severity | Short issue | Screenshot | Retest? |
+| --- | ---: | --- | --- | --- | --- |
+| T2-BUG-01 | | | | | |
+
+### Detailed bug record — copy once for every bug
+
+- **Bug ID / scenario / booking reference:**
+- **Process section:**
+- **Severity:** Critical / High / Medium / Low
+- **Exact steps to reproduce:**
+- **Expected result:**
+- **Actual result:**
+- **Exact error message:**
+- **Does it still happen after refresh/reopen?**
+- **Which screens disagree?**
+- **Screenshot filename:**
+- **Recommended fix or clarification:**
+
+**Tester 2 summary:** PASS ___ · FAIL ___ · BLOCKED ___ · NOT RUN ___ · Critical ___ · High ___ · Medium ___ · Low ___
+
+Scenarios needing retest: ___
+
+Workflow stages not reached: ___
+
+Overall assessment: ___
+
+---
+
+# Tester 3 — Payments, Deposits, and Delivery
+
+## Scenario 21 — Partial and full Completed payments
+
+**Book:** `T3 Sam Payments`, `09173000101`; March 2, 2027; Karaoke Setup — 12 Hours; total ₱999; confirm.
+
+**Steps:** Add Completed ₱400, verify ₱599 balance; add Completed ₱599; refresh Payments and Details.
+
+**Expected:** Payment state moves Partially Paid → Fully Paid and totals agree everywhere without duplicates.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 22 — Pending and Failed payments do not reduce balance
+
+**Book:** `T3 Toni Status`, `09173000102`; March 4; ₱999 booking.
+
+**Steps:** Record ₱300 Pending and ₱200 Failed. Verify balance, then record Completed ₱999.
+
+**Expected:** Balance stays ₱999 until Completed payment, then becomes zero. History retains all states.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 23 — Correct a Completed payment
+
+**Book:** `T3 Uma Correction`, `09173000103`; March 6; total ₱999; record Completed ₱500.
+
+**Steps:** Correct to ₱450 with reason `Entered wrong amount`; refresh Payments, Details, Reports, and Audit History.
+
+**Expected:** Balance changes ₱499 → ₱549. Old/new amounts and reason are audited; no second payment is created.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 24 — Invalid payment corrections
+
+**Book:** `T3 Vic Invalid Correction`, `09173000104`; March 8; total ₱999; Completed payment ₱250.
+
+**Steps:** Try correction amount 0, negative, and blank reason; reopen after each. Then submit ₱275 with a reason.
+
+**Expected:** Invalid attempts change nothing. Valid correction persists once and updates balance.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 25 — Held deposit remains separate
+
+**Book:** `T3 Wes Deposit`, `09173000105`; March 10; total ₱999; Completed payment ₱500.
+
+**Steps:** Record held deposit ₱500. Refresh and reopen Details and Payments.
+
+**Expected:** Rental paid remains ₱500 and balance ₱499. Deposit shows ₱500 held separately.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 26 — Deposit deduction limit
+
+**Book:** `T3 Yara Deduction`, `09173000106`; March 12; held deposit ₱300.
+
+**Steps:** Add ₱200 deduction with item/reason. Attempt another ₱101. Refresh.
+
+**Expected:** First deduction persists; second fails because only ₱100 remains. Refundable amount remains ₱100.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 27 — Refund only the remaining deposit
+
+**Book:** `T3 Zane Refund`, `09173000107`; March 14; deposit ₱500; deduction ₱125.
+
+**Steps:** Refund the ₱375 balance. Retry refund and attempt a later deduction.
+
+**Expected:** One refund is recorded. Duplicate refund and post-refund deduction are rejected or idempotent.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 28 — Damaged-item deduction relationship
+
+**Book:** `T3 Ari Damage Money`, `09173000108`; March 16; Karaoke booking; deposit ₱500; Completed payment ₱500.
+
+**Steps:** Record a ₱100 deduction named for a fictional damaged checklist item. Compare deposit, payment, balance, and audit entries.
+
+**Expected:** Refundable deposit becomes ₱400 while rental balance remains based only on rental payments.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 29 — Save every delivery arrangement
+
+**Book:** `T3 Bo Delivery`, `09173000109`; March 18; Sweet Corner Set A; rental total ₱250.
+
+**Steps:** Save and reopen Self-pickup/Customer/₱100, then Lalamove/Included/₱200, then Owner-delivered/Owner/₱300. Use distinct notes.
+
+**Expected:** Each latest method, responsibility, fee, and note persists. Delivery fee never changes the ₱250 rental total.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 30 — Financial cross-screen consistency
+
+**Book:** `T3 Cy Finance`, `09173000110`; March 20; total ₱1,274; Completed payments ₱500 + ₱774; deposit ₱400; deduction ₱75.
+
+**Steps:** Refresh and compare Details, Payments, Dashboard, Reports, and Audit History.
+
+**Expected:** Rental total ₱1,274, paid ₱1,274, balance ₱0, deposit ₱400, deductions ₱75, and refundable ₱325 remain distinct and consistent.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 49 — Payment methods, references, and dates
+
+**Book:** `T3 Dana Payment Fields`, `09173000111`; March 22, 2027; total ₱1,500; confirm.
+
+**Steps:** Record valid GCash and MariBank payments with distinct references and valid dates. Then attempt an unsupported method, malformed/overlong reference, duplicate reference where prohibited, missing required value, and an invalid or future payment date.
+
+**Expected:** Supported valid payments persist with their exact method/reference/date. Invalid attempts show a useful error and create no payment or revenue change.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 50 — Overpayment and remaining-balance boundary
+
+**Book:** `T3 Enzo Overpayment`, `09173000112`; March 24, 2027; total ₱999; record Completed ₱900.
+
+**Steps:** Attempt Completed payments of ₱100, ₱99, and then another positive amount after the balance reaches zero. Refresh after each accepted action.
+
+**Expected:** The application consistently enforces its approved overpayment policy. It never produces an unexplained negative balance, duplicate revenue, or contradictory status. The exact remaining ₱99 payment produces zero balance.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 51 — Awaiting Payment to Completed
+
+**Purpose:** Cover the full post-event path when a balance remains after return review.
+
+**Book:** `T3 Fia Awaiting Payment`, `09173000113`; approved past date; total ₱1,000; Completed payment ₱400; confirm and complete required release/return review.
+
+**Steps:** Verify the booking becomes Awaiting Payment with ₱600 balance. Record Completed ₱600, use the supported completion action, then refresh Details, Payments, Dashboard, Reports, Notifications, and Audit History.
+
+**Expected:** Review changes the status to Awaiting Payment, final payment makes balance zero, and completion changes it to Completed exactly once. Notification and reports update consistently.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 52 — Report filters, totals, and export consistency
+
+**Setup:** Use `T3 Gino Report`, `09173000114`, plus Tester 3 records containing Completed, Pending, and Failed payments, deposits, deductions, refunds, balances, cancellations, and completed bookings.
+
+**Steps:** Apply relevant date/status/service filters. Compare on-screen totals to source booking/payment records. Export each available report and compare row count, references, amounts, statuses, and date range.
+
+**Expected:** Filters include only matching records. Collected revenue counts only Completed rental payments; deposits/deductions remain separate. Exported and on-screen results agree.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Tester 3 bug report — Payments, deposits, delivery, and reporting
+
+### Bug list
+
+| Bug ID | Scenario | Severity | Short issue | Screenshot | Retest? |
+| --- | ---: | --- | --- | --- | --- |
+| T3-BUG-01 | | | | | |
+
+### Detailed bug record — copy once for every bug
+
+- **Bug ID / scenario / booking reference:**
+- **Process section:**
+- **Severity:** Critical / High / Medium / Low
+- **Exact steps to reproduce:**
+- **Expected result:**
+- **Actual result:**
+- **Exact error message:**
+- **Does it still happen after refresh/reopen?**
+- **Which screens disagree?**
+- **Screenshot filename:**
+- **Recommended fix or clarification:**
+
+**Tester 3 summary:** PASS ___ · FAIL ___ · BLOCKED ___ · NOT RUN ___ · Critical ___ · High ___ · Medium ___ · Low ___
+
+Scenarios needing retest: ___
+
+Workflow stages not reached: ___
+
+Overall assessment: ___
+
+---
+
+# Tester 4 — Equipment, Returns, Notifications, and Synchronization
+
+## Scenario 31 — Checklist generation and persistence
+
+**Book:** `T4 Dee Checklist`, `09174000101`; April 2, 2027; Karaoke Setup — 12 Hours; confirm.
+
+**Steps:** Open Checklist & Release, record every item name/quantity, refresh, and reopen.
+
+**Expected:** One stable checklist exists with no duplicated or missing rows; package snapshot matches Details.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 32 — Release requires all conditions and quantities
+
+**Book:** `T4 Emi Release`, `09174000102`; April 4; checklist-generating package; confirm.
+
+**Steps:** Attempt release with one condition blank, then one quantity incomplete, then complete every row and release.
+
+**Expected:** Incomplete attempts fail without history. Complete attempt records exactly one release and matching item history.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 33 — Pending release and duplicate release prevention
+
+**Book:** `T4 Finn Duplicate`, `09174000103`; April 6; Karaoke package.
+
+**Steps:** Try release while Pending. Confirm, complete checklist, release once, then try again.
+
+**Expected:** Pending release fails; first valid release succeeds; second is rejected without duplicate history.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 34 — Outgoing quantity cannot exceed expected
+
+**Book:** `T4 Gail Quantity`, `09174000104`; April 8; package with known checklist quantities; confirm.
+
+**Steps:** Enter one more than expected for one item and try release. Correct to exact expected quantity and retry.
+
+**Expected:** Oversized quantity is rejected with no release/history. Exact quantity saves.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 35 — Return quantity cannot exceed released
+
+**Book:** `T4 Hugo Return Limit`, `09174000105`; initially April 10; confirm, complete outgoing checklist, and release. Move event to an approved past test date to reach Awaiting Completion.
+
+**Steps:** Enter returned quantity greater than released and try to save/finalize; then correct it.
+
+**Expected:** Invalid return is rejected without partial Returned history. Corrected value persists.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 36 — Short return must be Missing
+
+**Book:** `T4 Isla Missing`, `09174000106`; April 12; release equipment and reach Return Inspection.
+
+**Steps:** Return fewer units than released while status is Inspected. Attempt final review. Then mark Missing and add condition/notes.
+
+**Expected:** Short return cannot finalize as merely Inspected. Missing documentation permits review when all other requirements pass.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 37 — Allowed return conditions persist
+
+**Book:** `T4 Jules Conditions`, `09174000107`; April 14; release and reach Return Inspection.
+
+**Steps:** Use Good, Minor Damage, Damaged, Missing, and Unwashed where appropriate. Confirm invalid or Not Applicable values are absent. Refresh and reopen.
+
+**Expected:** Only allowed values save; each condition remains attached to the correct item.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 38 — Completed lifecycle with zero balance
+
+**Book:** `T4 Kira Complete`, `09174000108`; initially April 16; agreed total and Completed payments equal; confirm, release, then move to an approved past test date.
+
+**Steps:** Complete each return row, mark payment/deposit reviewed, add review note, and finalize. Refresh all related screens.
+
+**Expected:** Booking becomes Completed, equipment/service is released, histories exist once, and reports reflect completion.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 39 — Notification opens exact booking and tab
+
+**Setup:** Produce one Awaiting Completion booking and one Awaiting Payment booking with different customers.
+
+**Steps:** Open each bell notification separately.
+
+**Expected:** Awaiting Completion opens its own reference on Return Inspection. Awaiting Payment opens its own reference on Payments. Customer, status, message, booking, and selected tab all match.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 40 — Offline booking and payment replay without duplicates
+
+**Book offline:** `T4 Mina Offline`, `09174000110`; April 20; Sweet Corner Set A; total ₱250; payment ₱250.
+
+**Steps:** With the signed-in app loaded, disconnect. Create booking and payment once. Verify pending sync entries. Reconnect, Sync Now, wait, and Sync Now again. Refresh and inspect Booking, Customer, Payment, Checklist, and Audit History.
+
+**Expected:** Exactly one server customer, booking, payment, checklist set, and applicable history exist. Local/server IDs link correctly and survive refresh.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 53 — Notification persistence, read state, and deduplication
+
+**Setup:** Create `T4 Nica Notification`, `09174000111`, in a state that generates an Awaiting Completion notification.
+
+**Steps:** Reconcile/refresh repeatedly, close and reopen the browser, mark the notification read if supported, and refresh again. Complete the required action and inspect the bell and target booking.
+
+**Expected:** One actionable notification exists per event, survives reload until handled, preserves supported read state, never duplicates on repeated reconciliation, and resolves or updates after completion.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 54 — Offline conflict, partial batch, and retry
+
+**Setup:** While online, create a Confirmed booking that will conflict with an offline draft. Prepare three offline operations: one valid booking, one conflicting confirmation/update, and one deliberately invalid operation using fictional `T4 Omar Sync Batch`, `09174000112` data.
+
+**Steps:** Disconnect, queue each operation, reconnect, and run Sync Now. Record committed, conflict, and failed groups. Correct only the failed/conflicting data and retry twice.
+
+**Expected:** Valid work commits once; conflict and failed entries remain clearly actionable; retry commits corrected work without replaying successful operations or creating duplicates. Counts and IDs survive reload.
+
+**Result:** Outcome ___ · References ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Scenario 55 — Offline updates across the remaining booking workflow
+
+**Setup:** Create `T4 Pia Offline Extended`, `09174000113`, online and reach a state where the relevant actions are permitted.
+
+**Steps:** In separate controlled offline cycles, queue a booking edit, payment correction, deposit/deduction action, delivery update, and checklist/return update. Reconnect after each cycle, sync twice, refresh, and compare every affected screen and Audit History.
+
+**Expected:** Each supported offline action commits exactly once through the same validation rules as an online action. Unsupported actions are clearly blocked rather than silently lost. Money, status, checklist, history, and local/server IDs remain consistent.
+
+**Result:** Outcome ___ · Reference ___ · Screenshot ___ · Notes/Bug ID ___
+
+## Tester 4 bug report — Equipment, returns, notifications, and sync
+
+### Bug list
+
+| Bug ID | Scenario | Severity | Short issue | Screenshot | Retest? |
+| --- | ---: | --- | --- | --- | --- |
+| T4-BUG-01 | | | | | |
+
+### Detailed bug record — copy once for every bug
+
+- **Bug ID / scenario / booking reference:**
+- **Process section:**
+- **Severity:** Critical / High / Medium / Low
+- **Exact steps to reproduce:**
+- **Expected result:**
+- **Actual result:**
+- **Exact error message:**
+- **Does it still happen after refresh/reopen?**
+- **Which screens disagree?**
+- **Screenshot filename:**
+- **Recommended fix or clarification:**
+
+**Tester 4 summary:** PASS ___ · FAIL ___ · BLOCKED ___ · NOT RUN ___ · Critical ___ · High ___ · Medium ___ · Low ___
+
+Scenarios needing retest: ___
+
+Workflow stages not reached: ___
+
+Overall assessment: ___
+
+---
+
+# Consolidated 55-Scenario Report
+
+## Combined results
+
+| Scenario | Tester | Outcome | Booking reference(s) | Bug ID(s) | Retest required? |
+| ---: | --- | --- | --- | --- | --- |
+| 1 | Tester 1 | | | | |
+| 2 | Tester 1 | | | | |
+| 3 | Tester 1 | | | | |
+| 4 | Tester 1 | | | | |
+| 5 | Tester 1 | | | | |
+| 6 | Tester 1 | | | | |
+| 7 | Tester 1 | | | | |
+| 8 | Tester 1 | | | | |
+| 9 | Tester 1 | | | | |
+| 10 | Tester 1 | | | | |
+| 11 | Tester 2 | | | | |
+| 12 | Tester 2 | | | | |
+| 13 | Tester 2 | | | | |
+| 14 | Tester 2 | | | | |
+| 15 | Tester 2 | | | | |
+| 16 | Tester 2 | | | | |
+| 17 | Tester 2 | | | | |
+| 18 | Tester 2 | | | | |
+| 19 | Tester 2 | | | | |
+| 20 | Tester 2 | | | | |
+| 21 | Tester 3 | | | | |
+| 22 | Tester 3 | | | | |
+| 23 | Tester 3 | | | | |
+| 24 | Tester 3 | | | | |
+| 25 | Tester 3 | | | | |
+| 26 | Tester 3 | | | | |
+| 27 | Tester 3 | | | | |
+| 28 | Tester 3 | | | | |
+| 29 | Tester 3 | | | | |
+| 30 | Tester 3 | | | | |
+| 31 | Tester 4 | | | | |
+| 32 | Tester 4 | | | | |
+| 33 | Tester 4 | | | | |
+| 34 | Tester 4 | | | | |
+| 35 | Tester 4 | | | | |
+| 36 | Tester 4 | | | | |
+| 37 | Tester 4 | | | | |
+| 38 | Tester 4 | | | | |
+| 39 | Tester 4 | | | | |
+| 40 | Tester 4 | | | | |
+| 41 | Tester 1 | | | | |
+| 42 | Tester 1 | | | | |
+| 43 | Tester 1 | | | | |
+| 44 | Tester 1 | | | | |
+| 45 | Tester 2 | | | | |
+| 46 | Tester 2 | | | | |
+| 47 | Tester 2 | | | | |
+| 48 | Tester 2 | | | | |
+| 49 | Tester 3 | | | | |
+| 50 | Tester 3 | | | | |
+| 51 | Tester 3 | | | | |
+| 52 | Tester 3 | | | | |
+| 53 | Tester 4 | | | | |
+| 54 | Tester 4 | | | | |
+| 55 | Tester 4 | | | | |
+
+## Bugs grouped by booking-process section
+
+| Section | Bug IDs | Highest severity | Affected scenarios | Summary |
+| --- | --- | --- | --- | --- |
+| Customer | | | | |
+| Event details | | | | |
+| Catalog selection | | | | |
+| Pricing | | | | |
+| Availability | | | | |
+| Status | | | | |
+| Cancellation | | | | |
+| Payment | | | | |
+| Deposit | | | | |
+| Delivery | | | | |
+| Checklist | | | | |
+| Release | | | | |
+| Return | | | | |
+| Completion | | | | |
+| Notification | | | | |
+| Reporting | | | | |
+| Audit history | | | | |
+| Offline synchronization | | | | |
+| Cross-screen consistency | | | | |
+
+## Bugs grouped by severity
+
+| Severity | Count | Bug IDs | User/business effect |
+| --- | ---: | --- | --- |
+| Critical | | | |
+| High | | | |
+| Medium | | | |
+| Low | | | |
+
+## Final evaluation
+
+- **Total PASS:** ___
+- **Total FAIL:** ___
+- **Total BLOCKED:** ___
+- **Total NOT RUN:** ___
+- **Duplicate or related bugs reported by multiple testers:** ___
+- **Cross-screen consistency failures:** ___
+- **Blocked or untested capabilities:** ___
+- **Recommended repair order:** ___
+- **Scenarios required for retest:** ___
+- **Overall booking-flow assessment:** ___
+
+## Evidence boundary
+
+This plan records manual browser evidence from four separate local test environments executed one at a time. Differences between laptops may be environment-specific, so every report must identify the laptop, browser, PHP version, and database baseline used. A complete local result does not prove production hosting, physical-device behavior, real-network reliability, security acceptance, or client acceptance. Those require separate verification.
