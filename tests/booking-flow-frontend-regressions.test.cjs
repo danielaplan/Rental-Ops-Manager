@@ -20,6 +20,11 @@ test('manual booking uses event-date promotions, reusable customers, and bounded
 
 test('confirmation preserves blocked-time allowances and requires explicit overlap approval', () => {
   const source = read('admin/bookings.html');
+  const api = read('js/api.js');
+  assert.equal(source.match(/API\.checkAvailability\([^\n]+booking\._server_id \?\? booking\.id/g)?.length, 2);
+  assert.match(api, /const time = value => String\(value\)\.slice\(0, 5\)/);
+  assert.match(api, /event_start_datetime: `\$\{date\} \$\{time\(startTime\)\}:00`/);
+  assert.match(api, /event_end_datetime: `\$\{date\} \$\{time\(endTime\)\}:00`/);
   assert.match(source, /preparation_minutes: Number\(booking\.preparation_minutes \|\| 0\)/);
   assert.match(source, /travel_minutes: Number\(booking\.travel_minutes \|\| 0\)/);
   assert.match(source, /approve_conflicts: true/);
@@ -54,6 +59,7 @@ test('Pending alteration exposes every mutable booking term without changing non
 });
 
 test('release and return queue only their atomic server operations', () => {
+  const bookings = read('admin/bookings.html');
   const source = read('js/sync.js');
   const release = source.match(/API\.recordRelease=.*?;\n/)?.[0] || '';
   const returned = source.match(/API\.recordReturn=.*?;\n/)?.[0] || '';
@@ -61,6 +67,8 @@ test('release and return queue only their atomic server operations', () => {
   assert.match(returned, /enqueue\('equipment','inspect'/);
   assert.doesNotMatch(release + returned, /logItemHistory|itemHistory','create/);
   assert.match(source, /updatePayment:\['payments','update'\]/);
+  assert.match(bookings, /\$\('#bookingDetailModal'\)\.onAdmin\('change', '\.js-release-check'/);
+  assert.doesNotMatch(bookings, /\$\('\.admin-main'\)\.onAdmin\('change', '\.js-release-check'/);
 });
 
 test('server booking boundaries keep pricing, text limits, release, history, and payment replay authoritative', () => {

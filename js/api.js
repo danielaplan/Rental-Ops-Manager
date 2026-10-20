@@ -267,12 +267,13 @@ const API = (() => {
     finalizeReturn: (bookingId, review = {}) => request("equipment.php", { query: { do: "finalizeReturn" }, body: { booking_id: serverId(bookingId), ...review } }),
 
     async checkAvailability(serviceId, date, startTime, endTime, excludeBookingId, allowances = {}) {
+      const time = value => String(value).slice(0, 5);
       try {
         return await request("bookings.php", { query: {
           do: "availability",
           service_id: serverId(serviceId),
-          event_start_datetime: `${date} ${startTime}:00`,
-          event_end_datetime: `${date} ${endTime}:00`,
+          event_start_datetime: `${date} ${time(startTime)}:00`,
+          event_end_datetime: `${date} ${time(endTime)}:00`,
           exclude_booking_id: excludeBookingId ? serverId(excludeBookingId) : undefined,
           preparation_minutes: allowances.preparation_minutes,
           travel_minutes: allowances.travel_minutes

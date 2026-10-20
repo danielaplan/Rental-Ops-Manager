@@ -395,8 +395,8 @@ let deliveryFormRevision = 0;
 let returnToBookingDetails = false;
 let detailVersion = 0, bookingsVersion = 0, detailEditRevision = 0;
 let pendingConflictApproval = null;
-$('.admin-main').onAdmin('input change', '#bookingDetailModal :input', () => { detailEditRevision++; });
-$('.admin-main').onAdmin('hidden.bs.modal', '#bookingDetailModal', () => { detailVersion++; });
+$('#bookingDetailModal').onAdmin('input change', ':input', () => { detailEditRevision++; });
+$('#bookingDetailModal').onAdmin('hidden.bs.modal', () => { detailVersion++; });
 
 adminReady(async function () {
   await API.ready;
@@ -505,7 +505,7 @@ adminReady(async function () {
     if (['Confirmed', 'Reserved', 'Preparing', 'Released'].includes(booking.status)) {
       const availability = await Promise.all((booking.service_ids || []).map(async serviceId => ({
         id: serviceId,
-        available: (await API.checkAvailability(serviceId, eventDate, startTime, endTime, booking.id, { preparation_minutes: Number(booking.preparation_minutes || 0), travel_minutes: Number(booking.travel_minutes || 0) })).available
+        available: (await API.checkAvailability(serviceId, eventDate, startTime, endTime, booking._server_id ?? booking.id, { preparation_minutes: Number(booking.preparation_minutes || 0), travel_minutes: Number(booking.travel_minutes || 0) })).available
       })));
       const conflicts = availability.filter(item => !item.available).map(item => item.id);
       if (conflicts.length) {
@@ -557,7 +557,7 @@ adminReady(async function () {
     // A status change that activates the booking's time slot needs the same
     // conflict check as a new booking — the slot may have been taken.
     if (newStatus === 'Confirmed' || newStatus === 'Reserved' || newStatus === 'Preparing') {
-      const availability = await Promise.all((booking.service_ids || []).map(sid => API.checkAvailability(sid, booking.event_date, booking.start_time, booking.end_time, booking.id, { preparation_minutes: Number(booking.preparation_minutes || 0), travel_minutes: Number(booking.travel_minutes || 0) })));
+      const availability = await Promise.all((booking.service_ids || []).map(sid => API.checkAvailability(sid, booking.event_date, booking.start_time, booking.end_time, booking._server_id ?? booking.id, { preparation_minutes: Number(booking.preparation_minutes || 0), travel_minutes: Number(booking.travel_minutes || 0) })));
       const blocks = availability.flatMap(result => result.conflicts?.blocks || []);
       const conflicts = availability.flatMap(result => result.conflicts?.bookings || []);
       if (blocks.length) {
@@ -644,7 +644,7 @@ adminReady(async function () {
     } finally { button.prop('disabled', false); }
   });
 
-  $('.admin-main').onAdmin('change', '.js-release-check', async function () {
+  $('#bookingDetailModal').onAdmin('change', '.js-release-check', async function () {
     const bookingItemId = $(this).closest('.checklist-row').data('item');
     await API.updateBookingItem(bookingItemId, { checked_released: this.checked });
     $(this).closest('.checklist-row').toggleClass('checked', this.checked);

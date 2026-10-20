@@ -183,6 +183,13 @@
     else{row={customer_id:nextLocalId('customers'),name:booking.customer_name,contact:booking.contact,email:booking.email||'',type:booking.customer_type||'Guest / No Account',pending_sync:true};rows.push(row);}
     saveRows('customers',rows);return row;
   };
+  const validateBookingDraft=data=>{
+    const bytes=value=>new TextEncoder().encode(String(value??'').trim()).length;
+    const newCustomer=!data.customer_id;
+    if(bytes(data.customer_name)>100||bytes(data.contact??data.contact_number)>20)throw new Error('Customer name must be at most 100 characters and contact must be at most 20 characters.');
+    if(bytes(data.email)>(newCustomer?100:255))throw new Error(`Email must be at most ${newCustomer?100:255} characters.`);
+    if(bytes(data.event_location??data.location)>255)throw new Error('Event location must be at most 255 characters.');
+  };
   const actions={
     createCategory:['categories','create'],updateCategory:['categories','update'],deleteCategory:['categories','delete'],
     createService:['services','create'],updateService:['services','update'],deleteService:['services','delete'],
@@ -198,6 +205,7 @@
       const id=action==='create'?null:args[0];
       const old=id==null?null:STORAGE.getAll(entity).find(row=>String(row[fields[entity]])===String(id));
       const input=action==='create'?(args[0]||{}):action==='update'?(args[1]||{}):{};
+      if(entity==='bookings')validateBookingDraft(input);
       let result;
       if(action==='create')result=createLocal(entity,input);
       else if(action==='update')result=updateLocal(entity,id,input);

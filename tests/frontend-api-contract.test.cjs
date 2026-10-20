@@ -129,6 +129,7 @@ function createHarness() {
     Array,
     Object,
     Error,
+    TextEncoder,
     AbortSignal: { timeout() { return undefined; } },
     CustomEvent: class CustomEvent { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
     structuredClone: global.structuredClone,
@@ -203,6 +204,22 @@ test('writes resolve to a pending local draft and enqueue an authenticated sync 
   assert.equal(queue[0].entity, 'services');
   assert.equal(queue[0].action, 'create');
   assert.equal(queue[0].owner_id, 7);
+});
+
+test('oversized booking text is rejected before creating a local draft or sync operation', async () => {
+  const { context, collections } = createHarness();
+
+  await assert.rejects(
+    context.API.createBooking({
+      customer_name: 'G'.repeat(101), contact: '0'.repeat(21),
+      email: 'test@example.com', location: 'L'.repeat(256)
+    }),
+    /Customer name must be at most 100 characters/
+  );
+
+  assert.equal(collections.bookings.length, 0);
+  assert.equal(collections.customers.length, 0);
+  assert.equal(context.API.getSyncQueue().length, 0);
 });
 
 test('booking-scoped reads return cached rows and request the matching server collection', async () => {

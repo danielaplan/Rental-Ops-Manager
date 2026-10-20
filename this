@@ -370,3 +370,55 @@ Codex: list behavior that these scenarios could not verify, browser limitations,
 - The in-app browser could create and edit the temporary promotion but could not accept the native confirmation opened by Deactivate package. `TEMP TEST PROMO` therefore remained Active; its Nov 12–16 eligibility window prevents it from appearing outside those dates.
 - Conflict approval, confirmed rescheduling, payments/corrections, deposits/deductions/refunds, equipment release, return inspection, completion, notification routing, and clean offline replay still require a fresh browser run after QA-01 and QA-02 are fixed.
 - No application code was changed during this audit. Records created by the run were retained for inspection, including the invalid queued draft required as QA-02 evidence.
+
+## Port 3306 rerun — October 20, 2026
+
+Environment: local PHP server at `http://127.0.0.1:8000`, XAMPP MySQL on port `3306`, and `akad_rentals` verified with 0 starting bookings, 0 customers, and 0 payments. The browser dashboard also showed 0 bookings and `Online · 0 Pending Sync` before execution.
+
+Scenario 1 was rerun through the visible admin UI. Booking 1 was created for Ana Test, reopened with the expected Karaoke Setup — 12 Hours snapshot and ₱999 total, and remained Pending. Changing its status to Confirmed produced `This record has not been accepted by the server yet`; the status did not persist.
+
+Result: **FAIL — QA-01 reproduced on port 3306.** The failure blocks the remaining Scenario 1 payment/release/return/completion steps and every later scenario requiring an accepted Confirmed booking. No application code was changed. The created Booking 1 and Ana Test customer were retained as evidence.
+
+### Post-fix verification
+
+QA-01's confirmation blocker was fixed on October 20, 2026. The booking page now uses the accepted numeric `_server_id` for availability exclusions, and the shared API normalizes both `HH:MM` and `HH:MM:SS` values before building availability datetimes.
+
+Booking 1 was reopened in the browser and changed from Pending to Confirmed. The table showed Confirmed with `Online · 0 Pending Sync`, and a direct database read showed booking 1 as Confirmed. This closes the reproduced confirmation blocker only; the remaining Scenario 1 steps and the full 40-scenario run still require execution.
+
+## Browser rerun: Scenarios 1-10 — October 20, 2026
+
+Environment: local admin at `http://127.0.0.1:8000`, XAMPP MySQL on port `3306`, and the retained synthetic records from this rerun. Execution used the visible admin UI. Source inspection was used only to explain QA-05; it was not substituted for a browser result.
+
+Summary: **7 PASS, 2 FAIL, 1 BLOCKED**.
+
+| # | Outcome | Browser-observed evidence / booking reference | Issue ID |
+| --- | --- | --- | --- |
+| 1 | FAIL | Booking 1 was Confirmed and fully paid. The Checklist & Release tab displayed four outgoing rows, but checking every row left the counter at `0 / 4 Items Checked`; **Confirm Items Released** stayed disabled. Release, Awaiting Completion, return review, final completion, and notification resolution were therefore unreachable. | QA-05 |
+| 2 | PASS | Booking 2 saved for existing customer Ana Test (`09170001001`) with Karaoke Setup — 24 Hours and ₱1,499. Customers showed one Ana record with two bookings. |  |
+| 3 | PASS | Booking 3 saved for Bea Test with Sweet Corner Set A, Donut Wall Display, and 4 Rectangular Lace Serving Trays. The list and reopened snapshot showed ₱250 + ₱80 = ₱330. |  |
+| 4 | PASS | Booking 4 saved with Balloon Decoration → Package A at ₱2,799. The package selector exposed only Balloon packages for that service. Confirmation persisted after a full reload. |  |
+| 5 | PASS | Booking 5 saved for Dina Test with JBL Karaoke Rental, no package, and negotiated total ₱1,250. Reopened Services showed no unrelated package or checklist template. |  |
+| 6 | BLOCKED | Booking 6 saved with Karaoke Setup — 12 Hours, JBL Wireless Microphone, Microphone Stand, ₱50 discount, and ₱25 fee; the resulting total was ₱1,274 and only the two active add-ons were offered. The separate forged-request rejection for an inactive add-on is not possible through the visible browser UI and was not replaced with an API-only test. |  |
+| 7 | PASS | Created temporary active `TEMP TEST PROMO` at ₱800 for Nov 12–16. It appeared for a Nov 14 event, disappeared for Nov 17, and Booking 7 reopened with the ₱800 snapshot. The temporary package was then deactivated and visibly showed Inactive. |  |
+| 8 | PASS | Booking 8 was edited while Pending: customer changed to Bea Test, service/package to Sweet Corner Set A, Donut Wall add-on, Nov 20 1:00–4:00 PM, updated venue, 15/20 minute allowances, ₱10 discount, ₱5 fee, and ₱295 total. All reopened correctly. After confirmation and reload, the general event editor remained available but the Pending-only commercial fields and service selector were hidden. |  |
+| 9 | FAIL | Equal start/end time showed `End time must be after start time` and disabled Create Booking. A 101-character name, 21-character contact, and 256-character location were nevertheless accepted into an `Offline draft`; the badge became `Online · 2 Pending Sync · 2 need attention`. Corrected values then produced exactly one accepted Booking 9 for Gio Test. | QA-02 |
+| 10 | PASS | Booking 10 for Hana Test confirmed with 30 minutes preparation and 45 minutes travel, blocking 1:30–4:45 PM. A second 1:45–2:15 PM Karaoke booking visibly reported one conflict and saved only as Pending. Attempted confirmation without approval remained Pending after reload. Moving it to 5:00–6:00 PM allowed confirmation, which persisted after reload as Booking 11. |  |
+
+### New issue found in this rerun
+
+| Issue ID | Scenario | Severity | Steps to reproduce | Expected | Actual | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| QA-05 | 1; also blocks 13–15 and 34–39 | Critical | Open a Confirmed booking with generated checklist items, select Checklist & Release, and check every outgoing item. | Each change should update saved progress; when all expected quantities and conditions are complete, the release action should become enabled. | The checkboxes visibly toggle, but progress remains `0 / 4 Items Checked`, the release button remains disabled, and no release is recorded. | Browser-observed on Booking 1. Source inspection found the release modal outside `.admin-main` while its `.js-release-check` change handler is delegated from `.admin-main`, so the event cannot reach the handler. |
+
+### Rerun limitations and retained evidence
+
+- QA-02 left one invalid synthetic Offline draft and two attention-needed sync entries in browser-local state. They were retained as evidence because the runbook forbids deleting records during the audit.
+- Scenario 6's inactive-option forged-request subcase remains browser-blocked. The visible selector correctly omitted inactive add-ons, but server rejection was not tested.
+- No application code was changed during this 1–10 audit. The temporary Scenario 7 promotion was restored to Inactive. Scenarios 11–40 were not run in this pass because the user limited this execution to the first ten scenarios.
+
+### QA-02 and QA-05 post-fix verification — October 20, 2026
+
+- **QA-05 fixed:** Booking 1's four release checkboxes now update progress from `0 / 4` to `4 / 4`, show **Ready for Release**, and enable **Confirm Items Released**. Browser submission succeeded; a read-only database check found exactly one release for Booking 1 recorded by `Codex QA`.
+- **QA-02 fixed for new writes:** a fresh browser submission with a 101-character name, 21-character contact, and 256-character location stayed on Manual Booking and displayed `Customer name must be at most 100 characters and contact must be at most 20 characters.` The sync badge remained `2 Pending Sync · 2 need attention`, proving the rejected attempt added no new draft or queue entry.
+- The earlier invalid Offline draft and its two attention-needed operations remain retained as audit evidence; this fix prevents new invalid drafts and does not silently delete old evidence.
+- Focused local verification: 36 Node regression checks passed, the repository syntax check passed, and `git diff --check` reported no new whitespace errors.
