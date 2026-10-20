@@ -111,6 +111,7 @@ test('offline sync honors revised shared booking, financial, catalog, and histor
     booking_id: bid, delivery_method: 'owner_delivered', delivery_fee: '-1.00', fee_shouldered_by: 'Customer',
   });
   assert.equal((await request(`api/delivery.php?do=get&booking_id=${bid}`)).delivery_notes, 'Sync note survives');
+  await synced('bookings', 'update', { id: bid, status: 'Confirmed' });
   const history = await synced('itemHistory', 'create', { booking_id: bid, rental_item_id: 1, action: 'Released', qty: 1, condition: 'Good' });
   const release = await synced('itemReleases', 'create', { booking_id: bid, released_by: 'Fixture owner', notes: 'Append-only fixture' });
   await rejected('itemHistory', 'delete', { id: history.ack.server_id });
@@ -123,7 +124,7 @@ test('offline sync honors revised shared booking, financial, catalog, and histor
   assert.equal(Number((await request(`api/deposits.php?booking_id=${bid}`)).amount_held), 15);
   assert.equal((await request(`api/delivery.php?do=get&booking_id=${bid}`)).delivery_notes, 'Sync note survives');
   const audit = await request(`api/audit.php?booking_id=${bid}`);
-  assert.deepEqual(audit.filter(row => row.new_status !== null).map(row => [row.old_status, row.new_status]), [[null, 'Pending'], ['Pending', 'Cancelled']]);
+  assert.deepEqual(audit.filter(row => row.new_status !== null).map(row => [row.old_status, row.new_status]), [[null, 'Pending'], ['Pending', 'Confirmed'], ['Confirmed', 'Cancelled']]);
 
   for (const value of [-1, 1.5, 'bad', 525601]) await rejected('services', 'update', { id: 2, default_preparation_minutes: value });
   const service = await synced('services', 'create', { service_name: 'Sync archive fixture ' + Date.now() });

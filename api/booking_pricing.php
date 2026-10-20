@@ -33,7 +33,7 @@ function calculateBookingTotals(PDO $pdo, int $serviceId, ?int $packageId, array
     $addonsTotal = 0;
     if ($ids) {
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $addons = $pdo->prepare("SELECT addon_id, price FROM addons WHERE service_id = ? AND addon_id IN ($placeholders)");
+        $addons = $pdo->prepare("SELECT addon_id, price FROM addons WHERE service_id = ? AND status = 'Active' AND addon_id IN ($placeholders)");
         $addons->execute([$serviceId, ...array_values($ids)]);
         $prices = $addons->fetchAll();
         if (count($prices) !== count($ids)) {

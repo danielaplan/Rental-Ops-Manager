@@ -87,8 +87,10 @@ foreach ($queue as $item) {
             }
             $id=saveBooking($pdo,$action,$id,$data,(int)$actor['user_id']);
             $record=bookingRow($id);
-        } elseif ($entity==='payments' && $action==='create') {
-            $record=savePayment($pdo,'create',null,$data,$actor); $id=(int)$record['payment_id'];
+        } elseif ($entity==='payments' && in_array($action,['create','update'],true)) {
+            $id=$action==='update' ? asInt($data['payment_id'] ?? $data['id'] ?? null,1) : null;
+            if ($action==='update' && !$id) domainFail('A payment ID is required.');
+            $record=savePayment($pdo,$action,$id,$data,$actor); $id=(int)$record['payment_id'];
         } elseif ($entity==='deposits' && $action==='upsert') {
             $record=syncDepositUpsert($pdo,asInt($data['booking_id'] ?? null,1)??0,$data,(int)$actor['user_id']);
         } elseif ($entity==='deposits' && in_array($action,['deduct','refund'],true)) {

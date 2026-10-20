@@ -326,6 +326,7 @@ const API = (() => {
     getPayments: () => list("payments.php", "payments", { do: "all" }),
     getPaymentsForBooking: bookingId => list("payments.php", "payments", { do: "all", booking_id: serverId(bookingId) }),
     async createPayment(data) { return normalize("payments", await request("payments.php", { query: { do: "create" }, body: payload("payments", data) })); },
+    async updatePayment(id, data) { return normalize("payments", await request("payments.php", { query: { do: "update", id: serverId(id) }, body: payload("payments", data) })); },
 
     getGallery: () => list("gallery.php", "gallery", { do: "all" }),
     uploadGalleryImage: file => {

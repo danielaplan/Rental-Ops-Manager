@@ -11,7 +11,7 @@ const backend = [
   'backend-revised-requirements', 'catalog-plan-gaps', 'booking-plan-gaps', 'finance-plan-gaps',
   'auth-plan-gaps', 'sync-plan-gaps', 'write-validation-gaps', 'history-template-gaps', 'offline-sync',
 ].map(name => `tests/${name}.test.cjs`);
-const frontend = ['public-site-data', 'frontend-api-contract', 'frontend-async-workflows', 'frontend-api-direct']
+const frontend = ['public-site-data', 'frontend-api-contract', 'frontend-async-workflows', 'frontend-api-direct', 'booking-flow-frontend-regressions']
   .map(name => `tests/${name}.test.cjs`);
 const env = { ...process.env, AKAD_TEST_EXCLUDE_DEFERRED_BLOCKOUTS: '1',
   AKAD_TEST_OFFLINE_RESULTS: path.join(output, 'offline-results.json') };

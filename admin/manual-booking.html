@@ -32,16 +32,21 @@
             <h6 class="manual-section-title">1. Customer Details</h6>
           <div class="row g-3 mb-3">
             <div class="col-12">
+              <label class="form-label" for="mCustomerId">Existing customer <span class="text-muted">(optional)</span></label>
+              <select class="form-select" id="mCustomerId"><option value="">Create a new customer</option></select>
+              <div class="form-text">Choose a repeat customer to avoid creating a duplicate record.</div>
+            </div>
+            <div class="col-12">
               <label class="form-label" for="mCustName">Full Name</label>
-              <input type="text" class="form-control" id="mCustName" required>
+              <input type="text" class="form-control" id="mCustName" maxlength="100" required>
             </div>
             <div class="col-12">
               <label class="form-label" for="mCustContact">Contact Number</label>
-              <input type="text" class="form-control" id="mCustContact" required>
+              <input type="text" class="form-control" id="mCustContact" maxlength="20" required>
             </div>
             <div class="col-12">
               <label class="form-label" for="mCustEmail">Email (optional)</label>
-              <input type="email" class="form-control" id="mCustEmail">
+              <input type="email" class="form-control" id="mCustEmail" maxlength="100">
             </div>
             <div class="col-12">
               <label class="form-label" for="mCustType">Customer Type</label>
@@ -93,7 +98,7 @@
               </div>
               <div class="col-12">
                 <label class="form-label" for="mLocation">Event Location</label>
-                <input type="text" class="form-control" id="mLocation" required>
+                <input type="text" class="form-control" id="mLocation" maxlength="255" required>
               </div>
               <div class="col-12">
                 <label class="form-label" for="mSpecialRequests">Special Requests</label>
@@ -176,19 +181,6 @@
   </div>
 </main>
 
-<div class="modal fade" id="conflictReviewModal" tabindex="-1" aria-labelledby="conflictReviewTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable"><div class="modal-content">
-    <div class="modal-header"><h5 class="modal-title" id="conflictReviewTitle">Review booking conflict</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-    <div class="modal-body">
-      <div id="conflictReviewList" class="mb-3"></div>
-      <label class="form-label" for="conflictOverrideReason">Reason for approving this overlap</label>
-      <textarea class="form-control" id="conflictOverrideReason" rows="3" maxlength="5000" required></textarea>
-      <div class="text-danger small mt-2" id="conflictReviewError" hidden></div>
-    </div>
-    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Change schedule</button><button type="button" class="btn btn-admin-primary" id="approveConflictBtn">Approve listed overlaps</button></div>
-  </div></div>
-</div>
-
 <script src="../vendor/jquery-3.7.1.min.js"></script>
 <script src="../vendor/bootstrap-5.3.3.bundle.min.js"></script>
 <script src="../js/config.js"></script>
@@ -219,22 +211,15 @@ adminReady(async function () {
     $('#mTravel').val(service?.default_travel_minutes || 0);
   });
   $('.admin-main').onAdmin('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage, #mPreparation, #mTravel', async function () {
+    if (this.id === 'mDate') await renderPackages();
     await updateSummary();
     await checkAvailability();
   });
+  $('#mCustomerId').onAdmin('change', applySelectedCustomer);
 
   $('#manualBookingForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     await createManualBooking();
-  });
-  $('.admin-main').onAdmin('click', '#reviewConflictsBtn', showConflictReview);
-  $('#approveConflictBtn').onAdmin('click', function () {
-    const reason = $('#conflictOverrideReason').val().trim();
-    if (!reason) { $('#conflictReviewError').prop('hidden', false).text('Enter the business reason for approving this overlap.'); return; }
-    reviewedConflictApproval = { ids: currentConflicts.map(item => Number(item.booking_id ?? item.id)), reason };
-    bootstrap.Modal.getInstance(document.getElementById('conflictReviewModal')).hide();
-    $('#mAvailabilityStatus').html('<span class="availability-pill unavailable"><i class="bi bi-exclamation-triangle"></i> Listed overlaps reviewed and approved for this save</span>');
-    $('#mSubmitBtn').prop('disabled', false);
   });
 });
 
@@ -256,6 +241,23 @@ async function populateForm() {
 
   const $pm = $('#mPayMethod').empty();
   CONFIG.paymentMethods.forEach(m => $pm.append(`<option>${m}</option>`));
+
+  const customers = await API.getCustomers();
+  customers.sort((a, b) => String(a.name).localeCompare(String(b.name))).forEach(customer => {
+    $('#mCustomerId').append(`<option value="${escapeHtmlA(customer.customer_id)}">${escapeHtmlA(customer.name)} · ${escapeHtmlA(customer.contact || 'No contact')}</option>`);
+  });
+}
+
+async function applySelectedCustomer() {
+  const customer = (await API.getCustomers()).find(item => String(item.customer_id) === String($('#mCustomerId').val()));
+  const selected = Boolean(customer);
+  if (customer) {
+    $('#mCustName').val(customer.name || '');
+    $('#mCustContact').val(customer.contact || '');
+    $('#mCustEmail').val(customer.email || customer.messenger || '');
+    $('#mCustType').val(customer.customer_type || 'Returning client');
+  }
+  $('#mCustName, #mCustContact, #mCustEmail, #mCustType').prop('disabled', selected);
 }
 
 let packageVersion = 0, addonVersion = 0, summaryVersion = 0, availabilityVersion = 0;
@@ -265,9 +267,11 @@ async function renderPackages() {
   const service = getMSelectedServices()[0];
   const packages = await API.getPackages();
   if (version !== packageVersion || service !== getMSelectedServices()[0]) return;
-  const today = new Date().toISOString().slice(0, 10);
-  const filtered = packages.filter(p => p.service_id === service && p.status === 'Active' && (!p.is_promotional || (p.promotion_start_date <= today && p.promotion_end_date >= today)));
+  const selectedPackage = $('#mPackage').val();
+  const eventDate = $('#mDate').val();
+  const filtered = packages.filter(p => p.service_id === service && p.status === 'Active' && (!p.is_promotional || (eventDate && p.promotion_start_date <= eventDate && p.promotion_end_date >= eventDate)));
   $('#mPackage').html('<option value="">No package</option>' + filtered.map(p => '<option value="' + escapeHtmlA(p.package_id) + '">' + escapeHtmlA(p.package_name) + ' — ' + BookingCalc.formatCurrency(p.price) + (p.is_promotional ? ' · Promo' : '') + '</option>').join(''));
+  if (filtered.some(p => String(p.package_id) === String(selectedPackage))) $('#mPackage').val(selectedPackage);
 }
 async function manualTotals(addonIds, discount, fees) {
   const [packages, addons] = await Promise.all([API.getPackages(), API.getAddons()]);
@@ -285,6 +289,7 @@ async function restoreManualDraft(){
    await renderAddons();
  }
  Object.entries(draft).forEach(([id, value]) => { if (!['service', 'addonIds'].includes(id)) $('#' + id).val(value); });
+ if ($('#mCustomerId').val()) await applySelectedCustomer();
  $('.js-m-addon').each(function () { this.checked = (draft.addonIds || []).includes(this.value); });
  await updateSummary();
  await checkAvailability();
@@ -344,30 +349,21 @@ async function checkAvailability() {
     $('#mSubmitBtn').prop('disabled', true);
     return;
   }
-  reviewedConflictApproval = null;
   const availability = await Promise.all(serviceIds.map(async id => ({ id, result: await API.checkAvailability(id, date, start, end, null, { preparation_minutes: Number($('#mPreparation').val() || 0), travel_minutes: Number($('#mTravel').val() || 0) }) })));
   if (version !== availabilityVersion) return;
-  currentConflicts = availability.flatMap(entry => entry.result.conflicts?.bookings || []);
+  const conflicts = availability.flatMap(entry => entry.result.conflicts?.bookings || []);
   const blocked = availability.some(entry => (entry.result.conflicts?.blocks || []).length);
   if (blocked) {
     $status.html('<span class="availability-pill unavailable"><i class="bi bi-exclamation-circle"></i> This interval is unavailable and cannot be overridden.</span>');
     $('#mSubmitBtn').prop('disabled', true);
-  } else if (currentConflicts.length) {
-    $status.html(`<button type="button" class="btn btn-sm btn-outline-danger" id="reviewConflictsBtn"><i class="bi bi-exclamation-triangle"></i> Review ${currentConflicts.length} booking conflict${currentConflicts.length === 1 ? '' : 's'}</button>`);
-    $('#mSubmitBtn').prop('disabled', true);
+  } else if (conflicts.length) {
+    $status.html(`<span class="availability-pill unavailable"><i class="bi bi-exclamation-triangle"></i> ${conflicts.length} booking conflict${conflicts.length === 1 ? '' : 's'} found. You may save this as Pending; approval is required before confirmation.</span>`);
+    $('#mSubmitBtn').prop('disabled', manualSaving);
   } else {
     const offline = availability.some(entry => entry.result.offline);
     $status.html(`<span class="availability-pill available"><i class="bi bi-info-circle"></i> ${offline ? 'No conflict in cached data; the server will verify during sync' : 'No conflict — verified by the server'}</span>`);
     $('#mSubmitBtn').prop('disabled', manualSaving);
   }
-}
-
-let currentConflicts = [];
-let reviewedConflictApproval = null;
-function showConflictReview() {
-  $('#conflictReviewList').html(currentConflicts.map(conflict => `<div class="border rounded p-2 mb-2"><strong>${escapeHtmlA(conflict.booking_reference || conflict.booking_id)}</strong><br>${escapeHtmlA(conflict.customer_name || 'Customer')} · ${escapeHtmlA(conflict.service_name || 'Service')}<br><span class="text-muted">${escapeHtmlA(conflict.event_start_datetime || '')} to ${escapeHtmlA(conflict.event_end_datetime || '')}</span></div>`).join(''));
-  $('#conflictOverrideReason').val(''); $('#conflictReviewError').prop('hidden', true);
-  new bootstrap.Modal('#conflictReviewModal').show();
 }
 
 /* Independent time validation — runs at submission, not just on change.
@@ -394,10 +390,8 @@ async function createManualBooking() {
   clearFieldError('#mEnd');
 
   const availability = await API.checkAvailability(serviceIds[0], date, start, end, null, { preparation_minutes: Number($('#mPreparation').val() || 0), travel_minutes: Number($('#mTravel').val() || 0) });
-  const conflictIds = (availability.conflicts?.bookings || []).map(item => Number(item.booking_id ?? item.id));
-  if ((availability.conflicts?.blocks || []).length || (conflictIds.length && (!reviewedConflictApproval || String(reviewedConflictApproval.ids.sort()) !== String(conflictIds.sort())))) {
-    currentConflicts = availability.conflicts?.bookings || [];
-    $('#manualSaveError').text('Review the current availability conflict before saving.').prop('hidden', false).trigger('focus');
+  if ((availability.conflicts?.blocks || []).length) {
+    $('#manualSaveError').text('This interval is blocked and cannot be saved.').prop('hidden', false).trigger('focus');
     return;
   }
 
@@ -421,6 +415,7 @@ async function createManualBooking() {
   }
 
     createdBooking = await API.createBooking({
+      customer_id: $('#mCustomerId').val() || null,
       customer_name: $('#mCustName').val().trim(),
       contact: $('#mCustContact').val().trim(),
       email: $('#mCustEmail').val().trim(),
@@ -436,7 +431,6 @@ async function createManualBooking() {
       addon_ids: addonIds,
       discount, fees,
       subtotal, addons_total: addonsTotal, total, agreed_total: agreedTotal,
-      approve_conflicts: Boolean(reviewedConflictApproval), conflict_ids: reviewedConflictApproval?.ids || [], override_reason: reviewedConflictApproval?.reason || '',
       amount_paid: 0,
       status: "Pending",
       source: $('#mSource').val()

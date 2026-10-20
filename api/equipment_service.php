@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/checklist_service.php';
+require_once __DIR__.'/supporting_service.php';
 function saveReturnInspection(PDO $pdo,int $bookingId,array $items,int $checkedBy): array {
     lockBooking($pdo,$bookingId);
     $expected=checklistRows($pdo,$bookingId); $seen=[];
@@ -16,7 +17,11 @@ function saveReturnInspection(PDO $pdo,int $bookingId,array $items,int $checkedB
         if (!$id || isset($seen[$id])) domainFail('Each checklist item must appear exactly once.');
         $seen[$id]=true;
         if (empty($item['condition_in']) && empty($item['condition'])) domainFail('Return condition is required.');
-        updateChecklistItem($pdo,$bookingId,$id,$item,$checkedBy);
+        $saved=updateChecklistItem($pdo,$bookingId,$id,$item,$checkedBy);
+        if ($saved['rental_item_id'] !== null) saveItemHistory($pdo,[
+            'rental_item_id'=>$saved['rental_item_id'],'booking_id'=>$bookingId,'action'=>'Returned',
+            'qty'=>$saved['quantity_returned'],'condition'=>$saved['condition_in'],
+        ],['user_id'=>$checkedBy]);
     }
     return checklistRows($pdo,$bookingId);
 }

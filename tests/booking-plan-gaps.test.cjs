@@ -69,6 +69,12 @@ test('scheduled reconciliation and reviewed checklist release are atomic and ide
   assert.equal(sql(`SELECT COUNT(*) FROM audit_logs WHERE record_type='booking' AND record_id=${bookingId} AND new_status='Awaiting Completion'`), '1');
   const activeOwners = sql("SELECT COUNT(*) FROM users WHERE role='owner' AND account_status='Active'");
   assert.equal(sql(`SELECT COUNT(*) FROM notifications WHERE booking_id=${bookingId} AND notification_type='awaiting_completion' AND resolved_at IS NULL`), activeOwners);
+  const completionNotices = await request(`api/notifications.php?booking_id=${bookingId}`, undefined, token);
+  assert.equal(completionNotices.status, 200, JSON.stringify(completionNotices));
+  assert.equal(completionNotices.data[0].notification_type, 'awaiting_completion');
+  assert.equal(completionNotices.data[0].customer_name, 'Scheduled review fixture');
+  assert.equal(completionNotices.data[0].event_date, '2001-01-01');
+  assert.ok(completionNotices.data[0].service_name);
   const checklist = await request(`api/bookingItems.php?booking_id=${bookingId}`, undefined, token);
   assert.equal(checklist.status, 200, JSON.stringify(checklist));
   assert.equal(checklist.data.length, 1);
@@ -102,6 +108,11 @@ test('scheduled reconciliation and reviewed checklist release are atomic and ide
   assert.equal(bookingReleased.data.completed_at, null);
   assert.equal(sql(`SELECT COUNT(*) FROM notifications WHERE booking_id=${bookingId} AND notification_type='awaiting_completion' AND resolved_at IS NULL`), '0');
   assert.equal(sql(`SELECT COUNT(*) FROM notifications WHERE booking_id=${bookingId} AND notification_type='awaiting_payment' AND resolved_at IS NULL`), activeOwners);
+  const paymentNotices = await request(`api/notifications.php?booking_id=${bookingId}`, undefined, token);
+  assert.equal(paymentNotices.status, 200, JSON.stringify(paymentNotices));
+  assert.equal(paymentNotices.data[0].notification_type, 'awaiting_payment');
+  assert.equal(paymentNotices.data[0].booking_status, 'Awaiting Payment');
+  assert.equal(Number(paymentNotices.data[0].outstanding_balance), 20);
   const dashboardWhileUnpaid = await request('api/reports.php?do=dashboard', undefined, token);
   assert.equal(dashboardWhileUnpaid.status, 200, JSON.stringify(dashboardWhileUnpaid));
   assert.ok(Number(dashboardWhileUnpaid.data.awaiting_payment_bookings) >= 1);

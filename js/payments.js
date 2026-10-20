@@ -73,8 +73,9 @@ const PaymentsHelper = {
         <td>${escapeHtmlA(PaymentsHelper.methodLabel(p.method))}<br><small>${escapeHtmlA(p.payment_type || '')}</small></td>
         <td class="text-muted">${escapeHtmlA(p.notes || '')}</td>
         <td>${badgeStatus(p.payment_status || 'Completed',{Completed:'success',Pending:'warning',Failed:'danger'})}${p.pending_sync ? '<br><span class="badge bg-warning text-dark">Pending Sync</span>' : ''}</td>
+        <td><button type="button" class="btn btn-sm btn-outline-secondary js-correct-payment" data-id="${escapeHtmlA(p.payment_id)}" ${p.pending_sync ? 'disabled title="Wait for this payment to sync before correcting it"' : ''}>Correct</button></td>
       </tr>`).join('');
-    $wrap.append(`<table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Notes</th><th>Sync</th></tr></thead><tbody>${rows}</tbody></table>`);
+    $wrap.append(`<table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Notes</th><th>Sync</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>`);
   },
 
   methodLabel(method) {

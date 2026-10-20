@@ -1,6 +1,6 @@
 ---
 title: "Booking and Pricing"
-date: 2026-10-17
+date: 2026-10-19
 tags:
   - akad
   - system-understanding
@@ -29,11 +29,11 @@ Ana chooses one karaoke service, a ₱2,500 package, and a ₱300 add-on. With a
 
 ### Step-by-step workflow
 
-1. Select or create Ana’s customer record.
+1. Select an existing customer or create Ana’s customer record.
 2. Select exactly one active service and, optionally, a package belonging to it.
 3. Enter start/end datetimes, location, preparation and travel allowances.
 4. Select add-ons, discount, fees, and the agreed total.
-5. Save as Pending or Confirmed. Confirmation checks availability.
+5. Save the manual booking as Pending. Overlaps are shown as warnings; confirmation performs the authoritative approval check.
 6. The server creates a unique `AKAD-…` reference, snapshots package name/price, and copies the package checklist template.
 
 ### What Happens Behind the Scenes?
@@ -59,7 +59,8 @@ The diagram shows how the selected package, add-ons, discount, and fees lead to 
 ### Important things to remember
 
 - A booking cannot contain several services.
-- Service/package changes are allowed only while Pending.
+- Customer, service, package, add-ons, allowances, discounts, fees, and agreed total can be altered only while Pending.
+- Promotional packages are eligible against the booking's event date, not the date the owner enters the booking.
 - A package-free booking is valid; the owner supplies the agreed total.
 - Cancelling requires a reason and retains linked history. A confirmed booking cannot move back to Pending.
 - Pending and Confirmed are the only create states. Post-event states require the release workflow.

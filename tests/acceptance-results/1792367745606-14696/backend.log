@@ -1,0 +1,20 @@
+Synthetic database: akad_verify_plan_1792367745968_14624; servers: http://127.0.0.1:64146/, http://127.0.0.1:64158/
+EXCLUDED legacy internal blockout draft checks: deferred scope
+AssertionError [ERR_ASSERTION]: {"ok":false,"error":"Complete every checklist quantity and release condition before recording the release.","code":"incomplete_checklist","details":[]}
+
+409 !== 201
+
+    at C:\Users\acer\Desktop\Rental-Ops-Manager\tests\backend-revised-requirements.test.cjs:141:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 409,
+  expected: 201,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+Error: tests/backend-revised-requirements.test.cjs failed (1)
+    at ChildProcess.<anonymous> (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\run_revised_backend.cjs:56:56)
+    at Object.onceWrapper (node:events:623:26)
+    at ChildProcess.emit (node:events:508:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:294:12)

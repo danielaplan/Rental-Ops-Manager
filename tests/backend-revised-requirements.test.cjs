@@ -133,12 +133,29 @@ async function request(path, { origin = BASE, token, method = "GET", body } = {}
   });
   assert.equal(itemHistory.status, 201, JSON.stringify(itemHistory.data));
   assert.equal((await request("api/itemHistory.php?do=delete", { token, method: "POST", body: {} })).status, 405);
-  const release = await request("api/itemReleases.php?do=create", {
+  const releaseBody = {
     token,
     method: "POST",
     body: { booking_id: acceptedBookingId, released_by: "Owner", notes: "Synthetic test release" },
-  });
+  };
+  const incompleteRelease = await request("api/itemReleases.php?do=create", releaseBody);
+  assert.equal(incompleteRelease.status, 409, JSON.stringify(incompleteRelease.data));
+  assert.equal(incompleteRelease.data.code, "incomplete_checklist");
+  const releaseChecklist = await request(`api/bookingItems.php?booking_id=${acceptedBookingId}`, { token });
+  assert.equal(releaseChecklist.status, 200, JSON.stringify(releaseChecklist.data));
+  for (const item of releaseChecklist.data.data) {
+    const prepared = await request(`api/bookingItems.php?do=update&id=${item.checklist_item_id}`, {
+      token,
+      method: "POST",
+      body: { booking_id: acceptedBookingId, quantity_released: item.expected_quantity, condition_out: "Good" },
+    });
+    assert.equal(prepared.status, 200, JSON.stringify(prepared.data));
+  }
+  const release = await request("api/itemReleases.php?do=create", releaseBody);
   assert.equal(release.status, 201, JSON.stringify(release.data));
+  const duplicateRelease = await request("api/itemReleases.php?do=create", releaseBody);
+  assert.equal(duplicateRelease.status, 409, JSON.stringify(duplicateRelease.data));
+  assert.equal(duplicateRelease.data.code, "duplicate_release");
   assert.equal((await request("api/itemReleases.php?do=delete", { token, method: "POST", body: {} })).status, 405);
 
   const deposit = await request("api/deposits.php?do=upsert", {

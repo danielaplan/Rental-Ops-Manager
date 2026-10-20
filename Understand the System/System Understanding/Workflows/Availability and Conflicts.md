@@ -1,6 +1,6 @@
 ---
 title: "Availability and Conflicts"
-date: 2026-10-17
+date: 2026-10-19
 tags:
   - akad
   - system-understanding
@@ -35,6 +35,7 @@ Ana’s event runs 2:00–6:00 PM, with 30 minutes of preparation and 45 minutes
 4. Compare only the same service against Confirmed and Awaiting Completion bookings.
 5. If conflicts exist, return their customer, service, and event details.
 6. An owner may approve every booking conflict with one required reason; the server writes an override row and audit entry.
+7. Manual entry may retain an overlapping booking as Pending; confirmation repeats the check with that booking's preparation and travel allowances.
 
 ### What Happens Behind the Scenes?
 
@@ -61,6 +62,7 @@ The diagram shows the normal save path and the extra review required when the sa
 - Pending, Cancelled, Completed, and released Awaiting Payment bookings do not reserve capacity.
 - Different services are not compared.
 - Approval must name every current conflicting booking; stale approvals are rejected.
+- The booking screen sends those exact conflict IDs and the owner's reason only when confirming.
 - Active availability blocks cannot be overridden by this workflow.
 - Internal blockouts are deferred by owner decision even though draft schema/API artifacts remain. The frontend does not present them as an active supported feature.
 

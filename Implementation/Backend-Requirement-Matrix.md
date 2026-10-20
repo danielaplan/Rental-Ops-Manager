@@ -126,7 +126,7 @@ Latest final run after the report/payment compatibility corrections: **all seven
 ```powershell
 rtk proxy node tests/run_revised_backend.cjs tests/backend-revised-requirements.test.cjs tests/catalog-plan-gaps.test.cjs tests/booking-plan-gaps.test.cjs tests/finance-plan-gaps.test.cjs tests/auth-plan-gaps.test.cjs tests/sync-plan-gaps.test.cjs tests/offline-sync.test.cjs
 rtk proxy node tests/migration-plan-gaps.test.cjs
-rtk node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs
+rtk node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs tests/booking-flow-frontend-regressions.test.cjs
 rtk proxy python tests/check_syntax.py
 ```
 

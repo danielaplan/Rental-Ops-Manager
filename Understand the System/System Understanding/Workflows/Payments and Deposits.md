@@ -1,6 +1,6 @@
 ---
 title: "Payments and Deposits"
-date: 2026-10-17
+date: 2026-10-19
 tags:
   - akad
   - system-understanding
@@ -31,8 +31,8 @@ Ana owes ₱2,750. Her first Completed rental payment is ₱2,000, leaving ₱75
 
 1. Record a rental payment with type, method, status, date, optional reference, and owner.
 2. The booking view sums only Completed payments.
-3. Corrections update the payment with an audit reason; they do not create a money transfer.
-4. Create or update one deposit for the booking.
+3. Correct a payment from its history with an audit reason; direct and offline saves use the same server rule and do not create a money transfer.
+4. Record one held deposit amount. After that write is accepted or queued, the booking screen locks the amount instead of presenting it as editable.
 5. Add itemized deductions, each with affected item, reason, and amount.
 6. Mark a positive remaining refund as Refunded when the real-world refund has been handled.
 

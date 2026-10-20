@@ -1,0 +1,66 @@
+✔ cached reads resolve through the async facade while sync.js refreshes with bearer auth (25.5328ms)
+✔ server refresh preserves cached presentation fields that PHP does not store (5.3572ms)
+✔ writes resolve to a pending local draft and enqueue an authenticated sync operation (14.2326ms)
+✔ booking-scoped reads return cached rows and request the matching server collection (5.3113ms)
+✔ item history writes resolve to a pending draft with an addressable queue entry (6.1625ms)
+✔ item history reads refresh only the requested item and retain pending history (7.7747ms)
+✖ release and return side effects enqueue their local item history rows (40.8307ms)
+✔ shared refresh includes every unscoped admin collection (13.4575ms)
+✔ flush removes acknowledged operations and records temporary-to-server ID aliases (19.5515ms)
+✔ the facade exposes methods required by current pages and the sync UI (6.3995ms)
+✔ pending offline payments remain keyed by the exact local booking ID (5.2597ms)
+✔ itemized deposit deduction and refund actions remain in the offline outbox (8.4269ms)
+✔ reads use the script-relative API base, bearer auth, and frontend normalization (19.6593ms)
+✔ CRUD writes use PHP action parameters, numeric IDs, and mapped fields (11.0006ms)
+✔ special workflows target their actual PHP actions (9.8734ms)
+✔ gallery image uploads use authenticated multipart form data (4.9475ms)
+✔ non-JSON and API errors produce useful typed errors (14.3679ms)
+✔ manual booking locks before availability and permits retry after a rejected read (17.2205ms)
+✔ manual initialization populates controls before restoring the saved draft (37.9764ms)
+✔ availability ignores an older conflict after a newer date is available (6.7686ms)
+✔ calendar ignores an older month render that resolves last (82.1318ms)
+✔ report keeps newest filters and renders numeric receipt totals (10.8255ms)
+✔ dashboard keeps the newest response and charts numeric accepted payments (9.9221ms)
+✔ admin event boundary prevents repeat writes and reports rejection without clearing input (3.9818ms)
+✔ admin login explains when its PHP endpoint cannot be reached (3.2827ms)
+✔ settings refresh updates the sidebar brand without replacing navigation (3.2728ms)
+✔ late checklist and payment history reads cannot overwrite another booking (4.338ms)
+✔ booking details retain the newer booking when the older lookup resolves last (5.8776ms)
+✔ notification links reliably open their booking without waiting for the table (1.5444ms)
+✔ booking notification destination activates its requested workflow tab (4.4428ms)
+✔ booking UI keeps Awaiting Payment visible until full-payment completion (1.6883ms)
+✔ a failed down payment does not permit creating the saved booking twice (3.3032ms)
+✔ manual synchronization locks immediately and displays rejected refreshes (4.0847ms)
+✔ stale booking location conflicts expose the location comparison and retry field (3.2961ms)
+✔ public refresh loads settings, content, services, and gallery from PHP (31.797ms)
+✔ public refresh retains cached presentation fields and pending local records (8.4585ms)
+✔ public page rerenders services and gallery after server refresh (12.5422ms)
+✔ public outage retains cached data while successful endpoints still refresh (12.6995ms)
+✔ public refresh preserves pending edits and removes accepted records deleted on the server (10.2738ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 38
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 535.3272
+
+✖ failing tests:
+
+test at tests\frontend-api-contract.test.cjs:257:1
+✖ release and return side effects enqueue their local item history rows (40.8307ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(histories.some(row => row.action === 'Released' && row.pending_sync))
+  
+      at TestContext.<anonymous> (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\frontend-api-contract.test.cjs:266:10)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

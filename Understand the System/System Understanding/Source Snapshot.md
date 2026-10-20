@@ -1,6 +1,6 @@
 ---
 title: "Source Snapshot"
-date: 2026-10-17
+date: 2026-10-19
 tags:
   - akad
   - system-understanding
@@ -13,7 +13,7 @@ status: current-source-reviewed
 
 ## Baseline
 
-Documentation was checked against Git commit `26791d46fabd9551c3ad53b4431afb594f38065b` on 2026-10-17. The manifest covers all 40 API PHP files, both base SQL files, all 14 JavaScript files, and all 18 admin HTML files. Hashes identify this checkout; they do not describe a live server or database.
+Documentation was checked against Git commit `26791d46fabd9551c3ad53b4431afb594f38065b` on 2026-10-17. The manifest covers all 40 API PHP files, both base SQL files, all 14 JavaScript files, and all 18 admin HTML files. Entries changed by the notification-navigation work were refreshed from the working tree on 2026-10-19. Hashes identify local source only; they do not describe a live server or database.
 
 | Source file | SHA-256 |
 | --- | --- |
@@ -44,7 +44,7 @@ Documentation was checked against Git commit `26791d46fabd9551c3ad53b4431afb594f
 | `api/gallery.php` | `bf83ca4ae06d2f2e434589009dc02f07ac53ad29b1fde5f352e1a5c342c999db` |
 | `api/itemHistory.php` | `b221c49af290c16fb965432328019bd1cd5fae644523ddf63754d39c3a49e4c0` |
 | `api/itemReleases.php` | `f31124f3d7816262f11290a1643b07f49da06ed91de7b66b235a87e47a9f2727` |
-| `api/notifications.php` | `59622b2e9e46c129a2eeca6720229c09e353ff5a3e76da5db21b48ae25f9bd96` |
+| `api/notifications.php` | `e375d9f52b308efa4ca90dbcab42a8f0d992926df7b1e2a8688cf9f92c6775c3` |
 | `api/owners.php` | `6d054870e5e9e8f4ad003ae2e165ea94ab6a2c6f64214923d7e91dbbe074169c` |
 | `api/packages.php` | `72e4bf4016883d4d132b288e59440a2692bea21b54d0516bd75dfbc517a5e5be` |
 | `api/payment_service.php` | `e8475c8235dcac5fbcd0b85c709f56924a298333a9b8c52ec0d073088f116816` |
@@ -59,7 +59,7 @@ Documentation was checked against Git commit `26791d46fabd9551c3ad53b4431afb594f
 | `api/websiteContent.php` | `38619461d8a9b549333445367113cf21d998f604435670eb9db481ed9a71f5f7` |
 | `db/schema.sql` | `201506aa4e34bcaf0248c243fa5619761b7aa4b7573c21002bcd418e62241f79` |
 | `db/seed.sql` | `937b7f6cb96ef9a19ecd575fe0750861478f0376de2be82b8194dea7c22b0714` |
-| `js/admin.js` | `114a460a0ed5569fb69ff4dea2925b6bb0b5e5a1206d4bd987faf5c915977570` |
+| `js/admin.js` | `d8933993147e65385194c173497c685dc9a3337e168c482f721b4a1e4747ca34` |
 | `js/api.js` | `04fca4708e187deac69d8c347fd5769d15268988e7e3d6347fb9f450fd8ec1b0` |
 | `js/app.js` | `10246984573ef23ae907b57d72ad15a2328c8115459142405352cae7ac8a6f1f` |
 | `js/bookings.js` | `b78210c2cb39aa948d1d85e5c58d884371abdeb620f3d972b15c754f74908311` |
@@ -75,7 +75,7 @@ Documentation was checked against Git commit `26791d46fabd9551c3ad53b4431afb594f
 | `js/sync.js` | `e2f890485e45a8dedddf180f00390d95d3dfb2deae08b1dfe899cccc6fbae3a7` |
 | `admin/addons.html` | `22408b042d704cf04a10f17d87554fab654a79e3110146f2a38a416a398fb607` |
 | `admin/audit.html` | `5e1e7a36ba0e3d6f7af1c9e9cb7c6da5a3eb142edf7e03c8d55b999d2d4362b1` |
-| `admin/bookings.html` | `5bc147166fbdd609b5c8c01a3f96366021267bcc6fa618f2a5aaa66f81e490d5` |
+| `admin/bookings.html` | `18c98b209a1fd51f724caab2c16ba870178ffd714b315b307e508ff6c3d3c54a` |
 | `admin/calendar.html` | `823e47abd3c7c7d4cf6f5f230679f41493d153661a30d3881d66119252ccba42` |
 | `admin/categories.html` | `4c4facfe9eed26d6b77c8c6ad5f0461dcc6d4c11171af57b31c060abbabb5e12` |
 | `admin/content.html` | `0a552fd47173214eb9359a01ab2e32fba7d664f5fbc136e105c0c9f6abfcb571` |

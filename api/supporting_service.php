@@ -52,10 +52,23 @@ function saveItemRelease(PDO $pdo, array $body, array $actor): array {
     $notes = $body['notes'] ?? '';
     if (!$bookingId || !is_string($releasedBy) || trim($releasedBy)==='' || strlen($releasedBy)>100) domainFail('A booking and release label of at most 100 bytes are required.');
     if (!is_string($notes) || strlen($notes)>5000) domainFail('Release notes must be text of at most 5000 bytes.');
-    lockBooking($pdo,$bookingId);
+    $booking = lockBooking($pdo,$bookingId);
+    if ($booking['status'] !== 'Confirmed') domainFail('Only confirmed bookings can release equipment.',409,'invalid_transition');
+    $query = $pdo->prepare('SELECT release_id FROM item_releases WHERE booking_id=? LIMIT 1 FOR UPDATE');
+    $query->execute([$bookingId]);
+    if ($query->fetchColumn()) domainFail('Equipment release has already been recorded for this booking.',409,'duplicate_release');
+    $query = $pdo->prepare("SELECT checklist_item_id FROM booking_checklist_items WHERE booking_id=? AND (quantity_released<>expected_quantity OR condition_out IS NULL OR TRIM(condition_out)='') LIMIT 1 FOR UPDATE");
+    $query->execute([$bookingId]);
+    if ($query->fetchColumn()) domainFail('Complete every checklist quantity and release condition before recording the release.',409,'incomplete_checklist');
     $pdo->prepare('INSERT INTO item_releases(booking_id,released_by,notes,released_at) VALUES(?,?,?,NOW())')
         ->execute([$bookingId,trim($releasedBy),$notes]);
     $id = (int)$pdo->lastInsertId();
+    $query = $pdo->prepare('SELECT rental_item_id,quantity_released,condition_out FROM booking_checklist_items WHERE booking_id=? AND rental_item_id IS NOT NULL');
+    $query->execute([$bookingId]);
+    foreach ($query->fetchAll() as $item) saveItemHistory($pdo,[
+        'rental_item_id'=>$item['rental_item_id'],'booking_id'=>$bookingId,'action'=>'Released',
+        'qty'=>$item['quantity_released'],'condition'=>$item['condition_out'],
+    ],$actor);
     auditWrite($pdo,(int)$actor['user_id'],'items_released','item_release',$id,json_encode(['booking_id'=>$bookingId,'released_by'=>trim($releasedBy),'notes'=>$notes]));
     $query = $pdo->prepare('SELECT * FROM item_releases WHERE release_id=?');
     $query->execute([$id]);

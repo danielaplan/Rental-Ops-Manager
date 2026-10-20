@@ -33,6 +33,9 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     foreach (['status','customer_name','contact','contact_number','email','location','event_location','cancellation_reason','theme_notes','source','event_type','special_requests','customer_type'] as $field) {
         if (isset($body[$field]) && !is_string($body[$field])) domainFail($field.' must be text.');
     }
+    foreach (['email'=>255,'source'=>50,'event_type'=>100,'customer_type'=>100] as $field=>$limit) {
+        if (isset($body[$field]) && strlen($body[$field])>$limit) domainFail($field.' must be at most '.$limit.' bytes.');
+    }
     reconcileBookings($pdo);
     $old = $action === 'create' ? null : lockBooking($pdo,$id ?? 0);
     if (in_array($action,['release','complete'],true) || strtolower((string)($body['status'] ?? '')) === 'completed') {
@@ -62,6 +65,7 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
         $name = trim((string)($body['customer_name'] ?? ''));
         $contact = trim((string)($body['contact'] ?? $body['contact_number'] ?? ''));
         if (!$name || !$contact || strlen($name)>100 || strlen($contact)>20) domainFail('Customer name (up to 100 bytes) and contact (up to 20 bytes) are required.');
+        if (isset($body['email']) && strlen($body['email'])>100) domainFail('New customer email must be at most 100 bytes.');
         $pdo->prepare('INSERT INTO customers(full_name,contact_number,messenger_handle) VALUES(?,?,?)')->execute([$name,$contact,$body['email'] ?? null]);
         $customerId = (int)$pdo->lastInsertId();
     }

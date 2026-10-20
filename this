@@ -1,263 +1,362 @@
-# TASK: Integrate GitHub Copilot into the Existing AKAD AI Second Brain
+# Codex Browser QA Run: Manual Booking (40 Scenarios)
 
-## Repository
+## Purpose
 
-`danielaplan/Rental-Ops-Manager`
+This file is an execution brief for Codex. Use a real interactive browser session to run the scenarios below through the admin UI, then report the defects and coverage gaps found. Do not treat this as a checklist for the user to perform and do not stop after describing a plan.
 
-Latest verified GitHub commit at the time of this request: `b430ca7`.
+## Instructions for Codex
 
-## Objective
+1. Use the available browser-control skill/tool to open the local admin app and interact with visible UI controls. Prefer the browser over direct API calls or database edits. If a scenario cannot be completed through the browser, mark it **BLOCKED** and explain why; do not silently replace it with source inspection or an API-only test.
+2. Confirm the app is the local test instance at `http://127.0.0.1:8000/admin/login.html` and sign in using an available local owner account. If the app or database is unavailable, record the exact blocker before attempting setup.
+3. The local database was reset for this test: bookings/customers and linked transactional history are empty. Services, packages, active add-ons, checklist templates, rental items, users, and settings remain. Do not reset again, delete records, or change core catalog values during the run.
+4. Use only fictional values from this file. Keep records created by the run so evidence can be inspected afterward. Restore temporary catalog changes immediately and verify the restoration.
+5. Run scenarios in numerical order because some cases intentionally reuse earlier customers or create overlapping bookings. Do not repeat a case automatically after a successful write unless the scenario explicitly tests retry/idempotency.
+6. For every scenario record **PASS**, **FAIL**, **BLOCKED**, or **NOT RUN**. A pass requires checking the saved result after reopening/refreshing the screen, not only seeing a success toast.
+7. For each failure, capture a browser screenshot if supported and record the scenario number, URL, booking reference, exact steps, expected result, actual result, visible error, and whether it reproduced. Report severity and avoid exposing credentials or session tokens.
+8. At the end, report a summary by status, then an issue list and a separate list of untested gaps. Distinguish browser-observed behavior from source/test evidence. Do not claim the flow is fully tested if any case is blocked or not run.
+9. This is an audit run. Do not change application code while executing these cases. Report proposed fixes separately and wait for the user before implementing them.
 
-Integrate **GitHub Copilot** as the third supported AI coding assistant in the existing Rental-Ops-Manager AI Second Brain.
+## Test environment
 
-The project already has:
+Local admin URL: `http://127.0.0.1:8000/admin/login.html`  
+Database: local `akad_rentals` only  
+Starting state: no bookings or customers; core services and packages are retained.
 
-- `AGENTS.md` — Codex instructions
-- `CLAUDE.md` — Claude Code instructions
-- `PROJECT_INDEX.md` — Shared AI navigation index
-- `00 Second Brain Home/` — Obsidian dashboard
-- `Understand the System/` — Beginner-friendly and technical documentation
-- `Implementation/` — Implementation plans and verification records
-- `Source Documents/` — Original requirements and designs
-- `.project-memory/` — Project decisions and approvals
-- `05 Development Journal/` — Development records
+If this run is resumed later, verify the starting state first. The scenarios create records and are not safe to rerun on top of an existing run without a deliberate local reset.
 
-**Do not recreate these systems or duplicate their content.**
+Create a new customer for each scenario unless it says to reuse one. All names, phone numbers, addresses, and bookings below are fictional test data.
 
-GitHub Copilot must use the same existing knowledge sources, development standards, and documentation-maintenance rules as Codex and Claude Code.
+For scenarios that test the post-event workflow immediately, use **October 18, 2026** with an event time that has already ended. The booking form accepts past event dates in this test setup; after confirming, refresh the bookings list so the due booking can move to **Awaiting Completion**. For other scenarios, use the suggested future dates. If you change dates, keep each scenario's bookings on separate dates unless the steps explicitly require an overlap.
 
-## Phase 1 — Review the Existing AI Setup
+Current catalog examples:
 
-Inspect the current repository and Git working tree.
+- Services: JBL Karaoke Rental, Sweet Corner Setup, Balloon Decoration.
+- Active Karaoke packages: Karaoke Setup — 12 Hours (₱999), Karaoke Setup — 24 Hours (₱1,499), JBL Speaker 520 Only — 12 Hours (₱699).
+- Active Karaoke add-ons: JBL Wireless Microphone (₱200), Microphone Stand (₱100).
+- Active Sweet Corner package: Sweet Corner Set A (₱250); active add-ons include Donut Wall Display (₱50) and 4 Rectangular Lace Serving Trays (₱30).
+- Active Balloon package: Package A (₱2,799).
+- There is no active promotional package right now. Scenario 7 asks you to create a temporary test promotion, then deactivate it afterward.
 
-Read:
+## 1. Basic new booking through completion
 
-1. `AGENTS.md`
-2. `CLAUDE.md`
-3. `PROJECT_INDEX.md`
-4. `README.md`
-5. `00 Second Brain Home/Home.md`
-6. Relevant existing Second Brain documentation
+**Customer:** Ana Test, `09170001001`  
+**Service/package:** JBL Karaoke Rental → Karaoke Setup — 12 Hours (₱999)  
+**Initial event:** November 30, 2026, 10:00 AM–12:00 PM  
+**Preparation/travel:** 0 / 0 minutes  
+**Add-ons/discount/fees:** none / ₱0 / ₱0  
+**Agreed total:** ₱999
 
-Determine the common development instructions followed by Codex and Claude Code.
+Create it manually and save as Pending. Confirm it and record a Completed payment of ₱999. Complete every outgoing checklist quantity/condition and record the equipment release once. Then edit its event date to **October 18, 2026** (keep the same times) and refresh the bookings list. It should move to Awaiting Completion. Open its post-event review notification, complete every return checklist row, mark all items Inspected and Good, review payments and deposit, and enter a short review note. With no outstanding balance, the booking should become **Completed**. Verify the notification opens this booking on the Return tab and resolves after review.
 
-Preserve their existing configurations and approved development boundaries.
+## 2. Reuse an existing customer
 
-## Phase 2 — Create the GitHub Copilot Instructions
+First create Ana Test in Scenario 1. Create a second booking for the same person on **November 3, 2026, 1:00–3:00 PM**, using JBL Karaoke Rental → Karaoke Setup — 24 Hours (₱1,499).
 
-Create the directory `.github/` if necessary.
+Choose Ana from **Existing customer**. Save, reopen, and verify the booking still points to Ana and no duplicate Ana customer was created.
 
-Then create:
+## 3. Sweet Corner package and add-on pricing
 
-`.github/copilot-instructions.md`
+**Customer:** Bea Test, `09170001003`  
+**Event:** November 5, 2026, 10:00 AM–1:00 PM  
+**Selection:** Sweet Corner Setup → Sweet Corner Set A ₱250 + Donut Wall Display ₱50 + 4 Rectangular Lace Serving Trays ₱30  
+**Discount/fees:** ₱0 / ₱0  
+**Agreed total:** ₱330
 
-This is GitHub Copilot's repository-wide custom instruction file.
+Save as Pending, reopen, and verify the service, package snapshot, both add-ons, and agreed total. Change nothing else.
 
-Write clear, concise instructions that guide Copilot to follow these principles.
+## 4. Balloon booking
 
-### A. Efficient Project Understanding
+**Customer:** Carlo Test, `09170001004`  
+**Event:** November 7, 2026, 2:00–5:00 PM  
+**Selection:** Balloon Decoration → Package A (₱2,799)  
+**Agreed total:** ₱2,799
 
-Use this discovery sequence:
+Save and confirm. Verify the booking keeps the balloon service and Package A; the karaoke and Sweet Corner catalog options must not appear as choices for this service.
 
-`Copilot Instructions → PROJECT_INDEX.md → Relevant Documentation → Actual Source Code → Relevant Tests`
+## 5. Package-free booking with a negotiated total
 
-- Start with the shared project index.
-- Identify the smallest relevant set of files.
-- Read only task-relevant documentation initially.
-- Expand investigation when functionality spans multiple components.
-- Verify implementation behavior against actual source code.
-- Do not treat documentation as proof that code is unchanged.
+**Customer:** Dina Test, `09170001005`  
+**Event:** November 9, 2026, 9:00 AM–11:00 AM  
+**Selection:** JBL Karaoke Rental → No package  
+**Agreed total:** ₱1,250
 
-### B. Follow Existing Project Decisions
+Save as Pending, reopen, and verify the ₱1,250 agreed total is retained even though no package is selected. The booking should not acquire an unrelated package or template.
 
-Read relevant approvals and requirements in `.project-memory/` when the task involves business rules or scope.
+## 6. Active add-ons, calculation, and inactive-option check
 
-Respect existing approval boundaries.
+**Customer:** Eli Test, `09170001006`  
+**Event:** November 11, 2026, 4:00–6:00 PM  
+**Selection:** Karaoke Setup — 12 Hours ₱999 + JBL Wireless Microphone ₱200 + Microphone Stand ₱100  
+**Discount/fees:** ₱50 / ₱25  
+**Agreed total:** ₱1,274
 
-Do not treat an idea, proposed feature, or draft implementation as an approved requirement.
+Verify the calculation: ₱999 + ₱200 + ₱100 − ₱50 + ₱25 = **₱1,274**. The inactive add-ons “Additional karaoke hour” and “Extra wireless microphone” must not be offered. If you attempt to submit an inactive add-on through a modified request, the server must reject it without saving the booking.
 
-Preserve offline synchronization and relevant direct/offline business-rule consistency.
+## 7. Promotion eligibility uses the event date
 
-Keep deferred features deferred unless explicitly approved.
+Promotional packages are not currently in the catalog. In the local Packages page, create a temporary active Karaoke test package named `TEMP TEST PROMO`, priced at ₱800, with promotion dates **November 12–16, 2026**. Do not use this package for real data.
 
-### C. Maintain the AI Second Brain
+Create a booking dated **November 14, 2026** and verify the promotion is available. Change the event date to **November 17, 2026** and verify the package is no longer offered or the server rejects it if submitted. Change back to November 14, save a Pending booking, and verify its saved package price snapshot. Deactivate the temporary package after this test.
 
-Whenever Copilot performs meaningful frontend, backend, database, or workflow development work, instruct it to review the documentation impact.
+## 8. Edit every allowed Pending booking field
 
-For changes affecting existing behavior:
+**Customer:** Faye Test, `09170001008`  
+**Initial booking:** JBL Karaoke Rental → Karaoke Setup — 12 Hours; November 19, 2026, 10:00 AM–12:00 PM; ₱999.
 
-- Update the relevant files in `Understand the System/System Understanding/`.
-- Update frontend, backend, API, and database explanations where applicable.
-- Update workflow lessons when business behavior changes.
-- Update diagrams and examples when necessary.
-- Preserve beginner-friendly explanations.
-- Preserve Previous Lesson, Next Lesson, and Back to Start Here links.
-- Update implementation records when their status or verification evidence changes.
-- Add a dated development journal entry for meaningful changes, including actual verification performed.
-- Update `PROJECT_INDEX.md` when feature mappings, file locations, dependencies, architecture, or test commands change.
+Before confirming, use **Edit pending booking** and change the customer, service/package, add-on, event date/time, location, preparation, travel, discount, fees, and agreed total. For example, change to Sweet Corner Setup → Sweet Corner Set A with Donut Wall Display; November 20, 2026, 1:00–4:00 PM; preparation 15 minutes; travel 20 minutes; discount ₱10; fee ₱5; agreed total ₱295. Save and reopen.
 
-Avoid unnecessary documentation changes for formatting-only edits or behavior-neutral refactors.
+Verify each changed value persisted and that the booking now has the correct customer and service. After confirmation, verify commercial details are no longer editable through the Pending-only editor.
 
-### D. Preserve Project Memory
+## 9. Invalid schedule and input limits
 
-Record important approved business or architectural decisions only when there is actual authorization.
+Start a manual booking for `Gio Test`, `09170001009`, using JBL Karaoke Rental and Karaoke Setup — 12 Hours. Try an end time equal to or earlier than the start time. Then try a customer name over 100 characters, contact over 20 characters, email over 100 characters, and location over 255 characters.
 
-Never fabricate an approval.
+Expected: invalid time and oversized inputs are stopped with a clear message; no partial booking or duplicate customer is created. Correct the values and verify a valid save succeeds.
 
-Do not overwrite earlier decisions or remove historical context.
+## 10. Preparation and travel time are part of availability
 
-### E. Verification
+Create and confirm a Karaoke booking for `Hana Test`, `09170001010`, on **November 22, 2026, 2:00–4:00 PM**, with preparation 30 minutes and travel 45 minutes. Its blocked interval is **1:30–4:45 PM**.
 
-After implementation:
+Try another Karaoke booking on November 22 from 1:45–2:15 PM with zero allowances. It may be saved as Pending with a conflict warning, but it must not confirm silently. Move it outside the 1:30–4:45 interval and confirm successfully.
 
-- Run appropriate tests where feasible.
-- Check affected documentation links.
-- Distinguish tested behavior from assumptions.
-- Report what was changed.
-- Report which Second Brain documents were updated.
-- Identify unresolved issues and verification not performed.
+## 11. Explicit conflict approval
 
-### F. Development Safety
+Create a confirmed Karaoke booking for `Ivy Test`, `09170001011`, on **November 24, 2026, 2:00–4:00 PM**. Create another booking for `Jon Test`, `09170001012`, on the same service and interval.
 
-Do not:
+Expected: the second booking can be saved Pending with a conflict warning. On confirmation, first try without a reason and verify it is rejected. Then approve the listed overlap with a meaningful reason. Verify the screen lists the correct conflicting booking, confirmation succeeds only after approval, and the approved-overlap/audit details are recorded.
 
-- Overwrite unrelated developer changes.
-- Run destructive database operations without authorization.
-- Execute production migrations or deployment operations without authorization.
-- Remove offline synchronization.
-- Commit, push, or deploy without explicit permission.
-- Introduce credentials or sensitive data into documentation.
+## 12. Payment history, correction, and deposit lock
 
-Protect existing PHP, MySQL, JavaScript, and application behavior.
+**Customer:** Kai Test, `09170001013`  
+**Booking:** Karaoke Setup — 12 Hours; November 26, 2026, 10:00 AM–12:00 PM; agreed total ₱999.
 
-## Phase 3 — Keep All Three AI Assistants Consistent
+Record a Completed GCash down payment of ₱500. Verify the balance is ₱499. Use **Correct** in payment history to change it to ₱450 and enter a reason. Verify the balance changes to ₱549 and the correction reason is audited. Record a ₱300 held deposit. Verify the held amount locks after save and is not added to the rental payment total.
 
-Compare these files:
+## 13. Equipment release checks and duplicate prevention
 
-- `AGENTS.md`
-- `CLAUDE.md`
-- `.github/copilot-instructions.md`
+Create a Karaoke booking for `Lia Test`, `09170001014`, on **November 28, 2026, 10:00 AM–12:00 PM**. Try to record equipment release while it is Pending; it must be rejected. Confirm the booking, then try release before completing the outgoing checklist; it must still be rejected.
 
-Ensure they share consistent rules for:
+Fill every checklist quantity to the expected amount and set outgoing condition to Good. Record the release once; it should succeed. Try to record a second release; it must be rejected as a duplicate.
 
-1. Project navigation.
-2. Requirements and approval boundaries.
-3. Source-code verification.
-4. Documentation maintenance.
-5. Project-memory handling.
-6. Testing.
-7. Git safety.
-8. Preservation of the offline-first system.
+## 14. Damaged or missing return with an outstanding balance
 
-Do not rewrite existing instructions unnecessarily.
+**Customer:** Max Test, `09170001015`  
+**Booking:** Karaoke Setup — 12 Hours; initially November 30, 2026, 1:00–3:00 PM; agreed total ₱999; deposit ₱500; Completed payment ₱500.
 
-Prefer referencing shared project knowledge instead of copying lengthy explanations into every instruction file.
+Confirm the booking, record a Completed payment of ₱500 and a held deposit of ₱500, fill all outgoing checklist quantities/conditions, and record the equipment release once. Edit the event date to **October 18, 2026** and refresh the list to reach Awaiting Completion. In the Return tab, mark one item Damaged or Missing, enter returned quantity/condition and clear notes, and leave one other required row incomplete for the first attempt. Final review must fail while any required row is incomplete. Complete the remaining row, add a documented ₱100 deposit deduction for the damaged/missing item, review payments/deposit, and submit the return review.
 
-## Phase 4 — Update the Shared AI Knowledge Index
+Expected: service is released, booking becomes **Awaiting Payment**, balance is ₱499, deposit refundable amount is ₱400, and the Awaiting Payment notification opens this booking on the Payments tab.
 
-Review `PROJECT_INDEX.md`.
+## 15. Offline manual booking, sync, and finish the lifecycle
 
-Update its introductory description to include GitHub Copilot as a supported assistant.
+Start offline with the admin app already loaded and signed in. Create `Nia Offline Test`, `09170001016`, with Sweet Corner Setup → Sweet Corner Set A on **November 30, 2026, 4:00–6:00 PM**, agreed total ₱250. Verify the booking appears as pending sync and is not duplicated when you retry a failed connection.
 
-Add a brief reference to `.github/copilot-instructions.md`.
+Reconnect and sync. Verify there is exactly one server booking linked to the local draft. Confirm it and record a Completed payment of ₱250. Complete the outgoing checklist and record release, then edit its event date to **October 18, 2026** and refresh until it becomes Awaiting Completion. Complete every return checklist row, review payment/deposit, and submit with a review note. With no balance, it should become Completed. Verify the notification click opens the intended booking screen/tab and the synced record remains after refresh.
 
-Preserve existing feature-to-code mappings, documentation links, tests, and explanations.
+## 16. Save all customer and event details
 
-Do not rebuild the entire index.
+Create `Olivia Test`, `09170001017`, on **December 2, 2026**, with JBL Karaoke Rental → JBL Speaker 520 Only — 12 Hours. Fill email, customer type, event type, guest count, venue, theme notes, and special requests with distinct sample values.
 
-## Phase 5 — Document the Copilot Setup
+Save, reopen the Details tab, and verify every value is displayed correctly. Refresh and reopen once more to make sure the details came from saved data, not only the current form.
 
-Add a short **AI-Assisted Development** section to the repository's main `README.md`, unless an equivalent section already exists.
+## 17. Same customer name, different person
 
-Explain that the project supports:
+Create `Alex Test`, `09170001018`, for Karaoke Setup — 12 Hours on **December 4, 2026, 10:00 AM–12:00 PM**. Create another `Alex Test` with contact `09170001019` on **December 6, 2026, 10:00 AM–12:00 PM**.
 
-| Assistant | Instructions |
-|---|---|
-| OpenAI Codex | `AGENTS.md` |
-| Claude Code | `CLAUDE.md` |
-| GitHub Copilot | `.github/copilot-instructions.md` |
+Choose **Create a new customer** for the second booking. Verify it creates a separate customer record rather than silently selecting the first Alex by name.
 
-Explain that all three use `PROJECT_INDEX.md` and the same Obsidian Second Brain.
+## 18. Recover an unfinished manual booking draft
 
-Include brief instructions for a new developer:
+Start `Paolo Draft Test`, `09170001020`, with Karaoke Setup — 12 Hours on **December 8, 2026, 9:00 AM–11:00 AM**. Enter a location and one add-on, then refresh before saving.
 
-1. Clone or pull the repository.
-2. Open the repository root in VS Code.
-3. Enable GitHub Copilot.
-4. Use Copilot Chat or Agent mode.
-5. Verify that repository custom instructions are enabled.
-6. Ask Copilot to identify the project index and explain the documentation-maintenance workflow before making changes.
+Verify the draft restores the entered values and selections without creating a booking. Finish and save once; verify exactly one booking is created.
 
-Do not claim that ordinary inline code suggestions automatically update documentation.
+## 19. Adjacent availability intervals do not overlap
 
-If `README-AI-SECOND-BRAIN.md` already exists, update its assistant-support section instead of creating duplicate setup documentation.
+Create a Confirmed booking for `Quinn Boundary A`, `09170001021`, on **December 10, 2026, 2:00–4:00 PM**, with 30 minutes preparation and 45 minutes travel. It blocks 1:30–4:45 PM.
 
-Add a small navigation link from `00 Second Brain Home/Home.md` to the AI setup documentation if helpful, without disrupting the non-developer learning dashboard.
+Create a second same-service booking starting exactly at **4:45 PM** with zero allowances. The intervals only touch, so it should not be reported as overlapping. Change its start to 4:44 PM and verify that one-minute overlap is detected.
 
-## Phase 6 — Confirm Copilot Behavior
+## 20. Approve every conflicting booking, not just one
 
-Check that the new instructions are formatted correctly and use the supported GitHub Copilot repository-wide instruction location.
+Create two separate Confirmed Karaoke bookings on **December 12, 2026, 2:00–4:00 PM** using different contacts and approved overlap reasons. Then create a third booking at the same time.
 
-Use this sample verification prompt in Copilot Chat:
+Try to approve only one conflict. Confirmation must fail. Review and approve the full current conflict list with a reason; confirmation should succeed and the audit should identify the approved overlaps.
 
-"Read the repository instructions and PROJECT_INDEX.md. Explain how you would find the relevant frontend, backend, and database files for a booking change, and which documentation you would update afterward. Do not modify files."
+## 21. Stale conflict approval after the schedule changes
 
-Explain how a developer can check that Copilot included `.github/copilot-instructions.md` in its Chat references.
+Create one Confirmed Karaoke booking on **December 14, 2026, 2:00–4:00 PM**. Start confirming a second overlapping booking, note the displayed conflict, then change the second booking's date or time before submitting approval.
 
-If Copilot is not available to execute during this task, report the verification as pending rather than claiming the instructions were tested in Copilot.
+The old conflict list must not be accepted as current. Recheck availability, approve the current exact list if still overlapping, or save without approval if the conflict has gone away.
 
-## Phase 7 — Strict Scope
+## 22. Reschedule a Confirmed booking into a conflict
 
-This is an AI configuration and documentation task.
+Create two Confirmed Karaoke bookings on **December 16 and December 18, 2026**, at 2:00–4:00 PM. Edit the first booking's event date so it overlaps the second.
 
-Allowed changes:
+Expected: rescheduling rechecks availability using preparation/travel allowances. It must not silently save an unapproved overlap. Add a reason and approve the current conflict or choose a free interval.
 
-- Create `.github/copilot-instructions.md`.
-- Make minimal consistency changes to `AGENTS.md` and `CLAUDE.md` only if needed.
-- Update the introduction/navigation in `PROJECT_INDEX.md`.
-- Update the AI setup section of `README.md` or existing AI setup documentation.
-- Optionally add one navigation link to the Second Brain dashboard.
+## 23. Cancel a Pending booking with and without a reason
 
-Do not modify the rental application's frontend, backend, database schema, or tests.
+Create `Rae Cancel Pending`, `09170001024`, on **December 20, 2026, 10:00 AM–12:00 PM** and leave it Pending. Attempt cancellation with a blank reason, then cancel with `Customer changed plans`.
 
-Do not change existing approved project decisions.
+Blank reason must be rejected. With a reason, the booking becomes Cancelled, stays visible in history, and no longer blocks that time.
 
-Preserve unrelated working-tree changes.
+## 24. Cancel a Confirmed booking and retain its records
 
-Do not stage, commit, or push without explicit authorization.
+Create and confirm `Sam Cancel Confirmed`, `09170001025`, for **December 22, 2026, 10:00 AM–12:00 PM**. Add a Completed ₱200 payment, then cancel with a clear reason.
 
-## Phase 8 — Final Validation
+Verify the booking stays in history, the payment remains linked, and cancellation releases its reserved schedule. Do not expect a hard delete.
 
-Verify:
+## 25. Confirmed bookings cannot return to Pending
 
-1. `.github/copilot-instructions.md` exists.
-2. All three AI assistants reference the same project knowledge.
-3. There are no contradictory development instructions.
-4. All newly added Markdown links resolve.
-5. The beginner-friendly documentation remains unchanged unless a link genuinely requires updating.
-6. `PROJECT_INDEX.md` remains concise.
-7. No application functionality was changed.
-8. `git diff --check` passes.
+Create and confirm `Toni Status Test`, `09170001026`, on **December 24, 2026, 10:00 AM–12:00 PM**. Try changing its status back to Pending.
 
-## Final Report
+Expected: the transition is rejected. If the booking should no longer proceed, use the cancellation flow with a reason.
 
-Provide:
+## 26. Saved package snapshot survives a later catalog edit
 
-- Files created and modified.
-- Summary of the GitHub Copilot instructions.
-- Explanation of how Copilot shares the Second Brain with Codex and Claude Code.
-- Documentation-maintenance behavior.
-- Verification results.
-- Any remaining manual setup steps.
+Create `Uma Snapshot Test`, `09170001027`, with Karaoke Setup — 12 Hours on **December 26, 2026, 10:00 AM–12:00 PM**. Record the displayed package name and price snapshot.
 
-**Important limitation:** Copilot instructions guide supported AI interactions. They do not independently monitor manual edits or guarantee that documentation is always updated. Automatic Git-triggered documentation checks would require a separate workflow.
+In the local Packages page, change the package name or price, then reopen the booking. Its historical snapshot must still show the original agreed package details. Restore the package catalog value after the check.
 
-## Expected Outcome
+## 27. Inactive packages are not available for new bookings
 
-Rental-Ops-Manager will support three AI development assistants using one knowledge system:
+In the local Packages page, create a temporary inactive test package for Karaoke. Open Manual Booking and verify it is not selectable. If an existing package must be used for this check, temporarily deactivate it only in this local test database and reactivate it immediately afterward.
 
-**Codex + Claude Code + GitHub Copilot → PROJECT_INDEX.md → Unified Obsidian Second Brain → Current Source Code**
+An inactive package must not be accepted for a new booking. Existing bookings using a package snapshot should remain readable.
 
-Every assistant should be able to understand the project efficiently, respect existing development decisions, implement requested changes safely, and maintain affected documentation during its active development tasks.
+## 28. Malformed customer data is rejected cleanly
 
-Implement this integration in the current repository without rebuilding or disrupting the existing Second Brain.
+Start a booking for `Vic Email Test`, `09170001028`. Try an invalid email format and then exceed the allowed name, contact, and email lengths.
+
+Expected: browser validation or the server gives a useful error, and no partial customer or booking is created. Correct the data and verify one valid booking can then be saved.
+
+## 29. Pending and Failed payments do not reduce the balance
+
+Create `Wes Payment Status`, `09170001029`, with agreed total ₱999. Record a ₱300 payment as Pending, then another ₱200 payment as Failed.
+
+Neither payment should reduce the amount due. The balance remains ₱999 until a payment is Completed. Add a Completed ₱999 payment; verify the balance becomes zero and history shows all three payment states accurately.
+
+## 30. Payment correction requires a positive amount and reason
+
+Create a Completed ₱250 payment for `Yara Correction Test`, `09170001030`, on a ₱999 booking. Open **Correct** and try amount zero, a negative amount, and a blank reason.
+
+Each invalid correction must be blocked without changing the saved payment. Enter a positive amount and a meaningful reason; verify the payment and balance update and the reason is audited.
+
+## 31. Deposit deduction cannot exceed the remaining deposit
+
+Create `Zane Deposit Limit`, `09170001031`, with a ₱300 held deposit. Add a ₱200 deduction, then try another deduction of ₱101.
+
+The second deduction must fail because only ₱100 remains. Verify the saved deductions and refundable amount remain correct after rejection.
+
+## 32. Refund only the remaining refundable deposit
+
+Create `Ari Refund Test`, `09170001032`, with a ₱500 deposit and a ₱125 documented deduction. Mark the remaining ₱375 as refunded.
+
+Verify the final deposit state shows the recorded deduction and refund. Try to mark it refunded again or add another deduction after refund; the operation should be blocked or remain idempotent without creating a second refund.
+
+## 33. Save and reload all delivery arrangements
+
+Create `Bo Delivery Test`, `09170001033`, on **December 28, 2026**. On the Details tab, test Self-pickup, Lalamove, and Owner-delivered in turn, with fee responsibility Customer, Included in package, and Owner. Enter a fee and delivery note for each save.
+
+Reopen after every save. Verify the method, responsibility, fee, and notes persist. Delivery fee must remain separate from the agreed rental total.
+
+## 34. Release needs every outgoing quantity and condition
+
+Create and confirm `Cy Release Conditions`, `09170001034`, with a package that generates checklist items. On Checklist & Release, leave one outgoing condition blank and try release; then enter conditions but leave a quantity incomplete and try again.
+
+Both incomplete attempts must fail. Fill each expected quantity and condition, save, and verify one release succeeds with matching Released history.
+
+## 35. Outgoing quantity cannot exceed the expected quantity
+
+Create a booking with a checklist item whose expected quantity is known. Try to release one more than expected, then correct it to the exact expected quantity.
+
+The oversized quantity must be rejected. The valid quantity should save, and a failed attempt must not create a release or history row.
+
+## 36. Return quantity cannot exceed the released quantity
+
+For a booking with equipment released, open Return Inspection. Enter a returned quantity greater than the released quantity and attempt to save/finalize.
+
+Expected: the return is rejected with a clear validation message. Correct the quantity and confirm the invalid attempt did not leave a partial Returned history entry.
+
+## 37. A short return must be documented as Missing
+
+For a released checklist item, enter a returned quantity lower than the released quantity but leave its status as Inspected. Attempt final review.
+
+The review must fail until the short quantity is marked Missing and the condition/notes document what did not return. Then verify the complete review can proceed.
+
+## 38. Return inspection values must match the allowed conditions
+
+For a released booking, inspect every row and test Good, Minor Damage, Damaged, Missing, and Unwashed where appropriate. Try a value outside the allowed list or “Not Applicable.”
+
+Expected: allowed values save consistently; invalid values are not offered and are rejected by the server if submitted. Verify saved conditions remain after reopening the Return Inspection tab.
+
+## 39. Notification links open the matching booking tab
+
+Create one due booking that reaches Awaiting Completion and another that reaches Awaiting Payment. Open each action-required notification from the bell.
+
+The first must open its own booking on **Return Inspection**. The second must open its own booking on **Payments**. Verify the booking reference, customer, status, and tab all match the notification clicked.
+
+## 40. Offline booking and payment replay without duplicates
+
+With the admin app loaded and signed in, go offline and create `Dee Retry Test`, `09170001040`, with a new manual booking and payment. Verify both appear in the pending sync list. Reconnect, use **Sync Now**, then use it again after the first sync completes.
+
+Verify one server booking, one linked payment, and correct local-to-server IDs after retry and refresh. No duplicate customer, booking, payment, checklist, or history record should appear. If the first sync reports a failure, retry it and confirm the same result.
+
+## Results log
+
+Codex: fill every row during the browser run. Use the status values defined above, include a booking reference when one exists, and link failures to an issue ID below. A failed save should not leave a partial customer, booking, payment, deposit, checklist, or history record.
+
+| # | Outcome | Evidence / booking reference | Issue ID |
+| --- | --- | --- | --- |
+| 1 |  |  |  |
+| 2 |  |  |  |
+| 3 |  |  |  |
+| 4 |  |  |  |
+| 5 |  |  |  |
+| 6 |  |  |  |
+| 7 |  |  |  |
+| 8 |  |  |  |
+| 9 |  |  |  |
+| 10 |  |  |  |
+| 11 |  |  |  |
+| 12 |  |  |  |
+| 13 |  |  |  |
+| 14 |  |  |  |
+| 15 |  |  |  |
+| 16 |  |  |  |
+| 17 |  |  |  |
+| 18 |  |  |  |
+| 19 |  |  |  |
+| 20 |  |  |  |
+| 21 |  |  |  |
+| 22 |  |  |  |
+| 23 |  |  |  |
+| 24 |  |  |  |
+| 25 |  |  |  |
+| 26 |  |  |  |
+| 27 |  |  |  |
+| 28 |  |  |  |
+| 29 |  |  |  |
+| 30 |  |  |  |
+| 31 |  |  |  |
+| 32 |  |  |  |
+| 33 |  |  |  |
+| 34 |  |  |  |
+| 35 |  |  |  |
+| 36 |  |  |  |
+| 37 |  |  |  |
+| 38 |  |  |  |
+| 39 |  |  |  |
+| 40 |  |  |  |
+
+## Issue log
+
+Codex: add one entry per defect, with enough detail for a developer to reproduce it.
+
+| Issue ID | Scenario | Severity | Steps to reproduce | Expected | Actual | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+
+## Untested gaps
+
+Codex: list behavior that these scenarios could not verify, browser limitations, and product behavior that still needs a separate decision or acceptance. Internal availability blockouts are deferred and must not be reported as an active feature failure.

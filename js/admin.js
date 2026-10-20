@@ -245,7 +245,15 @@ async function renderActionNotifications() {
   topbar.appendChild(wrap);
   try {
     const rows = await API.getNotifications();
-    wrap.innerHTML = `<button class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Action-required notifications"><i class="bi bi-bell"></i>${rows.length ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${rows.length}</span>` : ''}</button><div class="dropdown-menu dropdown-menu-end p-2" style="min-width:min(92vw,24rem);max-height:70vh;overflow:auto"><h6 class="dropdown-header">Action required</h6>${rows.length ? rows.map(row => `<a class="dropdown-item text-wrap" href="bookings.html?booking_id=${encodeURIComponent(row.booking_id)}"><strong>${escapeHtmlA(row.booking_reference || `Booking ${row.booking_id}`)}</strong><br><small>${escapeHtmlA(row.message)}</small></a>`).join('') : '<span class="dropdown-item-text text-muted">No action-required bookings.</span>'}</div>`;
+    const views = {
+      awaiting_completion: { action: 'Complete return review', tab: 'return' },
+      awaiting_payment: { action: 'Collect outstanding balance', tab: 'payments' }
+    };
+    wrap.innerHTML = `<button class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Action-required notifications"><i class="bi bi-bell"></i>${rows.length ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${rows.length}</span>` : ''}</button><div class="dropdown-menu dropdown-menu-end p-2" style="min-width:min(94vw,28rem);max-height:70vh;overflow:auto"><h6 class="dropdown-header">Action required</h6>${rows.length ? rows.map(row => {
+      const view = views[row.notification_type] || { action: 'Review booking', tab: 'details' };
+      const balance = row.notification_type === 'awaiting_payment' ? ` · ${BookingCalc.formatCurrency(row.outstanding_balance)} due` : '';
+      return `<a class="dropdown-item text-wrap border-bottom py-2" data-admin-reload href="bookings.html?booking_id=${encodeURIComponent(row.booking_id)}&tab=${view.tab}"><span class="d-flex justify-content-between gap-2"><strong>${escapeHtmlA(row.booking_reference || `Booking ${row.booking_id}`)}</strong><span class="badge bg-warning text-dark">${escapeHtmlA(row.booking_status)}</span></span><span class="d-block small fw-semibold">${escapeHtmlA(view.action)}${escapeHtmlA(balance)}</span><span class="d-block small">${escapeHtmlA(row.customer_name)} · ${escapeHtmlA(row.service_name)}</span><span class="d-block small text-muted">${escapeHtmlA(BookingCalc.formatDate(row.event_date))}, ${escapeHtmlA(BookingCalc.formatTime(row.start_time))}–${escapeHtmlA(BookingCalc.formatTime(row.end_time))}</span><span class="d-block small text-muted mt-1">${escapeHtmlA(row.message)}</span></a>`;
+    }).join('') : '<span class="dropdown-item-text text-muted">No action-required bookings.</span>'}</div>`;
   } catch (error) {
     wrap.innerHTML = '<span class="small text-muted">Notifications unavailable</span>';
   }
@@ -271,6 +279,7 @@ function initAdminSpaNavigation() {
         event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest('a[href]');
     if (!link || link.target || link.hasAttribute('download')) return;
+    if (link.hasAttribute('data-admin-reload')) return;
     const url = new URL(link.href, window.location.href);
     const page = url.pathname.split('/').pop();
     if (url.pathname === window.location.pathname) {

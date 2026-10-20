@@ -189,7 +189,7 @@
     createAddon:['addons','create'],updateAddon:['addons','update'],deleteAddon:['addons','delete'],
     createRentalItem:['rentalItems','create'],updateRentalItem:['rentalItems','update'],deleteRentalItem:['rentalItems','delete'],
     createGalleryImage:['gallery','create'],updateGalleryImage:['gallery','update'],deleteGalleryImage:['gallery','delete'],
-    createBooking:['bookings','create'],updateBooking:['bookings','update'],deleteBooking:['bookings','delete'],createPayment:['payments','create']
+    createBooking:['bookings','create'],updateBooking:['bookings','update'],deleteBooking:['bookings','delete'],createPayment:['payments','create'],updatePayment:['payments','update']
   };
   Object.entries(actions).forEach(([name,[entity,action]])=>{
     API[name]=async function(...args){
@@ -216,6 +216,10 @@
       if(entity==='payments'&&action==='create'){
         const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(result.booking_id));
         if(booking){booking.amount_paid=Number(booking.amount_paid||0)+Number(result.amount||0);booking.payment_status=booking.amount_paid>=Number(booking.total||0)?'Fully Paid':'Partial';saveRows('bookings',STORAGE.getAll('bookings'));}
+      }
+      if(entity==='payments'&&action==='update'){
+        const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(result.booking_id));
+        if(booking){booking.amount_paid=STORAGE.getAll('payments').filter(row=>String(row.booking_id)===String(result.booking_id)&&String(row.payment_status||'Completed')==='Completed').reduce((sum,row)=>sum+Number(row.amount||0),0);booking.payment_status=booking.amount_paid>=Number(booking.total||0)?'Fully Paid':booking.amount_paid>0?'Partial':'Unpaid';saveRows('bookings',STORAGE.getAll('bookings'));}
       }
       return result;
     };
@@ -273,8 +277,8 @@
   API.updateBookingItem=async(id,data)=>{const row=updateLocal('bookingItems',id,data);if(!row)throw new Error('Checklist item not found on this device.');enqueue('bookingItems','update',{...data,booking_id:row.booking_id,checklist_item_id:row.checklist_item_id,template_item_id:row.template_item_id,rental_item_id:row.rental_item_id},id);return row;};
   API.deleteBookingItem=async id=>{deleteLocal('bookingItems',id);enqueue('bookingItems','delete',{id},id);return true;};
   API.logItemHistory=async entry=>{const row=createLocal('itemHistory',{date:new Date().toISOString(),...entry});enqueue('itemHistory','create',entry,row.history_id);return row;};
-  API.recordRelease=async(bookingId,releasedBy,notes)=>{const row=createLocal('itemReleases',{booking_id:bookingId,released_by:releasedBy,notes:notes||'',released_at:new Date().toISOString()});enqueue('itemReleases','create',{booking_id:bookingId,released_by:releasedBy,notes:notes||''},row.release_id);for(const item of STORAGE.getAll('bookingItems').filter(value=>String(value.booking_id)===String(bookingId)))if(item.rental_item_id!=null)await API.logItemHistory({rental_item_id:item.rental_item_id,booking_id:bookingId,action:'Released',qty:item.expected_qty,condition:'Good'});return row;};
-  API.recordReturn=async(bookingId,inspectedBy,itemResults,notes)=>{const rows=STORAGE.getAll('bookingItems');for(const item of itemResults){const row=rows.find(value=>String(value.booking_item_id)===String(item.booking_item_id));if(row)Object.assign(row,{returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||'',inspected:true,pending_sync:true});if(item.rental_item_id!=null)await API.logItemHistory({rental_item_id:item.rental_item_id,booking_id:bookingId,action:'Returned',qty:item.returned_qty,condition:item.condition});}saveRows('bookingItems',rows);const items=itemResults.map(item=>({checklist_item_id:item.checklist_item_id??item.booking_item_id,template_item_id:item.template_item_id,rental_item_id:item.rental_item_id??null,returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||''}));enqueue('equipment','inspect',{booking_id:bookingId,inspected_by:inspectedBy,items},bookingId);return {booking_id:bookingId,items,pending_sync:true};};
+  API.recordRelease=async(bookingId,releasedBy,notes)=>{const row=createLocal('itemReleases',{booking_id:bookingId,released_by:releasedBy,notes:notes||'',released_at:new Date().toISOString()});enqueue('itemReleases','create',{booking_id:bookingId,released_by:releasedBy,notes:notes||''},row.release_id);return row;};
+  API.recordReturn=async(bookingId,inspectedBy,itemResults,notes)=>{const rows=STORAGE.getAll('bookingItems');for(const item of itemResults){const row=rows.find(value=>String(value.booking_item_id)===String(item.booking_item_id));if(row)Object.assign(row,{returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||'',inspected:true,pending_sync:true});}saveRows('bookingItems',rows);const items=itemResults.map(item=>({checklist_item_id:item.checklist_item_id??item.booking_item_id,template_item_id:item.template_item_id,rental_item_id:item.rental_item_id??null,returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||''}));enqueue('equipment','inspect',{booking_id:bookingId,inspected_by:inspectedBy,items},bookingId);return {booking_id:bookingId,items,pending_sync:true};};
   API.finalizeReturn=async(id,review={})=>{const operation=enqueue('equipment','finalizeReturn',{booking_id:id,...review},id);return {booking_id:id,status:'pending',pending_sync:true,operation_id:operation.client_id};};
   API.getPackages=()=>cachedRead('packages');
   API.getChecklistTemplates=()=>cachedRead('checklistTemplates');

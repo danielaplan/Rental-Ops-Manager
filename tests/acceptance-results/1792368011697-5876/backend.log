@@ -1,0 +1,59 @@
+Synthetic database: akad_verify_plan_1792368012010_12068; servers: http://127.0.0.1:63049/, http://127.0.0.1:63050/
+EXCLUDED legacy internal blockout draft checks: deferred scope
+PASS authenticated boundaries/notifications, financial/history rules, concurrent conflicts, owner administration, and reports
+✔ catalog defaults, booking snapshots, eligibility, and retained cancellation (2139.7542ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2150.5942
+✔ scheduled reconciler refuses an implicit operational database (136.3797ms)
+✔ scheduled reconciliation and reviewed checklist release are atomic and idempotent (1997.0736ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2145.3616
+PASS finance validation, retained report details, report definitions, and payment-date revenue
+PASS auth multi-device revocation, expiry, parallel lockout/reset race, primary permissions, production HTTPS/CORS bootstrap
+✖ offline sync honors revised shared booking, financial, catalog, and history rules (1342.3189ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1347.1231
+
+✖ failing tests:
+
+test at tests\sync-plan-gaps.test.cjs:6:1
+✖ offline sync honors revised shared booking, financial, catalog, and history rules (1342.3189ms)
+  AssertionError [ERR_ASSERTION]: {"committed":[],"conflicts":[],"failed":[{"client_id":"plan-sync-1792368031010-18","reason":"Only confirmed bookings can release equipment."}]}
+  
+  1 !== 0
+  
+      at synced (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\sync-plan-gaps.test.cjs:29:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async TestContext.<anonymous> (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\sync-plan-gaps.test.cjs:115:19)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+Error: tests/sync-plan-gaps.test.cjs failed (1)
+    at ChildProcess.<anonymous> (C:\Users\acer\Desktop\Rental-Ops-Manager\tests\run_revised_backend.cjs:56:56)
+    at Object.onceWrapper (node:events:623:26)
+    at ChildProcess.emit (node:events:508:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:294:12)

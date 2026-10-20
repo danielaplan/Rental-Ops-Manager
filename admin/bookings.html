@@ -124,6 +124,11 @@
                       </button>
                     </div>
                     <div class="col-12" id="dSaveConflictMsg" role="alert" aria-live="assertive" tabindex="-1" style="display:none;"></div>
+                    <div class="col-12" id="dConflictApproval" hidden>
+                      <label class="form-label" for="dConflictReason">Reason for approving this overlap</label>
+                      <textarea class="form-control" id="dConflictReason" rows="2" maxlength="5000"></textarea>
+                      <button type="button" class="btn btn-sm btn-danger mt-2" id="dApproveConflictBtn">Approve listed overlaps and confirm</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -303,7 +308,7 @@
 <div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingTitle" aria-hidden="true"><div class="modal-dialog"><form class="modal-content" id="cancelBookingForm"><div class="modal-header"><h5 class="modal-title" id="cancelBookingTitle">Cancel booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>This keeps the booking in history and releases its reserved schedule.</p><label class="form-label" for="cancellationReason">Cancellation reason</label><textarea class="form-control" id="cancellationReason" rows="3" maxlength="5000" required></textarea><div id="cancellationError" class="text-danger small mt-2" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button><button type="submit" class="btn btn-danger">Confirm cancellation</button></div></form></div></div>
 
 <div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <form class="modal-content" id="editBookingForm" novalidate>
       <div class="modal-header">
         <h5 class="modal-title" id="editBookingTitle">Edit event details</h5>
@@ -325,7 +330,23 @@
           </div>
           <div class="col-12">
             <label class="form-label" for="editEventLocation">Event location</label>
-            <input class="form-control" type="text" id="editEventLocation" required>
+            <input class="form-control" type="text" id="editEventLocation" maxlength="255" required>
+          </div>
+          <fieldset class="col-12 border rounded p-3" id="editPendingFields" hidden>
+            <legend class="float-none w-auto px-2 h6">Pending booking details</legend>
+            <p class="small text-muted">These commercial details can be changed only while the booking is Pending.</p>
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label" for="editCustomerId">Customer</label><select class="form-select" id="editCustomerId"></select></div>
+              <div class="col-md-6"><label class="form-label" for="editServiceId">Service</label><select class="form-select" id="editServiceId"></select></div>
+              <div class="col-12"><label class="form-label" for="editPackageId">Package</label><select class="form-select" id="editPackageId"></select></div>
+              <div class="col-12"><span class="form-label d-block">Add-ons</span><div class="row g-2" id="editAddonList"></div></div>
+              <div class="col-sm-6"><label class="form-label" for="editPreparation">Preparation allowance (minutes)</label><input class="form-control" type="number" min="0" step="1" id="editPreparation"></div>
+              <div class="col-sm-6"><label class="form-label" for="editTravel">Travel allowance (minutes)</label><input class="form-control" type="number" min="0" step="1" id="editTravel"></div>
+              <div class="col-sm-4"><label class="form-label" for="editDiscount">Discount (₱)</label><input class="form-control" type="number" min="0" step="0.01" id="editDiscount"></div>
+              <div class="col-sm-4"><label class="form-label" for="editFees">Additional fees (₱)</label><input class="form-control" type="number" min="0" step="0.01" id="editFees"></div>
+              <div class="col-sm-4"><label class="form-label" for="editAgreedTotal">Agreed total (₱)</label><input class="form-control" type="number" min="0" step="0.01" id="editAgreedTotal"></div>
+            </div>
+          </fieldset>
           </div>
         </div>
         <div id="editBookingError" class="alert alert-danger mt-3 mb-0" role="alert" tabindex="-1" hidden></div>
@@ -337,6 +358,23 @@
       </div>
     </form>
   </div>
+</div>
+
+<div class="modal fade" id="paymentCorrectionModal" tabindex="-1" aria-labelledby="paymentCorrectionTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><form class="modal-content" id="paymentCorrectionForm" novalidate>
+    <div class="modal-header"><h5 class="modal-title" id="paymentCorrectionTitle">Correct payment</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><input type="hidden" id="correctionPaymentId">
+      <div class="row g-3">
+        <div class="col-sm-6"><label class="form-label" for="correctionAmount">Amount (₱)</label><input type="number" min="0.01" step="0.01" class="form-control" id="correctionAmount" required></div>
+        <div class="col-sm-6"><label class="form-label" for="correctionMethod">Method</label><select class="form-select" id="correctionMethod"></select></div>
+        <div class="col-sm-6"><label class="form-label" for="correctionStatus">Status</label><select class="form-select" id="correctionStatus"><option>Completed</option><option>Pending</option><option>Failed</option></select></div>
+        <div class="col-sm-6"><label class="form-label" for="correctionType">Payment type</label><select class="form-select" id="correctionType"><option>Down payment</option><option>Balance</option></select></div>
+        <div class="col-12"><label class="form-label" for="correctionReason">Correction reason</label><textarea class="form-control" id="correctionReason" rows="2" maxlength="5000" required></textarea></div>
+      </div>
+      <div id="paymentCorrectionError" class="alert alert-danger mt-3 mb-0" role="alert" tabindex="-1" hidden></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-admin-primary" id="savePaymentCorrectionBtn">Save correction</button></div>
+  </form></div>
 </div>
 
 <script src="../vendor/jquery-3.7.1.min.js"></script>
@@ -356,6 +394,7 @@ let currentBookingId = null;
 let deliveryFormRevision = 0;
 let returnToBookingDetails = false;
 let detailVersion = 0, bookingsVersion = 0, detailEditRevision = 0;
+let pendingConflictApproval = null;
 $('.admin-main').onAdmin('input change', '#bookingDetailModal :input', () => { detailEditRevision++; });
 $('.admin-main').onAdmin('hidden.bs.modal', '#bookingDetailModal', () => { detailVersion++; });
 
@@ -367,12 +406,15 @@ adminReady(async function () {
   CONFIG.bookingStatuses.forEach(s => $statusFilter.append(`<option value="${s}">${s}</option>`));
   $('#payMethod').empty();
   CONFIG.paymentMethods.forEach(m => $('#payMethod').append(`<option>${m}</option>`));
+  CONFIG.paymentMethods.forEach(m => $('#correctionMethod').append(`<option>${m}</option>`));
   $('#dStatusSelect').empty();
   CONFIG.bookingEditableStatuses.forEach(s => $('#dStatusSelect').append(`<option>${s}</option>`));
 
-  await renderBookingsTable();
   const requestedBookingId = new URLSearchParams(window.location.search).get('booking_id');
-  if (requestedBookingId) await openBookingDetail(requestedBookingId);
+  const requestedTab = new URLSearchParams(window.location.search).get('tab');
+  const tableLoad = renderBookingsTable();
+  if (requestedBookingId) await openBookingDetail(requestedBookingId, requestedTab);
+  await tableLoad;
 
   $('#filterStatus, #filterSearch').onAdmin('input change', function () {
     return renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
@@ -391,6 +433,23 @@ adminReady(async function () {
     $('#editEventStart').val(String(booking.start_time || '').slice(0, 5));
     $('#editEventEnd').val(String(booking.end_time || '').slice(0, 5));
     $('#editEventLocation').val(booking.location || '');
+    const pending = booking.status === 'Pending';
+    $('#editPendingFields').prop('hidden', !pending);
+    $('#editBookingTitle').text(pending ? 'Edit pending booking' : 'Edit event details');
+    $('#saveBookingEditBtn').text(pending ? 'Save booking changes' : 'Save event details');
+    if (pending) {
+      const [customers, services] = await Promise.all([API.getCustomers(), API.getActiveServices()]);
+      $('#editCustomerId').html(customers.map(customer => `<option value="${escapeHtmlA(customer.customer_id)}">${escapeHtmlA(customer.name)} · ${escapeHtmlA(customer.contact || 'No contact')}</option>`).join(''));
+      const selectedCustomer = customers.find(customer => String(customer.contact) === String(booking.contact) || String(customer._server_id ?? customer.customer_id).replace(/^CUS-0*/, '') === String(booking.customer_id));
+      if (selectedCustomer) $('#editCustomerId').val(selectedCustomer.customer_id);
+      $('#editServiceId').html(services.map(service => `<option value="${escapeHtmlA(service.service_id)}">${escapeHtmlA(service.name)}</option>`).join('')).val(booking.service_ids?.[0] || '');
+      $('#editPreparation').val(Number(booking.preparation_minutes || 0));
+      $('#editTravel').val(Number(booking.travel_minutes || 0));
+      $('#editDiscount').val(Number(booking.discount || 0));
+      $('#editFees').val(Number(booking.fees || 0));
+      $('#editAgreedTotal').val(Number(booking.agreed_total ?? booking.total ?? 0));
+      await renderPendingBookingCatalog(booking.package_id, booking.addon_ids || []);
+    }
     $('#editBookingError').prop('hidden', true).text('');
     returnToBookingDetails = true;
     const detailsModal = document.getElementById('bookingDetailModal');
@@ -422,6 +481,7 @@ adminReady(async function () {
     returnToBookingDetails = false;
     return openBookingDetail(currentBookingId);
   });
+  $('#editServiceId, #editEventDate').onAdmin('change', () => renderPendingBookingCatalog());
 
   $('#editBookingForm').onAdmin('submit', async function (e) {
     e.preventDefault();
@@ -445,7 +505,7 @@ adminReady(async function () {
     if (['Confirmed', 'Reserved', 'Preparing', 'Released'].includes(booking.status)) {
       const availability = await Promise.all((booking.service_ids || []).map(async serviceId => ({
         id: serviceId,
-        available: (await API.checkAvailability(serviceId, eventDate, startTime, endTime, booking.id)).available
+        available: (await API.checkAvailability(serviceId, eventDate, startTime, endTime, booking.id, { preparation_minutes: Number(booking.preparation_minutes || 0), travel_minutes: Number(booking.travel_minutes || 0) })).available
       })));
       const conflicts = availability.filter(item => !item.available).map(item => item.id);
       if (conflicts.length) {
@@ -455,9 +515,25 @@ adminReady(async function () {
       }
     }
 
+    const update = { event_date: eventDate, start_time: startTime, end_time: endTime, location };
+    if (booking.status === 'Pending') {
+      const amounts = ['#editPreparation','#editTravel','#editDiscount','#editFees','#editAgreedTotal'].map(selector => Number($(selector).val()));
+      if (amounts.some(value => !Number.isFinite(value) || value < 0) || !$('#editCustomerId').val() || !$('#editServiceId').val()) {
+        error.text('Choose a customer and service, and enter non-negative allowances and amounts.').prop('hidden', false).trigger('focus');
+        return;
+      }
+      Object.assign(update, {
+        customer_id: $('#editCustomerId').val(),
+        service_ids: [$('#editServiceId').val()],
+        package_id: $('#editPackageId').val() || null,
+        addon_ids: $('.js-edit-addon:checked').map(function(){ return this.value; }).get(),
+        preparation_minutes: amounts[0], travel_minutes: amounts[1], discount: amounts[2], fees: amounts[3], agreed_total: amounts[4]
+      });
+    }
+
     button.prop('disabled', true);
     try {
-      await API.updateBooking(booking.id, { event_date: eventDate, start_time: startTime, end_time: endTime, location });
+      await API.updateBooking(booking.id, update);
       bootstrap.Modal.getInstance(document.getElementById('editBookingModal'))?.hide();
       await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
       showAdminToast(API.savedMessage());
@@ -481,23 +557,33 @@ adminReady(async function () {
     // A status change that activates the booking's time slot needs the same
     // conflict check as a new booking — the slot may have been taken.
     if (newStatus === 'Confirmed' || newStatus === 'Reserved' || newStatus === 'Preparing') {
-      const availability = await Promise.all((booking.service_ids || []).map(async sid => ({
-        id: sid,
-        available: (await API.checkAvailability(sid, booking.event_date, booking.start_time, booking.end_time, booking.id)).available
-      })));
-      const conflict = availability.filter(item => !item.available).map(item => item.id);
-      if (conflict.length) {
+      const availability = await Promise.all((booking.service_ids || []).map(sid => API.checkAvailability(sid, booking.event_date, booking.start_time, booking.end_time, booking.id, { preparation_minutes: Number(booking.preparation_minutes || 0), travel_minutes: Number(booking.travel_minutes || 0) })));
+      const blocks = availability.flatMap(result => result.conflicts?.blocks || []);
+      const conflicts = availability.flatMap(result => result.conflicts?.bookings || []);
+      if (blocks.length) {
         $('#dSaveConflictMsg').html(
           `<div class="alert alert-danger mb-0"><i class="bi bi-exclamation-triangle me-1"></i>` +
-          `Cannot confirm: the time slot is already booked for another reservation. ` +
-          `Your changes were not saved.</div>`
+          `Cannot confirm: this interval contains a blocked period that cannot be overridden.</div>`
         );
         $('#dSaveConflictMsg').show();
         return;
       }
+      if (conflicts.length) {
+        const unique = [...new Map(conflicts.map(row => [String(row.booking_id ?? row.id), row])).values()];
+        const ids = unique.map(row => Number(row.booking_id ?? row.id));
+        if (ids.some(id => !Number.isInteger(id) || id <= 0)) {
+          $('#dSaveConflictMsg').html('<div class="alert alert-danger mb-0">A conflicting booking is still Pending Sync. Sync both bookings before approving this overlap.</div>').show().trigger('focus');
+          return;
+        }
+        pendingConflictApproval = { booking, status: newStatus, ids };
+        $('#dSaveConflictMsg').html(`<div class="alert alert-danger mb-0"><i class="bi bi-exclamation-triangle me-1"></i>${unique.length} active booking overlap${unique.length === 1 ? '' : 's'} must be explicitly approved. No change has been saved.</div>`).show().trigger('focus');
+        $('#dConflictApproval').prop('hidden', false);
+        return;
+      }
     }
 
-    $('#dSaveConflictMsg').hide();
+    pendingConflictApproval = null;
+    $('#dSaveConflictMsg').hide(); $('#dConflictApproval').prop('hidden', true); $('#dConflictReason').val('');
     try {
       await API.updateBooking(booking.id, { status: newStatus });
       bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
@@ -506,6 +592,56 @@ adminReady(async function () {
     } catch (error) {
       $('#dSaveConflictMsg').text(error.message).show();
     }
+  });
+
+  $('#dApproveConflictBtn').onAdmin('click', async function () {
+    const reason = $('#dConflictReason').val().trim();
+    if (!pendingConflictApproval || !reason) {
+      $('#dSaveConflictMsg').text('Enter the business reason for approving the listed overlaps.').show().trigger('focus');
+      return;
+    }
+    $(this).prop('disabled', true);
+    try {
+      await API.updateBooking(pendingConflictApproval.booking.id, { status: pendingConflictApproval.status, approve_conflicts: true, conflicting_booking_ids: pendingConflictApproval.ids, override_reason: reason });
+      pendingConflictApproval = null;
+      bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
+      showAdminToast(API.savedMessage());
+      await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+    } catch (error) {
+      $('#dSaveConflictMsg').text(error.message).show().trigger('focus');
+    } finally { $(this).prop('disabled', false); }
+  });
+
+  $('#paymentHistoryWrap').onAdmin('click', '.js-correct-payment', async function () {
+    const payment = (await API.getPayments()).find(row => String(row.payment_id) === String($(this).data('id')));
+    if (!payment) return;
+    $('#correctionPaymentId').val(payment.payment_id);
+    $('#correctionAmount').val(payment.amount);
+    $('#correctionMethod').val(payment.method);
+    $('#correctionStatus').val(payment.payment_status || 'Completed');
+    $('#correctionType').val(payment.payment_type || 'Down payment');
+    $('#correctionReason').val('');
+    $('#paymentCorrectionError').prop('hidden', true).text('');
+    new bootstrap.Modal('#paymentCorrectionModal').show();
+  });
+  $('#paymentCorrectionForm').onAdmin('submit', async function (event) {
+    event.preventDefault();
+    const amount = Number($('#correctionAmount').val());
+    const reason = $('#correctionReason').val().trim();
+    if (!Number.isFinite(amount) || amount <= 0 || !reason) {
+      $('#paymentCorrectionError').text('Enter a positive amount and explain why this correction is required.').prop('hidden', false).trigger('focus');
+      return;
+    }
+    const button = $('#savePaymentCorrectionBtn').prop('disabled', true);
+    try {
+      await API.updatePayment($('#correctionPaymentId').val(), { amount, method: $('#correctionMethod').val(), payment_status: $('#correctionStatus').val(), payment_type: $('#correctionType').val(), correction_reason: reason });
+      bootstrap.Modal.getInstance(document.getElementById('paymentCorrectionModal'))?.hide();
+      showAdminToast(API.savedMessage());
+      await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+      await loadBookingDetail(currentBookingId);
+    } catch (error) {
+      $('#paymentCorrectionError').text(error.message).prop('hidden', false).trigger('focus');
+    } finally { button.prop('disabled', false); }
   });
 
   $('.admin-main').onAdmin('change', '.js-release-check', async function () {
@@ -664,6 +800,16 @@ adminReady(async function () {
   });
 });
 
+async function renderPendingBookingCatalog(selectedPackage = $('#editPackageId').val(), selectedAddons = $('.js-edit-addon:checked').map(function(){ return this.value; }).get()) {
+  const serviceId = $('#editServiceId').val();
+  const eventDate = $('#editEventDate').val();
+  const [packages, addons] = await Promise.all([API.getPackages(), API.getAddons()]);
+  const eligiblePackages = packages.filter(item => String(item.service_id) === String(serviceId) && (item.status === 'Active' || String(item.package_id) === String(selectedPackage)) && (!item.is_promotional || String(item.package_id) === String(selectedPackage) || (eventDate && item.promotion_start_date <= eventDate && item.promotion_end_date >= eventDate)));
+  $('#editPackageId').html('<option value="">No package</option>' + eligiblePackages.map(item => `<option value="${escapeHtmlA(item.package_id)}">${escapeHtmlA(item.name || item.package_name)} — ${BookingCalc.formatCurrency(item.price)}</option>`).join('')).val(selectedPackage || '');
+  const eligibleAddons = addons.filter(item => String(item.service_id) === String(serviceId) && (item.status === 'Active' || selectedAddons.includes(item.addon_id)));
+  $('#editAddonList').html(eligibleAddons.length ? eligibleAddons.map(item => `<div class="col-md-6"><label class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input mt-0 js-edit-addon" value="${escapeHtmlA(item.addon_id)}" ${selectedAddons.includes(item.addon_id) ? 'checked' : ''}><span>${escapeHtmlA(item.name)} — ${BookingCalc.formatCurrency(item.price)}</span></label></div>`).join('') : '<div class="col-12 text-muted small">No add-ons for this service.</div>');
+}
+
 const BOOKING_PAGE_SIZE=15;
 let bookingPage=0;
 async function renderBookingsTable(statusFilter, search) {
@@ -733,12 +879,18 @@ async function renderBookingsTable(statusFilter, search) {
   $('#bookingNext').onAdmin('click', async () => { bookingPage++; await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val()); });
 }
 
-async function openBookingDetail(id) {
+async function openBookingDetail(id, requestedTab = 'details') {
   currentBookingId = id;
-  if (await loadBookingDetail(id)) bootstrap.Modal.getOrCreateInstance('#bookingDetailModal').show();
+  if (await loadBookingDetail(id)) {
+    const tabs = { details: '#detailsTabButton', checklist: '#checklistTabButton', return: '#returnTabButton', payments: '#paymentsTabButton' };
+    bootstrap.Tab.getOrCreateInstance(tabs[requestedTab] || tabs.details).show();
+    bootstrap.Modal.getOrCreateInstance('#bookingDetailModal').show();
+  }
 }
 
 async function loadBookingDetail(id) {
+  pendingConflictApproval = null;
+  $('#dSaveConflictMsg').hide(); $('#dConflictApproval').prop('hidden', true); $('#dConflictReason').val('');
   const version = ++detailVersion;
   const revision = detailEditRevision;
   const isCurrent = () => version === detailVersion && revision === detailEditRevision && String(currentBookingId) === String(id);
@@ -839,6 +991,9 @@ function setDepositForm(deposit) {
   const deductions=deposit.deductions||[];
   $('#depositDeductions').html(deductions.length?`<div class="table-wrap"><table class="admin-table"><thead><tr><th>Affected item</th><th>Reason</th><th>Amount</th><th>Recorded</th></tr></thead><tbody>${deductions.map(row=>`<tr><td>${escapeHtmlA(row.affected_item)}</td><td>${escapeHtmlA(row.reason)}</td><td>${BookingCalc.formatCurrency(row.amount)}</td><td>${escapeHtmlA(row.recorded_at)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="small text-muted">No deposit deductions recorded.</div>');
   const refunded=String(deposit.refund_status||'').toLowerCase()==='refunded';
+  const depositRecorded=Boolean(deposit.deposit_id||deposit.pending_sync);
+  $('#depositHeld').prop('readonly',depositRecorded);
+  $('#saveDepositBtn').prop('disabled',depositRecorded).text(depositRecorded?'Held deposit recorded':'Save held deposit');
   $('#addDeductionBtn').prop('disabled',!deposit.deposit_id||refunded);$('#refundDepositBtn').prop('disabled',!deposit.deposit_id||refunded||Number(deposit.refund_amount)<=0);
   renderDepositRefundState(deposit);
 }

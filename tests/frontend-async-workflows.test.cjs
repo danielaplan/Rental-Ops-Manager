@@ -61,7 +61,7 @@ function harness(file, api = {}) {
       querySelector: () => ({ after: alert => alerts.push(alert) })
     },
     window: { location: { href: '' } },
-    bootstrap: { Modal: class { show() {} } },
+    bootstrap: { Modal: class { show() {} }, Tab: { getOrCreateInstance: () => ({ show() {} }) } },
     BookingCalc: { formatCurrency: Number, formatDate: value => value, formatTime: value => value },
     PaymentsHelper: {
       pendingAmountsByBooking: async () => new Map(),
@@ -248,6 +248,33 @@ test('booking details retain the newer booking when the older lookup resolves la
   old.resolve({ id: 1, customer_name: 'Old booking' }); await first;
   assert.equal(h.node('#dCustName').text, 'New booking');
   assert.equal(shown, 1);
+});
+
+test('notification links reliably open their booking without waiting for the table', () => {
+  const admin = fs.readFileSync(path.join(root, 'js/admin.js'), 'utf8');
+  const bookings = fs.readFileSync(path.join(root, 'admin/bookings.html'), 'utf8');
+  assert.match(admin, /booking_id=\$\{encodeURIComponent\(row\.booking_id\)\}&tab=\$\{view\.tab\}/);
+  assert.match(admin, /link\.hasAttribute\('data-admin-reload'\)/);
+  assert.match(admin, /awaiting_completion: \{ action: 'Complete return review', tab: 'return' \}/);
+  assert.match(admin, /awaiting_payment: \{ action: 'Collect outstanding balance', tab: 'payments' \}/);
+  assert.ok(bookings.indexOf('const tableLoad = renderBookingsTable();') < bookings.indexOf('await openBookingDetail(requestedBookingId'));
+  assert.ok(bookings.indexOf('await openBookingDetail(requestedBookingId') < bookings.indexOf('await tableLoad;'));
+});
+
+test('booking notification destination activates its requested workflow tab', async () => {
+  const h = harness('admin/bookings.html', {
+    getBooking: async () => ({ id: 2, customer_name: 'Customer', total: 500 }),
+    getServices: async () => [], getAddons: async () => [], getPackages: async () => [],
+    getDeposit: async () => ({}), refreshDeposit: async () => ({}),
+    getDelivery: async () => ({}), refreshDelivery: async () => ({}), getSyncQueue: () => []
+  });
+  h.context.InventoryHelper = { renderChecklist: async () => {} };
+  h.context.PaymentsHelper.renderHistory = async () => {};
+  let selected;
+  h.context.bootstrap.Tab.getOrCreateInstance = tab => ({ show: () => { selected = tab; } });
+  h.context.bootstrap.Modal.getOrCreateInstance = () => ({ show() {} });
+  await h.context.openBookingDetail(2, 'payments');
+  assert.equal(selected, '#paymentsTabButton');
 });
 
 test('booking UI keeps Awaiting Payment visible until full-payment completion', () => {

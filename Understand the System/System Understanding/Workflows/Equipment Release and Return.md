@@ -1,6 +1,6 @@
 ---
 title: "Equipment Release and Return"
-date: 2026-10-17
+date: 2026-10-19
 tags:
   - akad
   - system-understanding
@@ -31,7 +31,7 @@ Ana’s karaoke package template contains two microphones and one speaker. The b
 
 1. Maintain a versioned template and items for a package.
 2. Creating or changing a Pending booking’s package copies the current template.
-3. Record quantity released and outgoing condition.
+3. For a Confirmed booking, complete every outgoing quantity and condition, then record the release once.
 4. After the event, record returned quantity, incoming condition, and inspected/damaged/missing status.
 5. The final review rejects incomplete or inconsistent rows.
 6. Any deductions are saved against the booking deposit before service release.
@@ -39,6 +39,8 @@ Ana’s karaoke package template contains two microphones and one speaker. The b
 ### What Happens Behind the Scenes?
 
 `BOOKING_CHECKLIST_ITEMS` keeps snapshots plus release/return facts. `checklist_service.php` owns copies and item updates. `equipment_service.php` owns inspection and finalization. The older `EQUIPMENT_CHECKLIST` and `BOOKING_ITEMS` tables remain for transition compatibility; the revised post-event workflow uses booking checklist items.
+
+The server writes `Released` and `Returned` item history inside the same transaction as the release or inspection. A failed operation therefore cannot leave a false history entry.
 
 ### Visual explanation
 
@@ -58,6 +60,7 @@ The diagram follows equipment information from the reusable package template to 
 - A package cannot change after checklist work has started.
 - Returned quantity cannot exceed released quantity. A short return must be marked missing.
 - Every reviewed row needs a return condition and inspected/damaged/missing state.
+- Equipment release is rejected for a non-Confirmed booking, an incomplete outgoing checklist, or a duplicate release.
 - Checklist rows document equipment; catalog quantity is not a real-time stock-reservation engine.
 
 ### Remember This

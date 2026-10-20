@@ -90,13 +90,16 @@ test('special workflows target their actual PHP actions', async () => {
   await API.finalizeReturn('BK-001');
   await API.upsertDeposit('BK-001', { amount_held: 350, deduction_amount: 50, deduction_reason: 'Cleaning' });
   await API.upsertDelivery('BK-001', { delivery_method: 'lalamove', delivery_fee: 250, fee_shouldered_by: 'owner' });
+  await API.updatePayment('PAY-003', { amount: 125, correction_reason: 'Correct receipt' });
   await API.getReportStats('2026-10-01', '2026-10-31');
 
   assert.equal(new URL(requests[0].url).searchParams.get('do'), 'inspect');
   assert.equal(new URL(requests[1].url).searchParams.get('do'), 'finalizeReturn');
   assert.equal(new URL(requests[2].url).searchParams.get('do'), 'upsert');
   assert.equal(new URL(requests[3].url).searchParams.get('do'), 'upsert');
-  assert.equal(requests[4].url, 'http://localhost/rental/api/reports.php?do=report&start=2026-10-01&end=2026-10-31');
+  assert.equal(requests[4].url, 'http://localhost/rental/api/payments.php?do=update&id=3');
+  assert.deepEqual(JSON.parse(requests[4].options.body), { amount: 125, correction_reason: 'Correct receipt' });
+  assert.equal(requests[5].url, 'http://localhost/rental/api/reports.php?do=report&start=2026-10-01&end=2026-10-31');
 });
 
 test('gallery image uploads use authenticated multipart form data', async () => {

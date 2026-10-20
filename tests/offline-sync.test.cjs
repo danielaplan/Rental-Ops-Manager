@@ -339,6 +339,21 @@ async function get(path, origin = BASE) {
     assert.equal(payments.length, 1);
     assert.equal(Number(payments[0].amount), 125);
   });
+  await test("offline payment corrections replay through the audited update path", async () => {
+    const c = device(token);
+    c.navigator.onLine = true;
+    await evalIn(c, "API.refreshSharedData()");
+    const payment = evalIn(c, 'STORAGE.getAll("payments").find(row=>Number(row.amount)===200)');
+    assert.ok(payment?.payment_id);
+    c.navigator.onLine = false;
+    await evalIn(c, `API.updatePayment(${JSON.stringify(payment.payment_id)},{amount:190,correction_reason:"Synthetic offline correction"})`);
+    assert.equal(q(c).at(-1).action, "update");
+    c.navigator.onLine = true;
+    const correction = await evalIn(c, "API.flushSyncQueue()");
+    assert.equal(correction.failed.length, 0, JSON.stringify(correction));
+    const saved = await get("api/payments.php?do=all&booking_id=" + serverId);
+    assert.ok(saved.some(row => Number(row.amount) === 190));
+  });
   await test("stale status edits require review instead of overwriting another device", async () => {
     const c = device(token);
     c.navigator.onLine = true;

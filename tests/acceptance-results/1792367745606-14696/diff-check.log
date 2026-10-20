@@ -1,0 +1,14 @@
+warning: in the working copy of '.obsidian/graph.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '05 Development Journal/README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/booking_pricing.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/booking_service.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/equipment_service.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/supporting_service.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/sync.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'js/sync.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/booking-plan-gaps.test.cjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/offline-sync.test.cjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/run_backend_acceptance.cjs', LF will be replaced by CRLF the next time Git touches it
+this:271: trailing whitespace.
++PS C:\Users\acer\Desktop\Rental-Ops-Manager> 

@@ -84,7 +84,7 @@ The runner creates its own temporary synthetic database. It does not use or migr
 Frontend-only checks:
 
 ```powershell
-node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs
+node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs tests/booking-flow-frontend-regressions.test.cjs
 ```
 
 ## AI-Assisted Development

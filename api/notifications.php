@@ -10,7 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET' || !in_array($do,['all','unresolved'],t
 
 domainTransaction(fn(PDO $pdo) => reconcileBookings($pdo));
 $limit = min(asInt($_GET['limit'] ?? 100,1) ?? 100,500);
-$sql = 'SELECT n.*,b.booking_reference,b.status AS booking_status FROM notifications n JOIN bookings b ON b.booking_id=n.booking_id WHERE n.user_id=?';
+$sql = "SELECT n.*,b.booking_reference,b.status AS booking_status,b.event_date,b.start_time,b.end_time,
+    c.full_name AS customer_name,s.service_name,
+    GREATEST(b.agreed_total-COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.booking_id=b.booking_id AND p.payment_status='Completed'),0),0) AS outstanding_balance
+    FROM notifications n
+    JOIN bookings b ON b.booking_id=n.booking_id
+    JOIN customers c ON c.customer_id=b.customer_id
+    JOIN services s ON s.service_id=b.service_id
+    WHERE n.user_id=?";
 if ($do === 'unresolved') $sql .= ' AND n.requires_action=1 AND n.resolved_at IS NULL';
 $args = [(int)$actor['user_id']];
 if (isset($_GET['booking_id'])) {

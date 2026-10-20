@@ -38,24 +38,24 @@ Requests use JSON unless an upload is multipart. Successful responses normally u
 | [deposit_service.php](Files/deposit_service.php.md) | depositView(), addDepositDeduction(), saveDeposit(). | Caller-controlled. |
 | [deposits.php](Files/deposits.php.md) | GET get; POST create/upsert/deduct/refund. | Authenticated owner. |
 | [domain.php](Files/domain.php.md) | domainFail(), domainTransaction(), moneyCents(), centsDecimal(), auditWrite(), lockBooking(). | Shared helper. |
-| [equipment_service.php](Files/equipment_service.php.md) | saveReturnInspection(), finalizeBookingReturn(). | Caller supplies authenticated owner. |
+| [equipment_service.php](Files/equipment_service.php.md) | saveReturnInspection(), finalizeBookingReturn(); return history is written in the inspection transaction. | Caller supplies authenticated owner. |
 | [equipment.php](Files/equipment.php.md) | GET checklist data; POST inspect/finalizeReturn. | Authenticated owner. |
 | [gallery-upload.php](Files/gallery-upload.php.md) | POST upload. | Owner role required. |
 | [gallery.php](Files/gallery.php.md) | Generic all/get/create/update/delete. | Public reads; owner-authenticated writes. |
 | [itemHistory.php](Files/itemHistory.php.md) | GET forItem; POST create. | Authenticated owner. |
-| [itemReleases.php](Files/itemReleases.php.md) | GET all/forBooking/get; POST create. | Authenticated owner. |
+| [itemReleases.php](Files/itemReleases.php.md) | GET all/forBooking/get; POST create for one completed outgoing checklist on a Confirmed booking. | Authenticated owner; release history is written in the same transaction. |
 | [notifications.php](Files/notifications.php.md) | GET all/unresolved. Resolution is workflow-controlled. | Authenticated owner. |
 | [owners.php](Files/owners.php.md) | GET all; POST create/deactivate/reactivate/resetPassword. | Authenticated; primary-owner restrictions apply. |
 | [packages.php](Files/packages.php.md) | Generic all/get/create/update/delete. | Public reads; owner-authenticated writes. |
 | [payment_service.php](Files/payment_service.php.md) | savePayment(). | Caller supplies authenticated owner. |
-| [payments.php](Files/payments.php.md) | GET all with optional booking filter; POST create/update. | Authenticated owner. |
+| [payments.php](Files/payments.php.md) | GET all with optional booking filter; POST create/update. Updates require a correction reason and are audited. | Authenticated owner. |
 | [rentalItems.php](Files/rentalItems.php.md) | Generic all/get/forService/create/update/delete. | Authenticated reads and owner writes. |
 | [reports.php](Files/reports.php.md) | GET dashboard/report/upcoming/cancellations/overlaps. | Authenticated owner. |
 | [services.php](Files/services.php.md) | Generic all/get/create/update/delete. | Public reads; owner-authenticated writes. |
 | [settings.php](Files/settings.php.md) | GET get; POST update. | Authenticated read; owner write. |
 | [supporting_service.php](Files/supporting_service.php.md) | saveDelivery(), saveItemHistory(), saveItemRelease(). | Caller supplies authenticated owner. |
 | [sync_state.php](Files/sync_state.php.md) | syncState(), syncReference(), saveSyncReceipt(). | Scoped by authenticated owner in sync transactions. |
-| [sync.php](Files/sync.php.md) | GET queue placeholder; POST commit up to 100 operations. | Authenticated owner. |
+| [sync.php](Files/sync.php.md) | GET queue placeholder; POST commit up to 100 operations, including audited payment updates. | Authenticated owner. |
 | [websiteContent.php](Files/websiteContent.php.md) | GET get; POST update. | Public read; owner write. |
 
 ## Conflict and retry responses

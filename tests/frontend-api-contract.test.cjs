@@ -254,7 +254,7 @@ test('item history reads refresh only the requested item and retain pending hist
   assert.ok(collections.itemHistory.some(row => row.rental_item_id === 'RI-001' && row.action === 'Returned'));
 });
 
-test('release and return side effects enqueue their local item history rows', async () => {
+test('release and return queue one atomic server operation without client-written history', async () => {
   const { context, collections } = createHarness();
 
   await context.API.recordRelease('BK-001', 'Owner', 'Released offline');
@@ -262,14 +262,8 @@ test('release and return side effects enqueue their local item history rows', as
     rental_item_id: 'RI-001', returned_qty: 1, condition: 'Good'
   }], 'Returned offline');
 
-  const histories = collections.itemHistory.filter(row => row.rental_item_id === 'RI-001');
-  assert.ok(histories.some(row => row.action === 'Released' && row.pending_sync));
-  assert.ok(histories.some(row => row.action === 'Returned' && row.pending_sync));
-
   const historyOperations = context.API.getSyncQueue().filter(item => item.entity === 'itemHistory');
-  assert.equal(historyOperations.length, 2);
-  assert.ok(historyOperations.every(item => item.local_id));
-  assert.equal(new Set(historyOperations.map(item => item.local_id)).size, 2);
+  assert.equal(historyOperations.length, 0);
   assert.ok(context.API.getSyncQueue().some(item => item.entity === 'itemReleases'));
   assert.ok(context.API.getSyncQueue().some(item => item.entity === 'equipment' && item.action === 'inspect'));
 });

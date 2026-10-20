@@ -57,7 +57,7 @@ const CONFIG = {
     "Missing": "dark"
   },
 
-  itemConditions: ["Good", "Minor Damage", "Damaged", "Missing", "Not Applicable"],
+  itemConditions: ["Good", "Minor Damage", "Damaged", "Missing", "Unwashed"],
 
   eventTypes: [
     "Birthday Party", "Wedding", "Debut", "Christening", "Corporate Event",
