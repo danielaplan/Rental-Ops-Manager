@@ -309,46 +309,46 @@ Codex: fill every row during the browser run. Use the status values defined abov
 
 | # | Outcome | Evidence / booking reference | Issue ID |
 | --- | --- | --- | --- |
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
-| 6 |  |  |  |
-| 7 |  |  |  |
-| 8 |  |  |  |
-| 9 |  |  |  |
-| 10 |  |  |  |
-| 11 |  |  |  |
-| 12 |  |  |  |
-| 13 |  |  |  |
-| 14 |  |  |  |
-| 15 |  |  |  |
-| 16 |  |  |  |
-| 17 |  |  |  |
-| 18 |  |  |  |
-| 19 |  |  |  |
-| 20 |  |  |  |
-| 21 |  |  |  |
-| 22 |  |  |  |
-| 23 |  |  |  |
-| 24 |  |  |  |
-| 25 |  |  |  |
-| 26 |  |  |  |
-| 27 |  |  |  |
-| 28 |  |  |  |
-| 29 |  |  |  |
-| 30 |  |  |  |
-| 31 |  |  |  |
-| 32 |  |  |  |
-| 33 |  |  |  |
-| 34 |  |  |  |
-| 35 |  |  |  |
-| 36 |  |  |  |
-| 37 |  |  |  |
-| 38 |  |  |  |
-| 39 |  |  |  |
-| 40 |  |  |  |
+| 1 | FAIL | Booking 1 saved and reopened as Pending, but two confirmation attempts after refresh showed `This record has not been accepted by the server yet`; payment, release, return, and completion were unreachable. | QA-01, QA-04 |
+| 2 | PASS | Booking 2 reopened with Ana Test, contact `09170001001`, and the 24-hour package. Customers showed exactly one Ana record with two bookings. | QA-04 |
+| 3 | PASS | Booking 3 reopened with Sweet Corner Set A, both requested add-ons, subtotal ₱250, add-ons ₱80, and total ₱330. |  |
+| 4 | FAIL | Booking 4 reopened with Balloon Decoration, Package A, and ₱2,799; only balloon packages were offered. Confirmation failed with the server-acceptance message. | QA-01 |
+| 5 | PASS | Booking 5 reopened with JBL Karaoke Rental, no package/template, and negotiated total ₱1,250. |  |
+| 6 | PASS | Booking 6 calculation displayed ₱999 + ₱300 − ₱50 + ₱25 = ₱1,274; inactive add-ons were absent and the saved add-ons/total persisted. A modified-request rejection was not attempted through the browser. | QA-04 |
+| 7 | BLOCKED | The temporary `TEMP TEST PROMO` appeared on Nov 14, disappeared on Nov 17, and Booking 7 retained its ₱800 snapshot. The in-app browser could not accept the catalog deactivation confirmation, so cleanup remained incomplete and the package was still Active. |  |
+| 8 | BLOCKED | Booking 8 persisted the changed customer, Sweet Corner service/package, Donut Wall add-on, Nov 20 schedule, venue, 15/20 allowances, ₱10 discount, ₱5 fee, and ₱295 total. Post-confirmation edit locking was unreachable because confirmation is blocked. | QA-01 |
+| 9 | FAIL | Equal start/end time displayed `End time must be after start time` and disabled submission. Oversized name/contact/location were then queued as an Offline draft with `2 Pending Sync · 2 need attention` instead of being rejected atomically. Corrected Booking 9 saved once. | QA-02 |
+| 10 | BLOCKED | Could not create the required Confirmed baseline booking because confirmation rejects newly saved records as unaccepted. | QA-01 |
+| 11 | BLOCKED | Explicit conflict approval requires Confirmed bookings, which could not be produced. | QA-01 |
+| 12 | BLOCKED | Payment correction/deposit-lock workflow could not be run against the required accepted lifecycle record. | QA-01 |
+| 13 | BLOCKED | Pending rejection was observable, but the required Confirmed checklist/release state was unreachable. | QA-01 |
+| 14 | BLOCKED | Confirmed release and Awaiting Completion prerequisites were unreachable. | QA-01 |
+| 15 | BLOCKED | The online-to-offline lifecycle could not be isolated after QA-01 and the invalid queued draft from QA-02; confirmation and completion were unreachable. | QA-01, QA-02 |
+| 16 | FAIL | Booking 10 retained email, Returning client, Reunion, 42 guests, venue, special request, and speaker package after a second reopen; the saved theme/setup note was absent from Details both times. | QA-03, QA-04 |
+| 17 | PASS | Customers showed two distinct Alex Test rows, contacts `09170001018` and `09170001019`, each with one booking. |  |
+| 18 | PASS | Refresh restored Paolo's name, contact, date, venue, Karaoke package, and Microphone Stand without creating a booking; one save produced only Booking 13. |  |
+| 19 | BLOCKED | Adjacent-boundary behavior requires a Confirmed baseline booking. | QA-01 |
+| 20 | BLOCKED | Multi-conflict approval requires multiple Confirmed bookings. | QA-01 |
+| 21 | BLOCKED | Stale approval behavior requires a Confirmed conflicting booking. | QA-01 |
+| 22 | BLOCKED | Confirmed rescheduling could not be reached. | QA-01 |
+| 23 | FAIL | Blank cancellation stayed on the required-reason form. With `Customer changed plans`, Booking 14 showed Cancelled after reload, but the UI said `Saved on this device. Pending Sync until accepted`, so server history and schedule release were not verified. | QA-01 |
+| 24 | BLOCKED | Confirmed booking and linked accepted payment prerequisites were unreachable. | QA-01 |
+| 25 | BLOCKED | A Confirmed booking could not be produced for the reverse-transition check. | QA-01 |
+| 26 | NOT RUN | Catalog snapshot edit/restore was not attempted after the sync identity defect and the unresolved temporary-package cleanup. |  |
+| 27 | NOT RUN | A separate inactive-package create/reject case was not run after Scenario 7 cleanup became blocked. |  |
+| 28 | NOT RUN | Invalid email-format coverage was not run separately; Scenario 9 already left an invalid queued draft, so the required clean atomicity baseline no longer existed. | QA-02 |
+| 29 | BLOCKED | Accepted payment mutations could not be trusted while booking records were reported as unaccepted. | QA-01 |
+| 30 | BLOCKED | An accepted Completed payment could not be established for correction tests. | QA-01 |
+| 31 | BLOCKED | An accepted deposit baseline could not be established. | QA-01 |
+| 32 | BLOCKED | An accepted deposit/deduction baseline could not be established. | QA-01 |
+| 33 | FAIL | Booking 15 reopened after each save with Self-pickup/Customer/₱100, Lalamove/Included/₱200, and Owner-delivered/Owner/₱300; notes persisted and rental total stayed ₱500. Every save remained `Pending Sync until accepted`. | QA-01 |
+| 34 | BLOCKED | Checklist release requires an accepted Confirmed booking. | QA-01 |
+| 35 | BLOCKED | Outgoing release validation requires an accepted Confirmed booking. | QA-01 |
+| 36 | BLOCKED | No equipment release could be created, so returned-quantity validation was unreachable. | QA-01 |
+| 37 | BLOCKED | No released checklist existed for the short-return rule. | QA-01 |
+| 38 | BLOCKED | No accepted released booking existed for return-condition persistence/server rejection. | QA-01 |
+| 39 | BLOCKED | Awaiting Completion and Awaiting Payment records could not be produced, so notification routing was unreachable. | QA-01 |
+| 40 | BLOCKED | The browser already contained an invalid two-entry sync queue from Scenario 9 and accepted-ID mapping was broken; a clean idempotent offline replay could not be run. | QA-01, QA-02 |
 
 ## Issue log
 
@@ -356,7 +356,17 @@ Codex: add one entry per defect, with enough detail for a developer to reproduce
 
 | Issue ID | Scenario | Severity | Steps to reproduce | Expected | Actual | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
+| QA-01 | 1, 4, 8, 10–15, 19–25, 29–40 | Critical | Create a valid manual booking online, wait for the bookings list, refresh, reopen it, select Confirmed, and save. Also try a delivery or cancellation update. | The numeric server booking should be recognized as accepted; status and later lifecycle writes should persist to the server. | The list shows a numeric booking ID, but status changes display `This record has not been accepted by the server yet`. Other mutations say `Saved on this device. Pending Sync until accepted`. Confirmation never persists, blocking most lifecycle scenarios. | Browser observed on Bookings 1 and 4 after reload and repeated confirmation attempts; Booking 14 cancellation and Booking 15 delivery saves remained Pending Sync. |
+| QA-02 | 9, 15, 28, 40 | High | In Manual Booking, enter a valid schedule/package but exceed the 100-character name, 20-character contact, and 255-character location limits, then submit. | The browser or server should reject the write with a clear message and create no customer, booking, or queue entries. | The UI navigates to Bookings and creates an `Offline draft` containing the oversized values. The sync badge becomes `2 Pending Sync · 2 need attention`, leaving partial invalid local state. | Browser-observed invalid draft row with the 101-character name and 21-character contact; corrected Booking 9 also saved. |
+| QA-03 | 16 | Medium | Create a booking with distinct theme/setup notes and special requests, save, refresh, reopen Details twice. | Both saved fields should be displayed after reload. | Special requests are displayed, but the theme/setup note is absent on both reopens. | Browser-observed on Booking 10: all other requested customer/event values persisted, while `Olivia distinct blue theme` was not present. |
+| QA-04 | 1, 2, 6, 16 | Low | Open seeded Karaoke packages in Manual Booking, Packages, or a saved booking Details view. | Package names should render the em dash correctly. | The em dash in seeded names renders as `ÔÇö`, for example `Karaoke Setup ÔÇö 24 Hours`. | Browser-observed across package selectors, the Packages table, and booking snapshots. |
 
 ## Untested gaps
 
 Codex: list behavior that these scenarios could not verify, browser limitations, and product behavior that still needs a separate decision or acceptance. Internal availability blockouts are deferred and must not be reported as an active feature failure.
+
+- Browser run date: October 20, 2026 (Asia/Singapore). Environment: local PHP server at `127.0.0.1:8000`, XAMPP MariaDB on port 3307, clean `akad_rentals` initialization with 0 starting bookings/customers and seeded catalogs/users/templates/settings.
+- Browser-observed coverage completed: Scenarios 1–9, 16–18, 23, and 33. Scenarios explicitly marked BLOCKED or NOT RUN above were not replaced with API-only evidence.
+- The in-app browser could create and edit the temporary promotion but could not accept the native confirmation opened by Deactivate package. `TEMP TEST PROMO` therefore remained Active; its Nov 12–16 eligibility window prevents it from appearing outside those dates.
+- Conflict approval, confirmed rescheduling, payments/corrections, deposits/deductions/refunds, equipment release, return inspection, completion, notification routing, and clean offline replay still require a fresh browser run after QA-01 and QA-02 are fixed.
+- No application code was changed during this audit. Records created by the run were retained for inspection, including the invalid queued draft required as QA-02 evidence.
