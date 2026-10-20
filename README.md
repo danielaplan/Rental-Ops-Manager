@@ -4,92 +4,168 @@ Owner-facing operations system for AKAD Sweet Party Rentals. It manages bookings
 
 All included accounts and records are synthetic development data.
 
-## Local setup
+---
 
-### Requirements
+## ⚡ Quick Start (Get it running in 5 minutes)
 
-- XAMPP with PHP 8.2+ and MySQL/MariaDB
-- Git
-- Node.js 20+ only when running tests
+> **You only need 2 things installed: XAMPP and Git.**
 
-These commands assume XAMPP is installed in `C:\xampp`.
+### Step 1 — Install XAMPP
 
-### 1. Open the project and start MySQL
+Download and install XAMPP from https://www.apachefriends.org/download.html
 
-Open the XAMPP Control Panel and start **MySQL**. Apache is not required.
+- Choose a version with **PHP 8.2 or higher**
+- Install to the default location: `C:\xampp`
+- If you install somewhere else, replace `C:\xampp` with your path in the commands below
 
-Then open PowerShell in the repository:
+### Step 2 — Clone the repository
+
+```powershell
+git clone https://github.com/danielaplan/Rental-Ops-Manager.git
+cd Rental-Ops-Manager
+```
+
+> 💡 **Tip:** Clone into a path without spaces (e.g., `C:\Projects\Rental-Ops-Manager`). Paths with spaces can cause issues with MySQL's `source` command in Step 4.
+
+### Step 3 — Start MySQL
+
+1. Open the **XAMPP Control Panel** (search "XAMPP" in Start Menu)
+2. Click **Start** next to **MySQL**
+3. Wait until it turns green
+
+> ⚠️ You do NOT need to start Apache. We use PHP's built-in server instead.
+
+### Step 4 — Create the database (first time only)
+
+Open **PowerShell**, navigate to the project folder, and run:
 
 ```powershell
 cd C:\path\to\Rental-Ops-Manager
+
+& 'C:\xampp\mysql\bin\mysql.exe' -u root -e "source $((Resolve-Path 'db\schema.sql').Path.Replace('\','/'))"
+
+& 'C:\xampp\mysql\bin\mysql.exe' -u root -e "source $((Resolve-Path 'db\seed.sql').Path.Replace('\','/'))"
 ```
 
-### 2. Initialize the database once
+✅ You only run this once. Do not run it again or it will cause duplicate data errors.
 
-Run these commands only for a new local setup:
-
-```powershell
-& 'C:\xampp\mysql\bin\mysql.exe' -u root `
-  -e "source $((Resolve-Path 'db\schema.sql').Path.Replace('\','/'))"
-
-& 'C:\xampp\mysql\bin\mysql.exe' -u root `
-  -e "source $((Resolve-Path 'db\seed.sql').Path.Replace('\','/'))"
-```
-
-Do not run `db/seed.sql` again on an existing database. It contains fixed synthetic IDs.
-
-### 3. Start the application
+### Step 5 — Start the server
 
 ```powershell
 & 'C:\xampp\php\php.exe' -S 127.0.0.1:8000 -t .
 ```
 
-Keep the terminal open and visit:
+**Keep this terminal window open.** Closing it stops the server.
 
-- Admin: <http://127.0.0.1:8000/admin/login.html>
-- Public site: <http://127.0.0.1:8000/>
+### Step 6 — Open in your browser
 
-Do not open the HTML files through `file://`. Authentication, APIs, and offline support require the PHP server.
+| Page | URL |
+|------|-----|
+| Public site (client side) | http://127.0.0.1:8000/ |
+| Admin panel (owner side) | http://127.0.0.1:8000/admin/login.html |
 
-### 4. Sign in
+> 🚫 **Do NOT double-click the HTML files to open them.** You must use the URLs above. Opening files directly (via `file://`) will break login, APIs, and everything else.
+
+### Step 7 — Log in
 
 | Account | Contact number | Password |
-| --- | --- | --- |
+|---------|---------------|----------|
 | Primary owner | `0917-123-4567` | `password` |
 | Second owner | `0918-222-3333` | `password` |
 
-Replace these synthetic credentials before deployment.
+---
 
-## Different local database credentials
+## 🔧 Everyday Use (after first-time setup)
 
-The default connection is `localhost`, database `akad_rentals`, user `root`, with no password. Override it before starting PHP only when your local MySQL setup differs:
+Every time you want to work on the project:
+
+1. Open **XAMPP Control Panel** → Start **MySQL**
+2. Open **PowerShell** in the project folder
+3. Run:
+   ```powershell
+   & 'C:\xampp\php\php.exe' -S 127.0.0.1:8000 -t .
+   ```
+4. Open http://127.0.0.1:8000/ in your browser
+
+That's it!
+
+---
+
+## ❓ Common Problems and Fixes
+
+| Problem | What's happening | Fix |
+|---------|-----------------|-----|
+| **"Connection refused" in browser** | PHP server is not running | Run the start command from Step 5 and keep the terminal open |
+| **Page loads but nothing works / blank page** | You opened the HTML file directly | Use `http://127.0.0.1:8000/` — not `file://` |
+| **Database error on startup** | MySQL is not running | Open XAMPP Control Panel and start MySQL |
+| **Database error: "table doesn't exist"** | Database was never created | Run the two commands from Step 4 |
+| **Login fails** | Wrong credentials or database not seeded | Make sure you ran the seed command and use contact number `0917-123-4567` with password `password` |
+| **"Port 8000 already in use"** | Another PHP server is still running | Close the other terminal, or use a different port: `& 'C:\xampp\php\php.exe' -S 127.0.0.1:9000 -t .` |
+| **API returns HTML instead of data** | PHP server started from wrong folder | Make sure you `cd` into the project folder before running the start command |
+| **Commands fail / "not recognized"** | XAMPP installed in a different location | Replace `C:\xampp` with your actual XAMPP path |
+
+---
+
+## 🔑 If Your MySQL Has a Password
+
+The default setup uses MySQL user `root` with no password. If your XAMPP MySQL has a password set, run these before starting the server:
+
+```powershell
+$env:AKAD_DB_PASS = 'your-password-here'
+& 'C:\xampp\php\php.exe' -S 127.0.0.1:8000 -t .
+```
+
+All database connection overrides:
 
 ```powershell
 $env:AKAD_DB_HOST = 'localhost'
 $env:AKAD_DB_NAME = 'akad_rentals'
 $env:AKAD_DB_USER = 'root'
-$env:AKAD_DB_PASS = 'your-local-password'
+$env:AKAD_DB_PASS = 'your-password-here'
 ```
 
-## Run tests
+**Using WAMP, Laragon, or standalone MySQL instead of XAMPP?** Set `AKAD_DB_HOST` to `127.0.0.1` (not `localhost`) and adjust the MySQL binary path in the commands above to match your installation.
 
-Start MySQL, then run the isolated acceptance suite:
+---
 
+## ✅ Verify Your Setup
+
+After completing the Quick Start, run these checks to confirm everything is working:
+
+| Check | Command | Expected |
+|-------|---------|----------|
+| PHP version | `& 'C:\xampp\php\php.exe' -v` | `PHP 8.2.x` or higher |
+| PHP has pdo_mysql | `& 'C:\xampp\php\php.exe' -m` | Lists `pdo_mysql` |
+| MySQL running | `& 'C:\xampp\mysql\bin\mysql.exe' -u root -e "SELECT 1"` | Returns `1` |
+| Database exists | `& 'C:\xampp\mysql\bin\mysql.exe' -u root -e "SHOW DATABASES LIKE 'akad_rentals'"` | Shows `akad_rentals` |
+| Seed data present | `& 'C:\xampp\mysql\bin\mysql.exe' -u root -e "SELECT full_name FROM akad_rentals.USERS"` | `Maria Santos`, `Juan Dela Cruz` |
+| Server starts | `& 'C:\xampp\php\php.exe' -S 127.0.0.1:8000 -t .` | `Listening on http://127.0.0.1:8000` |
+| API responds | Open `http://127.0.0.1:8000/api/services.php` in browser | JSON with services list |
+| Login works | Open `http://127.0.0.1:8000/admin/login.html`, use `0917-123-4567` / `password` | Redirects to dashboard |
+
+---
+
+## 🧪 Running Tests (optional)
+
+Requires Node.js 20+. Start MySQL first.
+
+**Backend tests:**
 ```powershell
 node tests/run_backend_acceptance.cjs
 ```
 
-The runner creates its own temporary synthetic database. It does not use or migrate the normal `akad_rentals` database.
-
-Frontend-only checks:
-
+**Frontend tests:**
 ```powershell
 node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs
 ```
 
-## AI-Assisted Development
+The backend test runner creates its own temporary database — it does not touch `akad_rentals`.
 
-Start with [PROJECT_INDEX.md](PROJECT_INDEX.md). It connects each feature to the relevant documentation, frontend, backend, database tables, and tests, so developers and AI assistants do not need to read the whole repository for every task.
+---
+
+## 🤖 AI-Assisted Development
+
+Start with [PROJECT_INDEX.md](PROJECT_INDEX.md). It maps each feature to its frontend, backend, database, and test files.
 
 | Assistant | Repository instructions |
 | --- | --- |
@@ -97,15 +173,13 @@ Start with [PROJECT_INDEX.md](PROJECT_INDEX.md). It connects each feature to the
 | Claude Code | [CLAUDE.md](CLAUDE.md) |
 | GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
 
-All three assistants use `PROJECT_INDEX.md` and the same Obsidian Second Brain, requirements, approvals, safety rules, and documentation-maintenance workflow.
-
-Use this order:
+Workflow:
 
 1. Read `PROJECT_INDEX.md` and open only the files related to the task.
 2. Check the relevant requirements and approved decisions.
-3. Inspect the current source code before making changes—the index is a guide, not proof that the code is unchanged.
+3. Inspect the current source code before making changes.
 4. Run the relevant tests.
-5. If application behavior changed, update only the affected Second Brain pages and add a dated development-journal entry with the verification performed. Update `PROJECT_INDEX.md` when file locations, dependencies, workflows, or test commands change.
+5. If application behavior changed, update the affected Second Brain pages and add a dated development-journal entry. Update `PROJECT_INDEX.md` when file locations, dependencies, workflows, or test commands change.
 
 ### Use GitHub Copilot in VS Code
 
@@ -115,36 +189,11 @@ Use this order:
 4. Ask: "Read the repository instructions and PROJECT_INDEX.md. Explain how you would find the relevant frontend, backend, and database files for a booking change, and which documentation you would update afterward. Do not modify files."
 5. Expand the response's **References** list and confirm that `.github/copilot-instructions.md` is included.
 
-Custom instructions guide supported Copilot interactions; they do not make ordinary inline suggestions update documentation automatically, independently monitor manual edits, or guarantee that documentation stays current. Automatic Git-triggered checks would require a separate workflow.
+Custom instructions guide supported Copilot interactions; they do not make ordinary inline suggestions update documentation automatically, independently monitor manual edits, or guarantee that documentation stays current.
 
-## Common problems
+---
 
-| Problem | Fix |
-| --- | --- |
-| Database unavailable | Start MySQL and check the `AKAD_DB_*` values. |
-| Port 8000 is already used | Stop the older PHP server or use another port. |
-| Login fails | Run the seed once and use the contact number shown above. |
-| API returns HTML | Start PHP from the repository root with `-t .`. |
-| Offline mode is unavailable | Sign in online once and wait for offline preparation to finish. |
-| Old JavaScript appears | Reload without cache and remove stale service workers for this local origin. |
-
-## Development notes
-
-- Preserve offline synchronization and its APIs.
-- Legacy FR-10 internal availability blockouts remain deferred.
-- Do not run `db/migrations/20261015_revised_backend.php` during normal local setup.
-- Local synthetic tests do not prove production readiness or client acceptance.
-
-Before changing requirements or implementation, read:
-
-1. [.project-memory/AKAD_Requirements_Changes.md](.project-memory/AKAD_Requirements_Changes.md)
-2. [.project-memory/AKAD_Approval.md](.project-memory/AKAD_Approval.md)
-3. [Implementation/Revised-Requirements-Backend-Implementation-Plan.md](Implementation/Revised-Requirements-Backend-Implementation-Plan.md)
-4. [Implementation/Backend-Requirement-Matrix.md](Implementation/Backend-Requirement-Matrix.md)
-5. [Implementation/Revised-Requirements-Frontend-Implementation-Plan.md](Implementation/Revised-Requirements-Frontend-Implementation-Plan.md)
-6. [Implementation/Backend-Migration.md](Implementation/Backend-Migration.md)
-
-## Main folders
+## 📁 Main Folders
 
 ```text
 admin/             Admin pages
@@ -155,5 +204,24 @@ js/                Frontend workflows and offline sync
 tests/             Isolated backend and frontend tests
 .project-memory/   Decisions, approvals, and handoff notes
 ```
+
+---
+
+## 📝 Development Notes
+
+- Preserve offline synchronization and its APIs.
+- Legacy FR-10 internal availability blockouts remain deferred.
+- Do not run `db/migrations/20261015_revised_backend.php` during normal local setup.
+- Local synthetic tests do not prove production readiness or client acceptance.
+- Replace synthetic credentials before deployment.
+
+Before changing requirements or implementation, read:
+
+1. [.project-memory/AKAD_Requirements_Changes.md](.project-memory/AKAD_Requirements_Changes.md)
+2. [.project-memory/AKAD_Approval.md](.project-memory/AKAD_Approval.md)
+3. [Implementation/Revised-Requirements-Backend-Implementation-Plan.md](Implementation/Revised-Requirements-Backend-Implementation-Plan.md)
+4. [Implementation/Backend-Requirement-Matrix.md](Implementation/Backend-Requirement-Matrix.md)
+5. [Implementation/Revised-Requirements-Frontend-Implementation-Plan.md](Implementation/Revised-Requirements-Frontend-Implementation-Plan.md)
+6. [Implementation/Backend-Migration.md](Implementation/Backend-Migration.md)
 
 Production deployment requires separate HTTPS, credentials, backups, scheduler, performance, device, offline, and owner-acceptance checks.

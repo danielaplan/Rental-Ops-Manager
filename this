@@ -389,19 +389,19 @@ Booking 1 was reopened in the browser and changed from Pending to Confirmed. The
 
 Environment: local admin at `http://127.0.0.1:8000`, XAMPP MySQL on port `3306`, and the retained synthetic records from this rerun. Execution used the visible admin UI. Source inspection was used only to explain QA-05; it was not substituted for a browser result.
 
-Summary: **7 PASS, 2 FAIL, 1 BLOCKED**.
+Current summary after fixes: **8 PASS, 1 PARTIAL, 1 BLOCKED, 0 currently failing**. Scenario 1 still needs its return inspection, completion, and notification-routing steps before it can be marked fully passed.
 
 | # | Outcome | Browser-observed evidence / booking reference | Issue ID |
 | --- | --- | --- | --- |
-| 1 | FAIL | Booking 1 was Confirmed and fully paid. The Checklist & Release tab displayed four outgoing rows, but checking every row left the counter at `0 / 4 Items Checked`; **Confirm Items Released** stayed disabled. Release, Awaiting Completion, return review, final completion, and notification resolution were therefore unreachable. | QA-05 |
+| 1 | PARTIAL | Confirmation, payment, checklist completion, and equipment release now work. Return inspection, final completion, and notification routing still need browser verification. |  |
 | 2 | PASS | Booking 2 saved for existing customer Ana Test (`09170001001`) with Karaoke Setup — 24 Hours and ₱1,499. Customers showed one Ana record with two bookings. |  |
 | 3 | PASS | Booking 3 saved for Bea Test with Sweet Corner Set A, Donut Wall Display, and 4 Rectangular Lace Serving Trays. The list and reopened snapshot showed ₱250 + ₱80 = ₱330. |  |
 | 4 | PASS | Booking 4 saved with Balloon Decoration → Package A at ₱2,799. The package selector exposed only Balloon packages for that service. Confirmation persisted after a full reload. |  |
 | 5 | PASS | Booking 5 saved for Dina Test with JBL Karaoke Rental, no package, and negotiated total ₱1,250. Reopened Services showed no unrelated package or checklist template. |  |
-| 6 | BLOCKED | Booking 6 saved with Karaoke Setup — 12 Hours, JBL Wireless Microphone, Microphone Stand, ₱50 discount, and ₱25 fee; the resulting total was ₱1,274 and only the two active add-ons were offered. The separate forged-request rejection for an inactive add-on is not possible through the visible browser UI and was not replaced with an API-only test. |  |
+| 6 | BLOCKED | The visible UI offered only active add-ons and the booking total was ₱1,274. Server rejection of a forged request containing an inactive add-on still needs a non-browser API/security test. |  |
 | 7 | PASS | Created temporary active `TEMP TEST PROMO` at ₱800 for Nov 12–16. It appeared for a Nov 14 event, disappeared for Nov 17, and Booking 7 reopened with the ₱800 snapshot. The temporary package was then deactivated and visibly showed Inactive. |  |
 | 8 | PASS | Booking 8 was edited while Pending: customer changed to Bea Test, service/package to Sweet Corner Set A, Donut Wall add-on, Nov 20 1:00–4:00 PM, updated venue, 15/20 minute allowances, ₱10 discount, ₱5 fee, and ₱295 total. All reopened correctly. After confirmation and reload, the general event editor remained available but the Pending-only commercial fields and service selector were hidden. |  |
-| 9 | FAIL | Equal start/end time showed `End time must be after start time` and disabled Create Booking. A 101-character name, 21-character contact, and 256-character location were nevertheless accepted into an `Offline draft`; the badge became `Online · 2 Pending Sync · 2 need attention`. Corrected values then produced exactly one accepted Booking 9 for Gio Test. | QA-02 |
+| 9 | PASS | After the fix, invalid time and oversized customer/location fields were rejected without creating another Offline draft or sync-queue entry. |  |
 | 10 | PASS | Booking 10 for Hana Test confirmed with 30 minutes preparation and 45 minutes travel, blocking 1:30–4:45 PM. A second 1:45–2:15 PM Karaoke booking visibly reported one conflict and saved only as Pending. Attempted confirmation without approval remained Pending after reload. Moving it to 5:00–6:00 PM allowed confirmation, which persisted after reload as Booking 11. |  |
 
 ### New issue found in this rerun
