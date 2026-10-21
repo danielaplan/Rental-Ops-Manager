@@ -26,7 +26,7 @@ All repository accounts, fixtures, and records are synthetic development data. L
 | Backend API reference | [API Reference](<Understand the System/System Understanding/Backend/API Reference.md>) · [`api/`](api/) |
 | Database overview | [Database Overview](<Understand the System/System Understanding/Database/Database Overview.md>) · [`db/schema.sql`](db/schema.sql) |
 | Frontend overview | [Frontend Overview](<Understand the System/System Understanding/Frontend/Overview.md>) · [File Inventory](<Understand the System/System Understanding/Frontend/File Inventory.md>) |
-| Android application | [`android/`](android/) · [`MainActivity.java`](android/app/src/main/java/com/akad/rentalops/MainActivity.java) · [`activity_main.xml`](android/app/src/main/res/layout/activity_main.xml) |
+| Android application | [`android/`](android/) · [Team Workflow](android/TEAM_WORKFLOW.md) · [`MainActivity.java`](android/app/src/main/java/com/akad/rentalops/MainActivity.java) · [`activity_main.xml`](android/app/src/main/res/layout/activity_main.xml) |
 | Tests and verification | [`README.md`](README.md#run-tests) · [Consolidated Verification](Implementation/Backend-Consolidated-Verification-2026-10-15.md) · [`tests/`](tests/) |
 | Manual booking browser QA | [Common Instructions and Tester Files](QA-Reports/README.md) · [Simultaneous Setup](QA-Reports/Simultaneous-Testing-Setup.md) · [Consolidated Report](QA-Reports/Consolidated-Report.md) |
 
