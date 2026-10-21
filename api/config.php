@@ -20,6 +20,16 @@ define('DB_USER', getenv('AKAD_DB_USER') ?: 'root');
 define('DB_PASS', getenv('AKAD_DB_PASS') ?: '');
 define('DB_CHAR', 'utf8mb4');
 
+if (!function_exists('array_is_list')) {
+    function array_is_list(array $array): bool {
+        $expectedKey = 0;
+        foreach ($array as $key => $_) {
+            if ($key !== $expectedKey++) return false;
+        }
+        return true;
+    }
+}
+
 date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json; charset=utf-8');
 $production = getenv('AKAD_ENV') === 'production';

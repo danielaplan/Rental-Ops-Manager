@@ -261,8 +261,7 @@ if ($do === 'dashboard') {
     $upcoming->execute();
     $counts['upcoming_bookings'] = $upcoming->fetchAll();
 
-    sendJson(['ok' => true, 'data' => [
-        ...$counts,
+    sendJson(['ok' => true, 'data' => array_merge($counts, [
         'total_revenue' => $revenue['total_collected'],
         'revenue' => $revenue,
         'balances' => $balances,
@@ -271,7 +270,7 @@ if ($do === 'dashboard') {
         'popularity' => $popularity,
         'period' => ['start' => $monthStart, 'end' => $monthEnd],
         'definitions' => $definitions
-    ]]);
+    ])]);
 }
 
 // Detailed report endpoint with date range
