@@ -91,6 +91,28 @@ That's it!
 
 ---
 
+## 📱 Android App
+
+The native Android project is under [`android/`](android/). It uses Java activities and XML layouts and is developed separately from the existing browser frontend while remaining in this repository.
+
+To open it:
+
+1. Start Android Studio.
+2. Select **Open**.
+3. Choose the `Rental-Ops-Manager\android` folder.
+4. Wait for Gradle synchronization, then run the `app` configuration on an emulator or Android device.
+
+Run its local unit tests from PowerShell:
+
+```powershell
+cd android
+.\gradlew.bat test
+```
+
+The generated starter app is not connected to the PHP API yet. When local API integration is added, the Android Emulator must use `http://10.0.2.2:8000/api/` to reach the PHP server running at `127.0.0.1:8000` on the development computer. Never connect the Android app directly to MySQL or commit `android/local.properties`, build output, credentials, or signing keys.
+
+---
+
 ## ❓ Common Problems and Fixes
 
 | Problem | What's happening | Fix |
