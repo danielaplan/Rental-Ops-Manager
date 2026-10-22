@@ -97,6 +97,26 @@ The native Android project is under [`android/`](android/). It uses Java activit
 
 Four-developer branch assignments and pull-request rules are documented in the [Android Team Workflow](android/TEAM_WORKFLOW.md).
 
+### Switch to the existing Android branch
+
+If the repository is already cloned but this is the first time using the Android branch, open PowerShell in the repository root and run:
+
+```powershell
+git fetch origin
+git switch --track origin/android/initial-project
+```
+
+This creates a local `android/initial-project` branch that tracks the existing branch on GitHub. Do not run `git switch -c` for this step because the branch already exists remotely.
+
+On later sessions, switch to it and download its latest commits with:
+
+```powershell
+git switch android/initial-project
+git pull --ff-only
+```
+
+Before switching, run `git status --short`. Commit or safely set aside unfinished work first; do not discard another developer's changes.
+
 To open it:
 
 1. Start Android Studio.
