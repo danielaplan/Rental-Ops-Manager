@@ -15,6 +15,8 @@ status: current-source-reviewed
 
 The frontend is the owner’s browser interface: 18 admin HTML screens, 14 JavaScript files, and shared CSS. Screens collect input and show results; `js/api.js` is the main contract layer that converts UI IDs/fields, attaches the bearer token, sends requests, normalizes responses, and offers offline fallback for supported writes.
 
+The public `index.html` is the separate customer-facing brochure. It uses the same read-only website content, active services, gallery, and contact data, while its editorial landing-page layout lives in the public HTML, `css/style.css`, and `css/responsive.css`. Deployable fallback photography lives in `images/defaults/`: the admin Website Content hero path overrides the default hero, and matching admin Gallery entries override service, featured, contact, and carousel imagery without requiring external starter URLs.
+
 ## Main owner journey
 
 Login → dashboard/calendar → customer and booking → payment/deposit/delivery → equipment return and post-event review → reports/audit/settings. Catalog screens maintain services, packages, add-ons, rental items, categories, gallery, and editable content.
