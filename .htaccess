@@ -1,0 +1,11 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?:\.git|\.project-memory|db|tests|QA-Reports|Implementation)(?:/|$) - [F,L,NC]
+    RewriteRule ^(?:Source(?:%20|\ |_)+Documents|Understand(?:%20|\ |_)+the(?:%20|\ |_)+System|00(?:%20|\ |_)+Second(?:%20|\ |_)+Brain(?:%20|\ |_)+Home|05(?:%20|\ |_)+Development(?:%20|\ |_)+Journal)(?:/|$) - [F,L,NC]
+</IfModule>
+
+<FilesMatch "^(?:AGENTS|CLAUDE|PROJECT_INDEX|README(?:-SETUP)?)\.md$">
+    Require all denied
+</FilesMatch>

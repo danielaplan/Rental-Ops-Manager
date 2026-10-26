@@ -24,3 +24,6 @@ memory/
 /.obsidian/workspace-mobile.json
 /.obsidian/plugins/
 /.obsidian/cache/
+
+# Generated isolated acceptance evidence; retain only when explicitly exported.
+/tests/acceptance-results/

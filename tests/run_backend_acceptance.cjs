@@ -11,7 +11,7 @@ const backend = [
   'backend-revised-requirements', 'catalog-plan-gaps', 'booking-plan-gaps', 'finance-plan-gaps',
   'auth-plan-gaps', 'sync-plan-gaps', 'write-validation-gaps', 'history-template-gaps', 'offline-sync',
 ].map(name => `tests/${name}.test.cjs`);
-const frontend = ['public-site-data', 'frontend-api-contract', 'frontend-async-workflows', 'frontend-api-direct', 'booking-flow-frontend-regressions']
+const frontend = ['public-site-data', 'frontend-api-contract', 'frontend-async-workflows', 'frontend-api-direct', 'booking-flow-frontend-regressions', 'production-config']
   .map(name => `tests/${name}.test.cjs`);
 const env = { ...process.env, AKAD_TEST_EXCLUDE_DEFERRED_BLOCKOUTS: '1',
   AKAD_TEST_OFFLINE_RESULTS: path.join(output, 'offline-results.json') };
@@ -52,9 +52,11 @@ function run(name, command, args) {
 (async () => {
   console.log(`Acceptance evidence: ${output}`);
   summary.source_sha256 = hashes();
-  await run('backend', process.execPath, ['tests/run_revised_backend.cjs', ...backend]);
+  for (const file of backend) {
+    await run(`backend-${path.basename(file, '.test.cjs')}`, process.execPath, ['tests/run_revised_backend.cjs', file]);
+  }
   await run('frontend', process.execPath, ['--test', ...frontend]);
-  await run('syntax', process.env.AKAD_TEST_PYTHON || 'python', ['tests/check_syntax.py']);
+  await run('syntax', process.execPath, ['tests/check_syntax.cjs']);
   await run('diff-check', 'git', ['diff', '--check']);
   assert.deepEqual(hashes(), summary.source_sha256, 'Source changed during acceptance; rerun on the final code.');
   summary.source_unchanged = true;

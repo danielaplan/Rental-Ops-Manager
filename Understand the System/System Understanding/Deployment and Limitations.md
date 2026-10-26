@@ -49,11 +49,11 @@ Create only the authorized production owners, using strong and unique passwords.
 
 ### 4. Configure the production environment
 
-Set `AKAD_ENV=production` and provide `AKAD_DB_HOST`, `AKAD_DB_NAME`, `AKAD_DB_USER`, and `AKAD_DB_PASS`. Set `AKAD_ALLOWED_ORIGINS` to the exact HTTPS domain or approved comma-separated domains. Keep credentials outside Git and documentation.
+Set `AKAD_ENV=production` and provide `AKAD_DB_HOST`, `AKAD_DB_NAME`, `AKAD_DB_USER`, and `AKAD_DB_PASS`. Set `AKAD_ALLOWED_ORIGINS` to the exact HTTPS domain or approved comma-separated domains. Keep credentials outside Git and documentation. Current source fails closed in production if any of those values is missing, rather than falling back to local XAMPP defaults.
 
 ### 5. Configure and protect the domain
 
-Point DNS to the hosting server, install a valid TLS certificate, redirect HTTP to HTTPS, and ensure the web server tells PHP that the request is secure. Deny public access to internal material such as `.git/`, `.project-memory/`, `Implementation/`, `Source Documents/`, `Understand the System/`, `tests/`, `AGENTS.md`, `CLAUDE.md`, and `PROJECT_INDEX.md` while keeping the required application, admin, API, and upload paths available.
+Point DNS to the hosting server, install a valid TLS certificate, redirect HTTP to HTTPS, and ensure the web server tells PHP that the request is secure. Deploy an allowlisted application package where possible. Otherwise, retain the root `.htaccess` protections and verify that internal material such as `.git/`, `.project-memory/`, `Implementation/`, `Source Documents/`, `Understand the System/`, `QA-Reports/`, `db/`, `tests/`, `AGENTS.md`, `CLAUDE.md`, and `PROJECT_INDEX.md` returns 403 or 404 while the required application, admin, API, and upload paths remain available.
 
 ### 6. Register scheduled reconciliation
 

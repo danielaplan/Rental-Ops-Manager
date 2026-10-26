@@ -14,6 +14,21 @@
  * environment variables or edit the values below.
  * --------------------------------------------------------------- */
 
+$production = getenv('AKAD_ENV') === 'production';
+if ($production) {
+    foreach (['AKAD_DB_HOST', 'AKAD_DB_NAME', 'AKAD_DB_USER', 'AKAD_DB_PASS', 'AKAD_ALLOWED_ORIGINS'] as $key) {
+        if (trim((string) getenv($key)) === '') {
+            if (PHP_SAPI === 'cli') fwrite(STDERR, "Production configuration is incomplete.\n");
+            else {
+                http_response_code(500);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['ok'=>false,'error'=>'Production configuration is incomplete.','code'=>'server_error']);
+            }
+            exit(1);
+        }
+    }
+}
+
 define('DB_HOST', getenv('AKAD_DB_HOST') ?: 'localhost');
 define('DB_NAME', getenv('AKAD_DB_NAME') ?: 'akad_rentals');
 define('DB_USER', getenv('AKAD_DB_USER') ?: 'root');
@@ -32,7 +47,6 @@ if (!function_exists('array_is_list')) {
 
 date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json; charset=utf-8');
-$production = getenv('AKAD_ENV') === 'production';
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowedOrigins = array_filter(array_map('trim', explode(',', getenv('AKAD_ALLOWED_ORIGINS') ?: '')));
 if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
@@ -51,7 +65,7 @@ if ($production && PHP_SAPI !== 'cli' && (empty($_SERVER['HTTPS']) || $_SERVER['
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
     exit(0);
 }
 

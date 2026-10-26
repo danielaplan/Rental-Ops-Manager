@@ -77,7 +77,7 @@ async function rejected(token) {assert.equal((await request('api/auth.php?do=me'
   const cgi = process.env.AKAD_TEST_PHP_CGI || path.join(path.dirname(process.env.AKAD_TEST_PHP || 'C:/xampp/php/php.exe'),'php-cgi.exe');
   function config(https,origin) {
     const result=spawnSync(cgi,['-f',path.resolve('api/config.php')],{encoding:'utf8',windowsHide:true,env:{...process.env,
-      AKAD_ENV:'production',AKAD_ALLOWED_ORIGINS:'https://approved.example',REQUEST_METHOD:'GET',REDIRECT_STATUS:'200',
+       AKAD_ENV:'production',AKAD_DB_HOST:'db.example.test',AKAD_DB_NAME:'akad_production',AKAD_DB_USER:'akad_owner',AKAD_DB_PASS:'test-only-password',AKAD_ALLOWED_ORIGINS:'https://approved.example',REQUEST_METHOD:'GET',REDIRECT_STATUS:'200',
       SCRIPT_FILENAME:path.resolve('api/config.php'),HTTPS:https,HTTP_ORIGIN:origin,
     }});
     assert.ifError(result.error);assert.equal(result.status,0,result.stderr);return result.stdout;

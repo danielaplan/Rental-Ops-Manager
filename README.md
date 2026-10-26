@@ -161,6 +161,13 @@ node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs
 
 The backend test runner creates its own temporary database — it does not touch `akad_rentals`.
 
+**Full release acceptance:**
+```powershell
+node tests/run_backend_acceptance.cjs
+```
+
+This runs each backend suite against its own synthetic database, then runs frontend and syntax checks. It requires Node.js and PHP; it does not require Python on your PATH.
+
 ---
 
 ## 🤖 AI-Assisted Development
@@ -224,4 +231,4 @@ Before changing requirements or implementation, read:
 5. [Implementation/Revised-Requirements-Frontend-Implementation-Plan.md](Implementation/Revised-Requirements-Frontend-Implementation-Plan.md)
 6. [Implementation/Backend-Migration.md](Implementation/Backend-Migration.md)
 
-Production deployment requires separate HTTPS, credentials, backups, scheduler, performance, device, offline, and owner-acceptance checks.
+Production deployment requires separate HTTPS, credentials, backups, scheduler, performance, device, offline, and owner-acceptance checks. When `AKAD_ENV=production`, the app refuses to start unless every `AKAD_DB_*` value and `AKAD_ALLOWED_ORIGINS` are configured.

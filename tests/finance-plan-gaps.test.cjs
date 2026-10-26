@@ -20,8 +20,12 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
 (async () => {
   const login = await request('api/auth.php', {contact_number:'TEST-OWNER',password:'OfflineTest!2026'});
   token = login.data.session_token;
-  const start = new Date().toISOString().slice(0,10), end = start;
+  // Keep this report period independent of payments created by other suites
+  // sharing the runner's synthetic database. It must remain in the past so
+  // payment-date validation accepts the fixture.
+  const start = '2001-08-01', end = start;
   const period = `start=${start}&end=${end}`;
+  const baseline = (await request(`api/reports.php?do=report&${period}`)).data;
   const book = (extra = {}) => request('api/bookings.php?do=create', {
     customer_name:'Finance gap fixture',contact:`F${Date.now()}${Math.floor(Math.random()*1000)}`,
     service_id:1,package_id:1,event_date:start,start_time:'10:00',end_time:'11:00',
@@ -54,14 +58,14 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   assert.equal(deposit.deductions.length,1);
   assert.equal(Number(deposit.refund_amount),90);
   const report = (await request(`api/reports.php?do=report&${period}`)).data;
-  assert.equal(Number(report.total_revenue_collected),120,'Only corrected Completed payment within payment-date period contributes revenue');
-  assert.equal(Number(report.total_bookings),1,'The legacy report booking count remains available to the reports page');
-  assert.equal(Number(report.total_customers),1);
-  assert.equal(Number(report.balances.deposits_held),100);
-  assert.equal(Number(report.balances.total_deductions_amount),10);
+  assert.equal(Number(report.total_revenue_collected),Number(baseline.total_revenue_collected)+120,'Only corrected Completed payment within payment-date period contributes revenue');
+  assert.equal(Number(report.total_bookings),Number(baseline.total_bookings)+1,'The legacy report booking count remains available to the reports page');
+  assert.equal(Number(report.total_customers),Number(baseline.total_customers)+1);
+  assert.equal(Number(report.balances.deposits_held),Number(baseline.balances.deposits_held)+100);
+  assert.equal(Number(report.balances.total_deductions_amount),Number(baseline.balances.total_deductions_amount)+10);
   assert.ok(report.popularity.packages.length > 0);
-  assert.equal(Number(report.pending),1);
-  assert.equal(Number(report.awaiting_payment),0);
+  assert.equal(Number(report.pending),Number(baseline.pending)+1);
+  assert.equal(Number(report.awaiting_payment),Number(baseline.awaiting_payment));
   assert.ok(Array.isArray(report.popular_services));
   assert.ok(report.popular_services.some(service=>service.name==='JBL Karaoke Rental' && Number(service.count)>=1));
   assert.equal(typeof report.damaged_or_missing,'number');

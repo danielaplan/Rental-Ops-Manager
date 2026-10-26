@@ -121,7 +121,7 @@ async function request(path, { origin = BASE, token, method = "GET", body } = {}
   const balancePayment = await request("api/payments.php?do=create", {
     token,
     method: "POST",
-    body: { booking_id: acceptedBookingId, amount: 2300, payment_method: "MariBank", notes: "Synthetic settlement" },
+    body: { booking_id: acceptedBookingId, amount: 799, payment_method: "MariBank", notes: "Synthetic settlement" },
   });
   assert.equal(balancePayment.status, 201, JSON.stringify(balancePayment.data));
   assert.equal(balancePayment.data.data.payment_type, "Balance");

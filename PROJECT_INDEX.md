@@ -92,7 +92,7 @@ Prerequisites and local setup are in [`README.md`](README.md). Start MySQL befor
 | --- | --- | --- |
 | Isolated current acceptance | `node tests/run_backend_acceptance.cjs` | Creates its own synthetic database and owned PHP servers; excludes migration and deferred blockout execution. |
 | Frontend-only regression | `node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs tests/booking-flow-frontend-regressions.test.cjs` | Harness/contract evidence, not physical-browser acceptance. |
-| Syntax | `python tests/check_syntax.py` | Checks PHP, JavaScript, service worker, test scripts, and admin inline scripts. |
+| Syntax | `node tests/check_syntax.cjs` | Checks PHP, JavaScript, service worker, test scripts, and admin inline scripts without requiring Python on PATH. |
 | Historical migration regression | `node tests/migration-plan-gaps.test.cjs` | Synthetic and guarded; not part of normal setup or production authorization. |
 | Whitespace | `git diff --check` | Run after edits. |
 
