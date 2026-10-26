@@ -5,18 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Login | AKAD Sweet Party Rentals</title>
 <link href="../vendor/fonts.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link href="../vendor/bootstrap-5.3.3.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../vendor/bootstrap-icons.css">
-<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/admin.css?v=20261027-login-glass-2">
 </head>
-<body class="admin-body">
+<body class="admin-body login-page">
+<input type="checkbox" id="loginPauseMotion" class="login-motion-check">
+<label for="loginPauseMotion" class="login-motion-label"><i class="bi bi-pause-circle" aria-hidden="true"></i> Pause background motion</label>
+<div class="login-scene" aria-hidden="true"><div class="login-glow login-glow-one"></div><div class="login-glow login-glow-two"></div><div class="login-glow login-glow-three"></div><div class="login-scene-grain"></div></div>
 
 <div class="admin-login-wrap">
-  <div class="admin-login-card">
+  <section class="login-intro" aria-labelledby="loginIntroHeading">
+    <span class="login-eyebrow">AKAD SWEET PARTY RENTALS</span>
+    <h2 id="loginIntroHeading">Behind every<br>beautiful<br><span>celebration.</span></h2>
+    <p>Your space to bring the music, the sweets, and the picture-perfect details together.</p>
+    <div class="login-service-note">KARAOKE <span>·</span> SWEET CORNER <span>·</span> BALLOON STYLING</div>
+  </section>
+  <main class="admin-login-card" aria-labelledby="loginHeading">
+    <a class="login-brand" href="../index.html"><span class="login-brand-mark" aria-hidden="true">A</span><span>AKAD Sweet Party Rentals<small>EVENTS &amp; CELEBRATIONS</small></span></a>
     <div class="text-center mb-4">
-      <i class="bi bi-shield-lock" style="font-size:2rem;color:var(--a-primary);"></i>
-      <h1 class="mt-2 mb-0">Admin Panel</h1>
-      <p class="text-muted small">Sign in to manage your rental business</p>
+      <span class="login-eyebrow">OWNER ACCESS</span>
+      <h1 class="mt-2 mb-0" id="loginHeading">Welcome back.</h1>
+      <p class="text-muted small">A little planning. A lot of celebration.</p>
     </div>
     <form id="loginForm">
       <div class="mb-3">
@@ -33,7 +45,7 @@
     <div class="text-center mt-3">
       <a href="../index.html" class="small text-muted"><i class="bi bi-arrow-left"></i> Back to website</a>
     </div>
-  </div>
+  </main>
 </div>
 
 <script src="../vendor/jquery-3.7.1.min.js"></script>

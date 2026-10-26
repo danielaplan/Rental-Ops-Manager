@@ -23,22 +23,26 @@ $(async function () {
   await renderGallery();
   await renderContact();
 
-  $('.navbar-nav .nav-link').on('click', function (e) {
-    const target = document.querySelector(this.getAttribute('href'));
+  $('a[href^="#"]').on('click', function (e) {
+    const hash = this.getAttribute('href');
+    if (!hash || hash === '#') return;
+    const target = document.querySelector(hash);
     if (!target) return;
     e.preventDefault();
 
     const nav = document.getElementById('mainNav');
     const scrollToTarget = () => {
       const navbar = document.querySelector('.navbar-custom');
-      const offset = (navbar ? navbar.offsetHeight : 0) + 8;
+      const offset = target.id === 'top' ? 0 : (navbar?.offsetHeight || 0);
       const top = target.getBoundingClientRect().top + window.scrollY - offset;
       window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
     };
 
-    if (nav && nav.classList.contains('show')) {
+    if (nav && nav.classList.contains('show') && this.closest('#mainNav')) {
       bootstrap.Collapse.getOrCreateInstance(nav).hide();
       window.setTimeout(scrollToTarget, 250);
+    } else if (this.matches('[data-bs-dismiss="modal"]')) {
+      window.setTimeout(scrollToTarget, 180);
     } else {
       scrollToTarget();
     }
@@ -146,18 +150,27 @@ async function renderSiteChrome() {
     ? CONFIG.businessNameFallback
     : savedName;
   $('.js-business-name').text(name);
+  const logo = safeWebUrl(content.logo || publicSettingsCache().logo);
+  document.querySelectorAll?.('.brand-mark').forEach(mark => {
+    mark.textContent = '';
+    if (logo) {
+      const image = document.createElement('img');
+      image.src = logo;
+      image.alt = '';
+      image.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:inherit';
+      mark.append(image);
+    } else { mark.textContent = 'A'; }
+  });
   document.title = name + " | Event Rentals & Styling";
 }
 
 async function renderHero() {
-  const cached = publicContentCache();
-  const c = cached;
-  $('#heroTitle').text(c.hero_title || "");
-  const heroDescription = c.hero_description || '';
-  $('#heroDesc').text(heroDescription.includes('Metro Manila')
-    ? 'Karaoke rental, Sweet Corner packages, and balloon decorations for birthdays and special events.'
-    : heroDescription);
-  $('#heroImage').attr('src', safeWebUrl(c.hero_image));
+  const content = publicContentCache();
+  const configuredImage = safeWebUrl(content.hero_image);
+  const usesLegacySeed = /images\.unsplash\.com\/photo-1530103862676/.test(configuredImage);
+  $('#heroTitle').text('Turn your celebration into a moment everyone remembers.');
+  $('#heroDesc').text('We bring the music, the sweets, and the picture-perfect detailsâ€”so you can be fully present for every smile.');
+  $('#heroImage').attr('src', configuredImage && !usesLegacySeed ? configuredImage : 'images/defaults/hero-bg.jpg');
 }
 
 async function renderAbout() {
@@ -182,11 +195,15 @@ async function renderServices() {
 
   services.forEach(s => {
     const displayName = publicServiceName(s.name);
-    const serviceImage = safeWebUrl(s.image) || safeWebUrl((cachedServices.find(item => String(item.service_id) === String(s.service_id)) || {}).image);
+    const configuredImage = safeWebUrl(publicContentCache().service_images?.[s.service_id]) || safeWebUrl(s.image)
+      || safeWebUrl((cachedServices.find(item => String(item.service_id) === String(s.service_id)) || {}).image);
+    const serviceImage = (!/images\.unsplash\.com/.test(configuredImage) && configuredImage)
+      || publicGalleryVisual(serviceGalleryKeywords(s.name))
+      || publicServiceVisual(s.name);
     const card = `
       <div class="col-md-6 col-lg-4">
         <div class="service-card">
-          <img src="${escapeHtml(serviceImage)}" alt="${escapeHtml(displayName)}">
+          <div class="service-card-media"><img src="${escapeHtml(serviceImage)}" alt="${escapeHtml(displayName)}"></div>
           <div class="service-card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h3>${escapeHtml(displayName)}</h3>
@@ -219,6 +236,34 @@ function publicServiceName(name) {
   return serviceNames[name] || name;
 }
 
+function publicServiceVisual(name) {
+  const serviceImages = {
+    'Karaoke Rental': 'images/defaults/karaoke-service.jpg',
+    'JBL Karaoke Rental': 'images/defaults/karaoke-service.jpg',
+    'Sweet Corner': 'images/defaults/sweet-corner-service.jpg',
+    'Sweet Corner Setup': 'images/defaults/sweet-corner-service.jpg',
+    'Balloon Decoration': 'images/defaults/balloon-service.jpg',
+    'Balloon Decorations': 'images/defaults/balloon-service.jpg'
+  };
+  return serviceImages[name] || '';
+}
+
+function serviceGalleryKeywords(name) {
+  if (/karaoke/i.test(name || '')) return ['karaoke'];
+  if (/sweet|dessert/i.test(name || '')) return ['sweet', 'dessert'];
+  if (/balloon|decoration/i.test(name || '')) return ['balloon', 'decoration'];
+  return [name || ''];
+}
+
+function publicGalleryVisual(keywords, fallback = '') {
+  const terms = (keywords || []).map(term => String(term).toLowerCase()).filter(Boolean);
+  const match = publicGalleryCache().find(item => {
+    const title = String(item.title || '').toLowerCase();
+    return terms.some(term => title.includes(term));
+  });
+  return safeWebUrl(match?.image) || fallback;
+}
+
 async function openServiceDetails(serviceId) {
   const cachedService = publicServicesCache().find(item => String(item.service_id) === String(serviceId));
   const s = { ...(cachedService || {}), ...(await resolveApiValue(() => API.getService(serviceId), {})) };
@@ -226,7 +271,7 @@ async function openServiceDetails(serviceId) {
   const displayName = publicServiceName(s.name || cachedService?.name || 'Service');
   $('#serviceModalLabel').text(displayName);
   $('#serviceModalBody').html(`
-    <img src="${escapeHtml(safeWebUrl(s.image || cachedService?.image))}" alt="${escapeHtml(displayName)}" class="w-100 mb-3" style="border-radius:8px;aspect-ratio:16/9;object-fit:cover;">
+    <img src="${escapeHtml(safeWebUrl(publicContentCache().service_images?.[s.service_id] || s.image || cachedService?.image))}" alt="${escapeHtml(displayName)}" class="w-100 mb-3" style="border-radius:8px;aspect-ratio:16/9;object-fit:cover;">
     <p class="mb-0 text-muted">Contact our staff to confirm current package options, inclusions, and pricing for this service.</p>
   `);
   new bootstrap.Modal('#serviceModal').show();
@@ -237,15 +282,58 @@ async function renderGallery() {
   const images = cached;
   const $wrap = $('#galleryGrid').empty();
   const shown = images.slice(0, 6);
-  shown.forEach(img => {
+  $('#galleryCarousel').toggle(shown.length > 0);
+  [...shown, ...shown].forEach((img, index) => {
     $wrap.append(`
-      <div class="col-md-4 col-6">
+      <div class="gallery-slide" onmouseenter="pauseGalleryCarousel()" onmouseleave="startGalleryCarousel()" aria-hidden="${index >= shown.length ? 'true' : 'false'}">
         <div class="gallery-item">
           <img src="${escapeHtml(safeWebUrl(img.image))}" alt="${escapeHtml(img.title)}">
           <div class="gallery-caption">${escapeHtml(img.title)}</div>
         </div>
       </div>`);
   });
+  galleryCarouselOffset = 0;
+  galleryCarouselLastFrame = 0;
+  startGalleryCarousel();
+  $('#featuredSetupImage').attr('src', publicGalleryVisual(['sweet', 'dessert'], 'images/defaults/featured-sweet-corner.jpg'));
+  $('#contactFeatureImage').attr('src', safeWebUrl(publicContentCache().contact_image) || publicGalleryVisual(['balloon', 'celebration'], 'images/defaults/contact-celebration.jpg'));
+}
+
+let galleryCarouselFrame = null;
+let galleryCarouselOffset = 0;
+let galleryCarouselLastFrame = 0;
+let galleryCarouselPaused = false;
+
+function startGalleryCarousel() {
+  if (galleryCarouselFrame !== null) window.cancelAnimationFrame?.(galleryCarouselFrame);
+  galleryCarouselFrame = null;
+  galleryCarouselPaused = false;
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  if (typeof window.requestAnimationFrame !== 'function' || typeof document.getElementById !== 'function') return;
+  const track = document.getElementById('galleryGrid');
+  if (!track || track.children.length < 2) return;
+  track.style.transition = 'none';
+  galleryCarouselLastFrame = 0;
+  galleryCarouselFrame = window.requestAnimationFrame(animateGalleryCarousel);
+}
+
+function pauseGalleryCarousel() {
+  galleryCarouselPaused = true;
+  if (galleryCarouselFrame !== null) window.cancelAnimationFrame?.(galleryCarouselFrame);
+  galleryCarouselFrame = null;
+  galleryCarouselLastFrame = 0;
+}
+
+function animateGalleryCarousel(timestamp) {
+  if (galleryCarouselPaused) return;
+  const track = document.getElementById('galleryGrid');
+  if (!track) return;
+  if (galleryCarouselLastFrame) galleryCarouselOffset -= (timestamp - galleryCarouselLastFrame) * 0.032;
+  galleryCarouselLastFrame = timestamp;
+  const loopWidth = track.scrollWidth / 2;
+  if (loopWidth > 0 && galleryCarouselOffset <= -loopWidth) galleryCarouselOffset += loopWidth;
+  track.style.transform = `translate3d(${galleryCarouselOffset}px,0,0)`;
+  if (!galleryCarouselPaused) galleryCarouselFrame = window.requestAnimationFrame(animateGalleryCarousel);
 }
 
 async function renderContact() {
@@ -261,6 +349,12 @@ async function renderContact() {
   $('#contactAddress').text(address).closest('.contact-info-item').toggle(!!address);
   const facebook = safeWebUrl(c.contact_facebook === 'https://facebook.com/fiestaandco' ? '' : c.contact_facebook);
   const instagram = safeWebUrl(c.contact_instagram === 'https://instagram.com/fiestaandco' ? '' : c.contact_instagram);
+  const bookingLink = document.getElementById('howFacebookLink');
+  if (bookingLink) {
+    bookingLink.hidden = !facebook;
+    if (facebook) bookingLink.setAttribute('href', facebook);
+    else bookingLink.removeAttribute('href');
+  }
   $('.js-fb-link').attr('href', facebook || '#').toggle(!!facebook);
   $('.js-ig-link').attr('href', instagram || '#').toggle(!!instagram);
   $('.js-fb-link').parent().toggle(!!(facebook || instagram));

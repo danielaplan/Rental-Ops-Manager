@@ -7,7 +7,7 @@
 <meta name="description" content="JBL Karaoke Rental, Sweet Corner Setup, and Balloon Decorations. Contact AKAD staff to discuss packages and event arrangements.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link rel="stylesheet" href="css/style.css">
@@ -15,10 +15,13 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+<!-- STICKY NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom hero-navbar">
   <div class="container container-narrow">
-    <a class="navbar-brand js-business-name" href="#top">AKAD Sweet Party Rentals</a>
+    <a class="navbar-brand" href="#top" aria-label="AKAD Sweet Party Rentals home">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span class="brand-copy"><strong class="js-business-name">AKAD Sweet Party Rentals</strong><small>Events &amp; Celebrations</small></span>
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Toggle navigation" aria-controls="mainNav" aria-expanded="false">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -26,7 +29,7 @@
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
         <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
         <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-        <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
+        <li class="nav-item"><a class="nav-link" href="#gallery">Our Work</a></li>
         <li class="nav-item"><a class="nav-link" href="#how">How It Works</a></li>
         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
       </ul>
@@ -34,29 +37,21 @@
   </div>
 </nav>
 
-<div class="container container-narrow">
-  <div id="publicDataStatus" class="alert alert-warning mt-3 mb-0" role="status" aria-live="polite" hidden></div>
-</div>
-
 <!-- HERO -->
 <header class="hero" id="top">
-  <div class="container container-narrow">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-6">
-        <h1 class="hero-title" id="heroTitle"></h1>
-        <p class="hero-desc" id="heroDesc"></p>
-        <div class="d-flex gap-2 flex-wrap">
-          <a class="btn btn-primary-custom" href="#contact">Contact us</a>
-          <a href="#services" class="btn btn-outline-custom">View Services</a>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="hero-image-wrap">
-          <img id="heroImage" src="" alt="Event set up">
-          <div class="hero-badge">
-            <span class="num">3</span>
-            <span class="label">Separate rental service lines</span>
+  <div class="hero-image-wrap">
+    <img id="heroImage" src="images/defaults/hero-bg.jpg" alt="AKAD Sweet Corner celebration setup">
+    <div class="hero-overlay">
+      <div class="container container-narrow">
+        <div class="hero-copy">
+          <span class="kicker">Karaoke · Sweet Corners · Balloon Styling</span>
+          <h1 class="hero-title" id="heroTitle">Turn your celebration into a moment everyone remembers.</h1>
+          <p class="hero-desc" id="heroDesc">We bring the music, the sweets, and the picture-perfect details—so you can be fully present for every smile.</p>
+          <div class="d-flex gap-3 flex-wrap">
+            <a class="btn btn-primary-custom" href="#services">Explore services <i class="bi bi-arrow-right"></i></a>
+            <a href="#gallery" class="btn btn-hero-outline">See our celebrations</a>
           </div>
+          <div class="hero-proof"><strong>3</strong><span>specialized event services,<br>one joyful celebration</span></div>
         </div>
       </div>
     </div>
@@ -64,17 +59,17 @@
 </header>
 
 <!-- ABOUT -->
-<section class="section" id="about">
+<section class="section approach-section" id="about">
   <div class="container container-narrow">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-5">
-        <img class="about-img" src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80" alt="Celebration">
-      </div>
-      <div class="col-lg-7">
-        <span class="kicker">About Us</span>
-        <h2 id="aboutTitle"></h2>
-        <p id="aboutDesc" class="text-muted"></p>
-      </div>
+    <div class="section-heading centered-heading">
+      <span class="kicker">Our approach</span>
+      <h2 id="aboutTitle"></h2>
+      <p id="aboutDesc"></p>
+    </div>
+    <div class="row g-0 approach-grid">
+      <div class="col-md-4 approach-item"><i class="bi bi-stars"></i><h3>Thoughtful styling</h3><p>Every detail is selected to make your celebration feel personal and complete.</p></div>
+      <div class="col-md-4 approach-item"><i class="bi bi-calendar2-check"></i><h3>Simple planning</h3><p>Clear packages and direct coordination help you prepare with confidence.</p></div>
+      <div class="col-md-4 approach-item"><i class="bi bi-balloon-heart"></i><h3>Joyful experiences</h3><p>From the first song to the last sweet, we help create moments worth keeping.</p></div>
     </div>
   </div>
 </section>
@@ -83,51 +78,79 @@
 <section class="section section-alt" id="services">
   <div class="container container-narrow">
     <div class="section-heading">
-      <span class="kicker">What We Offer</span>
-      <h2>Services for every celebration</h2>
-      <p>Explore each service separately, then contact our team about your event and arrangements.</p>
+      <span class="kicker">What we offer</span>
+      <h2>Everything your celebration needs</h2>
+      <p>Three focused services that can stand alone or come together for one memorable event.</p>
     </div>
     <div class="row g-4" id="servicesGrid"></div>
   </div>
 </section>
 
+<section class="featured-story">
+  <div class="container-fluid p-0">
+    <div class="row g-0 align-items-stretch">
+      <div class="col-lg-7 featured-image"><img id="featuredSetupImage" src="images/defaults/featured-sweet-corner.jpg" alt="AKAD Sweet Corner arrangement"></div>
+      <div class="col-lg-5 featured-copy">
+        <span class="kicker">Featured setup</span>
+        <h2>Sweet moments,<br>beautifully arranged.</h2>
+        <p>A generous Sweet Corner brings color, variety, and an easy crowd favorite to birthdays and special occasions.</p>
+        <a class="btn btn-primary-custom" href="#contact">Plan your setup <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-strip" aria-label="AKAD service highlights">
+  <div class="container container-narrow">
+    <div class="row g-0">
+      <div class="col-6 col-lg-3 stat-item"><strong>3</strong><span>Specialized services</span></div>
+      <div class="col-6 col-lg-3 stat-item"><strong>1</strong><span>Dedicated local team</span></div>
+      <div class="col-6 col-lg-3 stat-item"><strong>100%</strong><span>Celebration focused</span></div>
+      <div class="col-6 col-lg-3 stat-item"><strong>∞</strong><span>Reasons to celebrate</span></div>
+    </div>
+  </div>
+</section>
+
 <!-- HOW IT WORKS -->
-<section class="section" id="how">
+<section class="section process-section" id="how">
   <div class="container container-narrow">
     <div class="section-heading">
-      <span class="kicker">Process</span>
-      <h2>How to arrange an event</h2>
-      <p>Choose a service, then coordinate the details directly with our team.</p>
+      <span class="kicker">Our process</span>
+      <h2>From idea to celebration</h2>
+      <p>This website is for information only. Booking inquiries and arrangements are handled through Facebook messages.</p>
     </div>
     <div class="row g-4">
       <div class="col-md-3 col-6">
         <div class="step-item">
-          <div class="step-number">1</div>
+          <div class="step-number"><i class="bi bi-chat-dots"></i></div><span class="step-index">01</span>
           <h4>Choose a service</h4>
           <p>Review the karaoke, Sweet Corner, and balloon service lines.</p>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="step-item">
-          <div class="step-number">2</div>
-          <h4>Share your preferred date</h4>
-          <p>Tell our team when you are planning your event so we can check the schedule.</p>
+          <div class="step-number"><i class="bi bi-calendar-event"></i></div><span class="step-index">02</span>
+          <h4>Message us on Facebook</h4>
+          <p>Send your preferred service, event date, and location so our team can check availability.</p>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="step-item">
-          <div class="step-number">3</div>
+          <div class="step-number"><i class="bi bi-check2-circle"></i></div><span class="step-index">03</span>
           <h4>Confirm with our team</h4>
-          <p>We will confirm availability, arrangements, and the agreed payment details with you.</p>
+          <p>Continue the conversation on Facebook to confirm availability, package details, and payment arrangements.</p>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="step-item">
-          <div class="step-number">4</div>
+          <div class="step-number"><i class="bi bi-truck"></i></div><span class="step-index">04</span>
           <h4>Agree on arrangements</h4>
-          <p>Our team confirms the delivery plan and event-day details with you.</p>
+          <p>Finalize delivery or pickup and event-day details with our team through Facebook messages.</p>
         </div>
       </div>
+    </div>
+    <div class="text-center mt-4">
+      <a id="howFacebookLink" class="btn btn-primary-custom" target="_blank" rel="noopener noreferrer" hidden><i class="bi bi-messenger me-2" aria-hidden="true"></i>Message us on Facebook</a>
     </div>
   </div>
 </section>
@@ -136,11 +159,15 @@
 <section class="section section-alt" id="gallery">
   <div class="container container-narrow">
     <div class="section-heading">
-      <span class="kicker">Inspiration</span>
-      <h2>Celebration setup ideas</h2>
-      <p>Browse visual ideas while planning an event with our staff.</p>
+      <span class="kicker">Our work</span>
+      <h2>Celebrations we loved creating</h2>
+      <p>Real setups from the AKAD team, made for real celebrations.</p>
     </div>
-    <div class="row g-3" id="galleryGrid"></div>
+    <div class="gallery-carousel" id="galleryCarousel" aria-label="Continuously moving celebration gallery">
+      <div class="gallery-viewport">
+        <div class="gallery-track" id="galleryGrid" aria-live="polite"></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -170,9 +197,13 @@
         </div>
       </div>
       <div class="col-lg-7">
-        <div class="panel-like p-4" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;">
-          <h5 class="mb-3">Planning a celebration?</h5>
-          <p class="text-muted mb-0" id="contactActionText">Contact our team to discuss available dates, service packages, and delivery arrangements.</p>
+        <div class="contact-panel">
+          <div class="contact-panel-copy">
+            <span class="kicker">Ready when you are</span>
+            <h3 class="mb-3">Planning a celebration?</h3>
+            <p class="text-muted mb-0" id="contactActionText">Contact our team to discuss available dates, service packages, and delivery arrangements.</p>
+          </div>
+          <img id="contactFeatureImage" src="images/defaults/contact-celebration.jpg" alt="AKAD celebration styling with balloons and sweets">
         </div>
       </div>
     </div>
@@ -183,8 +214,8 @@
 <footer class="site-footer">
   <div class="container container-narrow">
     <div class="row g-4">
-      <div class="col-md-4">
-        <h5 class="js-business-name">AKAD Sweet Party Rentals</h5>
+      <div class="col-md-4 footer-brand">
+        <div class="d-flex align-items-center gap-3 mb-3"><span class="brand-mark" aria-hidden="true">A</span><h5 class="js-business-name mb-0">AKAD Sweet Party Rentals</h5></div>
         <p class="small">Karaoke rental, Sweet Corner packages, and balloon decorations for celebrations.</p>
       </div>
       <div class="col-md-4">

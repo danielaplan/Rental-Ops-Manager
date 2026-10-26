@@ -145,7 +145,7 @@ function seedDatabase(force) {
       description: "Full karaoke setup with a huge song library, wireless mics, and a big screen so everyone gets a turn on the mic.",
       price: 2500,
       price_label: "per event (up to 4 hrs)",
-      image: "https://images.unsplash.com/photo-1516873240891-4bf014598ab4?w=800&q=80",
+      image: "images/defaults/karaoke-service.jpg",
       status: "Active",
       featured: true,
       inclusions: ["Karaoke machine", "2 wireless microphones", "32\" TV/Screen", "Speaker system", "Song catalog access"]
@@ -157,7 +157,7 @@ function seedDatabase(force) {
       description: "A beautifully arranged dessert and candy table your guests will photograph before they even taste it.",
       price: 3500,
       price_label: "per set-up (good for 30 pax)",
-      image: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=800&q=80",
+      image: "images/defaults/sweet-corner-service.jpg",
       status: "Active",
       featured: true,
       inclusions: ["Dessert display stands", "Candy jars & scoops", "Table linen & backdrop", "Personalized tags"]
@@ -169,7 +169,7 @@ function seedDatabase(force) {
       description: "Custom balloon garlands, arches, and backdrops styled around your event's theme and colors.",
       price: 4000,
       price_label: "per design (starting price)",
-      image: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80",
+      image: "images/defaults/balloon-service.jpg",
       status: "Active",
       featured: true,
       inclusions: ["Balloon garland or arch", "Theme color matching", "Setup & teardown", "1 focal backdrop"]
@@ -306,12 +306,12 @@ function seedDatabase(force) {
   ];
 
   const gallery = [
-    { image_id: "IMG-001", title: "Karaoke Night Set-up", image: "https://images.unsplash.com/photo-1516873240891-4bf014598ab4?w=800&q=80", featured: true },
-    { image_id: "IMG-002", title: "Sweet Corner Display", image: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=800&q=80", featured: true },
-    { image_id: "IMG-003", title: "Pastel Balloon Arch", image: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80", featured: true },
-    { image_id: "IMG-004", title: "Debut Celebration", image: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80", featured: false },
-    { image_id: "IMG-005", title: "Birthday Bash", image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80", featured: false },
-    { image_id: "IMG-006", title: "Backdrop Styling", image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80", featured: false }
+    { image_id: "IMG-001", title: "Karaoke Night Set-up", image: "images/defaults/karaoke-service.jpg", featured: true },
+    { image_id: "IMG-002", title: "Sweet Corner Display", image: "images/defaults/sweet-corner-service.jpg", featured: true },
+    { image_id: "IMG-003", title: "Pastel Balloon Arch", image: "images/defaults/balloon-service.jpg", featured: true },
+    { image_id: "IMG-004", title: "Featured Sweet Corner", image: "images/defaults/featured-sweet-corner.jpg", featured: false },
+    { image_id: "IMG-005", title: "Sweet Corner Celebration", image: "images/defaults/contact-celebration.jpg", featured: false },
+    { image_id: "IMG-006", title: "Celebration Hero", image: "images/defaults/hero-bg.jpg", featured: false }
   ];
 
   const websiteContent = {
@@ -319,7 +319,7 @@ function seedDatabase(force) {
     logo: "",
     hero_title: "Celebrations, fully set up for you.",
     hero_description: "Karaoke, sweet corners, and balloon styling for birthdays, debuts, christenings, and everything worth celebrating around Metro Manila.",
-    hero_image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=80",
+    hero_image: "images/defaults/hero-bg.jpg",
     hero_button_text: "Contact us",
     about_title: "We handle the set-up, you host the party",
     about_description: "We provide karaoke rental, Sweet Corner packages, and balloon decorations. Contact our team to discuss preferred dates and delivery arrangements.",

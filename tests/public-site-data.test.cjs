@@ -7,7 +7,14 @@ const { test } = require('node:test');
 const root = path.resolve(__dirname, '..');
 
 function createHarness() {
+  const bookingLink = {
+    hidden: true, href: null,
+    setAttribute(name, value) { this[name] = value; },
+    removeAttribute(name) { this[name] = null; }
+  };
+  const attributes = {};
   const requests = [];
+  const rendered = [];
   const collections = {
     settings: {},
     websiteContent: {},
@@ -62,13 +69,13 @@ function createHarness() {
       return undefined;
     }
     return {
-      on() { return this; }, text() { return this; }, attr() { return this; },
+      on() { return this; }, text() { return this; }, attr(name, value) { attributes[String(argument) + ":" + name] = value; return this; },
       empty() {
         if (argument === '#servicesGrid') renderCounts.services++;
         if (argument === '#galleryGrid') renderCounts.gallery++;
         return this;
       },
-      append() { return this; }, toggle() { return this; }, parent() { return this; },
+      append(html) { rendered.push(html); return this; }, toggle() { return this; }, parent() { return this; },
       closest() { return this; }, prop() { return this; }
     };
   };
@@ -79,11 +86,12 @@ function createHarness() {
     fetch,
     STORAGE,
     $: jquery,
+    STORAGE_KEYS: { settings: 'settings', websiteContent: 'websiteContent', services: 'services', gallery: 'gallery' },
     CONFIG: { businessNameFallback: 'AKAD Rentals' },
     document: {
       currentScript: { src: 'http://localhost/js/api.js' },
       documentElement: { style: { setProperty() {} } },
-      getElementById: id => id === 'publicDataStatus' ? publicDataStatus : null
+      getElementById: id => id === 'publicDataStatus' ? publicDataStatus : id === 'howFacebookLink' ? bookingLink : null
     },
     window: { location: { href: 'http://localhost/index.html' } }
   };
@@ -92,7 +100,7 @@ function createHarness() {
   vm.runInContext(fs.readFileSync(path.join(root, 'js', 'api.js'), 'utf8') + '\nglobalThis.API = API;', context);
   vm.runInContext(fs.readFileSync(path.join(root, 'js', 'app.js'), 'utf8'), context, { filename: 'js/app.js' });
   return {
-    context, requests, collections, renderCounts, payloads, publicDataStatus,
+    context, requests, collections, renderCounts, payloads, publicDataStatus, rendered, bookingLink, attributes,
     ready: () => readyCallback()
   };
 }
@@ -162,4 +170,51 @@ test('public refresh preserves pending edits and removes accepted records delete
   payloads['api/services.php?do=all'] = [];
   await context.refreshPublicSiteData();
   assert.equal(collections.services.length, 2);
+});
+
+
+test('service cards prefer the uploaded website-content image after refresh', async () => {
+  const { context, payloads, rendered } = createHarness();
+  payloads['api/websiteContent.php?do=get'] = { service_images: { 'SVC-001': '/uploads/gallery/service.webp' } };
+  await context.refreshPublicSiteData();
+  await context.renderServices();
+  assert.ok(rendered.some(html => html.includes('http://localhost/uploads/gallery/service.webp')));
+  assert.ok(!rendered.some(html => html.includes('src="http://localhost/cached-service.jpg"')));
+});
+
+
+test('How It Works uses the refreshed admin Facebook link and hides unsafe or empty links', async () => {
+  const { context, payloads, bookingLink } = createHarness();
+  payloads['api/websiteContent.php?do=get'] = { contact_facebook: 'https://m.me/akadpage' };
+  await context.refreshPublicSiteData();
+  await context.renderContact();
+  assert.equal(bookingLink.href, 'https://m.me/akadpage');
+  assert.equal(bookingLink.hidden, false);
+  for (const value of ['', 'javascript:alert(1)', 'https://facebook.com/fiestaandco']) {
+    payloads['api/websiteContent.php?do=get'] = { contact_facebook: value };
+    await context.refreshPublicSiteData();
+    await context.renderContact();
+    assert.equal(bookingLink.hidden, true);
+    assert.equal(bookingLink.href, null);
+  }
+});
+
+
+test('contact image uses saved content ahead of gallery and restores fallbacks', async () => {
+  const { context, payloads, attributes } = createHarness();
+  payloads['api/gallery.php?do=all'] = [{ image_id: 3, title: 'Balloon celebration', image: '/uploads/gallery/balloons.jpg' }];
+  payloads['api/websiteContent.php?do=get'] = { contact_image: '/uploads/gallery/contact.webp' };
+  await context.refreshPublicSiteData();
+  await context.renderGallery();
+  assert.equal(attributes['#contactFeatureImage:src'], 'http://localhost/uploads/gallery/contact.webp');
+  for (const image of ['', 'javascript:alert(1)']) {
+    payloads['api/websiteContent.php?do=get'] = { contact_image: image };
+    await context.refreshPublicSiteData();
+    await context.renderGallery();
+    assert.equal(attributes['#contactFeatureImage:src'], 'http://localhost/uploads/gallery/balloons.jpg');
+  }
+  payloads['api/gallery.php?do=all'] = [];
+  await context.refreshPublicSiteData();
+  await context.renderGallery();
+  assert.equal(attributes['#contactFeatureImage:src'], 'images/defaults/contact-celebration.jpg');
 });

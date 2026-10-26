@@ -51,6 +51,12 @@ Database names below refer to definitions in [`db/schema.sql`](db/schema.sql). D
 | Website content and gallery | [`index.html`](index.html), [`admin/content.html`](admin/content.html), [`admin/gallery.html`](admin/gallery.html), [`js/app.js`](js/app.js) | [`api/websiteContent.php`](api/websiteContent.php), [`api/gallery.php`](api/gallery.php), [`api/gallery-upload.php`](api/gallery-upload.php) | `WEBSITE_CONTENT`, `GALLERY` | [Frontend Overview](<Understand the System/System Understanding/Frontend/Overview.md>) | [`public-site-data.test.cjs`](tests/public-site-data.test.cjs), [`frontend-api-contract.test.cjs`](tests/frontend-api-contract.test.cjs) |
 | Settings | [`admin/settings.html`](admin/settings.html) | [`api/settings.php`](api/settings.php) | `APP_SETTINGS` | [API Reference](<Understand the System/System Understanding/Backend/API Reference.md>) | [`backend-revised-requirements.test.cjs`](tests/backend-revised-requirements.test.cjs) |
 
+Website image controls: `js/admin.js` supplies `attachAdminImageUpload` to Services, Website Content, and Settings. They reuse `API.uploadGalleryImage`; service image references live in Website Content `service_images` keyed by permanent frontend service IDs. `js/app.js` renders these on service cards/details and renders the configured logo. New services must finish syncing before image assignment. Gallery retains its existing upload workflow.
+
+Public booking inquiries: `index.html#how` explains the Facebook-message process; `js/app.js` connects its message button to Website Content `contact_facebook`. Owners edit this in `admin/content.html` using the existing Facebook booking / Messenger field; no new endpoint or database field.
+
+Contact image: `admin/content.html` provides a Contact Section Image URL/upload control, stored as Website Content `contact_image`; `js/app.js` gives it precedence over the existing matching-Gallery/default fallback. Uses the existing upload endpoint and Website Content JSON without a schema change.
+
 ## 4. Business Workflow Index
 
 | Workflow | Human-readable explanation | Primary source entry points |

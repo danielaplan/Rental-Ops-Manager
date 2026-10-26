@@ -31,8 +31,9 @@
           <input type="text" class="form-control" id="sBusinessName">
         </div>
         <div class="col-md-6">
-          <label class="form-label" for="sLogo">Logo URL</label>
-          <input type="text" class="form-control" id="sLogo">
+          <label class="form-label" for="sLogo">Business logo — URL or upload</label>
+          <input type="text" class="form-control" id="sLogo" aria-describedby="sLogoHelp">
+          <div class="form-text" id="sLogoHelp">Paste an image URL or choose a logo from your device below. After uploading, click Save Settings to publish it.</div>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="sPhone">Phone</label>
@@ -110,16 +111,23 @@
 <script src="../js/offline.js"></script>
 <script>
 adminReady(async function () {
+  attachAdminImageUpload('sLogo');
   await API.ready;
   await initAdminChrome('settings.html', 'Settings');
   await API.refreshSettings();
   await renderAdminSidebar('settings.html');
   await loadSettings();
+  document.getElementById('sLogo').dispatchEvent(new Event('input'));
+
 
   $('#settingsForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
+      const websiteContent = await API.getWebsiteContent();
+      if ($('#sLogo').val().trim() !== (websiteContent.logo || '')) {
+        await API.updateWebsiteContent({ ...websiteContent, logo: $('#sLogo').val().trim() });
+      }
       await API.updateSettings({
         business_name: $('#sBusinessName').val().trim(),
         logo: $('#sLogo').val().trim(),

@@ -1,0 +1,7 @@
+# Admin website image uploads — 2026-10-27
+
+Added frontend device-image controls and previews for Services, Website Content logo/hero, and Settings logo through the existing owner-authenticated gallery upload API. Gallery already supports uploads and was preserved. Public service cards/details read Website Content service_images; navbar/footer show the configured logo. Content saves preserve service metadata, and Settings logo saves update Website Content. New services must save and finish syncing before image assignment to avoid temporary ID references. Uploads validate type/size and lock form controls while pending. The existing service-worker cache policy is unchanged.
+
+No backend, schema, authentication, API contract, or synchronization implementation changed. No migrations, operational writes, staging, or commits performed. Updated the frontend overview and project index for the presentation-data dependency.
+
+Verification: 42 synthetic/local frontend tests passed across public-site-data, frontend-api-contract, frontend-api-direct, and frontend-async-workflows. Added a public image precedence/refresh regression and corrected harness storage-key configuration. Syntax verification and diff whitespace checks recorded in the final task response. No live browser upload, physical device, production, or client acceptance verification. Existing singleton updates retain their existing concurrent-edit limitations; no atomic multi-user content merge is introduced.
