@@ -17,6 +17,11 @@ function saveReturnInspection(PDO $pdo,int $bookingId,array $items,int $checkedB
         if (!$id || isset($seen[$id])) domainFail('Each checklist item must appear exactly once.');
         $seen[$id]=true;
         if (empty($item['condition_in']) && empty($item['condition'])) domainFail('Return condition is required.');
+        $expectedRow=array_values(array_filter($expected,fn($row)=>(int)$row['checklist_item_id']===$id))[0] ?? null;
+        $returned=asInt($item['quantity_returned'] ?? $item['returned_qty'] ?? null,0);
+        $condition=$item['condition_in'] ?? $item['condition'] ?? null;
+        if (!$expectedRow || $returned===null) domainFail('Returned quantity is required.');
+        if ($returned < (int)$expectedRow['quantity_released'] && ($condition !== 'Missing' || !trim((string)($item['notes'] ?? '')))) domainFail('A short return must be marked Missing and include item notes.');
         $saved=updateChecklistItem($pdo,$bookingId,$id,$item,$checkedBy);
         if ($saved['rental_item_id'] !== null) saveItemHistory($pdo,[
             'rental_item_id'=>$saved['rental_item_id'],'booking_id'=>$bookingId,'action'=>'Returned',

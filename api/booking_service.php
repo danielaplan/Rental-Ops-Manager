@@ -29,6 +29,22 @@ function entityId($value): ?int {
     domainFail('Invalid record ID.');
 }
 
+function requireCurrentApprovalBase(array $old, array $body): void {
+    if (($body['approve_conflicts'] ?? false) !== true) return;
+    $base = $body['approval_base'] ?? null;
+    if (!is_array($base)) domainFail('Conflict approval is stale. Review the current booking schedule before approving.',409,'stale');
+    foreach (['service_id','event_start_datetime','event_end_datetime','blocked_start_datetime','blocked_end_datetime','status'] as $field) {
+        if (!array_key_exists($field,$base) || !is_scalar($base[$field])) domainFail('Conflict approval is stale. Review the current booking schedule before approving.',409,'stale');
+        $actual = (string)($old[$field] ?? '');
+        $expected = (string)$base[$field];
+        if ($field === 'status') { $actual = strtolower($actual); $expected = strtolower($expected); }
+        if ($actual !== $expected) {
+            $error = new DomainError('Conflict approval is stale. Review the current booking schedule before approving.',409,'stale');
+            $error->details=['server_record'=>$old]; throw $error;
+        }
+    }
+}
+
 function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $ownerId): int {
     foreach (['status','customer_name','contact','contact_number','email','location','event_location','cancellation_reason','theme_notes','source','event_type','special_requests','customer_type'] as $field) {
         if (isset($body[$field]) && !is_string($body[$field])) domainFail($field.' must be text.');
@@ -38,6 +54,7 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     }
     reconcileBookings($pdo);
     $old = $action === 'create' ? null : lockBooking($pdo,$id ?? 0);
+    if ($old) requireCurrentApprovalBase($old,$body);
     if (in_array($action,['release','complete'],true) || strtolower((string)($body['status'] ?? '')) === 'completed') {
         if (!$old) domainFail('Create a booking before post-event release.');
         releaseBooking($pdo,(int)$old['booking_id'],$body,$ownerId);
@@ -109,7 +126,7 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     $conflicts = ['bookings'=>[],'blocks'=>[]];
     $reason = '';
     $changedReservation = !$old || $old['status'] !== $status || (int)$old['service_id'] !== $serviceId || $old['blocked_start_datetime'] !== $blockedStart || $old['blocked_end_datetime'] !== $blockedEnd;
-    if ($status === 'Confirmed' && $changedReservation) {
+    if (($status === 'Confirmed' && $changedReservation) || (!$old && !empty($body['_sync_conflict_check']))) {
         $now = $pdo->query('SELECT NOW()')->fetchColumn();
         $conflicts = availabilityConflicts($pdo,$serviceId,$blockedStart,$blockedEnd,$id ?? 0,$blockedEnd > $now);
         $reason = requireConflictApproval($conflicts,$body);

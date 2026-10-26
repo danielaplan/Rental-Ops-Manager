@@ -20,8 +20,7 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
 (async () => {
   const login = await request('api/auth.php', {contact_number:'TEST-OWNER',password:'OfflineTest!2026'});
   token = login.data.session_token;
-  const year = 3000 + Math.floor(Math.random() * 5000);
-  const start = `${year}-07-01`, end = `${year}-07-31`;
+  const start = new Date().toISOString().slice(0,10), end = start;
   const period = `start=${start}&end=${end}`;
   const book = (extra = {}) => request('api/bookings.php?do=create', {
     customer_name:'Finance gap fixture',contact:`F${Date.now()}${Math.floor(Math.random()*1000)}`,
@@ -31,7 +30,7 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   const booking = (await book()).data;
   const bid = Number(booking.booking_id);
   const createPayment = extra => request('api/payments.php?do=create', {
-    booking_id:bid,amount:'125.00',payment_method:'GCash',payment_date:`${start} 12:00:00`,...extra,
+    booking_id:bid,amount:'125.00',payment_method:'GCash',payment_date:`${start} 00:00:00`,...extra,
   },201);
   const completed = (await createPayment()).data;
   assert.equal(Number(completed.recorded_by), Number(login.data.user.user_id));
@@ -39,9 +38,11 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   assert.equal(completed.payment_reference,null);
   await createPayment({amount:'30.00',payment_status:'Pending',payment_method:'MariBank'});
   await createPayment({amount:'20.00',payment_status:'Failed'});
-  await createPayment({amount:'50.00',payment_date:`${year}-08-01 12:00:00`});
+  await createPayment({amount:'50.00',payment_date:'2000-08-01 12:00:00'});
   await request('api/payments.php?do=create',{booking_id:bid,amount:1,payment_method:['GCash']},400);
   await request('api/payments.php?do=create',{booking_id:bid,amount:1,payment_method:'GCash',notes:[]},400);
+  await request('api/payments.php?do=create',{booking_id:bid,amount:1,payment_method:'GCash',payment_date:'2099-01-01 12:00:00'},400);
+  await request('api/payments.php?do=create',{booking_id:bid,amount:1,payment_method:'GCash',payment_reference:'X'.repeat(151)},400);
   await request(`api/payments.php?do=update&id=${completed.payment_id}`,{amount:999,correction_reason:[]},400);
   await request(`api/payments.php?do=update&id=${completed.payment_id}`,{booking_id:`${bid}.5`,correction_reason:'invalid booking'},400);
   await request(`api/payments.php?do=update&id=${completed.payment_id}`,{amount:'120.00',correction_reason:'Correct synthetic receipt'});
@@ -56,6 +57,9 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   assert.equal(Number(report.total_revenue_collected),120,'Only corrected Completed payment within payment-date period contributes revenue');
   assert.equal(Number(report.total_bookings),1,'The legacy report booking count remains available to the reports page');
   assert.equal(Number(report.total_customers),1);
+  assert.equal(Number(report.balances.deposits_held),100);
+  assert.equal(Number(report.balances.total_deductions_amount),10);
+  assert.ok(report.popularity.packages.length > 0);
   assert.equal(Number(report.pending),1);
   assert.equal(Number(report.awaiting_payment),0);
   assert.ok(Array.isArray(report.popular_services));
@@ -68,7 +72,7 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   assert.equal(typeof dashboard.active_services,'number');
   assert.equal(typeof dashboard.awaiting_payment_bookings,'number');
   assert.ok(Array.isArray(dashboard.upcoming_bookings));
-  const cancelled = (await book({event_date:`${year}-07-02`})).data;
+  const cancelled = (await book()).data;
   await request(`api/bookings.php?do=cancel&id=${cancelled.booking_id}`,{cancellation_reason:'Synthetic retained cancellation'});
   const cancelledRows = (await request(`api/reports.php?do=cancellations&${period}`)).data;
   assert.equal(cancelledRows.length,1);
@@ -77,13 +81,18 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   const upcoming = (await request(`api/reports.php?do=upcoming&${period}`)).data;
   assert.ok(upcoming.some(row=>Number(row.booking_id)===bid));
   assert.ok(!upcoming.some(row=>Number(row.booking_id)===Number(cancelled.booking_id)));
-  const first = (await book({event_date:`${year}-07-03`,status:'Confirmed'})).data;
-  const second = (await book({event_date:`${year}-07-03`,status:'Confirmed',approve_conflicts:true,
+  const first = (await book({status:'Confirmed'})).data;
+  const second = (await book({status:'Confirmed',approve_conflicts:true,
     conflicting_booking_ids:[Number(first.booking_id)],override_reason:'Synthetic approved overlap'})).data;
   const overlaps = (await request(`api/reports.php?do=overlaps&${period}`)).data;
   assert.ok(overlaps.some(row=>Number(row.booking_id)===Number(second.booking_id) && row.reason==='Synthetic approved overlap' && row.approving_owner));
-  assert.equal((await request(`api/reports.php?do=overlaps&start=${year}-08-01&end=${year}-08-31`)).data.length,0);
-  const empty = (await request(`api/reports.php?do=report&start=${year}-09-01&end=${year}-09-30`)).data;
+  assert.equal((await request('api/reports.php?do=overlaps&start=2000-08-01&end=2000-08-31')).data.length,0);
+  const overpayment = (await book({agreed_total:'100.00'})).data;
+  await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'90.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},201);
+  await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'11.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
+  await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'10.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},201);
+  await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'0.01',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
+  const empty = (await request('api/reports.php?do=report&start=2000-09-01&end=2000-09-30')).data;
   assert.equal(Number(empty.total_revenue_collected),0);
   for (const kind of ['upcoming','cancellations','overlaps']) await request(`api/reports.php?do=${kind}&start=bad&end=${end}`,undefined,400);
   await request('api/reports.php?do=dashboard',{},405);

@@ -190,6 +190,22 @@
     if(bytes(data.email)>(newCustomer?100:255))throw new Error(`Email must be at most ${newCustomer?100:255} characters.`);
     if(bytes(data.event_location??data.location)>255)throw new Error('Event location must be at most 255 characters.');
   };
+  const validatePaymentDraft=(input,old)=>{
+    const data={...(old||{}),...input};
+    const amount=Number(data.amount), status=data.payment_status||'Completed';
+    const date=String(data.payment_date||'').trim();
+    const reference=data.payment_reference;
+    if(!Number.isFinite(amount)||amount<=0)throw new Error('Enter a payment amount greater than zero.');
+    if(!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(date)||Number.isNaN(Date.parse(date.replace(' ','T'))))throw new Error('Enter a valid payment date and time.');
+    if(new Date(date.replace(' ','T'))>new Date())throw new Error('Payment date cannot be in the future.');
+    if(reference!==null&&reference!==undefined&&(!String(reference).trim()||new TextEncoder().encode(String(reference)).length>150))throw new Error('Payment reference must be at most 150 characters.');
+    if(status!=='Completed')return;
+    const bookingId=data.booking_id;
+    const booking=STORAGE.getAll('bookings').find(row=>String(ref('bookings',row.id??row.booking_id))===String(ref('bookings',bookingId)));
+    if(!booking)return;
+    const prior=STORAGE.getAll('payments').filter(row=>String(row.payment_status||'Completed')==='Completed'&&String(row.payment_id)!==String(old?.payment_id)).filter(row=>String(ref('bookings',row.booking_id))===String(ref('bookings',bookingId))).reduce((sum,row)=>sum+Number(row.amount||0),0);
+    if(amount>Math.max(Number(booking.total||0)-prior,0))throw new Error('Completed payment exceeds the remaining booking balance.');
+  };
   const actions={
     createCategory:['categories','create'],updateCategory:['categories','update'],deleteCategory:['categories','delete'],
     createService:['services','create'],updateService:['services','update'],deleteService:['services','delete'],
@@ -206,6 +222,7 @@
       const old=id==null?null:STORAGE.getAll(entity).find(row=>String(row[fields[entity]])===String(id));
       const input=action==='create'?(args[0]||{}):action==='update'?(args[1]||{}):{};
       if(entity==='bookings')validateBookingDraft(input);
+      if(entity==='payments')validatePaymentDraft(input,old);
       let result;
       if(action==='create')result=createLocal(entity,input);
       else if(action==='update')result=updateLocal(entity,id,input);

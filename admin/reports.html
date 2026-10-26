@@ -191,10 +191,7 @@ async function renderReport(startDate, endDate) {
   const bookingIds = new Set(filteredBookings.map(b => String(b.id)));
   const pendingPayments = payments.filter(payment => payment.pending_sync && bookingIds.has(String(payment.booking_id)));
   const pendingPaymentTotal = pendingPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-  const totalRevenue = await filteredBookings.reduce(async (sumPromise, booking) => {
-    const sum = await sumPromise;
-    return sum + await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex);
-  }, Promise.resolve(0));
+  const totalRevenue = Number(report.total_revenue_collected || 0);
   const outstandingBalance = await filteredBookings.reduce(async (sumPromise, booking) => {
     const sum = await sumPromise;
     return sum + await PaymentsHelper.remainingBalance(booking, pendingPaymentIndex);
@@ -248,7 +245,7 @@ async function renderReport(startDate, endDate) {
     ['Approved overlaps',Number(overlaps.total_overlaps||0)]
   ];
   $('#reportOperationalCards').html(operational.map(([label,value])=>`<div class="col-6 col-md-4 col-xl"><div class="stat-card compact-stat-card"><div class="stat-label">${escapeHtmlA(label)}</div><div class="stat-value">${escapeHtmlA(value)}</div></div></div>`).join(''));
-  const packageRows=r.popularity?.packages||[];
+  const packageRows=r.package_popularity||r.popularity?.packages||[];
   $('#packagePopularityBody').html(packageRows.length?packageRows.map(row=>`<tr><td>${escapeHtmlA(row.package_name)}</td><td>${escapeHtmlA(row.service_name)}</td><td>${Number(row.booking_count)}</td><td>${Number(row.completed_count)}</td><td>${Number(row.cancelled_count)}</td></tr>`).join(''):'<tr><td colspan="5" class="text-center text-muted py-3">No package bookings in this period.</td></tr>');
 
   reportCharts.forEach(chart => chart.destroy());

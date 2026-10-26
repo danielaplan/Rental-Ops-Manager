@@ -23,11 +23,11 @@ function updateChecklistItem(PDO $pdo,int $bookingId,int $itemId,array $body,int
     $released=asInt($releasedValue,0);
     $returned=asInt($body['quantity_returned'] ?? $body['returned_qty'] ?? $old['quantity_returned'],0);
     if ($released===null || $returned===null || $released>(int)$old['expected_quantity'] || $returned>$released) domainFail('Quantities must satisfy returned <= released <= expected.');
-    $out=$body['condition_out'] ?? $old['condition_out'];
+    $out=array_key_exists('condition_out',$body) ? $body['condition_out'] : $old['condition_out'];
     if ($released>0 && !$out && !empty($body['checked_released'])) $out='Good';
     $in=$body['condition_in'] ?? $body['condition'] ?? $old['condition_in'];
     $allowed=['Good','Minor Damage','Damaged','Missing','Unwashed'];
-    if (($out!==null && !in_array($out,$allowed,true)) || ($in!==null && !in_array($in,$allowed,true))) domainFail('Invalid checklist condition.');
+    if (($out!==null && (!is_string($out) || !in_array($out,$allowed,true))) || ($in!==null && (!is_string($in) || !in_array($in,$allowed,true)))) domainFail('Invalid checklist condition.');
     if ($released>0 && !$out) domainFail('Release condition is required.');
     $status=$in===null?'pending':(($returned<$released || $in==='Missing')?'missing':(in_array($in,['Minor Damage','Damaged'],true)?'damaged':'inspected'));
     $pdo->prepare('UPDATE booking_checklist_items SET quantity_released=?,quantity_returned=?,condition_out=?,condition_in=?,return_status=?,checked_by=?,checked_at=NOW() WHERE checklist_item_id=?')->execute([$released,$returned,$out,$in,$status,$ownerId,$itemId]);

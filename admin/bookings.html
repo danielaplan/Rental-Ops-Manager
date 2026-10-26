@@ -408,7 +408,6 @@ adminReady(async function () {
   CONFIG.paymentMethods.forEach(m => $('#payMethod').append(`<option>${m}</option>`));
   CONFIG.paymentMethods.forEach(m => $('#correctionMethod').append(`<option>${m}</option>`));
   $('#dStatusSelect').empty();
-  CONFIG.bookingEditableStatuses.forEach(s => $('#dStatusSelect').append(`<option>${s}</option>`));
 
   const requestedBookingId = new URLSearchParams(window.location.search).get('booking_id');
   const requestedTab = new URLSearchParams(window.location.search).get('tab');
@@ -602,7 +601,15 @@ adminReady(async function () {
     }
     $(this).prop('disabled', true);
     try {
-      await API.updateBooking(pendingConflictApproval.booking.id, { status: pendingConflictApproval.status, approve_conflicts: true, conflicting_booking_ids: pendingConflictApproval.ids, override_reason: reason });
+      const approvalBase = {
+        service_id: pendingConflictApproval.booking.service_id,
+        event_start_datetime: pendingConflictApproval.booking.event_start_datetime,
+        event_end_datetime: pendingConflictApproval.booking.event_end_datetime,
+        blocked_start_datetime: pendingConflictApproval.booking.blocked_start_datetime,
+        blocked_end_datetime: pendingConflictApproval.booking.blocked_end_datetime,
+        status: pendingConflictApproval.booking.status
+      };
+      await API.updateBooking(pendingConflictApproval.booking.id, { status: pendingConflictApproval.status, approve_conflicts: true, conflicting_booking_ids: pendingConflictApproval.ids, override_reason: reason, approval_base: approvalBase });
       pendingConflictApproval = null;
       bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
       showAdminToast(API.savedMessage());
@@ -644,19 +651,49 @@ adminReady(async function () {
     } finally { button.prop('disabled', false); }
   });
 
-  $('#bookingDetailModal').onAdmin('change', '.js-release-check', async function () {
-    const bookingItemId = $(this).closest('.checklist-row').data('item');
-    await API.updateBookingItem(bookingItemId, { checked_released: this.checked });
-    $(this).closest('.checklist-row').toggleClass('checked', this.checked);
+  $('#bookingDetailModal').onAdmin('change', '.js-release-check, .js-release-qty, .js-release-condition', async function () {
+    const $row = $(this).closest('.checklist-row');
+    const checked = $row.find('.js-release-check').is(':checked');
+    $row.find('.js-release-qty, .js-release-condition').prop('disabled', !checked);
+    const bookingItemId = $row.data('item');
+    try {
+      await API.updateBookingItem(bookingItemId, {
+        checked_released: checked,
+        quantity_released: checked ? Number($row.find('.js-release-qty').val()) : 0,
+        condition_out: checked ? $row.find('.js-release-condition').val() : null
+      });
+      $row.toggleClass('checked', checked);
+    } catch (error) {
+      $('#returnSaveError').prop('hidden', false).text(error.message).trigger('focus');
+    }
     InventoryHelper.updateReleaseProgress('#releaseChecklistWrap');
   });
 
   $('#confirmReleaseBtn').onAdmin('click', async function () {
     const bookingId = currentBookingId;
-    await API.recordRelease(bookingId, $('#releasedByInput').val() || 'Staff', $('#releaseNotesInput').val());
-    showAdminToast(API.savedMessage());
-    await renderBookingsTable();
-    await loadBookingDetail(currentBookingId);
+    const $button = $(this);
+    $button.prop('disabled', true);
+    try {
+      // Persist the current controls in order before finalizing. This prevents a
+      // quick multi-row edit from racing the per-control background saves.
+      for (const row of $('#releaseChecklistWrap .checklist-row').toArray()) {
+        const $row = $(row);
+        const checked = $row.find('.js-release-check').is(':checked');
+        await API.updateBookingItem($row.data('item'), {
+          checked_released: checked,
+          quantity_released: checked ? Number($row.find('.js-release-qty').val()) : 0,
+          condition_out: checked ? $row.find('.js-release-condition').val() : null
+        });
+      }
+      await API.recordRelease(bookingId, $('#releasedByInput').val() || 'Staff', $('#releaseNotesInput').val());
+      showAdminToast(API.savedMessage());
+      await renderBookingsTable();
+      await loadBookingDetail(currentBookingId);
+    } catch (error) {
+      $('#returnSaveError').prop('hidden', false).text(error.message).trigger('focus');
+    } finally {
+      $button.prop('disabled', false);
+    }
   });
 
   $('#previewReturnBtn').onAdmin('click', function () {
@@ -675,6 +712,10 @@ adminReady(async function () {
     const results = InventoryHelper.collectReturnResults('#returnChecklistWrap');
     if (!results.length || results.some(r => !Number.isInteger(r.returned_qty) || r.returned_qty < 0 || r.returned_qty > Number(r.expected_qty))) {
       $('#returnSaveError').prop('hidden', false).text('Enter whole returned quantities between zero and the expected quantity.').trigger('focus');
+      return;
+    }
+    if (results.some(r => r.returned_qty < Number(r.expected_qty) && (r.condition !== 'Missing' || !String(r.notes || '').trim()))) {
+      $('#returnSaveError').prop('hidden', false).text('A short return must be marked Missing and include item notes.').trigger('focus');
       return;
     }
     try {
@@ -943,7 +984,8 @@ async function loadBookingDetail(id) {
   const pendingPaymentAmount = pendingPaymentIndex.get(String(id)) || 0;
   $('#dPaid').text(BookingCalc.formatCurrency(paid));
   $('#dBalance').text(BookingCalc.formatCurrency(balance));
-  $('#dStatusSelect').val(b.status);
+  const allowedStatusOptions = b.status === 'Pending' ? ['Pending','Confirmed'] : ['Confirmed'];
+  $('#dStatusSelect').html(allowedStatusOptions.map(status => `<option>${status}</option>`).join('')).val(b.status);
   $('#dPaymentStatusSelect').val(paymentStatus);
   $('#dPaymentPendingNote').text(pendingPaymentAmount > 0 ? `${BookingCalc.formatCurrency(pendingPaymentAmount)} is Pending Sync and is not included as accepted payment yet.` : '').prop('hidden', pendingPaymentAmount <= 0);
   $('#cancelBookingBtn').prop('hidden', ['Cancelled','Completed','Awaiting Completion','Awaiting Payment'].includes(b.status));

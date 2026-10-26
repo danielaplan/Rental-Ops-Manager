@@ -107,6 +107,22 @@ test('manual booking locks before availability and permits retry after a rejecte
   assert.equal(creates, 1);
 });
 
+test('manual booking explains an equal or reversed schedule without starting a save', async () => {
+  let availabilityChecks = 0, creates = 0, fieldError;
+  const h = harness('admin/manual-booking.html', {
+    checkAvailability: async () => { availabilityChecks++; return { available: true }; },
+    createBooking: async () => { creates++; return { id: 'LOCAL-booking-1' }; }
+  });
+  h.context.showFieldError = (selector, message) => { fieldError = { selector, message }; };
+  for (const [key, value] of Object.entries({ '#mDate': '2026-10-10', '#mStart': '10:00', '#mEnd': '10:00' })) h.node(key).value = value;
+
+  await h.context.createManualBooking();
+
+  assert.deepEqual(fieldError, { selector: '#mEnd', message: 'End time must be after start time.' });
+  assert.equal(availabilityChecks, 0);
+  assert.equal(creates, 0);
+});
+
 test('manual initialization populates controls before restoring the saved draft', async () => {
   const gate = deferred(), order = [];
   const h = harness('admin/manual-booking.html', { refreshSharedData: async () => {} });
@@ -144,7 +160,7 @@ test('calendar ignores an older month render that resolves last', async () => {
 
 test('report keeps newest filters and renders numeric receipt totals', async () => {
   const old = deferred(); let calls = 0;
-  const report = { total_bookings: 1, popular_services: [] };
+  const report = { total_bookings: 1, total_revenue_collected: 125, popular_services: [], package_popularity: [{ package_name: 'Package', service_name: 'Service', booking_count: 1 }] };
   const h = harness('admin/reports.html', {
     getReportStats: () => ++calls === 1 ? old.promise : Promise.resolve(report),
     getBookings: async () => [{ id: 1, customer_name: 'Test', event_date: '2026-10-10', total: 500, amount_paid: 200 }],
@@ -155,7 +171,8 @@ test('report keeps newest filters and renders numeric receipt totals', async () 
   old.resolve(report); await first;
   assert.equal(h.node('#reportRangeLabel').text, '2026-10-01 – 2026-10-31');
   h.context.renderReportReceipt();
-  assert.match(h.node('#reportReceiptBody').html, /<td>200<\/td>/);
+  assert.match(h.node('#reportReceiptBody').html, /Revenue Collected<\/span><strong>125<\/strong>/);
+  assert.match(h.node('#packagePopularityBody').html, /Package/);
   assert.doesNotMatch(h.node('#reportReceiptBody').html, /NaN|Promise/);
 });
 

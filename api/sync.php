@@ -85,6 +85,10 @@ foreach ($queue as $item) {
                     }
                 }
             }
+            // Offline drafts have no real-time reservation. Before accepting a queued
+            // create, classify an overlap with an existing confirmed booking as an
+            // actionable conflict rather than silently creating an ordinary Pending row.
+            if ($action==='create') $data['_sync_conflict_check']=true;
             $id=saveBooking($pdo,$action,$id,$data,(int)$actor['user_id']);
             $record=bookingRow($id);
         } elseif ($entity==='payments' && in_array($action,['create','update'],true)) {

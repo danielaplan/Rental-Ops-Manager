@@ -66,6 +66,8 @@ test('scheduled reconciliation and reviewed checklist release are atomic and ide
   assert.ok(run().transitioned >= 1);
   assert.equal(run().transitioned, 0);
   assert.equal(sql(`SELECT status FROM bookings WHERE booking_id=${bookingId}`), 'Awaiting Completion');
+  const awaitingCompletionCancel = await request(`api/bookings.php?do=cancel&id=${bookingId}`, { cancellation_reason: 'Synthetic late cancellation' }, token);
+  assert.equal(awaitingCompletionCancel.status, 409, JSON.stringify(awaitingCompletionCancel));
   assert.equal(sql(`SELECT COUNT(*) FROM audit_logs WHERE record_type='booking' AND record_id=${bookingId} AND new_status='Awaiting Completion'`), '1');
   const activeOwners = sql("SELECT COUNT(*) FROM users WHERE role='owner' AND account_status='Active'");
   assert.equal(sql(`SELECT COUNT(*) FROM notifications WHERE booking_id=${bookingId} AND notification_type='awaiting_completion' AND resolved_at IS NULL`), activeOwners);
@@ -105,6 +107,8 @@ test('scheduled reconciliation and reviewed checklist release are atomic and ide
   const bookingReleased = await request(`api/bookings.php?do=release&id=${bookingId}`, review, token);
   assert.equal(bookingReleased.status, 200, JSON.stringify(bookingReleased));
   assert.equal(bookingReleased.data.status, 'Awaiting Payment');
+  const awaitingPaymentCancel = await request(`api/bookings.php?do=cancel&id=${bookingId}`, { cancellation_reason: 'Synthetic late cancellation' }, token);
+  assert.equal(awaitingPaymentCancel.status, 409, JSON.stringify(awaitingPaymentCancel));
   assert.equal(bookingReleased.data.completed_at, null);
   assert.equal(sql(`SELECT COUNT(*) FROM notifications WHERE booking_id=${bookingId} AND notification_type='awaiting_completion' AND resolved_at IS NULL`), '0');
   assert.equal(sql(`SELECT COUNT(*) FROM notifications WHERE booking_id=${bookingId} AND notification_type='awaiting_payment' AND resolved_at IS NULL`), activeOwners);
@@ -134,6 +138,26 @@ test('scheduled reconciliation and reviewed checklist release are atomic and ide
   const completed = await request(`api/bookings.php?do=release&id=${bookingId}`, {}, token);
   assert.equal(completed.status, 200, JSON.stringify(completed));
   assert.equal(completed.data.status, 'Completed');
+  const releasedOngoing = await request('api/bookings.php?do=create', {
+    ...futureBody, customer_name: 'Released ongoing cancellation fixture', contact: 'TEST-RELEASED-CANCEL', package_id: packageId,
+    event_start_datetime: '9100-01-01 10:00:00', event_end_datetime: '9100-01-01 11:00:00',
+  }, token);
+  assert.equal(releasedOngoing.status, 201, JSON.stringify(releasedOngoing));
+  const releasedOngoingId = Number(releasedOngoing.data.booking_id);
+  const releasedOngoingItems = await request(`api/bookingItems.php?booking_id=${releasedOngoingId}`, undefined, token);
+  assert.equal(releasedOngoingItems.status, 200, JSON.stringify(releasedOngoingItems));
+  const releasedOngoingItem = releasedOngoingItems.data[0];
+  assert.equal((await request(`api/bookingItems.php?do=update&id=${releasedOngoingItem.checklist_item_id}`, {
+    booking_id: releasedOngoingId, quantity_released: releasedOngoingItem.expected_quantity, condition_out: 'Good',
+  }, token)).status, 200);
+  const releasedRecord = await request('api/itemReleases.php?do=create', { booking_id: releasedOngoingId, released_by: 'Synthetic owner', notes: 'Ongoing release fixture' }, token);
+  assert.equal(releasedRecord.status, 201, JSON.stringify(releasedRecord));
+  const releasedOngoingCancel = await request(`api/bookings.php?do=cancel&id=${releasedOngoingId}`, { cancellation_reason: 'Synthetic ongoing cancellation' }, token);
+  assert.equal(releasedOngoingCancel.status, 200, JSON.stringify(releasedOngoingCancel));
+  assert.equal(releasedOngoingCancel.data.status, 'Cancelled');
+  assert.equal(sql(`SELECT COUNT(*) FROM item_releases WHERE booking_id=${releasedOngoingId}`), '1');
+  const completedCancel = await request(`api/bookings.php?do=cancel&id=${bookingId}`, { cancellation_reason: 'Synthetic completed cancellation' }, token);
+  assert.equal(completedCancel.status, 409, JSON.stringify(completedCancel));
   assert.ok(completed.data.completed_at);
   assert.equal(sql(`SELECT COUNT(*) FROM notifications WHERE booking_id=${bookingId} AND resolved_at IS NULL`), '0');
   assert.equal((await request(`api/bookings.php?do=release&id=${bookingId}`, {}, token)).status, 200);
