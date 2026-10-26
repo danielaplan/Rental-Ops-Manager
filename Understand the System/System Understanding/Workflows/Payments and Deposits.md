@@ -59,7 +59,7 @@ The two lines stay separate on purpose: rental payments reduce the rental balanc
 - A deduction cannot exceed the remaining held amount.
 - Deposits and deductions do not count as rental revenue.
 - The application records money events; it does not contact GCash, MariBank, a bank, or a refund gateway.
-- Overpayment and cancellation-refund policy are not invented by the code.
+- A Completed payment cannot exceed the remaining booking balance. Record the exact remaining amount instead; a separate credit/refund workflow would require a new approved policy.
 
 ### Remember This
 

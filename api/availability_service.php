@@ -99,7 +99,7 @@ function releaseBooking(PDO $pdo, int $id, array $body, int $ownerId): array {
         if (!$itemId || $quantity === null || !$condition || !in_array($status,['inspected','damaged','missing'],true)) domainFail('Each return needs a valid quantity, condition, and inspection status.');
         updateChecklistItem($pdo,$id,$itemId,['quantity_returned'=>$quantity,'condition_in'=>$condition],$ownerId);
     }
-    $q = $pdo->prepare("SELECT checklist_item_id FROM booking_checklist_items WHERE booking_id=? AND (checked_by IS NULL OR checked_at IS NULL OR condition_in IS NULL OR TRIM(condition_in)='' OR return_status NOT IN ('inspected','damaged','missing') OR quantity_returned>quantity_released OR (quantity_returned<quantity_released AND return_status<>'missing')) LIMIT 1");
+    $q = $pdo->prepare("SELECT checklist_item_id FROM booking_checklist_items WHERE booking_id=? AND (checked_by IS NULL OR checked_at IS NULL OR condition_in IS NULL OR TRIM(condition_in)='' OR return_status NOT IN ('inspected','damaged','missing') OR quantity_returned>quantity_released OR (quantity_returned<quantity_released AND (return_status<>'missing' OR condition_in<>'Missing'))) LIMIT 1");
     $q->execute([$id]);
     if ($q->fetchColumn()) domainFail('Inspect all checklist items and document missing or damaged returns before release.');
     require_once __DIR__ . '/deposit_service.php';

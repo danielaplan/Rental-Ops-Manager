@@ -46,6 +46,28 @@ function saveItemHistory(PDO $pdo, array $body, array $actor): array {
     return $query->fetch();
 }
 
+function saveChecklistHistory(PDO $pdo, array $checklistItem, int $bookingId, string $action, array $actor): void {
+    $rentalItemId = asInt($checklistItem['rental_item_id'] ?? null, 1);
+    $quantity = asInt($checklistItem['quantity_released'] ?? $checklistItem['quantity_returned'] ?? 0, 0);
+    $condition = $checklistItem['condition_out'] ?? $checklistItem['condition_in'] ?? null;
+    if ($rentalItemId) {
+        saveItemHistory($pdo, [
+            'rental_item_id'=>$rentalItemId, 'booking_id'=>$bookingId,
+            'action'=>$action, 'qty'=>$quantity, 'condition'=>$condition,
+        ], $actor);
+        return;
+    }
+    // Template checklist rows can describe equipment that has no catalog-item link.
+    // Keep a booking-scoped history row rather than silently losing that release.
+    $pdo->prepare('INSERT INTO item_history(rental_item_id,booking_id,action,qty,`condition`) VALUES(NULL,?,?,?,?)')
+        ->execute([$bookingId,$action,$quantity,$condition]);
+    $historyId=(int)$pdo->lastInsertId();
+    auditWrite($pdo,(int)$actor['user_id'],'item_history_recorded','item_history',$historyId,json_encode([
+        'booking_id'=>$bookingId,'checklist_item_id'=>$checklistItem['checklist_item_id'] ?? null,
+        'item_name'=>$checklistItem['item_name_snapshot'] ?? null,'action'=>$action,'qty'=>$quantity,'condition'=>$condition,
+    ]));
+}
+
 function saveItemRelease(PDO $pdo, array $body, array $actor): array {
     $bookingId = asInt($body['booking_id'] ?? null,1);
     $releasedBy = $body['released_by'] ?? null;
@@ -63,12 +85,9 @@ function saveItemRelease(PDO $pdo, array $body, array $actor): array {
     $pdo->prepare('INSERT INTO item_releases(booking_id,released_by,notes,released_at) VALUES(?,?,?,NOW())')
         ->execute([$bookingId,trim($releasedBy),$notes]);
     $id = (int)$pdo->lastInsertId();
-    $query = $pdo->prepare('SELECT rental_item_id,quantity_released,condition_out FROM booking_checklist_items WHERE booking_id=? AND rental_item_id IS NOT NULL');
+    $query = $pdo->prepare('SELECT checklist_item_id,item_name_snapshot,rental_item_id,quantity_released,condition_out FROM booking_checklist_items WHERE booking_id=?');
     $query->execute([$bookingId]);
-    foreach ($query->fetchAll() as $item) saveItemHistory($pdo,[
-        'rental_item_id'=>$item['rental_item_id'],'booking_id'=>$bookingId,'action'=>'Released',
-        'qty'=>$item['quantity_released'],'condition'=>$item['condition_out'],
-    ],$actor);
+    foreach ($query->fetchAll() as $item) saveChecklistHistory($pdo,$item,$bookingId,'Released',$actor);
     auditWrite($pdo,(int)$actor['user_id'],'items_released','item_release',$id,json_encode(['booking_id'=>$bookingId,'released_by'=>trim($releasedBy),'notes'=>$notes]));
     $query = $pdo->prepare('SELECT * FROM item_releases WHERE release_id=?');
     $query->execute([$id]);

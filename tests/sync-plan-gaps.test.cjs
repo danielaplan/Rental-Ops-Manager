@@ -45,6 +45,11 @@ test('offline sync honors revised shared booking, financial, catalog, and histor
     event_location: 'Synthetic venue', status: 'Confirmed', agreed_total: '100.00',
   };
   const direct = await request('api/bookings.php?do=create', body);
+  const exactBoundary = await request('api/bookings.php?do=availability&service_id=2&event_start_datetime=9088-01-01%2012%3A45%3A00&event_end_datetime=9088-01-01%2013%3A45%3A00');
+  assert.equal(exactBoundary.available, true);
+  const oneMinuteOverlap = await request('api/bookings.php?do=availability&service_id=2&event_start_datetime=9088-01-01%2012%3A44%3A00&event_end_datetime=9088-01-01%2013%3A44%3A00');
+  assert.equal(oneMinuteOverlap.available, false);
+  assert.ok(oneMinuteOverlap.conflicts.bookings.some(row => Number(row.booking_id) === Number(direct.booking_id)));
   const conflict = await commit(operation('bookings', 'create', body));
   assert.equal(conflict.conflicts.length, 1, JSON.stringify(conflict));
   assert.equal(conflict.committed.length, 0);
@@ -54,6 +59,25 @@ test('offline sync honors revised shared booking, financial, catalog, and histor
   assert.ok(detail.service_name);
   assert.equal(detail.event_start_datetime, body.event_start_datetime);
   assert.equal(detail.event_end_datetime, body.event_end_datetime);
+  const pendingOverlap = await commit(operation('bookings', 'create', { ...body, status: 'Pending' }));
+  assert.equal(pendingOverlap.conflicts.length, 1, JSON.stringify(pendingOverlap));
+  assert.equal(pendingOverlap.committed.length, 0);
+  const staleTarget = await synced('bookings', 'create', { ...body, status: 'Pending', event_start_datetime: '9088-01-02 10:00:00', event_end_datetime: '9088-01-02 12:00:00' });
+  const staleBookingId = staleTarget.ack.server_id;
+  await synced('bookings', 'update', {
+    id: staleBookingId, status: 'Pending', event_start_datetime: '9088-01-01 10:00:00', event_end_datetime: '9088-01-01 12:00:00', event_location: 'Conflicting synthetic venue',
+  });
+  const staleBase = await request(`api/bookings.php?do=get&id=${staleBookingId}`);
+  await synced('bookings', 'update', {
+    id: staleBookingId, status: 'Pending', event_start_datetime: '9088-01-02 10:00:00', event_end_datetime: '9088-01-02 12:00:00', event_location: 'Moved synthetic venue',
+  });
+  const staleApproval = await commit(operation('bookings', 'update', {
+    id: staleBookingId, status: 'Confirmed', approve_conflicts: true, conflicting_booking_ids: [direct.booking_id], override_reason: 'Stale synthetic approval',
+    approval_base: Object.fromEntries(['service_id','event_start_datetime','event_end_datetime','blocked_start_datetime','blocked_end_datetime','status'].map(field => [field, staleBase[field]])),
+  }));
+  assert.equal(staleApproval.conflicts.length, 1, JSON.stringify(staleApproval));
+  assert.equal(staleApproval.conflicts[0].kind, 'stale');
+  assert.equal((await request(`api/bookings.php?do=get&id=${staleBookingId}`)).status, 'Pending');
   const approved = await synced('bookings', 'create', {
     ...body, approve_conflicts: true, conflicting_booking_ids: [direct.booking_id], override_reason: 'Owner-approved synthetic overlap',
   });

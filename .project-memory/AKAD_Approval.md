@@ -144,6 +144,10 @@ Keep down payments (rental payments) separate from refundable equipment/cleaning
 
 Documentation aligned (2026-09-28): With explicit user authorization, Documentation/AKAD_Requirements_Analysis_Documentation.md, section 1, now specifies negotiated down payment and deposit amounts under admin control, with no fixed amount or mandatory ₱1,000 minimum. This decision is reflected in the official requirements; no documentation discrepancy remains for these amounts. Current source inspection found no fixed ₱1,000 payment or deposit enforcement.
 
+## Completed-payment overage policy — APPROVED USER DECISION (2026-10-26)
+
+Completed rental payments that exceed the current remaining booking balance must be rejected. The owner records the exact remaining amount instead. The system does not create a customer-credit or refund-due balance unless that separate workflow is later approved.
+
 ## Frontend Status (Updated Oct 8, 2026 — verified against code)
 
 The proxy layer is complete: every `API.*` method in `js/api.js` routes through `request()` → PHP. Only `session()` (auth token) and `getSyncQueue()` touch localStorage. Authentication is real PHP (`js/admin.js` login → `api/auth.php`).

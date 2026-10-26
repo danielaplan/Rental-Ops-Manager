@@ -42,7 +42,8 @@ async function main() {
   const hash = spawnSync(php,['-r',"echo password_hash('OfflineTest!2026',PASSWORD_DEFAULT);"],{encoding:'utf8',windowsHide:true});
   if (hash.error || hash.status !== 0) throw hash.error || new Error(hash.stderr);
   sql(`USE \`${database}\`; UPDATE users SET contact_number='TEST-OWNER',password_hash='${hash.stdout.trim()}' WHERE user_id=1;
-    INSERT INTO rental_items(rental_item_id,service_id,name,quantity,required,tracking,status,\`condition\`) VALUES(1,1,'Test speaker',2,1,'quantity','Available','Good');`);
+    INSERT INTO rental_items(rental_item_id,service_id,name,quantity,required,tracking,status,\`condition\`) VALUES(1,1,'Test speaker',2,1,'quantity','Available','Good')
+    ON DUPLICATE KEY UPDATE service_id=VALUES(service_id),name=VALUES(name),quantity=VALUES(quantity),required=VALUES(required),tracking=VALUES(tracking),status=VALUES(status),\`condition\`=VALUES(\`condition\`);`);
   const env={...process.env,AKAD_DB_NAME:database,AKAD_ENV:'test',AKAD_TEST_DB_NAME:database};
   env.AKAD_TEST_BASE_URL=await server(env); env.AKAD_TEST_BASE_URL_2=await server(env);
   console.log(`Synthetic database: ${database}; servers: ${env.AKAD_TEST_BASE_URL}, ${env.AKAD_TEST_BASE_URL_2}`);

@@ -61,14 +61,29 @@ test('Pending alteration exposes every mutable booking term without changing non
 test('release and return queue only their atomic server operations', () => {
   const bookings = read('admin/bookings.html');
   const source = read('js/sync.js');
-  const release = source.match(/API\.recordRelease=.*?;\n/)?.[0] || '';
-  const returned = source.match(/API\.recordReturn=.*?;\n/)?.[0] || '';
+  const inventory = read('js/inventory.js');
+  const checklist = read('api/checklist_service.php');
+  const inspection = read('api/equipment_service.php');
+  const availability = read('api/availability_service.php');
+  const release = source.match(/API\.recordRelease=.*?;\r?\n/)?.[0] || '';
+  const returned = source.match(/API\.recordReturn=.*?;\r?\n/)?.[0] || '';
   assert.match(release, /enqueue\('itemReleases','create'/);
   assert.match(returned, /enqueue\('equipment','inspect'/);
   assert.doesNotMatch(release + returned, /logItemHistory|itemHistory','create/);
   assert.match(source, /updatePayment:\['payments','update'\]/);
-  assert.match(bookings, /\$\('#bookingDetailModal'\)\.onAdmin\('change', '\.js-release-check'/);
+  assert.match(bookings, /\$\('#bookingDetailModal'\)\.onAdmin\('change', '\.js-release-check, \.js-release-qty, \.js-release-condition'/);
   assert.doesNotMatch(bookings, /\$\('\.admin-main'\)\.onAdmin\('change', '\.js-release-check'/);
+  assert.match(inventory, /js-release-qty/);
+  assert.match(inventory, /js-release-condition/);
+  assert.match(bookings, /quantity_released: checked \? Number\(\$row\.find\('\.js-release-qty'\)\.val\(\)\) : 0/);
+  assert.match(bookings, /for \(const row of \$\('#releaseChecklistWrap \.checklist-row'\)\.toArray\(\)\)/);
+  assert.match(bookings, /await API\.updateBookingItem\(\$row\.data\('item'\), \{/);
+  assert.match(bookings, /A short return must be marked Missing and include item notes/);
+  assert.match(checklist, /array_key_exists\('condition_out',\$body\)/);
+  assert.match(inspection, /A short return must be marked Missing and include item notes/);
+  assert.match(availability, /condition_in<>'Missing'/);
+  assert.match(bookings, /approval_base: approvalBase/);
+  assert.match(bookings, /const allowedStatusOptions = b\.status === 'Pending' \? \['Pending','Confirmed'\] : \['Confirmed'\]/);
 });
 
 test('server booking boundaries keep pricing, text limits, release, history, and payment replay authoritative', () => {
@@ -83,7 +98,8 @@ test('server booking boundaries keep pricing, text limits, release, history, and
   assert.match(release, /Only confirmed bookings can release equipment/);
   assert.match(release, /duplicate_release/);
   assert.match(release, /incomplete_checklist/);
-  assert.match(release, /'action'=>'Released'/);
+  assert.match(release, /saveChecklistHistory\(\$pdo,\$item,\$bookingId,'Released'/);
   assert.match(inspection, /'action'=>'Returned'/);
   assert.match(sync, /\$entity==='payments' && in_array\(\$action,\['create','update'\],true\)/);
+  assert.match(sync, /_sync_conflict_check/);
 });

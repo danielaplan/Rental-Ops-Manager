@@ -1,7 +1,8 @@
 const fs = require("node:fs"),
   vm = require("node:vm"),
   assert = require("node:assert/strict"),
-  crypto = require("node:crypto");
+  crypto = require("node:crypto"),
+  { TextEncoder } = require("node:util");
 const BASE = process.env.AKAD_TEST_BASE_URL || "http://127.0.0.1:8017/",
   BASE2 = process.env.AKAD_TEST_BASE_URL_2 || "http://127.0.0.1:8018/";
 const RUN = crypto.randomUUID().slice(0, 8),
@@ -56,6 +57,7 @@ function device(
     timers = [];
   const ctx = vm.createContext({
     console,
+    TextEncoder,
     localStorage: storage,
     URL,
     crypto: crypto.webcrypto,
@@ -183,7 +185,7 @@ async function get(path, origin = BASE) {
       a,
       "API.createPayment({booking_id:" +
         JSON.stringify(localId) +
-        ",amount:200,method:'GCash',notes:'Negotiated down payment'});",
+        ",amount:200,method:'GCash',payment_date:'2026-10-20 12:00:00',notes:'Negotiated down payment'});",
     );
     const offlineChecklist = await evalIn(
       a,
@@ -311,7 +313,7 @@ async function get(path, origin = BASE) {
       c,
       "API.createPayment({booking_id:" +
         JSON.stringify(row.id) +
-        ',amount:125,method:"GCash"});',
+        ',amount:125,method:"GCash",payment_date:"2026-10-20 12:00:00"});',
     );
     c.navigator.onLine = true;
     let drop = true;
@@ -583,6 +585,16 @@ async function get(path, origin = BASE) {
     create(c, booking("Account-bound draft", "2099-05-06"));
     const d = device(token, 2, c.localStorage);
     assert.equal(q(d).length, 0);
+  });
+  await test("expired session rejects a new booking before any local write", async () => {
+    const c = device(token);
+    const bookingsBefore = evalIn(c, "STORAGE.getAll('bookings').length");
+    const customersBefore = evalIn(c, "STORAGE.getAll('customers').length");
+    evalIn(c, "STORAGE._set(STORAGE_KEYS.adminSession,{})");
+    await assert.rejects(() => create(c, booking("Expired session", "2099-05-06")), /Sign in before saving\./);
+    assert.equal(q(c).length, 0);
+    assert.equal(evalIn(c, "STORAGE.getAll('bookings').length"), bookingsBefore);
+    assert.equal(evalIn(c, "STORAGE.getAll('customers').length"), customersBefore);
   });
   await test("simultaneous karaoke confirmations serialize across two PHP processes", async () => {
     const customerResponse = await fetch(BASE + "api/customers.php?do=create", {

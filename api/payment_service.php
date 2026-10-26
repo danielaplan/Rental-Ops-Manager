@@ -26,10 +26,12 @@ function savePayment(PDO $pdo, string $action, ?int $id, array $body, array $own
     $date=$data['payment_date'] ?? date('Y-m-d H:i:s');
     $parsed=is_string($date) ? DateTimeImmutable::createFromFormat('!Y-m-d H:i:s',$date) : false;
     if (!$method || ($type!==null && !in_array($type,['Down payment','Balance'],true)) || !in_array($status,['Pending','Completed','Failed'],true) || !$parsed || $parsed->format('Y-m-d H:i:s')!==$date) domainFail('Valid payment method, type, status, and date are required.');
+    if ($parsed > new DateTimeImmutable('now')) domainFail('Payment date cannot be in the future.');
+    $q=$pdo->prepare("SELECT GREATEST(b.agreed_total-COALESCE(SUM(CASE WHEN p.payment_status='Completed' AND p.payment_id<>? THEN p.amount ELSE 0 END),0),0) FROM bookings b LEFT JOIN payments p ON p.booking_id=b.booking_id WHERE b.booking_id=? GROUP BY b.booking_id,b.agreed_total");
+    $q->execute([$id ?? 0,$bid]);
+    $remaining=moneyCents($q->fetchColumn());
+    if ($status==='Completed' && $cents>$remaining) domainFail('Completed payment exceeds the remaining booking balance.');
     if ($type===null) {
-        $q=$pdo->prepare("SELECT GREATEST(b.agreed_total-COALESCE(SUM(CASE WHEN p.payment_status='Completed' AND p.payment_id<>? THEN p.amount ELSE 0 END),0),0) FROM bookings b LEFT JOIN payments p ON p.booking_id=b.booking_id WHERE b.booking_id=? GROUP BY b.booking_id,b.agreed_total");
-        $q->execute([$id ?? 0,$bid]);
-        $remaining=moneyCents($q->fetchColumn());
         $type=$cents<$remaining?'Down payment':'Balance';
     }
     $reference=$data['payment_reference'] ?? null;

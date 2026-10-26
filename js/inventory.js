@@ -16,11 +16,16 @@ const InventoryHelper = {
 
     items.forEach(it => {
       if (mode === 'release') {
+        const controlId='release-'+String(it.booking_item_id).replace(/[^a-zA-Z0-9_-]/g,'');
+        const released=it.checked_released ? Number(it.released_qty ?? it.expected_qty) : 0;
+        const condition=it.condition_out || 'Good';
         $wrap.append(`
           <div class="checklist-row ${it.checked_released ? 'checked' : ''}" data-item="${it.booking_item_id}">
-            <input type="checkbox" class="form-check-input js-release-check" ${it.checked_released ? 'checked' : ''}>
+            <input id="${controlId}-check" type="checkbox" class="form-check-input js-release-check" ${it.checked_released ? 'checked' : ''}>
             <span class="item-name">${escapeHtmlA(it.name)} ${it.required ? '<span class="text-danger">*</span>' : ''}</span>
-            <span class="text-muted">× ${it.expected_qty}</span>
+            <span class="text-muted small">Expected: ${it.expected_qty}</span>
+            <div><label class="small" for="${controlId}-qty">Outgoing quantity</label><input id="${controlId}-qty" type="number" min="0" max="${it.expected_qty}" step="1" required class="form-control form-control-sm js-release-qty" value="${released}" ${it.checked_released ? '' : 'disabled'}></div>
+            <div><label class="small" for="${controlId}-condition">Outgoing condition</label><select id="${controlId}-condition" class="form-select form-select-sm js-release-condition" ${it.checked_released ? '' : 'disabled'}>${CONFIG.itemConditions.map(c => `<option ${c === condition ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
           </div>`);
       } else if (mode === 'return') {
         const saved=it.inspected || !!it.condition;
@@ -54,10 +59,15 @@ const InventoryHelper = {
   updateReleaseProgress(containerSelector) {
     const $rows = $(containerSelector).find('.checklist-row');
     const total = $rows.length;
-    const checked = $rows.filter((i, el) => $(el).find('.js-release-check').is(':checked')).length;
-    $('.js-release-progress').text(`${checked} / ${total} Items Checked`);
-    $('.js-release-ready').toggle(checked === total && total > 0);
-    $('.js-confirm-release-btn').prop('disabled', !(checked === total && total > 0));
+    const ready = $rows.filter((i, el) => {
+      const $row=$(el), expected=Number($row.find('.js-release-qty').attr('max'));
+      return $row.find('.js-release-check').is(':checked') &&
+        Number($row.find('.js-release-qty').val())===expected &&
+        Boolean($row.find('.js-release-condition').val());
+    }).length;
+    $('.js-release-progress').text(`${ready} / ${total} Items Ready`);
+    $('.js-release-ready').toggle(ready === total && total > 0);
+    $('.js-confirm-release-btn').prop('disabled', !(ready === total && total > 0));
   },
 
   collectReturnResults(containerSelector) {
