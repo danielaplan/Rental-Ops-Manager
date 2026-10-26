@@ -8,7 +8,7 @@ Assistant instructions: [Codex](AGENTS.md) · [Claude Code](CLAUDE.md) · [GitHu
 
 ## 1. Project Overview
 
-Rental-Ops-Manager is the owner-facing operations system for AKAD Sweet Party Rentals. It manages catalog data, customers, bookings and availability, money, equipment release/return, delivery, reporting, audit history, website content, and offline replay. The application has a PHP 8.2+/PDO MySQL backend, HTML/CSS/vanilla JavaScript frontends, browser storage/service-worker support, an initial native Android Java/XML project, and Node/Python/Gradle verification tools.
+Rental-Ops-Manager is the owner-facing operations system for AKAD Sweet Party Rentals. It manages catalog data, customers, bookings and availability, money, equipment release/return, delivery, reporting, audit history, website content, and offline replay. The application has a PHP 8.2+/PDO MySQL backend, HTML/CSS/vanilla JavaScript frontends, browser storage/service-worker support, a native Android Java/XML UI application, and Node/Python/Gradle verification tools.
 
 All repository accounts, fixtures, and records are synthetic development data. Local evidence is not production, physical-device, or client acceptance.
 
@@ -26,7 +26,7 @@ All repository accounts, fixtures, and records are synthetic development data. L
 | Backend API reference | [API Reference](<Understand the System/System Understanding/Backend/API Reference.md>) · [`api/`](api/) |
 | Database overview | [Database Overview](<Understand the System/System Understanding/Database/Database Overview.md>) · [`db/schema.sql`](db/schema.sql) |
 | Frontend overview | [Frontend Overview](<Understand the System/System Understanding/Frontend/Overview.md>) · [File Inventory](<Understand the System/System Understanding/Frontend/File Inventory.md>) |
-| Android application | [`android/`](android/) · [Team Workflow](android/TEAM_WORKFLOW.md) · [`MainActivity.java`](android/app/src/main/java/com/akad/rentalops/MainActivity.java) · [`activity_main.xml`](android/app/src/main/res/layout/activity_main.xml) |
+| Android application | [`android/`](android/) · [Android README](android/README.md) · [Team Workflow](android/TEAM_WORKFLOW.md) · [`LoginActivity.java`](android/app/src/main/java/com/akad/rentalops/ui/LoginActivity.java) · [`MainActivity.java`](android/app/src/main/java/com/akad/rentalops/ui/MainActivity.java) |
 | Tests and verification | [`README.md`](README.md#run-tests) · [Consolidated Verification](Implementation/Backend-Consolidated-Verification-2026-10-15.md) · [`tests/`](tests/) |
 | Manual booking browser QA | [Common Instructions and Tester Files](QA-Reports/README.md) · [Simultaneous Setup](QA-Reports/Simultaneous-Testing-Setup.md) · [Consolidated Report](QA-Reports/Consolidated-Report.md) |
 
@@ -93,7 +93,7 @@ Prerequisites and local setup are in [`README.md`](README.md). Start MySQL befor
 | --- | --- | --- |
 | Isolated current acceptance | `node tests/run_backend_acceptance.cjs` | Creates its own synthetic database and owned PHP servers; excludes migration and deferred blockout execution. |
 | Frontend-only regression | `node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs tests/booking-flow-frontend-regressions.test.cjs` | Harness/contract evidence, not physical-browser acceptance. |
-| Android starter unit tests | `cd android`, then `.\gradlew.bat test` | Compiles the generated Java/XML starter and runs local unit tests; it does not verify an emulator, physical device, or PHP API integration. |
+| Android local build | `cd android`, then `.\gradlew.bat :app:assembleDebug` | Builds the Java/XML Android UI. It does not verify an emulator, physical device, or PHP API integration. |
 | Syntax | `python tests/check_syntax.py` | Checks PHP, JavaScript, service worker, test scripts, and admin inline scripts. |
 | Historical migration regression | `node tests/migration-plan-gaps.test.cjs` | Synthetic and guarded; not part of normal setup or production authorization. |
 | Whitespace | `git diff --check` | Run after edits. |

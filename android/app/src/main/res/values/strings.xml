@@ -1,3 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Rental Ops Manager</string>
+    <string name="app_name">AKAD Rental Ops</string>
+    <string name="business_name">AKAD Sweet Party Rentals</string>
+    <string name="admin_panel">Admin Panel</string>
+    <string name="sign_in_subtitle">Sign in to manage your rental business</string>
+    <string name="server_url">Server URL</string>
+    <string name="contact_number">Contact number</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log In</string>
+    <string name="first_sign_in_note">First sign-in requires an internet connection.</string>
+    <string name="open_drawer">Open navigation</string>
+    <string name="close_drawer">Close navigation</string>
+    <string name="search">Search</string>
+    <string name="nothing_here">Nothing to show yet.</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
 </resources>

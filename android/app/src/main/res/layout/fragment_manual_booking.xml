@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:padding="12dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="1. Customer Details"/>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Existing customer (optional)"/>
+<Spinner android:id="@+id/mCustomerId" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Full Name">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mCustName" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Contact Number">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mCustContact" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="phone" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Email (optional)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mCustEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textEmailAddress" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Customer Type"/>
+<Spinner android:id="@+id/mCustType" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Booking Source"/>
+<Spinner android:id="@+id/mSource" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="2. Event Details"/>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+<com.google.android.material.button.MaterialButton android:id="@+id/mDate" style="@style/OutlineButton" android:layout_width="0dp" android:layout_weight="1.4" android:layout_height="wrap_content" android:text="Event date" android:textSize="12sp"/>
+<com.google.android.material.button.MaterialButton android:id="@+id/mStart" style="@style/OutlineButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="Start" android:textSize="12sp"/>
+<com.google.android.material.button.MaterialButton android:id="@+id/mEnd" style="@style/OutlineButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="End" android:textSize="12sp"/>
+</LinearLayout>
+<TextView android:id="@+id/mAvailabilityStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/muted" android:layout_marginTop="6dp" android:layout_marginBottom="6dp"/>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Event Type"/>
+<Spinner android:id="@+id/mEventType" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Number of Guests">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mGuests" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Event Location">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mLocation" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Special Requests">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mSpecialRequests" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" android:gravity="top"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Theme / setup notes">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mThemeNotes" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" android:gravity="top"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Preparation allowance (minutes)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mPreparation" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Travel allowance (minutes)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mTravel" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="3. Select Service and Package"/>
+<RadioGroup android:id="@+id/mServiceChecklist" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Package (optional)"/>
+<Spinner android:id="@+id/mPackage" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<LinearLayout android:id="@+id/mAddonSection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="4. Optional Add-ons"/>
+<LinearLayout android:id="@+id/mAddonChecklist" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/>
+</LinearLayout>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="5. Pricing &amp; Payment"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Discount (₱)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mDiscount" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Additional Fees (₱)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mFees" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Agreed down payment paid now (₱)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mAmountPaid" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Agreed rental total (₱)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/mAgreedTotal" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Payment Method"/>
+<Spinner android:id="@+id/mPayMethod" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Subtotal" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/mSumSubtotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Add-ons" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/mSumAddons" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Discount" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/mSumDiscount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Fees" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/mSumFees" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Total" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/mSumTotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+</LinearLayout>
+<TextView android:id="@+id/manualSaveError" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/badge_danger" android:layout_marginTop="8dp" android:visibility="gone"/>
+<com.google.android.material.button.MaterialButton android:id="@+id/mSubmitBtn" style="@style/PrimaryButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Create Booking" android:layout_marginBottom="32dp"/>
+</LinearLayout>
+</ScrollView>

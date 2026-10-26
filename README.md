@@ -93,7 +93,7 @@ That's it!
 
 ## 📱 Android App
 
-The native Android project is under [`android/`](android/). It uses Java activities and XML layouts and is developed separately from the existing browser frontend while remaining in this repository.
+The native Android project is under [`android/`](android/). It uses Java activities, fragments, and XML layouts, and is developed separately from the existing browser frontend while remaining in this repository. See the [Android project README](android/README.md) for its screens and current integration boundary.
 
 Four-developer branch assignments and pull-request rules are documented in the [Android Team Workflow](android/TEAM_WORKFLOW.md).
 
@@ -131,7 +131,7 @@ cd android
 .\gradlew.bat test
 ```
 
-The generated starter app is not connected to the PHP API yet. When local API integration is added, the Android Emulator must use `http://10.0.2.2:8000/api/` to reach the PHP server running at `127.0.0.1:8000` on the development computer. Never connect the Android app directly to MySQL or commit `android/local.properties`, build output, credentials, or signing keys.
+The imported Android UI currently uses in-memory sample data and is not connected to the PHP API. When local API integration is added, the Android Emulator must use `http://10.0.2.2:8000/api/` to reach the PHP server running at `127.0.0.1:8000` on the development computer. Never connect the Android app directly to MySQL or commit `android/local.properties`, build output, credentials, or signing keys.
 
 ---
 

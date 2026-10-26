@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:orientation="horizontal" android:padding="12dp" android:gravity="center_vertical">
+<TextView android:id="@+id/dBookingRef" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:textColor="@color/primary_dark" android:textSize="18sp" android:textStyle="bold"/>
+<TextView android:id="@+id/dStatusBadge" style="@style/Badge" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:id="@+id/dPaymentBadge" style="@style/Badge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp"/>
+</LinearLayout>
+<com.google.android.material.tabs.TabLayout android:id="@+id/detailTabs" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" app:tabMode="scrollable" app:tabIndicatorColor="@color/accent" app:tabSelectedTextColor="@color/primary_dark" app:tabTextColor="@color/muted">
+<com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Details"/>
+<com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Checklist &amp; Release"/>
+<com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Return Inspection"/>
+<com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Payments"/>
+</com.google.android.material.tabs.TabLayout>
+<ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="12dp" android:clipToPadding="false">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="32dp">
+<LinearLayout android:id="@+id/tabDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="visible">
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Customer"/>
+<TextView android:id="@+id/dCustName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="15sp" android:textColor="@color/text" android:textStyle="bold"/>
+<TextView android:id="@+id/dCustContact" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/muted"/>
+<TextView android:id="@+id/dCustEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/muted"/>
+<TextView android:id="@+id/dCustType" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="@color/muted"/>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Event"/>
+<TextView android:id="@+id/dEventType" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/text"/>
+<TextView android:id="@+id/dEventDateTime" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/text"/>
+<TextView android:id="@+id/dEventLocation" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/text"/>
+<TextView android:id="@+id/dEventGuests" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/muted"/>
+<TextView android:id="@+id/dSpecialRequests" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/muted"/>
+<com.google.android.material.button.MaterialButton android:id="@+id/cancelBookingBtn" style="@style/OutlineButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Cancel booking"/>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Services &amp; Add-ons"/>
+<TextView android:id="@+id/dServicesList" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/text"/>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Amounts"/>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Subtotal" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/dSubtotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Add-ons" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/dAddonsTotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Discount" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/dDiscount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Fees" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/dFees" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Total" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/dTotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Paid" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/dPaid" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="3dp" android:paddingBottom="3dp">
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Balance" android:textColor="@color/muted" android:textSize="14sp"/>
+<TextView android:id="@+id/dBalance" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="14sp" android:textStyle="bold"/>
+</LinearLayout>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Quick Status Update"/>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Booking Status"/>
+<Spinner android:id="@+id/dStatusSelect" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<TextView android:id="@+id/dSaveConflictMsg" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/badge_danger" android:visibility="gone"/>
+<LinearLayout android:id="@+id/dConflictApproval" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Reason for approving this overlap">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/dConflictReason" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" android:gravity="top"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.button.MaterialButton android:id="@+id/dApproveConflictBtn" style="@style/AccentButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Approve listed overlaps and confirm"/>
+</LinearLayout>
+<com.google.android.material.button.MaterialButton android:id="@+id/dSaveBookingBtn" style="@style/PrimaryButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Save Status Changes"/>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Negotiated refundable deposit"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Amount held (₱)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/depositHeld" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<TextView android:id="@+id/depositInfo" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/muted"/>
+<TextView android:id="@+id/depositDeductions" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/text"/>
+<com.google.android.material.button.MaterialButton android:id="@+id/saveDepositBtn" style="@style/OutlineButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Save held deposit"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Affected item">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/deductionItem" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Deduction amount (₱)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/deductionAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Deduction reason">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/deductionReasonNew" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.button.MaterialButton android:id="@+id/addDeductionBtn" style="@style/OutlineButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Add deduction"/>
+<com.google.android.material.button.MaterialButton android:id="@+id/refundDepositBtn" style="@style/OutlineButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Record refund"/>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Delivery arrangement"/>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Delivery method"/>
+<Spinner android:id="@+id/deliveryMethod" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Delivery fee (₱)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/deliveryFee" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Fee arrangement"/>
+<Spinner android:id="@+id/deliveryResponsibility" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Delivery notes">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/deliveryNotes" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" android:gravity="top"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.button.MaterialButton android:id="@+id/saveDeliveryBtn" style="@style/OutlineButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Save delivery arrangement"/>
+</LinearLayout>
+</LinearLayout>
+<LinearLayout android:id="@+id/tabChecklist" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Checklist &amp; Release"/>
+<TextView android:id="@+id/releaseHelp" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/muted" android:text="Auto-generated from this booking’s selected services. Check each item before release."/>
+<LinearLayout android:id="@+id/releaseChecklistWrap" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="8dp"/>
+<TextView android:id="@+id/releaseProgress" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/primary" android:textStyle="bold" android:layout_marginTop="8dp"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Released by">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/releasedByInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Release notes">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/releaseNotesInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.button.MaterialButton android:id="@+id/confirmReleaseBtn" style="@style/AccentButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Confirm Items Released"/>
+</LinearLayout>
+</LinearLayout>
+<LinearLayout android:id="@+id/tabReturn" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Return Inspection"/>
+<TextView android:id="@+id/returnHelp" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/muted" android:text="Inspect returned items and record their condition."/>
+<LinearLayout android:id="@+id/returnChecklistWrap" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="8dp"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Inspected by">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/inspectedByInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Return notes">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/returnNotesInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<TextView android:id="@+id/returnSummary" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/primary" android:textStyle="bold"/>
+<com.google.android.material.button.MaterialButton android:id="@+id/completeReturnBtn" style="@style/PrimaryButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Save Return Inspection"/>
+</LinearLayout>
+</LinearLayout>
+<LinearLayout android:id="@+id/tabPayments" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Record Payment"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Payment amount (₱)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/payAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Method"/>
+<Spinner android:id="@+id/payMethod" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Payment type"/>
+<Spinner android:id="@+id/payPurpose" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<TextView style="@style/SectionLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Status"/>
+<Spinner android:id="@+id/payStatus" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="10dp"/>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Reference (optional)">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/payReference" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.textfield.TextInputLayout style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:hint="Additional notes">
+<com.google.android.material.textfield.TextInputEditText android:id="@+id/payNotes" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:singleLine="true"/>
+</com.google.android.material.textfield.TextInputLayout>
+<com.google.android.material.button.MaterialButton android:id="@+id/recordPaymentBtn" style="@style/PrimaryButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Record Payment"/>
+</LinearLayout>
+<LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+<TextView style="@style/PanelTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Payment History"/>
+<LinearLayout android:id="@+id/paymentHistoryWrap" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/>
+</LinearLayout>
+</LinearLayout>
+</LinearLayout>
+</ScrollView>
+<ProgressBar android:id="@+id/detailProgress" style="?android:attr/progressBarStyleHorizontal" android:indeterminate="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"/>
+</LinearLayout>

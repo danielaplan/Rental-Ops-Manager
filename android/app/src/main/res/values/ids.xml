@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same element ids as the website (admin/*.html) for inputs that are built from code. -->
+<resources>
+    <item name="sBusinessName" type="id" />
+    <item name="sLogo" type="id" />
+    <item name="sPhone" type="id" />
+    <item name="sEmail" type="id" />
+    <item name="sAddress" type="id" />
+    <item name="sFacebook" type="id" />
+    <item name="sInstagram" type="id" />
+    <item name="sNoticeDays" type="id" />
+    <item name="sHoursOpen" type="id" />
+    <item name="sHoursClose" type="id" />
+    <item name="sCancelPolicy" type="id" />
+    <item name="sPrimaryColor" type="id" />
+    <item name="sAccentColor" type="id" />
+    <item name="cBusinessName" type="id" />
+    <item name="cLogo" type="id" />
+    <item name="cHeroTitle" type="id" />
+    <item name="cHeroDesc" type="id" />
+    <item name="cHeroImage" type="id" />
+    <item name="cHeroBtn" type="id" />
+    <item name="cAboutTitle" type="id" />
+    <item name="cAboutDesc" type="id" />
+    <item name="cPhone" type="id" />
+    <item name="cEmail" type="id" />
+    <item name="cAddress" type="id" />
+    <item name="cFacebook" type="id" />
+    <item name="cInstagram" type="id" />
+    <item name="filterStatus" type="id" />
+    <item name="filterSearch" type="id" />
+    <item name="custSearch" type="id" />
+    <item name="invSearch" type="id" />
+</resources>

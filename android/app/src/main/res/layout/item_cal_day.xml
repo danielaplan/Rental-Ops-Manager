@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="0dp" android:layout_height="52dp" android:layout_columnWeight="1" android:layout_margin="1.5dp" android:background="@drawable/bg_cal_day" android:gravity="center" android:orientation="vertical">
+<TextView android:id="@+id/calDayNum" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/text" android:textSize="13sp"/>
+<TextView android:id="@+id/calDayCount" style="@style/Badge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textSize="10sp" android:visibility="invisible"/>
+</LinearLayout>
