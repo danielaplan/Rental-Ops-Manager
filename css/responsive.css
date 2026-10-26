@@ -11,7 +11,7 @@
   .hero-copy .kicker, .hero-desc { margin-inline: auto; }
   .hero-copy .kicker, .hero-desc { margin-left: 0; }
   .hero-overlay { background: linear-gradient(90deg, rgba(16,14,12,.72), rgba(16,14,12,.44) 72%, rgba(16,14,12,.14)); }
-  .featured-image img { min-height: 390px; }
+  .featured-image img { height: clamp(280px, 48svh, 400px); min-height: 0; }
   .featured-copy { padding-block: 58px; }
   .step-item::after { display: none; }
   .contact-panel { grid-template-columns: minmax(0, 1fr) minmax(260px, .8fr); margin-top: 20px; }
@@ -50,6 +50,7 @@
   .hero-overlay { background: linear-gradient(90deg, rgba(16,14,12,.70), rgba(16,14,12,.42)), linear-gradient(0deg, rgba(12,10,8,.26), transparent); }
   .hero-proof { margin-top: 30px; }
   .service-card-body { min-height: 205px; }
-  .featured-image img { min-height: 330px; }
+  .featured-image { padding: 24px 18px 0; }
+  .featured-image img { height: clamp(240px, 44svh, 330px); min-height: 0; }
   .featured-copy { padding: 46px 26px; }
 }

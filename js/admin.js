@@ -532,3 +532,47 @@ function clearFieldError(selector) {
 function statusSelect(currentStatus, options, cssClass) {
   return `<select class="form-select form-select-sm ${cssClass || ''}">${options.map(o => `<option ${o === currentStatus ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
 }
+
+// Upload through the existing authenticated endpoint, then save the URL normally.
+function attachAdminImageUpload(id) {
+  const input = document.getElementById(id);
+  const wrap = document.createElement('div');
+  wrap.className = 'mt-2';
+  wrap.innerHTML = `<label class="form-label small" for="${id}File">Upload image from your device</label><input type="file" class="form-control" id="${id}File" accept="image/jpeg,image/png,image/gif,image/webp"><div class="form-text" role="status">JPG, PNG, GIF, or WebP; maximum 5 MB. Upload online, then save the form.</div><img alt="Image preview" hidden style="max-width:100%;max-height:140px;object-fit:contain;margin-top:8px">`;
+  input.after(wrap);
+  const file = wrap.querySelector('input'), status = wrap.querySelector('div'), preview = wrap.querySelector('img');
+  const refresh = () => {
+    try {
+      const url = new URL(input.value, new URL('../', window.location.href));
+      preview.hidden = !input.value.trim() || !['http:', 'https:'].includes(url.protocol);
+      if (!preview.hidden) preview.src = url.href;
+      else preview.removeAttribute('src');
+    } catch { preview.hidden = true; }
+  };
+  input.addEventListener('input', refresh);
+  input.form.addEventListener('reset', () => { file.value = ''; setTimeout(refresh, 0); });
+  file.addEventListener('change', async () => {
+    const selected = file.files[0];
+    if (!selected) return;
+    if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(selected.type) || selected.size < 1 || selected.size > 5 * 1024 * 1024) {
+      status.textContent = 'Choose a JPG, PNG, GIF, or WebP image no larger than 5 MB.';
+      file.value = '';
+      return;
+    }
+    const controls = Array.from(input.form.querySelectorAll('input, button, select, textarea'));
+    const disabled = controls.map(control => control.disabled);
+    controls.forEach(control => { control.disabled = true; });
+    status.textContent = 'Uploading image…';
+    try {
+      input.value = await API.uploadGalleryImage(selected);
+      refresh();
+      status.textContent = 'Image uploaded. Save the form to publish it.';
+    } catch (error) { status.textContent = error.message; }
+    finally {
+      controls.forEach((control, index) => { control.disabled = disabled[index]; });
+      file.value = '';
+    }
+  });
+  refresh();
+  return refresh;
+}

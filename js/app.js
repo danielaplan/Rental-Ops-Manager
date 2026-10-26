@@ -150,6 +150,17 @@ async function renderSiteChrome() {
     ? CONFIG.businessNameFallback
     : savedName;
   $('.js-business-name').text(name);
+  const logo = safeWebUrl(content.logo || publicSettingsCache().logo);
+  document.querySelectorAll?.('.brand-mark').forEach(mark => {
+    mark.textContent = '';
+    if (logo) {
+      const image = document.createElement('img');
+      image.src = logo;
+      image.alt = '';
+      image.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:inherit';
+      mark.append(image);
+    } else { mark.textContent = 'A'; }
+  });
   document.title = name + " | Event Rentals & Styling";
 }
 
@@ -158,7 +169,7 @@ async function renderHero() {
   const configuredImage = safeWebUrl(content.hero_image);
   const usesLegacySeed = /images\.unsplash\.com\/photo-1530103862676/.test(configuredImage);
   $('#heroTitle').text('Turn your celebration into a moment everyone remembers.');
-  $('#heroDesc').text('We bring the music, the sweets, and the picture-perfect details—so you can be fully present for every smile.');
+  $('#heroDesc').text('We bring the music, the sweets, and the picture-perfect detailsâ€”so you can be fully present for every smile.');
   $('#heroImage').attr('src', configuredImage && !usesLegacySeed ? configuredImage : 'images/defaults/hero-bg.jpg');
 }
 
@@ -184,7 +195,7 @@ async function renderServices() {
 
   services.forEach(s => {
     const displayName = publicServiceName(s.name);
-    const configuredImage = safeWebUrl(s.image)
+    const configuredImage = safeWebUrl(publicContentCache().service_images?.[s.service_id]) || safeWebUrl(s.image)
       || safeWebUrl((cachedServices.find(item => String(item.service_id) === String(s.service_id)) || {}).image);
     const serviceImage = (!/images\.unsplash\.com/.test(configuredImage) && configuredImage)
       || publicGalleryVisual(serviceGalleryKeywords(s.name))
@@ -260,7 +271,7 @@ async function openServiceDetails(serviceId) {
   const displayName = publicServiceName(s.name || cachedService?.name || 'Service');
   $('#serviceModalLabel').text(displayName);
   $('#serviceModalBody').html(`
-    <img src="${escapeHtml(safeWebUrl(s.image || cachedService?.image))}" alt="${escapeHtml(displayName)}" class="w-100 mb-3" style="border-radius:8px;aspect-ratio:16/9;object-fit:cover;">
+    <img src="${escapeHtml(safeWebUrl(publicContentCache().service_images?.[s.service_id] || s.image || cachedService?.image))}" alt="${escapeHtml(displayName)}" class="w-100 mb-3" style="border-radius:8px;aspect-ratio:16/9;object-fit:cover;">
     <p class="mb-0 text-muted">Contact our staff to confirm current package options, inclusions, and pricing for this service.</p>
   `);
   new bootstrap.Modal('#serviceModal').show();
@@ -285,7 +296,7 @@ async function renderGallery() {
   galleryCarouselLastFrame = 0;
   startGalleryCarousel();
   $('#featuredSetupImage').attr('src', publicGalleryVisual(['sweet', 'dessert'], 'images/defaults/featured-sweet-corner.jpg'));
-  $('#contactFeatureImage').attr('src', publicGalleryVisual(['balloon', 'celebration'], 'images/defaults/contact-celebration.jpg'));
+  $('#contactFeatureImage').attr('src', safeWebUrl(publicContentCache().contact_image) || publicGalleryVisual(['balloon', 'celebration'], 'images/defaults/contact-celebration.jpg'));
 }
 
 let galleryCarouselFrame = null;
@@ -338,6 +349,12 @@ async function renderContact() {
   $('#contactAddress').text(address).closest('.contact-info-item').toggle(!!address);
   const facebook = safeWebUrl(c.contact_facebook === 'https://facebook.com/fiestaandco' ? '' : c.contact_facebook);
   const instagram = safeWebUrl(c.contact_instagram === 'https://instagram.com/fiestaandco' ? '' : c.contact_instagram);
+  const bookingLink = document.getElementById('howFacebookLink');
+  if (bookingLink) {
+    bookingLink.hidden = !facebook;
+    if (facebook) bookingLink.setAttribute('href', facebook);
+    else bookingLink.removeAttribute('href');
+  }
   $('.js-fb-link').attr('href', facebook || '#').toggle(!!facebook);
   $('.js-ig-link').attr('href', instagram || '#').toggle(!!instagram);
   $('.js-fb-link').parent().toggle(!!(facebook || instagram));

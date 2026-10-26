@@ -54,6 +54,11 @@
             <label class="form-label" for="svcDescription">Description</label>
             <textarea class="form-control" id="svcDescription" rows="2" required></textarea>
           </div>
+          <div class="col-12">
+            <label class="form-label" for="svcImage">Public service image URL (optional)</label>
+            <input type="text" class="form-control" id="svcImage">
+            <div class="form-text">For a new service, save and sync it first, then edit it to add its public image.</div>
+          </div>
           <div class="col-md-6">
             <label class="form-label" for="svcPreparation">Default preparation (minutes)</label>
             <input type="number" min="0" step="1" class="form-control" id="svcPreparation" value="0" required>
@@ -94,6 +99,7 @@ adminReady(async function () {
   await API.ready;
   await initAdminChrome('services.html', 'Services');
   await renderServicesTable();
+  const refreshImage = attachAdminImageUpload('svcImage');
 
   $('#addServiceBtn').onAdmin('click', function () {
     $('#serviceForm')[0].reset();
@@ -110,6 +116,9 @@ adminReady(async function () {
     const s = (await API.getServices()).find(item => item.service_id === target.data('id'));
     if (!s) return;
     $('#svcId').val(s.service_id);
+    const content = await API.getWebsiteContent();
+    $('#svcImage').val(content.service_images?.[s.service_id] || '');
+    refreshImage();
     $('#svcName').val(s.name);
     $('#svcDescription').val(s.description);
     $('#svcStatus').val(s.status);
@@ -156,8 +165,19 @@ adminReady(async function () {
     };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
-      if (id) await API.updateService(id, data);
-      else await API.createService(data);
+      if ($('#svcImage').val().trim() && (!id || String(id).startsWith('LOCAL-'))) {
+        throw new Error('Save the service and finish syncing it first, then edit it to add an image.');
+      }
+      const image = $('#svcImage').val().trim();
+      const content = await API.getWebsiteContent();
+      const changedImage = image !== (content.service_images?.[id] || '');
+      const saved = id ? await API.updateService(id, data) : await API.createService(data);
+      // Keep the created ID if the separate image save fails, allowing a safe retry.
+      $('#svcId').val(saved.service_id);
+      if (changedImage) {
+        const latest = await API.getWebsiteContent();
+        await API.updateWebsiteContent({ ...latest, service_images: { ...latest.service_images, [saved.service_id]: image } });
+      }
       bootstrap.Modal.getInstance(document.getElementById('serviceFormModal')).hide();
       await renderServicesTable();
       showAdminToast(API.savedMessage());

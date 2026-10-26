@@ -78,6 +78,11 @@
     <div class="panel">
       <div class="panel-title">Contact Section</div>
       <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label" for="cContactImage">Contact Section Image — URL or upload</label>
+          <input type="text" class="form-control" id="cContactImage" inputmode="url" aria-describedby="cContactImageHelp" placeholder="https://... or /uploads/gallery/image.jpg">
+          <div class="form-text" id="cContactImageHelp">Choose the image beside the contact details on the public website. Upload below, then save. Leave the URL blank to use a matching Gallery image or the default.</div>
+        </div>
         <div class="col-md-6">
           <label class="form-label" for="cPhone">Phone</label>
           <input type="text" class="form-control" id="cPhone">
@@ -91,8 +96,9 @@
           <input type="text" class="form-control" id="cAddress">
         </div>
         <div class="col-md-6">
-          <label class="form-label" for="cFacebook">Facebook URL</label>
-          <input type="text" class="form-control" id="cFacebook">
+          <label class="form-label" for="cFacebook">Facebook booking / Messenger link</label>
+          <input type="text" class="form-control" id="cFacebook" inputmode="url" aria-describedby="cFacebookHelp" placeholder="https://m.me/yourpage">
+          <div class="form-text" id="cFacebookHelp">Paste your Facebook page or Messenger link. This controls the How It Works message button and Facebook links on the public website. Leave blank to hide them.</div>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="cInstagram">Instagram URL</label>
@@ -121,12 +127,18 @@ adminReady(async function () {
   await API.refreshWebsiteContent();
   await renderAdminSidebar('content.html');
   await loadContent();
+  attachAdminImageUpload('cLogo');
+  attachAdminImageUpload('cHeroImage');
+  attachAdminImageUpload('cContactImage');
+
 
   $('#contentForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
+      const existing = await API.getWebsiteContent();
       await API.updateWebsiteContent({
+        ...existing,
         business_name: $('#cBusinessName').val().trim(),
         logo: $('#cLogo').val().trim(),
         hero_title: $('#cHeroTitle').val().trim(),
@@ -135,6 +147,7 @@ adminReady(async function () {
         hero_button_text: $('#cHeroBtn').val().trim(),
         about_title: $('#cAboutTitle').val().trim(),
         about_description: $('#cAboutDesc').val().trim(),
+        contact_image: $('#cContactImage').val().trim(),
         contact_phone: $('#cPhone').val().trim(),
         contact_email: $('#cEmail').val().trim(),
         contact_address: $('#cAddress').val().trim(),
@@ -161,6 +174,7 @@ async function loadContent() {
   $('#cHeroBtn').val(c.hero_button_text);
   $('#cAboutTitle').val(c.about_title);
   $('#cAboutDesc').val(c.about_description);
+  $('#cContactImage').val(c.contact_image || '');
   $('#cPhone').val(c.contact_phone);
   $('#cEmail').val(c.contact_email);
   $('#cAddress').val(c.contact_address);
