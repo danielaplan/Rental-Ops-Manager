@@ -95,7 +95,7 @@ That's it!
 
 The native Android project is under [`android/`](android/). It uses Java activities and XML layouts and is developed separately from the existing browser frontend while remaining in this repository.
 
-Four-developer branch assignments and pull-request rules are documented in the [Android Team Workflow](android/TEAM_WORKFLOW.md).
+Four-developer assignments and pull-request rules are documented in the [Android Team Workflow](android/TEAM_WORKFLOW.md). The shared `android/frontend` and `android/backend` branches both start directly from the same `android/initial-project` commit.
 
 ### Switch to the existing Android branch
 

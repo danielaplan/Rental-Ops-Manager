@@ -1,6 +1,6 @@
 # Android Team Workflow
 
-This workflow lets four developers work on the Android application without changing `main` directly or committing to the same working branch.
+Four developers work through two shared Android branches. Two developers share the frontend branch, and two developers share the backend branch. Neither team commits directly to `android/initial-project` or `main`.
 
 ## Branch structure
 
@@ -8,27 +8,40 @@ This workflow lets four developers work on the Android application without chang
 main
 └── android/initial-project
     ├── android/frontend
-    │   ├── android/frontend-login-dashboard
-    │   └── android/frontend-bookings-customers
-    └── android/integration
-        ├── android/integration-auth
-        └── android/integration-bookings
+    └── android/backend
 ```
 
-`android/initial-project` is the Android coordination branch. Developer pull requests must target their assigned team branch, not `main`.
+- `android/initial-project` is owned by the coordinator and combines reviewed Android work.
+- `android/frontend` contains Android XML layouts, styles, navigation, and screen behavior.
+- `android/backend` contains Android-to-PHP networking, authentication, models, repositories, and API error handling.
+
+**Branch base rule:** Both `android/frontend` and `android/backend` must be created directly from the same commit on `android/initial-project`. Neither branch starts from `main`, and neither branch starts from the other team branch.
 
 ## Developer assignments
 
-| Developer | Branch | Responsibility | Pull-request target |
-| --- | --- | --- | --- |
-| Frontend Developer 1 | `android/frontend-login-dashboard` | Shared Android styles, login XML, dashboard XML, and navigation UI | `android/frontend` |
-| Frontend Developer 2 | `android/frontend-bookings-customers` | Booking list/details, manual-booking form, and customer XML screens | `android/frontend` |
-| Integration Developer 1 | `android/integration-auth` | API configuration, HTTP client, login, session handling, and authentication errors | `android/integration` |
-| Integration Developer 2 | `android/integration-bookings` | Booking/customer API calls, Java data models, responses, and API errors | `android/integration` |
+| Developer | Shared branch | Specific responsibility |
+| --- | --- | --- |
+| Frontend Developer 1 | `android/frontend` | Shared colors, dimensions and styles; login screen; dashboard; primary navigation |
+| Frontend Developer 2 | `android/frontend` | Booking list/details; manual-booking form; customer and calendar screens |
+| Backend Developer 1 | `android/backend` | API base configuration; HTTP client; login/logout; session-token storage; authentication errors |
+| Backend Developer 2 | `android/backend` | Booking, customer and catalog requests; Java API models; response parsing; validation/API errors |
 
-The coordinator owns `android/initial-project`, reviews pull requests, resolves cross-team conflicts, runs the combined checks, and opens the final pull request to `main`.
+The coordinator reviews both branches, resolves cross-team conflicts, verifies the combined application, and opens the final pull request to `main`.
 
-## Step 1 — Coordinator creates the team branches
+## File ownership
+
+To reduce conflicts, developers should stay inside their assigned files.
+
+| Area | Owner |
+| --- | --- |
+| `res/values/colors.xml`, `dimens.xml`, `styles.xml`, themes, login/dashboard layouts and navigation | Frontend Developer 1 |
+| Booking, customer and calendar layouts plus their screen classes | Frontend Developer 2 |
+| `network/`, API configuration, HTTP client, `session/` and authentication models | Backend Developer 1 |
+| Booking/customer/catalog models and repository classes | Backend Developer 2 |
+
+Before editing a shared file such as `AndroidManifest.xml`, `build.gradle`, `strings.xml`, or `MainActivity.java`, the developer must tell the other developer on the same branch. Only one developer edits that shared file at a time.
+
+## Step 1 — Coordinator creates the two branches
 
 Run from the repository root:
 
@@ -41,107 +54,126 @@ git switch -c android/frontend
 git push -u origin android/frontend
 
 git switch android/initial-project
-git switch -c android/integration
-git push -u origin android/integration
+git switch -c android/backend
+git push -u origin android/backend
+
+git switch android/initial-project
 ```
 
-Create each branch only once. If it already exists locally, use `git switch <branch>` instead of `git switch -c <branch>`.
+Create each branch only once. If a branch already exists locally, use `git switch <branch>` instead of `git switch -c <branch>`.
 
-## Step 2 — Each developer creates a separate feature branch
+After creating both branches, the coordinator verifies that they have the same starting commit:
 
-Frontend Developer 1:
+```powershell
+git merge-base origin/android/frontend origin/android/backend
+git rev-parse origin/android/initial-project
+```
+
+Before team development begins, both commands should print the same commit ID.
+
+## Step 2 — Frontend developers switch to their existing branch
+
+First time on the laptop:
 
 ```powershell
 git fetch origin
-git switch -c android/frontend-login-dashboard origin/android/frontend
-git push -u origin android/frontend-login-dashboard
+git switch --track origin/android/frontend
 ```
 
-Frontend Developer 2:
+Later sessions:
 
 ```powershell
-git fetch origin
-git switch -c android/frontend-bookings-customers origin/android/frontend
-git push -u origin android/frontend-bookings-customers
-```
-
-Integration Developer 1:
-
-```powershell
-git fetch origin
-git switch -c android/integration-auth origin/android/integration
-git push -u origin android/integration-auth
-```
-
-Integration Developer 2:
-
-```powershell
-git fetch origin
-git switch -c android/integration-bookings origin/android/integration
-git push -u origin android/integration-bookings
-```
-
-## Step 3 — Daily developer workflow
-
-1. Pull the assigned feature branch before starting.
-2. Work only within the assigned responsibility.
-3. Do not commit `local.properties`, build output, credentials, tokens, signing keys, or real customer data.
-4. Run the smallest relevant Android checks.
-5. Commit with a message describing the completed behavior.
-6. Push only the assigned feature branch.
-7. Open a pull request into the assigned team branch.
-
-Example:
-
-```powershell
+git switch android/frontend
 git pull --ff-only
+```
+
+Both frontend developers use `android/frontend`, but they follow the separate responsibilities and file ownership above.
+
+## Step 3 — Backend developers switch to their existing branch
+
+First time on the laptop:
+
+```powershell
+git fetch origin
+git switch --track origin/android/backend
+```
+
+Later sessions:
+
+```powershell
+git switch android/backend
+git pull --ff-only
+```
+
+Both backend developers use `android/backend`, but they follow the separate responsibilities and file ownership above.
+
+## Step 4 — Daily shared-branch workflow
+
+Only one developer on a shared branch should push at a time.
+
+1. Tell the teammate which files you will edit.
+2. Run `git status --short`. Do not begin with unknown or unfinished changes.
+3. Pull the latest branch before editing.
+4. Work only on the assigned responsibility.
+5. Run the smallest relevant Android checks.
+6. Commit only your files with a clear message.
+7. Pull again before pushing. If another developer pushed first, merge their work, resolve conflicts, and rerun the checks.
+8. Push the shared branch.
+
+```powershell
+git status --short
+git pull --ff-only
+
+# Edit only assigned files, then test.
 cd android
 .\gradlew.bat test
 cd ..
+
 git status --short
-git add android
-git commit -m "Build Android login screen"
+git add <only-your-files>
+git commit -m "Describe the completed Android work"
+git pull --no-rebase
 git push
 ```
 
-Review `git status --short` before committing so another developer's files or local configuration are not included.
+Never use `git add .` on a shared branch. Never force-push. Do not commit `local.properties`, `.idea/`, build output, credentials, tokens, signing keys, database exports, or real customer data.
 
-## Step 4 — Pull-request flow
+## Step 5 — Frontend and backend connection contract
 
-Use these exact directions:
+The teams agree on each connection before implementation:
 
 ```text
-android/frontend-login-dashboard
-        └── android/frontend
-
-android/frontend-bookings-customers
-        └── android/frontend
-
-android/integration-auth
-        └── android/integration
-
-android/integration-bookings
-        └── android/integration
+Android XML view ID
+→ Java value
+→ API request field
+→ PHP endpoint and action
+→ API response field
+→ Android screen result
 ```
 
-The coordinator reviews changed files, test evidence, credentials, and conflicts before merging. Keep the developer's commit authorship visible.
+Frontend developers own Android view IDs and visible states. Backend developers own endpoint calls and Java data returned to the screen. The teams must agree on method names and data types before either side depends on them.
 
-## Step 5 — Keep feature branches current
+Backend work must follow the current PHP API contract. Do not send HTML element IDs such as `mCustName` as JSON field names. Do not connect Android directly to MySQL.
 
-After the coordinator updates a team branch, its developers update their feature branches:
+## Step 6 — Team handoff to the coordinator
 
-```powershell
-git fetch origin
-git merge origin/android/frontend
+When a team branch is ready, its developers stop pushing new work and tell the coordinator. The coordinator reviews the branch and opens or reviews these pull requests:
+
+```text
+Base: android/initial-project
+Compare: android/frontend
 ```
 
-Integration developers replace `android/frontend` with `android/integration`. Resolve conflicts on the feature branch, rerun tests, and push the resolution. Do not force-push over another developer's work.
+```text
+Base: android/initial-project
+Compare: android/backend
+```
 
-## Step 6 — Combine the two teams
+Frontend should normally be merged first so the combined Android branch contains the final screen IDs and navigation. Backend is then merged and connected to those screens. Any required integration fix is made on the appropriate team branch and reviewed again.
 
-After both frontend pull requests are approved, merge `android/frontend` into `android/initial-project`. After both integration pull requests are approved, merge `android/integration` into `android/initial-project`.
+## Step 7 — Combined verification
 
-The coordinator then verifies the combined application:
+After both branches are merged, the coordinator runs:
 
 ```powershell
 git switch android/initial-project
@@ -150,9 +182,9 @@ cd android
 .\gradlew.bat test
 ```
 
-Also run the Android application on an emulator. API-connected work must be tested against an isolated QA database, not the normal development or production database.
+The coordinator also runs the app on an emulator and verifies the connected workflows against an isolated QA database. Do not use the normal development or production database for isolated integration testing.
 
-## Step 7 — Final merge to main
+## Step 8 — Final merge to main
 
 When the combined Android application is reviewed and tested, open one final pull request:
 
@@ -161,13 +193,16 @@ Base: main
 Compare: android/initial-project
 ```
 
-Merging developer branches into a team branch does not update `main`. Merging the final pull request is the only step in this workflow that adds the Android work to `main`.
+Pushing `android/frontend` or `android/backend` does not change `main`. Only the final reviewed pull request adds Android work to `main`.
 
-## Coordination rules
+## Coordinator checklist
 
-- Frontend developers agree on shared resource names before creating screens: colors, dimensions, styles, layout IDs, and navigation destinations.
-- Integration developers agree on API models, endpoint names, authentication state, error format, and callback/result contracts.
-- A frontend screen and its integration logic must agree on view IDs and the Java data passed between them.
-- Developers do not commit directly to `android/initial-project` or `main`.
-- The coordinator does not rewrite or remove developer authorship.
-- A successful local Gradle test is not emulator, physical-device, production, security, or client acceptance.
+- [ ] Both team branches started from the same `android/initial-project` commit.
+- [ ] Each developer stayed within the assigned responsibility.
+- [ ] Shared-file edits were coordinated before work began.
+- [ ] Commit authors identify the developer who performed the work.
+- [ ] No local configuration, credentials, or real customer data is committed.
+- [ ] Frontend IDs and backend method/data contracts agree.
+- [ ] Gradle tests pass after both branches are combined.
+- [ ] Login and connected workflows are checked on an emulator.
+- [ ] Local/emulator evidence is not described as production, physical-device, security, or client acceptance.
