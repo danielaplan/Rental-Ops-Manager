@@ -1,4 +1,4 @@
-# Tester 4 — Equipment, Returns, Notifications, and Synchronization
+x# Tester 4 — Equipment, Returns, Notifications, and Synchronization
 
 Complete [Tester 4 setup](Setup.md), then read the [common instructions](../README.md). Record every result in the [Tester 4 report](Report.md); do not edit this instruction file while testing.
 

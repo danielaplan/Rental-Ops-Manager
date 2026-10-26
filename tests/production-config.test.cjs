@@ -1,9 +1,11 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { test } = require('node:test');
 
 const root = path.resolve(__dirname, '..');
+const localConfigPath = path.join(root, 'api', 'config.local.php');
 const php = process.env.AKAD_TEST_PHP || (process.platform === 'win32' ? 'C:/xampp/php/php.exe' : 'php');
 const bootstrap = "require 'api/config.php'; echo 'BOOTED';";
 
@@ -25,4 +27,16 @@ test('production bootstrap accepts complete environment configuration', () => {
   });
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.equal(result.stdout, 'BOOTED');
+});
+
+test('production bootstrap accepts complete ignored local configuration', () => {
+  const localConfig = `<?php\nreturn [\n  'AKAD_ENV' => 'production',\n  'AKAD_DB_HOST' => 'db.example.test',\n  'AKAD_DB_NAME' => 'akad_production',\n  'AKAD_DB_USER' => 'akad_owner',\n  'AKAD_DB_PASS' => 'test-only-password',\n  'AKAD_ALLOWED_ORIGINS' => 'https://app.example.test',\n];\n`;
+  fs.writeFileSync(localConfigPath, localConfig, 'utf8');
+  try {
+    const result = boot({ AKAD_ENV: '', AKAD_DB_HOST: '', AKAD_DB_NAME: '', AKAD_DB_USER: '', AKAD_DB_PASS: '', AKAD_ALLOWED_ORIGINS: '' });
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.equal(result.stdout, 'BOOTED');
+  } finally {
+    fs.rmSync(localConfigPath, { force: true });
+  }
 });

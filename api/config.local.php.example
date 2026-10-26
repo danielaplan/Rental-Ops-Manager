@@ -1,0 +1,11 @@
+<?php
+// Copy this file to api/config.local.php only on the production server.
+// Do not commit the copied file or paste its contents into chat.
+return [
+    'AKAD_ENV' => 'production',
+    'AKAD_DB_HOST' => 'localhost',
+    'AKAD_DB_NAME' => 'u198365972_akad_prod',
+    'AKAD_DB_USER' => 'u198365972_akad_app',
+    'AKAD_DB_PASS' => 'replace-with-the-Hostinger-database-password',
+    'AKAD_ALLOWED_ORIGINS' => 'https://akadrentals.uccit3b.com',
+];

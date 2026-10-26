@@ -9,15 +9,42 @@
  * - Opens one MySQL connection per request via PDO.
  * - Exposes sendJson() and the shared DB constant.
  *
- * Database credentials live here so they can be changed in one place.
- * Defaults point at a local XAMPP/WAMP MySQL install; override with
- * environment variables or edit the values below.
+ * Defaults point at a local XAMPP/WAMP MySQL install. Production settings
+ * come from environment variables or the ignored api/config.local.php file.
+ * Never commit a production config.local.php file.
  * --------------------------------------------------------------- */
 
-$production = getenv('AKAD_ENV') === 'production';
+/**
+ * Hostinger shared hosting does not expose a consistent PHP environment
+ * variable editor. A deployment may therefore provide an ignored local PHP
+ * configuration file which returns an associative array of AKAD_* values.
+ * Environment variables take precedence so container/managed deployments do
+ * not need the local file.
+ */
+$localConfig = [];
+$localConfigPath = __DIR__ . '/config.local.php';
+if (is_file($localConfigPath)) {
+    $loadedConfig = require $localConfigPath;
+    if (!is_array($loadedConfig)) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok'=>false,'error'=>'Production configuration is invalid.','code'=>'server_error']);
+        exit(1);
+    }
+    $localConfig = $loadedConfig;
+}
+
+function akadConfigValue($key, $default = '') {
+    global $localConfig;
+    $environmentValue = getenv($key);
+    if ($environmentValue !== false && $environmentValue !== '') return $environmentValue;
+    return array_key_exists($key, $localConfig) ? $localConfig[$key] : $default;
+}
+
+$production = akadConfigValue('AKAD_ENV') === 'production';
 if ($production) {
     foreach (['AKAD_DB_HOST', 'AKAD_DB_NAME', 'AKAD_DB_USER', 'AKAD_DB_PASS', 'AKAD_ALLOWED_ORIGINS'] as $key) {
-        if (trim((string) getenv($key)) === '') {
+        if (trim((string) akadConfigValue($key)) === '') {
             if (PHP_SAPI === 'cli') fwrite(STDERR, "Production configuration is incomplete.\n");
             else {
                 http_response_code(500);
@@ -29,10 +56,10 @@ if ($production) {
     }
 }
 
-define('DB_HOST', getenv('AKAD_DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('AKAD_DB_NAME') ?: 'akad_rentals');
-define('DB_USER', getenv('AKAD_DB_USER') ?: 'root');
-define('DB_PASS', getenv('AKAD_DB_PASS') ?: '');
+define('DB_HOST', akadConfigValue('AKAD_DB_HOST', 'localhost'));
+define('DB_NAME', akadConfigValue('AKAD_DB_NAME', 'akad_rentals'));
+define('DB_USER', akadConfigValue('AKAD_DB_USER', 'root'));
+define('DB_PASS', akadConfigValue('AKAD_DB_PASS', ''));
 define('DB_CHAR', 'utf8mb4');
 
 if (!function_exists('array_is_list')) {
@@ -48,7 +75,7 @@ if (!function_exists('array_is_list')) {
 date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json; charset=utf-8');
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$allowedOrigins = array_filter(array_map('trim', explode(',', getenv('AKAD_ALLOWED_ORIGINS') ?: '')));
+$allowedOrigins = array_filter(array_map('trim', explode(',', akadConfigValue('AKAD_ALLOWED_ORIGINS', ''))));
 if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
     header('Access-Control-Allow-Origin: ' . $origin);
     header('Vary: Origin');

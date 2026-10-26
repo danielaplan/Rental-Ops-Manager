@@ -27,3 +27,9 @@ memory/
 
 # Generated isolated acceptance evidence; retain only when explicitly exported.
 /tests/acceptance-results/
+
+# Production credentials are created only in Hostinger and must never enter Git.
+/api/config.local.php
+
+# One-time Hostinger import copy; schema.sql remains the tracked source schema.
+/db/temp copy/
