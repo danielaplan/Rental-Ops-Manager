@@ -4,6 +4,8 @@
 
 This folder divides a complete booking-process audit among four testers. Each tester has a separate instruction file, report, evidence folder, Git branch, and local QA database. All four testers may run simultaneously after completing the [Simultaneous Testing Setup](Simultaneous-Testing-Setup.md). There is no shared live database. The goal is to test booking creation through scheduling, payments, equipment release, return inspection, completion, notifications, reporting, audit history, and offline synchronization.
 
+For the final acceptance pass on the deployed Hostinger site, use [Final Hostinger Testing](Final-Hostinger-Testing/README.md). It uses separate, clearly labelled synthetic records and must be run sequentially by an authorized coordinator; it is not part of the four local, simultaneous tester databases.
+
 This is a manual browser test plan. Do not change application code while executing it. Use fictional data only.
 
 ## Read this first
