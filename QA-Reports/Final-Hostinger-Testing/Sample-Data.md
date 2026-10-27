@@ -21,18 +21,18 @@ If any item is missing, record the scenario as BLOCKED. Do not create a temporar
 
 Use future dates far enough away from real bookings. Replace the dates only if the selected time would affect a real rental. Keep each same-service schedule separate except where a conflict is intentional.
 
-| Label | Customer / contact | Date and time | Service/package | Venue / amount | Used by |
-| --- | --- | --- | --- | --- | --- |
-| A | `HST FINAL Ana Normal` / `09990000001` | 2027-11-03, 10:00 AM–10:00 PM | Karaoke / 12 Hours | `HST FINAL Venue A` / ₱999 | F03, F05, F09 |
-| B | `HST FINAL Ben Reuse` / `09990000002` | 2027-11-05, 1:00–3:00 PM | Karaoke / 12 Hours | `HST FINAL Venue B` / ₱999 | F03 |
-| C | `HST FINAL Cara Conflict A` / `09990000003` | 2027-11-07, 2:00–4:00 PM | Karaoke / 12 Hours | `HST FINAL Venue C` / ₱999 | F04 |
-| D | `HST FINAL Dan Conflict B` / `09990000004` | 2027-11-07, 2:30–4:30 PM | Same as C | `HST FINAL Venue D` / ₱999 | F04 |
-| E | `HST FINAL Elle Payment` / `09990000005` | 2027-11-09, 10:00 AM–10:00 PM | Karaoke / 12 Hours | `HST FINAL Venue E` / ₱999 | F05 |
-| F | `HST FINAL Finn Deposit` / `09990000006` | 2027-11-11, 10:00 AM–10:00 PM | Karaoke / 12 Hours | `HST FINAL Venue F` / ₱999 | F06 |
-| G | `HST FINAL Gia Delivery` / `09990000007` | 2027-11-13, 1:00–4:00 PM | Active Sweet Corner package | `HST FINAL Venue G` / actual package total | F07 |
-| H | `HST FINAL Hugo Cancel` / `09990000008` | 2027-11-15, 10:00 AM–12:00 PM | Karaoke / 12 Hours | `HST FINAL Venue H` / ₱999 | F08 |
-| I | `HST FINAL Iris Return` / `09990000009` | Coordinator-approved past test date | Checklist-generating package | `HST FINAL Venue I` / actual package total | F09, F10 |
-| J | `HST FINAL Juno Offline` / `09990000010` | 2027-11-19, 1:00–4:00 PM | Active Sweet Corner package | `HST FINAL Venue J` / actual package total | F12 |
+| Label | Customer / contact                          | Date and time                       | Service/package              | Venue / amount                             | Used by       |
+| ----- | ------------------------------------------- | ----------------------------------- | ---------------------------- | ------------------------------------------ | ------------- |
+| A     | `HST FINAL Ana Normal` / `09990000001`      | 2027-11-03, 10:00 AM–10:00 PM       | Karaoke / 12 Hours           | `HST FINAL Venue A` / ₱999                 | F03, F05, F09 |
+| B     | `HST FINAL Ben Reuse` / `09990000002`       | 2027-11-05, 1:00–3:00 PM            | Karaoke / 12 Hours           | `HST FINAL Venue B` / ₱999                 | F03           |
+| C     | `HST FINAL Cara Conflict A` / `09990000003` | 2027-11-07, 2:00–4:00 PM            | Karaoke / 12 Hours           | `HST FINAL Venue C` / ₱999                 | F04           |
+| D     | `HST FINAL Dan Conflict B` / `09990000004`  | 2027-11-07, 2:30–4:30 PM            | Same as C                    | `HST FINAL Venue D` / ₱999                 | F04           |
+| E     | `HST FINAL Elle Payment` / `09990000005`    | 2027-11-09, 10:00 AM–10:00 PM       | Karaoke / 12 Hours           | `HST FINAL Venue E` / ₱999                 | F05           |
+| F     | `HST FINAL Finn Deposit` / `09990000006`    | 2027-11-11, 10:00 AM–10:00 PM       | Karaoke / 12 Hours           | `HST FINAL Venue F` / ₱999                 | F06           |
+| G     | `HST FINAL Gia Delivery` / `09990000007`    | 2027-11-13, 1:00–4:00 PM            | Active Sweet Corner package  | `HST FINAL Venue G` / actual package total | F07           |
+| H     | `HST FINAL Hugo Cancel` / `09990000008`     | 2027-11-15, 10:00 AM–12:00 PM       | Karaoke / 12 Hours           | `HST FINAL Venue H` / ₱999                 | F08           |
+| I     | `HST FINAL Iris Return` / `09990000009`     | Coordinator-approved past test date | Checklist-generating package | `HST FINAL Venue I` / actual package total | F09, F10      |
+| J     | `HST FINAL Juno Offline` / `09990000010`    | 2027-11-19, 1:00–4:00 PM            | Active Sweet Corner package  | `HST FINAL Venue J` / actual package total | F12           |
 
 ## Exact money data
 
