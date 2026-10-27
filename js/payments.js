@@ -5,6 +5,11 @@
  * admin/bookings.html.
  */
 const PaymentsHelper = {
+  paymentTimestamp(date = new Date()) {
+    const pad = value => String(value).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  },
+
   async pendingAmountsByBooking() {
     const pending = new Map();
     // Offline-created payments live in the sync queue, not the server table.
@@ -54,6 +59,10 @@ const PaymentsHelper = {
       amount: paymentAmount,
       method: method,
       notes: notes || "",
+      // The sync queue validates this field before it can be sent. Manual
+      // bookings do not provide one, so give every newly recorded payment a
+      // valid local timestamp unless a caller deliberately supplies one.
+      payment_date: PaymentsHelper.paymentTimestamp(),
       ...details
     });
   },
