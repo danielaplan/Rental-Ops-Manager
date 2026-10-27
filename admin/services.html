@@ -27,7 +27,7 @@
     <div class="table-wrap">
       <table class="admin-table">
         <thead><tr>
-          <th>Service</th><th>Description</th><th>Preparation</th><th>Travel</th><th>Status</th><th>Actions</th>
+          <th>Service</th><th>Category</th><th>Description</th><th>Preparation</th><th>Travel</th><th>Status</th><th>Actions</th>
         </tr></thead>
         <tbody id="servicesBody"></tbody>
       </table>
@@ -49,6 +49,13 @@
           <div class="col-12">
             <label class="form-label" for="svcName">Service Name</label>
             <input type="text" class="form-control" id="svcName" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="svcCategory">Category</label>
+            <select class="form-select" id="svcCategory" required>
+              <option value="">Select a category</option>
+            </select>
+            <div class="form-text">Categories are managed from the Categories page.</div>
           </div>
           <div class="col-12">
             <label class="form-label" for="svcDescription">Description</label>
@@ -98,15 +105,17 @@
 adminReady(async function () {
   await API.ready;
   await initAdminChrome('services.html', 'Services');
+  await populateServiceCategories();
   await renderServicesTable();
   const refreshImage = attachAdminImageUpload('svcImage');
 
-  $('#addServiceBtn').onAdmin('click', function () {
+  $('#addServiceBtn').onAdmin('click', async function () {
     $('#serviceForm')[0].reset();
     $('#svcId').val('');
     $('#serviceFormTitle').text('Add Service');
     $('#svcStatus').val('Active');
     $('#svcPreparation, #svcTravel').val(0);
+    await populateServiceCategories();
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
@@ -115,11 +124,13 @@ adminReady(async function () {
     if (!target.length) return;
     const s = (await API.getServices()).find(item => item.service_id === target.data('id'));
     if (!s) return;
+    await populateServiceCategories(s.category_id);
     $('#svcId').val(s.service_id);
     const content = await API.getWebsiteContent();
     $('#svcImage').val(content.service_images?.[s.service_id] || '');
     refreshImage();
     $('#svcName').val(s.name);
+    $('#svcCategory').val(s.category_id || '');
     $('#svcDescription').val(s.description);
     $('#svcStatus').val(s.status);
     $('#svcPreparation').val(s.default_preparation_minutes || 0);
@@ -160,7 +171,7 @@ adminReady(async function () {
     e.preventDefault();
     const id = $('#svcId').val();
     const data = {
-      name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val(),
+      name: $('#svcName').val().trim(), category_id: $('#svcCategory').val(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val(),
       default_preparation_minutes: Number($('#svcPreparation').val()), default_travel_minutes: Number($('#svcTravel').val())
     };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
@@ -190,16 +201,18 @@ adminReady(async function () {
 });
 
 async function renderServicesTable() {
-  const services = await API.getServices();
+  const [services, categories] = await Promise.all([API.getServices(), API.getCategories()]);
+  const categoryNames = new Map(categories.map(category => [String(category.category_id), category.name]));
   const $body = $('#servicesBody').empty();
   if (!services.length) {
-    $body.append('<tr><td colspan="6" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
+    $body.append('<tr><td colspan="7" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
     return;
   }
   services.forEach(s => {
     $body.append(`
       <tr>
         <td class="fw-semibold">${escapeHtmlA(s.name)}${s.pending_sync ? '<span class="badge bg-warning text-dark ms-2">Pending Sync</span>' : ''}</td>
+        <td>${s.category_id ? escapeHtmlA(categoryNames.get(String(s.category_id)) || 'Unknown category') : '<span class="text-muted">Unassigned</span>'}</td>
         <td>${escapeHtmlA(s.description || '')}</td>
         <td>${Number(s.default_preparation_minutes || 0)} min</td>
         <td>${Number(s.default_travel_minutes || 0)} min</td>
@@ -214,6 +227,19 @@ async function renderServicesTable() {
         </td>
       </tr>`);
   });
+}
+
+async function populateServiceCategories(selectedId = '') {
+  const categories = await API.getCategories();
+  const selected = String(selectedId || '');
+  const $select = $('#svcCategory').empty().append('<option value="">Select a category</option>');
+  categories.forEach(category => {
+    if (category.status !== 'Active' && String(category.category_id) !== selected) return;
+    const inactiveLabel = category.status === 'Active' ? '' : ' (Inactive)';
+    $select.append(`<option value="${escapeHtmlA(category.category_id)}">${escapeHtmlA(category.name + inactiveLabel)}</option>`);
+  });
+  $select.val(selected);
+  if (!selected && $select.find('option').length === 2) $select.prop('selectedIndex', 1);
 }
 </script>
 </body>

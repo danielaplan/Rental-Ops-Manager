@@ -102,7 +102,7 @@ adminReady(async function () {
     if (!target.length) return;
     const id = target.data('id');
     const services = await API.getServices();
-    const inUse = services.some(s => s.category_id === id);
+    const inUse = services.some(s => String(s.category_id || '') === String(id));
     if (inUse) { alert('This category is used by one or more services. Reassign those services first.'); return; }
     return confirmDelete('Delete this category?', async function () {
       try { await API.deleteCategory(id); await renderCategoriesTable(); showAdminToast(API.savedMessage()); }
@@ -134,7 +134,7 @@ async function renderCategoriesTable() {
     return;
   }
   categories.forEach(c => {
-    const count = services.filter(s => s.category_id === c.category_id).length;
+    const count = services.filter(s => String(s.category_id || '') === String(c.category_id)).length;
     $body.append(`
       <tr>
         <td class="fw-semibold">${escapeHtmlA(c.name)}</td>

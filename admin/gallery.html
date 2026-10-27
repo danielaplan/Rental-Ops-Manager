@@ -51,8 +51,11 @@
             <input type="file" class="form-control" id="imgFile" accept="image/jpeg,image/png,image/gif,image/webp">
             <div class="form-text">JPG, PNG, GIF, or WebP; maximum 5 MB. Uploading requires a server connection.</div>
           </div>
-          <div class="mb-3" id="imgPreviewWrap" hidden>
-            <img id="imgPreview" alt="Selected gallery image preview" style="display:block;max-width:100%;max-height:200px;object-fit:contain;border-radius:8px;">
+          <div class="admin-image-preview mb-3" id="imgPreviewWrap" hidden>
+            <img id="imgPreview" alt="Selected gallery image preview" style="max-height:200px">
+            <button type="button" class="admin-image-preview-close" id="clearImgFile" aria-label="Remove selected file" title="Remove selected file">
+              <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="imgFeatured">
@@ -87,6 +90,7 @@ adminReady(async function () {
     const file = document.getElementById('imgFile').files[0];
     const image = document.getElementById('imgPreview');
     const wrap = document.getElementById('imgPreviewWrap');
+    document.getElementById('clearImgFile').hidden = !file;
     if (image.dataset.objectUrl) URL.revokeObjectURL(image.dataset.objectUrl);
     image.dataset.objectUrl = '';
     const source = file ? URL.createObjectURL(file) : safeGalleryImageUrl($('#imgUrl').val());
@@ -126,6 +130,10 @@ adminReady(async function () {
   });
 
   $('#imgFile').onAdmin('change', updateImagePreview);
+  $('#clearImgFile').onAdmin('click', function () {
+    $('#imgFile').val('');
+    updateImagePreview();
+  });
   $('#imgUrl').onAdmin('input', function () {
     if (!document.getElementById('imgFile').files.length) updateImagePreview();
   });

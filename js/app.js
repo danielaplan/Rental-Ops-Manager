@@ -168,8 +168,12 @@ async function renderHero() {
   const content = publicContentCache();
   const configuredImage = safeWebUrl(content.hero_image);
   const usesLegacySeed = /images\.unsplash\.com\/photo-1530103862676/.test(configuredImage);
-  $('#heroTitle').text('Turn your celebration into a moment everyone remembers.');
-  $('#heroDesc').text('We bring the music, the sweets, and the picture-perfect detailsâ€”so you can be fully present for every smile.');
+  const title = String(content.hero_title || '').trim();
+  const description = String(content.hero_description || '').trim();
+  const buttonText = String(content.hero_button_text || '').trim();
+  $('#heroTitle').text(title || 'Turn your celebration into a moment everyone remembers.');
+  $('#heroDesc').text(description || 'We bring the music, the sweets, and the picture-perfect details—so you can be fully present for every smile.');
+  $('#heroButtonText').text(buttonText || 'Explore services');
   $('#heroImage').attr('src', configuredImage && !usesLegacySeed ? configuredImage : 'images/defaults/hero-bg.jpg');
 }
 

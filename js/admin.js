@@ -538,19 +538,46 @@ function attachAdminImageUpload(id) {
   const input = document.getElementById(id);
   const wrap = document.createElement('div');
   wrap.className = 'mt-2';
-  wrap.innerHTML = `<label class="form-label small" for="${id}File">Upload image from your device</label><input type="file" class="form-control" id="${id}File" accept="image/jpeg,image/png,image/gif,image/webp"><div class="form-text" role="status">JPG, PNG, GIF, or WebP; maximum 5 MB. Upload online, then save the form.</div><img alt="Image preview" hidden style="max-width:100%;max-height:140px;object-fit:contain;margin-top:8px">`;
+  wrap.innerHTML = `<label class="form-label small" for="${id}File">Upload image from your device</label><input type="file" class="form-control" id="${id}File" accept="image/jpeg,image/png,image/gif,image/webp"><div class="form-text" role="status">JPG, PNG, GIF, or WebP; maximum 5 MB. Upload online, then save the form.</div><div class="admin-image-preview mt-2" hidden data-image-preview><img alt="Image preview" style="max-height:140px"><button type="button" class="admin-image-preview-close" data-cancel-image-change aria-label="Cancel image change" title="Cancel image change"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>`;
   input.after(wrap);
-  const file = wrap.querySelector('input'), status = wrap.querySelector('div'), preview = wrap.querySelector('img');
+  const file = wrap.querySelector('input');
+  const status = wrap.querySelector('[role="status"]');
+  const previewWrap = wrap.querySelector('[data-image-preview]');
+  const preview = previewWrap.querySelector('img');
+  const cancel = previewWrap.querySelector('[data-cancel-image-change]');
+  let previousValue = '';
+  let hasPendingImageChange = false;
   const refresh = () => {
     try {
       const url = new URL(input.value, new URL('../', window.location.href));
-      preview.hidden = !input.value.trim() || !['http:', 'https:'].includes(url.protocol);
-      if (!preview.hidden) preview.src = url.href;
+      const hasPreview = !!input.value.trim() && ['http:', 'https:'].includes(url.protocol);
+      previewWrap.hidden = !hasPreview;
+      cancel.hidden = !hasPendingImageChange;
+      if (hasPreview) preview.src = url.href;
       else preview.removeAttribute('src');
-    } catch { preview.hidden = true; }
+    } catch {
+      previewWrap.hidden = true;
+      preview.removeAttribute('src');
+    }
   };
-  input.addEventListener('input', refresh);
-  input.form.addEventListener('reset', () => { file.value = ''; setTimeout(refresh, 0); });
+  input.addEventListener('input', () => {
+    hasPendingImageChange = false;
+    refresh();
+  });
+  input.form.addEventListener('reset', () => {
+    file.value = '';
+    hasPendingImageChange = false;
+    setTimeout(refresh, 0);
+  });
+  cancel.addEventListener('click', () => {
+    input.value = previousValue;
+    file.value = '';
+    hasPendingImageChange = false;
+    status.textContent = previousValue
+      ? 'Image change canceled. The previous image will be kept.'
+      : 'Image change canceled. No image is selected.';
+    refresh();
+  });
   file.addEventListener('change', async () => {
     const selected = file.files[0];
     if (!selected) return;
@@ -559,14 +586,16 @@ function attachAdminImageUpload(id) {
       file.value = '';
       return;
     }
+    previousValue = input.value;
     const controls = Array.from(input.form.querySelectorAll('input, button, select, textarea'));
     const disabled = controls.map(control => control.disabled);
     controls.forEach(control => { control.disabled = true; });
     status.textContent = 'Uploading image…';
     try {
       input.value = await API.uploadGalleryImage(selected);
+      hasPendingImageChange = true;
       refresh();
-      status.textContent = 'Image uploaded. Save the form to publish it.';
+      status.textContent = 'Image uploaded. Save the form to publish it, or cancel this image change.';
     } catch (error) { status.textContent = error.message; }
     finally {
       controls.forEach((control, index) => { control.disabled = disabled[index]; });

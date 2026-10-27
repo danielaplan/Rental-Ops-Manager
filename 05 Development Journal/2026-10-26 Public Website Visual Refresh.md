@@ -56,6 +56,12 @@ The redundant email and phone icons were removed from the shared navigation mark
 
 Contact now fills the viewport beneath the fixed navigation and vertically centers its row, placing the left contact copy and right image panel on the same visual midpoint when reached through the navbar. Mobile disables the forced viewport height and retains a natural stacked document flow.
 
+The public hero renderer was reconnected to the existing admin Website Content fields. Saved `hero_title`, `hero_description`, `hero_button_text`, and `hero_image` values now render after both cached startup and server refresh, with the current designed copy and packaged photograph used only as empty-state fallbacks.
+
+Admin image previews now provide explicit cancellation controls. Shared Website Content, Settings, and Service upload fields can restore the previous image reference before the form is saved, while the Gallery modal can clear a selected local file and return to its existing URL preview. These are presentation-only controls and do not change upload endpoints, persistence, or other backend behavior.
+
+The admin Services form now exposes the existing category relationship through a required selector populated from Categories, retains an inactive category while editing an assigned service, and displays resolved category names in the service list. Category service counts and in-use deletion checks now compare normalized string IDs so prefixed local IDs and refreshed IDs behave consistently. No PHP, schema, or server validation logic was changed.
+
 Six real AKAD photographs supplied through the owner-provided Google Drive folder were copied into `images/site/` with stable descriptive filenames. The public hero and three service cards use those local images, and the featured/contact sections use two more. Existing website-content, service, gallery, contact, modal, offline-cache, and API behavior remains connected.
 
 No admin HTML, PHP API, database schema, database record, authentication, booking, payment, synchronization, or other business logic was changed.

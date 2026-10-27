@@ -317,10 +317,10 @@ function seedDatabase(force) {
   const websiteContent = {
     business_name: "AKAD Sweet Party Rentals",
     logo: "",
-    hero_title: "Celebrations, fully set up for you.",
-    hero_description: "Karaoke, sweet corners, and balloon styling for birthdays, debuts, christenings, and everything worth celebrating around Metro Manila.",
+    hero_title: "Turn your celebration into a moment everyone remembers.",
+    hero_description: "We bring the music, the sweets, and the picture-perfect details—so you can be fully present for every smile.",
     hero_image: "images/defaults/hero-bg.jpg",
-    hero_button_text: "Contact us",
+    hero_button_text: "Explore services",
     about_title: "We handle the set-up, you host the party",
     about_description: "We provide karaoke rental, Sweet Corner packages, and balloon decorations. Contact our team to discuss preferred dates and delivery arrangements.",
     contact_phone: "",
