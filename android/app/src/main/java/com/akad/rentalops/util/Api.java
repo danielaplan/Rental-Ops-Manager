@@ -3,9 +3,19 @@ package com.akad.rentalops.util;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.akad.rentalops.BuildConfig;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +42,7 @@ public final class Api {
 
     private static final ExecutorService POOL = Executors.newFixedThreadPool(4);
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
+    private static final int TIMEOUT_MS = 20_000;
     private static UnauthorizedListener unauthorizedListener;
 
     private Api() {}
@@ -69,24 +80,78 @@ public final class Api {
         post("auth.php", q("do", "logout"), body, cb);
     }
 
-    /**
-     * UI-ONLY BUILD: requests are answered by MockStore (in-memory sample data) after a short delay.
-     * No network access is used. To connect to the PHP backend later, replace this method with an
-     * HttpURLConnection call to <baseUrl>/api/<endpoint> (see README, "Connecting to the backend").
-     */
+    /** Performs an authenticated request to the PHP API and delivers its JSON data on the main thread. */
     private static void run(final String method, final String endpoint, final Map<String, String> query,
                             final JSONObject body, final Callback cb) {
         POOL.execute(new Runnable() {
             @Override public void run() {
-                try { Thread.sleep(250); } catch (InterruptedException ignored) {}
+                HttpURLConnection connection = null;
                 try {
-                    final Object data = MockStore.handle(method, endpoint, query, body);
+                    connection = (HttpURLConnection) new URL(urlFor(endpoint, query)).openConnection();
+                    connection.setRequestMethod(method);
+                    connection.setConnectTimeout(TIMEOUT_MS);
+                    connection.setReadTimeout(TIMEOUT_MS);
+                    connection.setRequestProperty("Accept", "application/json");
+                    connection.setRequestProperty("Authorization", "Bearer " + Prefs.token());
+
+                    if (body != null) {
+                        byte[] bytes = body.toString().getBytes(StandardCharsets.UTF_8);
+                        connection.setDoOutput(true);
+                        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                        connection.setFixedLengthStreamingMode(bytes.length);
+                        try (OutputStream out = connection.getOutputStream()) { out.write(bytes); }
+                    }
+
+                    int status = connection.getResponseCode();
+                    String raw = read(status >= 200 && status < 400 ? connection.getInputStream() : connection.getErrorStream());
+                    JSONObject response = new JSONObject(raw);
+                    if (status == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                        notifyUnauthorized();
+                    }
+                    if (status < 200 || status >= 300 || !response.optBoolean("ok", false)) {
+                        fail(cb, response.optString("error", "Request failed."), response.optString("code", "server_error"), status);
+                        return;
+                    }
+                    final Object data = response.opt("data");
                     MAIN.post(new Runnable() { @Override public void run() { cb.onSuccess(data); } });
-                } catch (MockStore.MockError e) {
-                    fail(cb, e.getMessage(), e.code, e.status);
                 } catch (Exception ex) {
-                    fail(cb, String.valueOf(ex.getMessage()), "client_error", 0);
+                    fail(cb, "Unable to reach the server. Please check your internet connection and try again.", "network_error", 0);
+                } finally {
+                    if (connection != null) connection.disconnect();
                 }
+            }
+        });
+    }
+
+    private static String urlFor(String endpoint, Map<String, String> query) throws Exception {
+        StringBuilder url = new StringBuilder(BuildConfig.API_BASE_URL).append(endpoint);
+        if (query != null && !query.isEmpty()) {
+            url.append('?');
+            boolean first = true;
+            for (Map.Entry<String, String> entry : query.entrySet()) {
+                if (!first) url.append('&');
+                url.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                url.append('=').append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+                first = false;
+            }
+        }
+        return url.toString();
+    }
+
+    private static String read(InputStream input) throws Exception {
+        if (input == null) return "{\"ok\":false,\"error\":\"The server returned no response.\"}";
+        StringBuilder text = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) text.append(line);
+        }
+        return text.toString();
+    }
+
+    private static void notifyUnauthorized() {
+        MAIN.post(new Runnable() {
+            @Override public void run() {
+                if (unauthorizedListener != null) unauthorizedListener.onUnauthorized();
             }
         });
     }

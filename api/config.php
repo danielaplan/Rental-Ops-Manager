@@ -63,7 +63,7 @@ function db() {
     static $pdo = null;
     if ($pdo !== null) return $pdo;
 
-    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHAR;
+    $dsn = 'mysql:host=' . DB_HOST . ';port=3307' . ';dbname=' . DB_NAME . ';charset=' . DB_CHAR;
     $opts = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

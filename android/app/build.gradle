@@ -6,12 +6,18 @@ android {
     namespace 'com.akad.rentalops'
     compileSdk 34
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         applicationId "com.akad.rentalops"
         minSdk 24
         targetSdk 34
         versionCode 1
         versionName "1.0"
+        // Production PHP API. Keep the trailing slash: Api appends endpoint names.
+        buildConfigField "String", "API_BASE_URL", '"https://akadrentals.uccit3b.com/api/"'
     }
 
     buildTypes {

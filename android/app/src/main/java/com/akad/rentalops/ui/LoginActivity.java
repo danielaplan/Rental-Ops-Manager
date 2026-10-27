@@ -34,10 +34,6 @@ public class LoginActivity extends AppCompatActivity {
         error = findViewById(R.id.loginError);
         button = findViewById(R.id.loginButton);
         progress = findViewById(R.id.loginProgress);
-        // UI preview: any contact number + password signs in. Demo values are prefilled.
-        user.setText("0917-123-4567");
-        pass.setText("password");
-
         button.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { submit(); } });
 
         if (Prefs.isLoggedIn()) {
