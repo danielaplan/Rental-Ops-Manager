@@ -160,6 +160,41 @@ function getAdminBusinessName(settings) {
   return savedName || CONFIG.businessNameFallback;
 }
 
+function normalizeAdminHexColor(value) {
+  return /^#[0-9a-f]{6}$/i.test(value || '') ? value : null;
+}
+
+function applyAdminAppearance(settings = null) {
+  const saved = settings || STORAGE._get(STORAGE_KEYS.settings, {});
+  const defaults = CONFIG.themeDefaults || { primary: '#8a633f', accent: '#d1a170' };
+  const primary = normalizeAdminHexColor(saved.primary_color) || defaults.primary;
+  const accent = normalizeAdminHexColor(saved.accent_color) || defaults.accent;
+  const root = document.documentElement;
+  if (!root?.style) return;
+  root.style.setProperty('--a-primary', primary);
+  root.style.setProperty('--a-accent', accent);
+}
+
+function safeAdminImageUrl(value) {
+  if (typeof value !== 'string' || !value.trim()) return '';
+  try {
+    const url = new URL(value.trim(), window.location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch {
+    return '';
+  }
+}
+
+function bindAdminSidebarAutoCollapse() {
+  const sidebar = document.getElementById('adminSidebar');
+  if (!sidebar || sidebar.dataset.autoCollapseBound === 'true') return;
+  sidebar.dataset.autoCollapseBound = 'true';
+  sidebar.addEventListener('pointerleave', () => {
+    const focused = document.activeElement;
+    if (focused && sidebar.contains(focused) && typeof focused.blur === 'function') focused.blur();
+  });
+}
+
 function updateAdminSidebarBrand() {
   const brandName = document.querySelector('#adminSidebar .brand-name');
   if (brandName) {
@@ -169,8 +204,13 @@ function updateAdminSidebarBrand() {
 
 async function renderAdminSidebar(activeHref) {
   const settings = await API.getSettings().catch(() => ({}));
+  applyAdminAppearance(settings);
   const businessName = getAdminBusinessName(settings);
-  let html = `<div class="brand"><span class="brand-name">${escapeHtmlA(businessName)}</span><div class="small fw-normal" style="color:rgba(255,255,255,0.5);">Admin Panel</div></div><nav class="nav flex-column pt-2" aria-label="Admin navigation">`;
+  const logo = safeAdminImageUrl(settings.logo || STORAGE._get(STORAGE_KEYS.websiteContent, {}).logo);
+  const brandMark = logo
+    ? `<img src="${escapeHtmlA(logo)}" alt="">`
+    : `<span aria-hidden="true">${escapeHtmlA(String(businessName).charAt(0).toUpperCase() || 'A')}</span>`;
+  let html = `<div class="brand"><span class="sidebar-brand-mark${logo ? ' has-image' : ''}">${brandMark}</span><span class="sidebar-brand-copy"><span class="brand-name">${escapeHtmlA(businessName)}</span><small>Admin Panel</small></span></div><nav class="nav flex-column pt-2" aria-label="Admin navigation">`;
   ADMIN_NAV.forEach((item, index) => {
     if (item.section) {
       const visibleInSection = ADMIN_NAV.slice(index + 1).some(next => {
@@ -178,15 +218,15 @@ async function renderAdminSidebar(activeHref) {
         return (!OWNER_ONLY_ADMIN_PAGES.has(next.href) || isOwnerAdmin()) &&
           (!PRIMARY_OWNER_ONLY_ADMIN_PAGES.has(next.href) || isPrimaryOwnerAdmin());
       });
-      if (visibleInSection) html += `<div class="nav-section-label">${item.section}</div>`;
+      if (visibleInSection) html += `<div class="nav-section-label"><span>${item.section}</span></div>`;
     } else {
       if (OWNER_ONLY_ADMIN_PAGES.has(item.href) && !isOwnerAdmin()) return;
       if (PRIMARY_OWNER_ONLY_ADMIN_PAGES.has(item.href) && !isPrimaryOwnerAdmin()) return;
       const active = item.href === activeHref ? 'active' : '';
-      html += `<a class="nav-link ${active}" href="${item.href}"><i class="bi ${item.icon}"></i> ${item.label}</a>`;
+      html += `<a class="nav-link ${active}" href="${item.href}" title="${escapeHtmlA(item.label)}"><i class="bi ${item.icon}"></i><span class="nav-label">${item.label}</span></a>`;
     }
   });
-  html += `<a class="nav-link mt-3 border-top border-light border-opacity-25 pt-3" href="#" id="adminLogoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a></nav>`;
+  html += `<a class="nav-link sidebar-logout" href="#" id="adminLogoutBtn" title="Logout"><i class="bi bi-box-arrow-right"></i><span class="nav-label">Logout</span></a></nav>`;
   $('#adminSidebar').html(html);
   $('#adminLogoutBtn').on('click', function (e) {
     e.preventDefault();
@@ -211,6 +251,7 @@ async function initAdminChrome(activeHref, pageTitle) {
     else window.location.replace('dashboard.html');
     return;
   }
+  applyAdminAppearance();
   if (adminSpaActive) {
     document.querySelectorAll('#adminSidebar .nav-link').forEach(link => {
       link.classList.toggle('active', link.getAttribute('href') === activeHref);
@@ -220,6 +261,7 @@ async function initAdminChrome(activeHref, pageTitle) {
   }
   $('#adminPageTitle').text(pageTitle);
   initAdminSpaNavigation();
+  bindAdminSidebarAutoCollapse();
   window.initSyncPanel?.();
   await renderActionNotifications();
 
@@ -235,6 +277,10 @@ async function initAdminChrome(activeHref, pageTitle) {
     $('#sidebarToggleBtn').attr('aria-expanded', 'false');
   });
 }
+
+window.addEventListener?.('storage', event => {
+  if (event.key === STORAGE_KEYS.settings) applyAdminAppearance();
+});
 
 async function renderActionNotifications() {
   const topbar = document.querySelector('.admin-topbar');
@@ -531,6 +577,32 @@ function clearFieldError(selector) {
 
 function statusSelect(currentStatus, options, cssClass) {
   return `<select class="form-select form-select-sm ${cssClass || ''}">${options.map(o => `<option ${o === currentStatus ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
+}
+
+function resolveServicePresentationValue(service, field, content = null) {
+  const websiteContent = content || STORAGE._get(STORAGE_KEYS.websiteContent, {});
+  const map = websiteContent?.[field] || {};
+  const candidates = [service?.service_id, service?._server_id];
+  const serverId = service?._server_id ?? String(service?.service_id || '').match(/(\d+)$/)?.[1];
+  if (serverId !== undefined && serverId !== null && serverId !== '') {
+    candidates.push(`SVC-${String(serverId).padStart(3, '0')}`);
+    const aliases = STORAGE._get('er_sync_ids', {});
+    Object.entries(aliases).forEach(([key, value]) => {
+      if (key.startsWith('services:') && String(value) === String(serverId)) candidates.push(key.slice('services:'.length));
+    });
+  }
+  const key = candidates.find(candidate => candidate != null && map[String(candidate)]);
+  return key == null ? '' : map[String(key)];
+}
+
+// Service categories and images are presentation metadata because the server
+// service record has no fields for them. Resolve stable and pending local IDs.
+function resolveServiceCategoryId(service, content = null) {
+  return service?.category_id || resolveServicePresentationValue(service, 'service_categories', content);
+}
+
+function resolveServiceImageUrl(service, content = null) {
+  return resolveServicePresentationValue(service, 'service_images', content) || service?.image || '';
 }
 
 // Upload through the existing authenticated endpoint, then save the URL normally.

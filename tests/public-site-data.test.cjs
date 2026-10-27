@@ -13,6 +13,8 @@ function createHarness() {
     removeAttribute(name) { this[name] = null; }
   };
   const attributes = {};
+  const textValues = {};
+  const rootStyles = {};
   const requests = [];
   const rendered = [];
   const collections = {
@@ -69,7 +71,7 @@ function createHarness() {
       return undefined;
     }
     return {
-      on() { return this; }, text() { return this; }, attr(name, value) { attributes[String(argument) + ":" + name] = value; return this; },
+      on() { return this; }, text(value) { if (value !== undefined) textValues[String(argument)] = value; return this; }, attr(name, value) { attributes[String(argument) + ":" + name] = value; return this; },
       empty() {
         if (argument === '#servicesGrid') renderCounts.services++;
         if (argument === '#galleryGrid') renderCounts.gallery++;
@@ -90,7 +92,7 @@ function createHarness() {
     CONFIG: { businessNameFallback: 'AKAD Rentals' },
     document: {
       currentScript: { src: 'http://localhost/js/api.js' },
-      documentElement: { style: { setProperty() {} } },
+      documentElement: { style: { setProperty(name, value) { rootStyles[name] = value; } } },
       getElementById: id => id === 'publicDataStatus' ? publicDataStatus : id === 'howFacebookLink' ? bookingLink : null
     },
     window: { location: { href: 'http://localhost/index.html' } }
@@ -100,7 +102,7 @@ function createHarness() {
   vm.runInContext(fs.readFileSync(path.join(root, 'js', 'api.js'), 'utf8') + '\nglobalThis.API = API;', context);
   vm.runInContext(fs.readFileSync(path.join(root, 'js', 'app.js'), 'utf8'), context, { filename: 'js/app.js' });
   return {
-    context, requests, collections, renderCounts, payloads, publicDataStatus, rendered, bookingLink, attributes,
+    context, requests, collections, renderCounts, payloads, publicDataStatus, rendered, bookingLink, attributes, textValues, rootStyles,
     ready: () => readyCallback()
   };
 }
@@ -180,6 +182,33 @@ test('service cards prefer the uploaded website-content image after refresh', as
   await context.renderServices();
   assert.ok(rendered.some(html => html.includes('http://localhost/uploads/gallery/service.webp')));
   assert.ok(!rendered.some(html => html.includes('src="http://localhost/cached-service.jpg"')));
+});
+
+test('admin-managed hero content and theme colors render on the public site', async () => {
+  const { context, collections, attributes, textValues, rootStyles } = createHarness();
+  collections.websiteContent = {
+    hero_title: 'A custom celebration',
+    hero_description: 'Custom hero description',
+    hero_button_text: 'Plan with us',
+    hero_image: '/uploads/gallery/custom-hero.webp'
+  };
+  collections.settings = { primary_color: '#335577', accent_color: '#cc8844' };
+  await context.applySiteAppearance();
+  await context.renderHero();
+  assert.equal(rootStyles['--color-primary'], '#335577');
+  assert.equal(rootStyles['--color-accent'], '#cc8844');
+  assert.equal(textValues['#heroTitle'], 'A custom celebration');
+  assert.equal(textValues['#heroDesc'], 'Custom hero description');
+  assert.equal(textValues['#heroButtonText'], 'Plan with us');
+  assert.equal(attributes['#heroImage:src'], 'http://localhost/uploads/gallery/custom-hero.webp');
+});
+
+test('new-service images follow a temporary service ID after server synchronization', async () => {
+  const { context, collections, rendered } = createHarness();
+  collections.websiteContent = { service_images: { 'LOCAL-services-new': '/uploads/gallery/new-service.webp' } };
+  collections.er_sync_ids = { 'services:LOCAL-services-new': 1 };
+  await context.renderServices();
+  assert.ok(rendered.some(html => html.includes('http://localhost/uploads/gallery/new-service.webp')));
 });
 
 

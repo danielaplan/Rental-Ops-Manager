@@ -93,7 +93,10 @@
           <input type="color" class="form-control form-control-color" id="sAccentColor">
         </div>
       </div>
-      <p class="text-muted small mt-2 mb-0"><i class="bi bi-info-circle"></i> These colors are applied to the public website the next time it is loaded.</p>
+      <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="resetThemeBtn"><i class="bi bi-arrow-counterclockwise"></i> Restore default colors</button>
+        <span class="text-muted small" id="themePreviewStatus" role="status" aria-live="polite">Changes preview instantly. Save Settings to publish them.</span>
+      </div>
     </div>
 
     <button type="submit" class="btn btn-admin-primary px-4 py-2"><i class="bi bi-save"></i> Save Settings</button>
@@ -119,6 +122,19 @@ adminReady(async function () {
   await loadSettings();
   document.getElementById('sLogo').dispatchEvent(new Event('input'));
 
+  $('#sPrimaryColor, #sAccentColor').onAdmin('input', function () {
+    applyAdminAppearance({ primary_color: $('#sPrimaryColor').val(), accent_color: $('#sAccentColor').val() });
+    $('#themePreviewStatus').text('Previewing your selected colors. Save Settings to publish them.');
+  });
+
+  $('#resetThemeBtn').onAdmin('click', function () {
+    const defaults = CONFIG.themeDefaults;
+    $('#sPrimaryColor').val(defaults.primary);
+    $('#sAccentColor').val(defaults.accent);
+    applyAdminAppearance({ primary_color: defaults.primary, accent_color: defaults.accent });
+    $('#themePreviewStatus').text('Default colors selected. Click Save Settings to publish them.');
+  });
+
 
   $('#settingsForm').onAdmin('submit', async function (e) {
     e.preventDefault();
@@ -128,7 +144,7 @@ adminReady(async function () {
       if ($('#sLogo').val().trim() !== (websiteContent.logo || '')) {
         await API.updateWebsiteContent({ ...websiteContent, logo: $('#sLogo').val().trim() });
       }
-      await API.updateSettings({
+      const settings = {
         business_name: $('#sBusinessName').val().trim(),
         logo: $('#sLogo').val().trim(),
         phone: $('#sPhone').val().trim(),
@@ -142,7 +158,10 @@ adminReady(async function () {
         cancellation_policy: $('#sCancelPolicy').val().trim(),
         primary_color: $('#sPrimaryColor').val(),
         accent_color: $('#sAccentColor').val()
-      });
+      };
+      await API.updateSettings(settings);
+      applyAdminAppearance(settings);
+      $('#themePreviewStatus').text('Colors saved for the public website and admin interface.');
       showAdminToast(API.savedMessage());
     } catch (error) {
       showAdminToast(error.message, 'danger');
@@ -166,8 +185,9 @@ async function loadSettings() {
   $('#sHoursOpen').val(s.booking_hours_open);
   $('#sHoursClose').val(s.booking_hours_close);
   $('#sCancelPolicy').val(s.cancellation_policy);
-  $('#sPrimaryColor').val(s.primary_color || '#1F4E45');
-  $('#sAccentColor').val(s.accent_color || '#D9A441');
+  $('#sPrimaryColor').val(s.primary_color || CONFIG.themeDefaults.primary);
+  $('#sAccentColor').val(s.accent_color || CONFIG.themeDefaults.accent);
+  applyAdminAppearance(s);
 }
 </script>
 </body>

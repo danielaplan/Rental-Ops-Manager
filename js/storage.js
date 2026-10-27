@@ -342,8 +342,8 @@ function seedDatabase(force) {
     booking_hours_open: "08:00",
     booking_hours_close: "22:00",
     cancellation_policy: "Cancellations made at least 5 days before the event date receive a full refund of the downpayment. Cancellations within 5 days forfeit the downpayment.",
-    primary_color: "#1F4E45",
-    accent_color: "#D9A441"
+    primary_color: "#8a633f",
+    accent_color: "#d1a170"
   };
 
   STORAGE.saveAll("categories", categories);
