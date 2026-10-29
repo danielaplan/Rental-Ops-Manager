@@ -71,7 +71,13 @@ function packageCrudDefinition(): array {
 }
 
 function addonCrudDefinition(): array {
-    return ['addons', 'addon_id', ['service_id', 'name', 'price', 'status'], ['status' => 'Active'], [], null, true];
+    return ['addons', 'addon_id', ['service_id', 'name', 'price', 'status'], ['status' => 'Active'], [], function ($values, $old) {
+        if (array_key_exists('price', $values)) {
+            $cents = moneyCents($values['price']);
+            $values['price'] = centsDecimal($cents);
+        }
+        return $values;
+    }, true];
 }
 
 function galleryCrudDefinition(): array {
@@ -79,7 +85,14 @@ function galleryCrudDefinition(): array {
 }
 
 function rentalItemCrudDefinition(): array {
-    return ['rental_items','rental_item_id',['service_id','name','quantity','item_code','required','tracking','status','condition','notes'],['quantity'=>1,'required'=>0,'tracking'=>'quantity','status'=>'Available','condition'=>'Good']];
+    return ['rental_items','rental_item_id',['service_id','name','quantity','item_code','required','tracking','status','condition','notes'],['quantity'=>1,'required'=>0,'tracking'=>'quantity','status'=>'Available','condition'=>'Good'],[],function ($values,$old) {
+        if (array_key_exists('quantity',$values)) {
+            $qty=asInt($values['quantity'],0);
+            if ($qty===null || $qty<0) domainFail('Quantity must be a non-negative integer.');
+            $values['quantity']=$qty;
+        }
+        return $values;
+    }];
 }
 
 function categoryCrudDefinition(): array {
