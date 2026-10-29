@@ -11,24 +11,31 @@ function copyBookingChecklist(PDO $pdo, int $bookingId, ?int $packageId): array
     lockBooking($pdo, $bookingId);
     $existing = checklistRows($pdo, $bookingId);
     if ($existing) return $existing;
-    if (!$packageId) domainFail('Checklist cannot be empty — add a template or package items first.');
+    if (!$packageId) return [];
     $q = $pdo->prepare("SELECT template_id FROM checklist_templates WHERE package_id=? AND status='Active' ORDER BY template_id FOR UPDATE");
     $q->execute([$packageId]);
     $templates = $q->fetchAll(PDO::FETCH_COLUMN);
     if (count($templates) > 1) domainFail('The package has multiple active checklist templates.');
     if ($templates) $pdo->prepare('INSERT INTO booking_checklist_items(booking_id,template_item_id,item_name_snapshot,expected_quantity) SELECT ?,template_item_id,item_name,expected_quantity FROM checklist_template_items WHERE template_id=? ORDER BY template_item_id')->execute([$bookingId, $templates[0]]);
-    $result = checklistRows($pdo, $bookingId);
-    if (empty($result)) domainFail('Checklist cannot be empty — add a template or package items first.');
-    return $result;
+    return checklistRows($pdo, $bookingId);
 }
 function updateChecklistItem(PDO $pdo, int $bookingId, int $itemId, array $body, int $ownerId): array
 {
     $booking = lockBooking($pdo, $bookingId);
-    if (in_array($booking['status'], ['Awaiting Payment', 'Confirmed', 'Completed', 'Cancelled'], true)) domainFail('Released or historical checklists cannot be edited.');
+    if (in_array($booking['status'], ['Awaiting Payment', 'Completed', 'Cancelled'], true)) domainFail('Historical checklists cannot be edited.');
     $q = $pdo->prepare('SELECT * FROM booking_checklist_items WHERE checklist_item_id=? AND booking_id=? FOR UPDATE');
     $q->execute([$itemId, $bookingId]);
     $old = $q->fetch();
     if (!$old) domainFail('Checklist item not found.', 404, 'not_found');
+    $release = $pdo->prepare('SELECT 1 FROM item_releases WHERE booking_id=? LIMIT 1 FOR UPDATE');
+    $release->execute([$bookingId]);
+    if ($release->fetchColumn()) {
+        $requestedReleased = $body['quantity_released'] ?? $body['released_qty'] ?? $old['quantity_released'];
+        $requestedCondition = array_key_exists('condition_out', $body) ? $body['condition_out'] : $old['condition_out'];
+        if ((string)$requestedReleased !== (string)$old['quantity_released'] || $requestedCondition !== $old['condition_out']) {
+            domainFail('Released quantities and conditions cannot change after dispatch.', 409, 'released_checklist_locked');
+        }
+    }
     $releasedValue = $body['quantity_released'] ?? $body['released_qty'] ?? (array_key_exists('checked_released', $body) ? (!empty($body['checked_released']) ? $old['expected_quantity'] : 0) : $old['quantity_released']);
     $released = asInt($releasedValue, 0);
     $returned = asInt($body['quantity_returned'] ?? $body['returned_qty'] ?? $old['quantity_returned'], 0);

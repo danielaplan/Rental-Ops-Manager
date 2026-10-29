@@ -182,8 +182,8 @@ test('scenario 3: cancellation waits for dispatched-equipment recovery and then 
   const blocked = await request(`api/bookings.php?do=cancel&id=${created.booking_id}`, {
     cancellation_reason: 'Attempted before equipment recovery',
   }, 409);
-  assert.equal(blocked.code, 'equipment_recovery_required');
-  assert.match(blocked.error, /Return and inspect all dispatched equipment/);
+  assert.equal(blocked.code, 'equipment_return_required');
+  assert.match(blocked.error, /Record the returned quantity and condition/);
   assert.equal((await booking(created.booking_id)).status, 'Confirmed');
   assert.equal(sql(`SELECT quantity_released FROM booking_checklist_items WHERE checklist_item_id=${Number(item.checklist_item_id)}`), '1');
 
@@ -211,7 +211,7 @@ test('scenario 4: referenced packages cannot move services while unreferenced pa
   const blocked = await request(`api/packages.php?do=update&id=${referenced.package_id}`, {
     service_id: serviceB.service_id,
   }, 409);
-  assert.equal(blocked.code, 'referenced_package_service_change');
+  assert.equal(blocked.code, 'package_service_locked');
   const packageAfter = (await request(`api/packages.php?do=get&id=${referenced.package_id}`)).data;
   const bookingAfter = await booking(booked.booking_id);
   assert.equal(Number(packageAfter.service_id), Number(serviceA.service_id));
@@ -277,6 +277,6 @@ test('scenario 5: Payments, Dashboard, and Reports align outstanding balances an
   const reportsPage = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'admin', 'reports.html'), 'utf8');
   assert.match(paymentsPage, /balanceBookings = bookings\.filter\(b => !\['Cancelled', 'Rejected'\]\.includes\(b\.status\)\)/);
   assert.match(dashboardPage, /stats\.balances\?\.outstanding_balances/);
-  assert.match(reportsPage, /report\.balances\?\.outstanding_balances/);
+  assert.match(reportsPage, /PaymentsHelper\.totalOutstanding\(bookings, pendingPaymentIndex\)/);
 });
 

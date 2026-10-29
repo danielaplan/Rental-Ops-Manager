@@ -31,7 +31,7 @@ function packageCrudDefinition(): array {
         $q = db()->prepare('SELECT booking_id FROM bookings WHERE package_id=? LIMIT 1 FOR UPDATE');
         $q->execute([(int)$old['package_id']]);
         if ($q->fetchColumn()) {
-            domainFail('A package used by an existing booking cannot move to another service.',409,'referenced_package_service_change');
+domainFail('A package used by an existing booking cannot move to another service.',409,'package_service_locked');
         }
     }
     $q = db()->prepare('SELECT 1 FROM services WHERE service_id=?');

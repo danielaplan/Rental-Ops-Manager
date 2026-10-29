@@ -11,6 +11,7 @@ Document important changes using the [Feature Note Template](<../99 Templates/Fe
 
 ## Entries
 
+- [2026-10-30 — Post-merge acceptance repair](<2026-10-30 Post-Merge Acceptance Repair.md>)
 - [2026-10-29 — Booking integrity scenario fixes](<2026-10-29 Booking Integrity Scenario Fixes.md>)
 - [2026-10-19 — Booking flow corrections](<2026-10-19 Booking Flow Corrections.md>)
 - [2026-10-19 — Notification booking navigation](<2026-10-19 Notification Booking Navigation.md>)

@@ -423,6 +423,7 @@ CREATE TABLE IF NOT EXISTS BOOKING_CHECKLIST_ITEMS (
     return_status VARCHAR(30) NOT NULL DEFAULT 'pending',
     checked_by INT NULL,
     checked_at DATETIME NULL,
+    notes TEXT NULL,
     legacy_checklist_id INT NULL,
     UNIQUE KEY uq_checklist_legacy (legacy_checklist_id),
     FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id) ON DELETE RESTRICT,

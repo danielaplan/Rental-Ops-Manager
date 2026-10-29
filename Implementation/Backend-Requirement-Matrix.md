@@ -2,6 +2,14 @@
 
 Completion pass: 2026-10-15. This matrix supplements the revised backend plan and supersedes older blanket completion claims. **Implemented** describes repository code; **locally verified** describes only the synthetic environment below. Neither means operational migration, client acceptance, or production readiness.
 
+## Post-merge integration correction — 2026-10-30
+
+A fresh clean-schema acceptance run exposed and corrected integration drift introduced when the 2026-10-29 clusters were merged. The clean schema now includes checklist inspection notes; package-free bookings and packages without templates can be created while equipment release still requires a complete nonempty checklist; confirmed bookings can prepare outgoing checklist quantities until dispatch, after which outgoing quantities and conditions are locked; and the package-move rejection uses the shared `package_service_locked` contract.
+
+Offline payment drafts no longer mutate server-accepted booking totals. Local checklist generation follows the same creation-versus-release boundary as the backend, booking/payment IDs remap once after replay, and stale booking conflicts expose both retry and discard controls. Focused PHP tests passed 6/6, the lifecycle test passed 1/1, focused bug scenarios passed 5/5, and the live PHP/MySQL offline suite passed 20/20.
+
+The final unchanged-source acceptance run passed all ten backend/sync files, 20 offline integration checks, 5 focused bug scenarios, 65 frontend tests, syntax checks, and `git diff --check`. Evidence is stored in the ignored directory `tests/acceptance-results/1793302064773-5188/`. This is synthetic local evidence only; browser/device, Hostinger, staging, production, and client acceptance remain separate gates. No migration or operational database was accessed.
+
 ## Financial, equipment-history, catalog, and balance safeguards — 2026-10-29
 
 | Finding | Status | Current verification |

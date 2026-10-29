@@ -94,7 +94,7 @@ test('release and return queue only their atomic server operations', () => {
   assert.match(bookings, /for \(const row of \$\('#releaseChecklistWrap \.checklist-row'\)\.toArray\(\)\)/);
   assert.match(bookings, /await API\.updateBookingItem\(\$row\.data\('item'\), \{/);
   assert.match(bookings, /A short return must be marked Missing and include item notes/);
-  assert.match(checklist, /array_key_exists\('condition_out',\$body\)/);
+  assert.match(checklist, /array_key_exists\('condition_out',\s*\$body\)/);
   assert.match(inspection, /A short return must be marked Missing and include item notes/);
   assert.match(availability, /condition_in<>'Missing'/);
   assert.match(bookings, /approval_base: approvalBase/);

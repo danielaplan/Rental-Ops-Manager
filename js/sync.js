@@ -205,10 +205,7 @@
       for(const serviceId of serviceIds||[])for(const item of STORAGE.getAll('rentalItems').filter(row=>String(row.service_id)===String(serviceId))){
         created.push({booking_item_id:nextLocalId('bookingItems'),booking_id:bookingId,rental_item_id:item.rental_item_id,service_id:serviceId,name:item.name,expected_qty:Number(item.quantity||0),released_qty:0,returned_qty:0,required:Boolean(item.required),checked_released:false,condition:'',notes:'',pending_sync:true});
       }
-    }else{
-      throw new Error('Package has no active checklist template.');
     }
-    if(!created.length)throw new Error('Checklist cannot be empty — add a template or package items first.');
     saveRows('bookingItems',[...retained,...created]);return created;
   };
   const upsertLocalCustomer=booking=>{
@@ -289,14 +286,6 @@
         if(entity==='bookings'&&action==='create'){
           upsertLocalCustomer(result);generateLocalChecklist(localId,result.service_ids||[],result.package_id);
         enqueue('bookingItems','generate',{booking_id:localId,service_ids:data.service_ids||[]},localId);
-      }
-      if(entity==='payments'&&action==='create'){
-        const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(result.booking_id));
-        if(booking){booking.amount_paid=Number(booking.amount_paid||0)+Number(result.amount||0);booking.payment_status=booking.amount_paid>=Number(booking.total||0)?'Fully Paid':'Partial';saveRows('bookings',STORAGE.getAll('bookings'));}
-      }
-      if(entity==='payments'&&action==='update'){
-        const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(result.booking_id));
-        if(booking){booking.amount_paid=STORAGE.getAll('payments').filter(row=>String(row.booking_id)===String(result.booking_id)&&String(row.payment_status||'Completed')==='Completed').reduce((sum,row)=>sum+Number(row.amount||0),0);booking.payment_status=booking.amount_paid>=Number(booking.total||0)?'Fully Paid':booking.amount_paid>0?'Partial':'Unpaid';saveRows('bookings',STORAGE.getAll('bookings'));}
       }
       return {...result,operation_id:operation.client_id};
     };

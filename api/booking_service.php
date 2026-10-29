@@ -45,25 +45,6 @@ function requireCurrentApprovalBase(array $old, array $body): void {
     }
 }
 
-function requireRecoveredEquipmentBeforeCancellation(PDO $pdo, int $bookingId): void {
-    $q = $pdo->prepare("SELECT checklist_item_id FROM booking_checklist_items
-        WHERE booking_id=? AND COALESCE(quantity_released,0)>0 AND (
-          checked_by IS NULL OR checked_at IS NULL OR condition_in IS NULL OR TRIM(condition_in)='' OR
-          return_status NOT IN ('inspected','damaged','missing') OR quantity_returned>quantity_released OR
-          (quantity_returned<quantity_released AND (return_status<>'missing' OR condition_in<>'Missing'))
-        ) LIMIT 1 FOR UPDATE");
-    $q->execute([$bookingId]);
-    $unresolved = (bool)$q->fetchColumn();
-    if (!$unresolved) {
-        $q = $pdo->prepare('SELECT booking_item_id FROM booking_items WHERE booking_id=? AND released_qty>returned_qty LIMIT 1 FOR UPDATE');
-        $q->execute([$bookingId]);
-        $unresolved = (bool)$q->fetchColumn();
-    }
-    if ($unresolved) {
-        domainFail('Return and inspect all dispatched equipment before cancelling this booking.',409,'equipment_recovery_required');
-    }
-}
-
 function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $ownerId): int {
     foreach (['status','customer_name','contact','contact_number','email','location','event_location','cancellation_reason','theme_notes','source','event_type','special_requests','customer_type'] as $field) {
         if (isset($body[$field]) && !is_string($body[$field])) domainFail($field.' must be text.');

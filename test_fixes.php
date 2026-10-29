@@ -148,4 +148,32 @@ test('referenced packages cannot move services while unreferenced packages can',
     assertSameValue($ids['other_service'], (int)$service);
 });
 
+test('clean schema checklist rows persist inspection notes', function (PDO $pdo): void {
+    $ids = fixtureIds($pdo);
+    $bookingId = fixtureBooking($pdo, $ids, 'Pending', '500.00');
+    $pdo->prepare(
+        "INSERT INTO booking_checklist_items(
+            booking_id,item_name_snapshot,expected_quantity,notes
+         ) VALUES(?,'Synthetic noted item',1,'Synthetic inspection note')"
+    )->execute([$bookingId]);
+
+    $rows = checklistRows($pdo, $bookingId);
+    assertSameValue('Synthetic inspection note', $rows[0]['notes']);
+});
+
+test('package-free booking creation defers checklist enforcement to release', function (PDO $pdo): void {
+    $ids = fixtureIds($pdo);
+    $bookingId = saveBooking($pdo, 'create', null, [
+        'customer_id' => $ids['customer'],
+        'service_id' => $ids['service'],
+        'event_start_datetime' => '2035-10-01 10:00:00',
+        'event_end_datetime' => '2035-10-01 11:00:00',
+        'event_location' => 'Synthetic package-free venue',
+        'status' => 'Pending',
+        'agreed_total' => '500.00',
+    ], $ids['owner']);
+
+    assertSameValue([], checklistRows($pdo, $bookingId));
+});
+
 finishTests();

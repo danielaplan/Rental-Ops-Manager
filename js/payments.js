@@ -49,7 +49,11 @@ const PaymentsHelper = {
 
   async acceptedAmountPaid(booking, pendingAmounts) {
     const recorded = PaymentsHelper.amountCents(booking.amount_paid || 0) || 0;
-    return recorded / 100;
+    const bookingId = String(booking.id ?? booking.booking_id ?? '');
+    const queued = bookingId.startsWith('LOCAL-')
+      ? (PaymentsHelper.amountCents(pendingAmounts?.get(bookingId) || 0) || 0)
+      : 0;
+    return Math.max(recorded - queued, 0) / 100;
   },
 
   async paymentStatus(booking, pendingAmounts) {
