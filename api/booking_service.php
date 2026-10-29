@@ -123,6 +123,21 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     $snapshotPrice = $packageChanged ? ($package['price'] ?? null) : $old['package_price_snapshot'];
     $totals = $old && !$packageChanged && !array_intersect(['addon_ids','discount','fees'],array_keys($body)) ? ['subtotal'=>$old['subtotal'],'addons_total'=>$old['addons_total'],'total'=>$old['total']] : calculateBookingTotals($pdo,$serviceId,$packageId,$addons,$discount,$fees,$snapshotPrice);
     $agreed = centsDecimal(moneyCents($body['agreed_total'] ?? $body['total'] ?? ($old['agreed_total'] ?? $totals['total'])));
+        if ($old) {
+            $completedCents = completedBookingPaymentsCents(
+                $pdo,
+                (int)$old['booking_id']
+            );
+            $agreedCents = moneyCents($agreed);
+
+            if ($agreedCents < $completedCents) {
+                domainFail(
+                    'Agreed total cannot be less than completed rental payments.',
+                    409,
+                    'collected_payments_exceed_total'
+                );
+            }
+        }
     $conflicts = ['bookings'=>[],'blocks'=>[]];
     $reason = '';
     $changedReservation = !$old || $old['status'] !== $status || (int)$old['service_id'] !== $serviceId || $old['blocked_start_datetime'] !== $blockedStart || $old['blocked_end_datetime'] !== $blockedEnd;
