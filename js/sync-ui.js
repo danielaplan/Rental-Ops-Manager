@@ -20,18 +20,28 @@
         if(!date||!start||!end||start>=end||!location){form.querySelector('[role=alert]').textContent='Choose a location, date and an end time after the start time.';return;}
         void runSync(() => API.retrySyncOperation(form.dataset.operation,{event_date:date,start_time:start,end_time:end,event_location:location}));
       });
-      panel.addEventListener('click',e=>{const button=e.target.closest('[data-retry]');if(button)void runSync(() => API.retrySyncOperation(button.dataset.retry));});
+      panel.addEventListener('click',e=>{
+        const retry=e.target.closest('[data-retry]');
+        if(retry){void runSync(() => API.retrySyncOperation(retry.dataset.retry));return;}
+        const discard=e.target.closest('[data-discard]');
+        if(!discard)return;
+        const operation=API.getSyncQueue().find(op=>op.client_id===discard.dataset.discard);
+        const label=operation?.data?.customer_name||operation?.local_id||operation?.entity||'this local change';
+        if(!window.confirm(`Discard ${label}? This removes only the unsynced local change; accepted server records are not deleted.`))return;
+        void runSync(async()=>{API.discardSyncOperation(discard.dataset.discard);if(navigator.onLine)await API.refreshSharedData();});
+      });
     }
     render();
   };
   function render(){
     const status=document.querySelector('#syncStatus');if(!status)return;
-    const ops=API.getSyncQueue(),conflicts=ops.filter(op=>op.status==='conflict').length,failed=ops.filter(op=>op.status==='failed').length;
-    status.textContent=(navigator.onLine?'Online':'Offline')+' · '+(syncing?'Syncing · ':'')+ops.length+' Pending Sync'+(conflicts?' · '+conflicts+' conflicts':'')+(failed?' · '+failed+' need attention':'');
+    const ops=API.getSyncQueue(),pending=ops.filter(op=>op.status==='pending').length,conflicts=ops.filter(op=>op.status==='conflict').length,failed=ops.filter(op=>op.status==='failed').length;
+    const counts=ops.length?`${pending} pending · ${conflicts} conflicts · ${failed} need attention`:'All changes synced';
+    status.textContent=(navigator.onLine?'Online':'Offline')+' · '+(syncing?'Syncing · ':'')+counts;
     const error=document.querySelector('#syncReadError');
     if(error){error.textContent=readError;error.hidden=!readError;}
     document.querySelector('#syncNow').disabled=!navigator.onLine||syncing||working;
-    document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||!navigator.onLine;});
+    document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||(!navigator.onLine&&!button.matches('[data-discard]'));});
     document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline pages are ready on this device. Existing signed-in sessions can record local entries.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
     if(working||document.activeElement?.closest('.sync-edit'))return;
 
@@ -68,7 +78,9 @@
         <div class="col-sm-4"><label for="end-${op.client_id}">End time</label><input required class="form-control" id="end-${op.client_id}" name="end_time" type="time" value="${esc(String(draft.end_time||'').slice(0,5))}"></div>
         <div class="col-12"><label for="location-${op.client_id}">Event location</label><input required class="form-control" id="location-${op.client_id}" name="event_location" type="text" value="${esc(draft.event_location||draft.location||'')}"></div>
         <div role="alert" class="text-danger small"></div><div><button class="btn btn-sm btn-admin-primary">Apply and retry</button></div></form></details>`:'';
-      return `<article class="border-top py-2"><strong>${esc(op.entity)} · ${esc(op.action)}</strong><span class="badge bg-secondary ms-2">${esc(op.status==='pending'?'Pending Sync':op.status)}</span><p class="small mb-1">${esc(draft.customer_name||op.local_id||'')} ${esc(draft.event_date||'')}</p>${op.reason?`<p class="text-danger small" role="alert">${esc(op.reason)} Your draft is retained.</p>`:''}${editor}${op.status==='failed'&&!editor?`<button type="button" class="btn btn-sm btn-outline-secondary" data-retry="${op.client_id}">Retry</button>`:''}</article>`;
+      const retry=op.status==='failed'&&!editor?`<button type="button" class="btn btn-sm btn-outline-secondary" data-retry="${esc(op.client_id)}">Retry</button>`:'';
+      const discard=['failed','conflict'].includes(op.status)?`<button type="button" class="btn btn-sm btn-outline-danger ms-2" data-discard="${esc(op.client_id)}">Discard local change</button>`:'';
+      return `<article class="border-top py-2"><strong>${esc(op.entity)} · ${esc(op.action)}</strong><span class="badge bg-secondary ms-2">${esc(op.status==='pending'?'Pending Sync':op.status)}</span><p class="small mb-1">${esc(draft.customer_name||op.local_id||'')} ${esc(draft.event_date||'')}</p>${op.reason?`<p class="text-danger small" role="alert">${esc(op.reason)} Your draft is retained.</p>`:''}${editor}<div class="mt-2">${retry}${discard}</div></article>`;
     }).join(''):'<p class="small text-muted mb-0">No pending changes for this signed-in user.</p>';
   }
   window.addEventListener('sync-state-changed',e=>{if(e.detail?.syncing!==undefined)syncing=e.detail.syncing;render();});

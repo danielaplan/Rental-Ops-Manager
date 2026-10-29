@@ -93,12 +93,14 @@ const AdminAuth = {
   async requireLogin() {
     if (!this.isLoggedIn()) {
       window.location.href = 'login.html';
-      return;
+      return false;
     }
     const valid = await this.verifyWithServer();
     if (!valid) {
       window.location.href = 'login.html';
+      return false;
     }
+    return true;
   }
 };
 
@@ -195,7 +197,7 @@ async function renderAdminSidebar(activeHref) {
 }
 
 async function initAdminChrome(activeHref, pageTitle) {
-  if (!adminSpaActive) await AdminAuth.requireLogin();
+  if (!adminSpaActive && !(await AdminAuth.requireLogin())) return false;
   if (OWNER_ONLY_ADMIN_PAGES.has(activeHref) && !isOwnerAdmin()) {
     if (adminSpaActive) {
       await navigateAdminPage('dashboard.html', { replace: true });
@@ -234,30 +236,48 @@ async function initAdminChrome(activeHref, pageTitle) {
     $(this).removeClass('show');
     $('#sidebarToggleBtn').attr('aria-expanded', 'false');
   });
+  return true;
 }
 
 async function renderActionNotifications() {
   const topbar = document.querySelector('.admin-topbar');
-  if (!topbar || document.getElementById('adminNotifications')) return;
-  const wrap = document.createElement('div');
-  wrap.id = 'adminNotifications';
-  wrap.className = 'dropdown ms-auto me-2';
-  topbar.appendChild(wrap);
+  if (!topbar) return;
+  let wrap = document.getElementById('adminNotifications');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'adminNotifications';
+    wrap.className = 'dropdown ms-auto me-2';
+    topbar.appendChild(wrap);
+  }
+  wrap.innerHTML = '<span class="small text-muted" role="status">Loading notifications…</span>';
   try {
     const rows = await API.getNotifications();
     const views = {
-      awaiting_completion: { action: 'Complete return review', tab: 'return' },
-      awaiting_payment: { action: 'Collect outstanding balance', tab: 'payments' }
+      awaiting_completion: { action: 'Complete return review', tab: 'return' }
     };
     wrap.innerHTML = `<button class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Action-required notifications"><i class="bi bi-bell"></i>${rows.length ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${rows.length}</span>` : ''}</button><div class="dropdown-menu dropdown-menu-end p-2" style="min-width:min(94vw,28rem);max-height:70vh;overflow:auto"><h6 class="dropdown-header">Action required</h6>${rows.length ? rows.map(row => {
-      const view = views[row.notification_type] || { action: 'Review booking', tab: 'details' };
-      const balance = row.notification_type === 'awaiting_payment' ? ` · ${BookingCalc.formatCurrency(row.outstanding_balance)} due` : '';
-      return `<a class="dropdown-item text-wrap border-bottom py-2" data-admin-reload href="bookings.html?booking_id=${encodeURIComponent(row.booking_id)}&tab=${view.tab}"><span class="d-flex justify-content-between gap-2"><strong>${escapeHtmlA(row.booking_reference || `Booking ${row.booking_id}`)}</strong><span class="badge bg-warning text-dark">${escapeHtmlA(row.booking_status)}</span></span><span class="d-block small fw-semibold">${escapeHtmlA(view.action)}${escapeHtmlA(balance)}</span><span class="d-block small">${escapeHtmlA(row.customer_name)} · ${escapeHtmlA(row.service_name)}</span><span class="d-block small text-muted">${escapeHtmlA(BookingCalc.formatDate(row.event_date))}, ${escapeHtmlA(BookingCalc.formatTime(row.start_time))}–${escapeHtmlA(BookingCalc.formatTime(row.end_time))}</span><span class="d-block small text-muted mt-1">${escapeHtmlA(row.message)}</span></a>`;
+      const due = Math.max(0, Number(row.outstanding_balance) || 0);
+      let view = views[row.notification_type] || { action: 'Review booking', tab: 'details' };
+      let balance = '';
+      let message = row.message;
+      if (row.notification_type === 'awaiting_payment') {
+        if (due > 0) {
+          view = { action: 'Collect outstanding balance', tab: 'payments' };
+          balance = ` · ${BookingCalc.formatCurrency(due)} due`;
+          message = `Collect the remaining ${BookingCalc.formatCurrency(due)} before completing the booking.`;
+        } else {
+          view = { action: 'Complete fully paid booking', tab: 'return' };
+          message = 'Payment is fully collected. Complete the booking to resolve this notification.';
+        }
+      }
+      return `<a class="dropdown-item text-wrap border-bottom py-2" data-admin-reload href="bookings.html?booking_id=${encodeURIComponent(row.booking_id)}&tab=${view.tab}"><span class="d-flex justify-content-between gap-2"><strong>${escapeHtmlA(row.booking_reference || `Booking ${row.booking_id}`)}</strong><span class="badge bg-warning text-dark">${escapeHtmlA(row.booking_status)}</span></span><span class="d-block small fw-semibold">${escapeHtmlA(view.action)}${escapeHtmlA(balance)}</span><span class="d-block small">${escapeHtmlA(row.customer_name)} · ${escapeHtmlA(row.service_name)}</span><span class="d-block small text-muted">${escapeHtmlA(BookingCalc.formatDate(row.event_date))}, ${escapeHtmlA(BookingCalc.formatTime(row.start_time))}–${escapeHtmlA(BookingCalc.formatTime(row.end_time))}</span><span class="d-block small text-muted mt-1">${escapeHtmlA(message)}</span></a>`;
     }).join('') : '<span class="dropdown-item-text text-muted">No action-required bookings.</span>'}</div>`;
   } catch (error) {
-    wrap.innerHTML = '<span class="small text-muted">Notifications unavailable</span>';
+    wrap.innerHTML = `<span class="small text-danger" role="alert">Notifications unavailable: ${escapeHtmlA(error.message||'Check the server connection.')}</span> <button type="button" class="btn btn-sm btn-outline-secondary" data-retry-notifications>Retry</button>`;
+    wrap.querySelector('[data-retry-notifications]')?.addEventListener('click',()=>{void renderActionNotifications();},{once:true});
   }
 }
+window.refreshActionNotifications=renderActionNotifications;
 
 function initAdminSpaNavigation() {
   const currentMain = document.querySelector('main.admin-main');

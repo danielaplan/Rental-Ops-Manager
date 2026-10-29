@@ -273,7 +273,9 @@ test('notification links reliably open their booking without waiting for the tab
   assert.match(admin, /booking_id=\$\{encodeURIComponent\(row\.booking_id\)\}&tab=\$\{view\.tab\}/);
   assert.match(admin, /link\.hasAttribute\('data-admin-reload'\)/);
   assert.match(admin, /awaiting_completion: \{ action: 'Complete return review', tab: 'return' \}/);
-  assert.match(admin, /awaiting_payment: \{ action: 'Collect outstanding balance', tab: 'payments' \}/);
+  assert.match(admin, /view = \{ action: 'Collect outstanding balance', tab: 'payments' \}/);
+  assert.match(admin, /view = \{ action: 'Complete fully paid booking', tab: 'return' \}/);
+  assert.match(admin, /Payment is fully collected\. Complete the booking to resolve this notification\./);
   assert.ok(bookings.indexOf('const tableLoad = renderBookingsTable();') < bookings.indexOf('await openBookingDetail(requestedBookingId'));
   assert.ok(bookings.indexOf('await openBookingDetail(requestedBookingId') < bookings.indexOf('await tableLoad;'));
 });
@@ -389,4 +391,31 @@ test('stale booking location conflicts expose the location comparison and retry 
   assert.match(html, /Original location/);
   assert.match(html, /Client B location/);
   assert.match(html, /Client A location/);
+  assert.match(html, /Discard local change/);
+});
+
+test('sync summary separates pending, conflicts, and failed operations', () => {
+  let panel;
+  const controls = new Map();
+  function element(key) {
+    if (!controls.has(key)) controls.set(key, {
+      listeners: {}, innerHTML: '', textContent: '', addEventListener(type, callback) { this.listeners[type] = callback; },
+      querySelector: element, after() {}, closest() { return null; }
+    });
+    return controls.get(key);
+  }
+  const operations = [
+    ...Array.from({ length: 8 }, (_, index) => ({ client_id: `c${index}`, entity: 'bookings', action: 'create', local_id: `c${index}`, status: 'conflict', data: {} })),
+    ...Array.from({ length: 21 }, (_, index) => ({ client_id: `f${index}`, entity: 'payments', action: 'create', local_id: `f${index}`, status: 'failed', data: {} }))
+  ];
+  const context = vm.createContext({
+    API: { getSyncQueue: () => operations }, STORAGE: { getAll: () => [] }, escapeHtmlA: String,
+    navigator: { onLine: true }, document: {
+      querySelector: selector => selector === '#syncPanel' ? panel : element(selector), querySelectorAll: () => [],
+      createElement: () => (panel = element('#syncPanel')), addEventListener() {}, activeElement: null
+    }, window: { addEventListener() {}, akadOfflineReady: true, clearTimeout() {}, setTimeout() {}, confirm: () => false }
+  });
+  vm.runInContext(fs.readFileSync(path.join(root, 'js/sync-ui.js'), 'utf8'), context);
+  context.window.initSyncPanel();
+  assert.equal(element('#syncStatus').textContent, 'Online · 0 pending · 8 conflicts · 21 need attention');
 });

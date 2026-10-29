@@ -61,6 +61,7 @@ The diagram follows equipment information from the reusable package template to 
 - Returned quantity cannot exceed released quantity. A short return must be marked missing.
 - Every reviewed row needs a return condition and inspected/damaged/missing state.
 - Equipment release is rejected for a non-Confirmed booking, an incomplete outgoing checklist, or a duplicate release.
+- Cancellation is rejected while dispatched checklist quantities still need a return inspection. The owner must first record returned, damaged, or missing equipment so cancellation cannot strand an uneditable checklist.
 - Checklist rows document equipment; catalog quantity is not a real-time stock-reservation engine.
 
 ### Remember This
