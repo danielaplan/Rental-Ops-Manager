@@ -17,6 +17,15 @@ function completedBookingPaymentsCents(PDO $pdo, int $bookingId): int
     return moneyCents($query->fetchColumn());
 }
 
+function bookingBalanceCents(
+    PDO $pdo,
+    int $bookingId,
+    $agreedTotal
+): int {
+    return moneyCents($agreedTotal)
+        - completedBookingPaymentsCents($pdo, $bookingId);
+}
+
 function calculateBookingTotals(PDO $pdo, int $serviceId, ?int $packageId, array $addonIds, $discount, $fees, $snapshotPrice = null): array
 {
     $packagePrice = $snapshotPrice ?? 0;

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/domain.php';
+require_once __DIR__ . '/availability_service.php';
 
 function savePayment(PDO $pdo, string $action, ?int $id, array $body, array $owner): array {
     if (!in_array($action,['create','update'],true) || empty($owner['user_id'])) domainFail('An authenticated payment action is required.');
@@ -46,4 +47,26 @@ function savePayment(PDO $pdo, string $action, ?int $id, array $body, array $own
     }
     auditWrite($pdo,$owner['user_id'],$old?'payment_corrected':'payment_recorded','payment',$id,json_encode(['before'=>$old ?: null,'after'=>$values,'reason'=>$body['correction_reason'] ?? null]));
     $q=$pdo->prepare('SELECT * FROM payments WHERE payment_id=?'); $q->execute([$id]); return $q->fetch();
+
+    auditWrite(
+        $pdo,
+        $owner['user_id'],
+        $old ? 'payment_corrected' : 'payment_recorded',
+        'payment',
+        $id,
+        json_encode([
+            'before' => $old ?: null,
+            'after' => $values,
+            'reason' => $body['correction_reason'] ?? null
+        ])
+    );
+
+    if ($old) {
+        reopenCompletedBookingForPaymentCorrection(
+            $pdo,
+            $bid,
+            (int)$owner['user_id'],
+            (int)$id
+        );
+    }
 }
