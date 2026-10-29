@@ -173,7 +173,10 @@
       for(const serviceId of serviceIds||[])for(const item of STORAGE.getAll('rentalItems').filter(row=>String(row.service_id)===String(serviceId))){
         created.push({booking_item_id:nextLocalId('bookingItems'),booking_id:bookingId,rental_item_id:item.rental_item_id,service_id:serviceId,name:item.name,expected_qty:Number(item.quantity||0),released_qty:0,returned_qty:0,required:Boolean(item.required),checked_released:false,condition:'',notes:'',pending_sync:true});
       }
+    }else{
+      throw new Error('Package has no active checklist template.');
     }
+    if(!created.length)throw new Error('Checklist cannot be empty — add a template or package items first.');
     saveRows('bookingItems',[...retained,...created]);return created;
   };
   const upsertLocalCustomer=booking=>{
