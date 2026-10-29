@@ -30,7 +30,7 @@ Ana’s Completed GCash payment is counted as collected revenue on its `payment_
 ### Step-by-step workflow
 
 1. Choose a date range for the detailed report.
-2. Revenue sums Completed payments whose payment date is in the range.
+2. Revenue sums Completed payments whose payment date is in the range, even when no booking event starts in that range.
 3. Event counts and popularity use booking event-start dates in the range.
 4. Outstanding balances use agreed totals minus all Completed payments and exclude Cancelled bookings.
 5. Deposits, refundable balances, and deductions are lifetime operational figures.
