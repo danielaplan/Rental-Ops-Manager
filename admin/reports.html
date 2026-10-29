@@ -192,10 +192,7 @@ async function renderReport(startDate, endDate) {
   const pendingPayments = payments.filter(payment => payment.pending_sync && bookingIds.has(String(payment.booking_id)));
   const pendingPaymentTotal = pendingPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
   const totalRevenue = Number(report.total_revenue_collected || 0);
-  const outstandingBalance = await filteredBookings.reduce(async (sumPromise, booking) => {
-    const sum = await sumPromise;
-    return sum + await PaymentsHelper.remainingBalance(booking, pendingPaymentIndex);
-  }, Promise.resolve(0));
+  const outstandingBalance = Number(report.balances?.outstanding_balances || 0);
   const acceptedPayments = new Map(await Promise.all(filteredBookings.map(async booking =>
     [String(booking.id), await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex)])));
   if (version !== reportVersion) return;
@@ -209,8 +206,11 @@ async function renderReport(startDate, endDate) {
         : 'All booking dates';
         currentReport = { report: r, bookings: filteredBookings, customerCount, rangeLabel, pendingPayments, pendingPaymentTotal, acceptedPayments };
   $('#reportRangeLabel').text(rangeLabel);
-        $('#reportEmptyState').prop('hidden', filteredBookings.length > 0);
-        $('#reportVisualizations, #reportStatsRow').prop('hidden', filteredBookings.length === 0);
+  const hasBookings = filteredBookings.length > 0;
+  $('#reportEmptyState').prop('hidden', hasBookings);
+  // Payment-date revenue remains meaningful even when no booking event falls in this period.
+  $('#reportVisualizations').prop('hidden', !hasBookings);
+  $('#reportStatsRow').prop('hidden', false);
 
   const $stats = $('#reportStatsRow').empty();
   [

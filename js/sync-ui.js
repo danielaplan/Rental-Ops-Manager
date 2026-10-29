@@ -25,19 +25,29 @@
         if(!date||!start||!end||start>=end||!location){form.querySelector('[role=alert]').textContent='Choose a location, date and an end time after the start time.';return;}
         void runSync(() => API.retrySyncOperation(form.dataset.operation,{event_date:date,start_time:start,end_time:end,event_location:location}));
       });
-      panel.addEventListener('click',e=>{const button=e.target.closest('[data-retry]');if(button)void runSync(() => API.retrySyncOperation(button.dataset.retry));});
+      panel.addEventListener('click',e=>{
+        const retry=e.target.closest('[data-retry]');
+        if(retry){void runSync(() => API.retrySyncOperation(retry.dataset.retry));return;}
+        const discard=e.target.closest('[data-discard]');
+        if(!discard)return;
+        const operation=API.getSyncQueue().find(op=>op.client_id===discard.dataset.discard);
+        const label=operation?.data?.customer_name||operation?.local_id||operation?.entity||'this local change';
+        if(!window.confirm(`Discard ${label}? This removes only the unsynced local change; accepted server records are not deleted.`))return;
+        void runSync(async()=>{API.discardSyncOperation(discard.dataset.discard);if(navigator.onLine)await API.refreshSharedData();});
+      });
     }
     render();
   };
   function render(){
     const status=document.querySelector('#syncStatus');if(!status)return;
-    const ops=API.getSyncQueue(),conflicts=ops.filter(op=>op.status==='conflict').length,failed=ops.filter(op=>op.status==='failed').length;
-    status.textContent=(navigator.onLine?'Online':'Offline')+' · '+(syncing?'Syncing · ':'')+ops.length+' Pending Sync'+(conflicts?' · '+conflicts+' conflicts':'')+(failed?' · '+failed+' need attention':'');
+    const ops=API.getSyncQueue(),pending=ops.filter(op=>op.status==='pending').length,conflicts=ops.filter(op=>op.status==='conflict').length,failed=ops.filter(op=>op.status==='failed').length;
+    const counts=ops.length?`${pending} pending · ${conflicts} conflicts · ${failed} need attention`:'All changes synced';
+    status.textContent=(navigator.onLine?'Online':'Offline')+' · '+(syncing?'Syncing · ':'')+counts;
     const error=document.querySelector('#syncReadError');
     if(error){error.textContent=readError;error.hidden=!readError;}
     document.querySelector('#syncNow').disabled=!navigator.onLine||syncing||working;
     document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||!navigator.onLine;});
-    document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline pages are ready on this device. Existing signed-in sessions can record local entries.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
+    document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline app pages are cached on this device. With an existing signed-in session and saved data, supported entries can be recorded locally; the cache does not download new server data.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
     if(working||document.activeElement?.closest('.sync-edit'))return;
 
     // Build stale-edit comparison table for conflicts

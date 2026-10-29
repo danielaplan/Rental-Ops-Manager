@@ -152,7 +152,17 @@ test('scheduled reconciliation and reviewed checklist release are atomic and ide
   }, token)).status, 200);
   const releasedRecord = await request('api/itemReleases.php?do=create', { booking_id: releasedOngoingId, released_by: 'Synthetic owner', notes: 'Ongoing release fixture' }, token);
   assert.equal(releasedRecord.status, 201, JSON.stringify(releasedRecord));
-  const releasedOngoingCancel = await request(`api/bookings.php?do=cancel&id=${releasedOngoingId}`, { cancellation_reason: 'Synthetic ongoing cancellation' }, token);
+  const blockedReleasedCancel = await request(`api/bookings.php?do=cancel&id=${releasedOngoingId}`, { cancellation_reason: 'Synthetic ongoing cancellation' }, token);
+  assert.equal(blockedReleasedCancel.status, 409, JSON.stringify(blockedReleasedCancel));
+  assert.equal(blockedReleasedCancel.code, 'equipment_recovery_required');
+  assert.equal((await request(`api/bookingItems.php?do=update&id=${releasedOngoingItem.checklist_item_id}`, {
+    booking_id: releasedOngoingId,
+    quantity_released: releasedOngoingItem.expected_quantity,
+    quantity_returned: releasedOngoingItem.expected_quantity,
+    condition_out: 'Good',
+    condition_in: 'Good',
+  }, token)).status, 200);
+  const releasedOngoingCancel = await request(`api/bookings.php?do=cancel&id=${releasedOngoingId}`, { cancellation_reason: 'Equipment recovered before cancellation' }, token);
   assert.equal(releasedOngoingCancel.status, 200, JSON.stringify(releasedOngoingCancel));
   assert.equal(releasedOngoingCancel.data.status, 'Cancelled');
   assert.equal(sql(`SELECT COUNT(*) FROM item_releases WHERE booking_id=${releasedOngoingId}`), '1');

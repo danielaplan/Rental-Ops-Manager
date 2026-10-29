@@ -62,6 +62,7 @@ The status diagram shows the approved path. Ordinary editing cannot skip the ret
 - Review requires service-ready, payments-reviewed, deposits-reviewed, nonempty notes, and complete checklist evidence.
 - Awaiting Completion continues blocking the service without an effective end.
 - Awaiting Payment has released capacity but is not a completed rental.
+- Correcting a Completed payment below the agreed total reopens the booking as Awaiting Payment, writes an audit transition and owner notice, and preserves the completed return review.
 - Scheduler registration is a deployment task; calendar/booking/notification requests also call reconciliation as a fallback.
 
 ### Remember This

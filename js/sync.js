@@ -410,6 +410,16 @@
     return record;
   };
   API.getSyncQueue=queue;
+  API.discardSyncOperation=id=>{
+    const operation=queue().find(row=>row.client_id===id);
+    if(!operation)return null;
+    localStorage.removeItem(prefix+id);reads.clear();
+    const field=fields[operation.entity],rows=field?STORAGE.getAll(operation.entity):[];
+    const row=rows.find(value=>String(value[field])===String(operation.local_id));
+    if(row){row.pending_sync=dirty(operation.entity,operation.local_id);saveRows(operation.entity,rows);}
+    emit('sync-state-changed');
+    return operation;
+  };
   API.ready=STORAGE.restoreCache().catch(error=>{emit('api-read-error',{entity:'offline cache',message:error.message});});
   API.retrySyncOperation=(id,patch={})=>{
     const op=queue().find(r=>r.client_id===id);if(!op)return;
