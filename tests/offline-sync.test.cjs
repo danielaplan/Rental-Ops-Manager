@@ -248,6 +248,16 @@ async function get(path, origin = BASE) {
     assert.equal(Number(row.agreed_total), 2500);
     assert.equal(row.package_name_snapshot, "Karaoke Setup — 12 Hours");
     assert.equal(row.payment_status, "Partially Paid");
+    const cachedBooking = evalIn(a, 'STORAGE.getAll("bookings").find(row=>Number(row.id)===' + Number(serverId) + ')');
+    const cachedPayment = evalIn(a, 'STORAGE.getAll("payments").find(row=>Number(row.booking_id)===' + Number(serverId) + ')');
+    assert.equal(Number(cachedBooking.id), Number(serverId));
+    assert.ok(!String(cachedBooking.id).startsWith('LOCAL-'));
+    assert.ok(cachedPayment);
+    assert.ok(!String(cachedPayment.payment_id).startsWith('LOCAL-'));
+    assert.equal(Number(cachedPayment.booking_id), Number(serverId));
+    const replayAgain = await evalIn(a, "API.flushSyncQueue()");
+    assert.equal(replayAgain.committed.length, 0);
+    assert.equal((await get("api/payments.php?do=all&booking_id=" + serverId)).length, 1);
     const dep = await get("api/deposits.php?do=get&booking_id=" + serverId);
     assert.equal(Number(dep.refund_amount), 300);
     const items = await get(
@@ -347,14 +357,19 @@ async function get(path, origin = BASE) {
     await evalIn(c, "API.refreshSharedData()");
     const payment = evalIn(c, 'STORAGE.getAll("payments").find(row=>Number(row.amount)===200)');
     assert.ok(payment?.payment_id);
+    const acceptedBefore = evalIn(c, 'STORAGE.getAll("bookings").find(row=>Number(row._server_id||row.id)===' + serverId + ').amount_paid');
     c.navigator.onLine = false;
     await evalIn(c, `API.updatePayment(${JSON.stringify(payment.payment_id)},{amount:190,correction_reason:"Synthetic offline correction"})`);
     assert.equal(q(c).at(-1).action, "update");
+    assert.equal(evalIn(c, 'STORAGE.getAll("bookings").find(row=>Number(row._server_id||row.id)===' + serverId + ').amount_paid'), acceptedBefore);
+    await evalIn(c, "API.refreshSharedData()");
+    assert.equal(evalIn(c, 'STORAGE.getAll("bookings").find(row=>Number(row._server_id||row.id)===' + serverId + ').amount_paid'), acceptedBefore);
     c.navigator.onLine = true;
     const correction = await evalIn(c, "API.flushSyncQueue()");
     assert.equal(correction.failed.length, 0, JSON.stringify(correction));
     const saved = await get("api/payments.php?do=all&booking_id=" + serverId);
     assert.ok(saved.some(row => Number(row.amount) === 190));
+    assert.equal(Number((await get("api/bookings.php?do=get&id=" + serverId)).amount_paid), 190);
   });
   await test("stale status edits require review instead of overwriting another device", async () => {
     const c = device(token);
@@ -486,6 +501,28 @@ async function get(path, origin = BASE) {
       }),
     });
     assert.equal(r.status, 400);
+  });
+  await test("offline money validation rejects excessive precision and accepts an exact remaining payment", async () => {
+    const c = device(token);
+    c.navigator.onLine = true;
+    await evalIn(c, "API.refreshSharedData()");
+    c.navigator.onLine = false;
+    const localBooking = evalIn(c, 'STORAGE.getAll("bookings").find(row=>Number(row._server_id||row.id)===' + serverId + ')');
+    assert.ok(localBooking);
+    evalIn(c, 'STORAGE.getAll("bookings").find(row=>String(row.id)===' + JSON.stringify(String(localBooking.id)) + ').total="0.30"');
+    const before = q(c).length;
+    await assert.rejects(
+      () => evalIn(c, 'API.createPayment({booking_id:' + JSON.stringify(localBooking.id) + ',amount:"0.001",method:"GCash",payment_date:"2026-10-20 12:00:00"})'),
+      /at most two decimal places/,
+    );
+    await assert.rejects(
+      () => evalIn(c, 'API.upsertDeposit(' + JSON.stringify(localBooking.id) + ',{amount_held:"10.001",deduction_amount:0})'),
+      /at most two decimal places/,
+    );
+    assert.equal(q(c).length, before, 'invalid money must not enter the outbox');
+    await evalIn(c, 'API.createPayment({booking_id:' + JSON.stringify(localBooking.id) + ',amount:"0.10",method:"GCash",payment_date:"2026-10-20 12:00:00"})');
+    await evalIn(c, 'API.createPayment({booking_id:' + JSON.stringify(localBooking.id) + ',amount:"0.20",method:"GCash",payment_date:"2026-10-20 12:00:00"})');
+    assert.equal(evalIn(c, 'STORAGE.getAll("bookings").find(row=>String(row.id)===' + JSON.stringify(String(localBooking.id)) + ').payment_status'), 'Fully Paid');
   });
   await test("future bookings cannot be finalized before the post-event review", async () => {
     const c = device(token);

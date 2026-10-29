@@ -5,6 +5,13 @@
  * admin/bookings.html.
  */
 const PaymentsHelper = {
+  amountCents(value) {
+    const text = String(value ?? '').trim();
+    if (!/^\d{1,8}(?:\.\d{1,2})?$/.test(text)) return null;
+    const [whole, fraction = ''] = text.split('.');
+    return (Number(whole) * 100) + Number(fraction.padEnd(2, '0'));
+  },
+
   paymentTimestamp(date = new Date()) {
     const pad = value => String(value).padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
@@ -12,6 +19,7 @@ const PaymentsHelper = {
 
   async pendingAmountsByBooking() {
     const pending = new Map();
+    const countedLocalIds = new Set();
     // Offline-created payments live in the sync queue, not the server table.
     const queue = API.getSyncQueue();
     queue.forEach(op => {
@@ -19,41 +27,49 @@ const PaymentsHelper = {
       const bookingId = op.data?.booking_id;
       if (bookingId === null || bookingId === undefined || bookingId === '') return;
       const bid = String(bookingId);
-      const amount = Number(op.data?.amount || 0);
-      pending.set(bid, (pending.get(bid) || 0) + amount);
+      const amount = PaymentsHelper.amountCents(op.data?.amount || 0);
+      if (amount === null) return;
+      const current = PaymentsHelper.amountCents(pending.get(bid) || 0) || 0;
+      pending.set(bid, (current + amount) / 100);
+      if (op.local_id !== null && op.local_id !== undefined) countedLocalIds.add(String(op.local_id));
     });
     // Also surface server-side pending_sync rows for completeness.
     const payments = await API.getPayments();
     payments.forEach(payment => {
-      if (payment.sync_status !== 'pending_sync') return;
+      if (!payment.pending_sync || countedLocalIds.has(String(payment.payment_id))) return;
       const key = String(payment.booking_id);
-      pending.set(key, (pending.get(key) || 0) + Number(payment.amount || 0));
+      const amount = PaymentsHelper.amountCents(payment.amount || 0);
+      if (amount !== null) {
+        const current = PaymentsHelper.amountCents(pending.get(key) || 0) || 0;
+        pending.set(key, (current + amount) / 100);
+      }
     });
     return pending;
   },
 
   async acceptedAmountPaid(booking, pendingAmounts) {
-    const recorded = Number(booking.amount_paid || 0);
-    const amounts = pendingAmounts && typeof pendingAmounts.then === 'function' ? await pendingAmounts : pendingAmounts || await PaymentsHelper.pendingAmountsByBooking();
-    const pending = amounts.get(String(booking.id)) || 0;
-    return Math.max(recorded - pending, 0);
+    const recorded = PaymentsHelper.amountCents(booking.amount_paid || 0) || 0;
+    return recorded / 100;
   },
 
   async paymentStatus(booking, pendingAmounts) {
-    const total = Number(booking.total || 0);
-    const paid = await PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts);
+    const total = PaymentsHelper.amountCents(booking.total || 0) || 0;
+    const paid = Math.round((await PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts)) * 100);
     if (total > 0 && paid >= total) return 'Fully Paid';
     if (paid > 0) return 'Partial';
     return 'Unpaid';
   },
 
   async remainingBalance(booking, pendingAmounts) {
-    return Math.max(Number(booking.total || 0) - await PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts), 0);
+    const total = PaymentsHelper.amountCents(booking.total || 0) || 0;
+    const paid = Math.round((await PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts)) * 100);
+    return Math.max(total - paid, 0) / 100;
   },
 
   recordPayment(bookingId, amount, method, notes, details = {}) {
-    const paymentAmount = Number(amount);
-    if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) return Promise.resolve(null);
+    const paymentCents = PaymentsHelper.amountCents(amount);
+    if (paymentCents === null || paymentCents <= 0) return Promise.resolve(null);
+    const paymentAmount = Number(`${Math.trunc(paymentCents / 100)}.${String(paymentCents % 100).padStart(2, '0')}`);
     return API.createPayment({
       booking_id: bookingId,
       amount: paymentAmount,

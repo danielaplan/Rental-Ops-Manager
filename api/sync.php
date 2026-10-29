@@ -74,8 +74,24 @@ foreach ($queue as $item) {
                 if (!is_array($data['_base'])) domainFail('Invalid previous booking values.');
                 $old=lockBooking($pdo,$id);
                 foreach ($data['_base'] as $field=>$expected) {
-                    if (!in_array($field,['status','event_date','start_time','end_time','event_location','service_id','package_id','preparation_minutes','travel_minutes','event_start_datetime','event_end_datetime'],true)) continue;
+                    if (!in_array($field,['status','event_date','start_time','end_time','event_location','service_id','package_id','addon_ids','discount','fees','agreed_total','preparation_minutes','travel_minutes','event_start_datetime','event_end_datetime'],true)) continue;
                     $actual=$old[$field] ?? null;
+                    if ($field==='addon_ids') {
+                        if (!is_array($expected)) domainFail('Invalid previous add-on values.');
+                        $expected=array_map(fn($value)=>syncReference($value,'addons',$state,(int)$actor['user_id']),$expected);
+                        $actual=json_decode((string)$actual,true) ?: [];
+                        sort($expected); sort($actual);
+                        if ($actual===$expected) continue;
+                        $actual=json_encode($actual); $expected=json_encode($expected);
+                    }
+                    if (in_array($field,['discount','fees','agreed_total'],true)) {
+                        if (moneyCents($actual ?? 0)===moneyCents($expected ?? 0)) continue;
+                    }
+                    if (in_array($field,['service_id','package_id'],true)) {
+                        $actual=$actual===null?null:(int)$actual;
+                        $expected=$expected===null||$expected===''?null:(int)syncReference($expected,$field==='service_id'?'services':'packages',$state,(int)$actor['user_id']);
+                    }
+                    if (in_array($field,['preparation_minutes','travel_minutes'],true)) { $actual=(int)$actual; $expected=(int)$expected; }
                     if ($field==='status') { $actual=strtolower((string)$actual); $expected=strtolower((string)$expected); }
                     if (in_array($field,['start_time','end_time'],true)) { $actual=substr((string)$actual,0,5); $expected=substr((string)$expected,0,5); }
                     if (!is_scalar($expected) && $expected!==null) domainFail('Invalid previous booking value.');

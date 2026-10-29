@@ -93,17 +93,27 @@ function createHarness() {
     requests.push({ url: String(url), options });
     if (String(url).includes('/api/sync.php')) {
       const queue = JSON.parse(options.body).queue;
+      const failed = queue.filter(operation => operation.entity === 'payments' && String(operation.data.amount) === '13.37');
+      const accepted = queue.filter(operation => !failed.includes(operation));
+      for (const operation of accepted) {
+        if (operation.entity === 'bookings' && operation.action === 'create') {
+          serverRows.bookings = [{ ...operation.data, booking_id: 42, id: 42, agreed_total: operation.data.agreed_total || operation.data.total || 100, completed_payments: 0 }];
+        }
+        if (operation.entity === 'payments' && operation.action === 'create') {
+          serverRows.payments = [{ ...operation.data, payment_id: 84, booking_id: 42, payment_method: operation.data.payment_method || operation.data.method }];
+        }
+      }
       return {
         ok: true,
         json: async () => ({
           ok: true,
           data: {
-            committed: queue.map(operation => ({
+            committed: accepted.map(operation => ({
               client_id: operation.client_id,
-              server_id: operation.action === 'create' ? 42 : undefined
+              server_id: operation.action === 'create' ? (operation.entity === 'payments' ? 84 : 42) : undefined
             })),
             conflicts: [],
-            failed: []
+            failed: failed.map(operation => ({ client_id: operation.client_id, reason: 'Synthetic rejected payment amount.' }))
           }
         })
       };
@@ -222,6 +232,23 @@ test('oversized booking text is rejected before creating a local draft or sync o
   assert.equal(context.API.getSyncQueue().length, 0);
 });
 
+test('queued booking price edits retain pricing base values for stale conflict detection', async () => {
+  const { context, collections } = createHarness();
+  collections.bookings.push({
+    id: 'BK-001', service_id: 1, service_ids: ['SVC-001'], package_id: 'PKG-001', addon_ids: ['ADD-001'],
+    discount: 10, fees: 5, agreed_total: 495, status: 'Pending'
+  });
+
+  await context.API.updateBooking('BK-001', {
+    package_id: 'PKG-001', addon_ids: ['ADD-001'], discount: 20, fees: 5, agreed_total: 485
+  });
+
+  const operation = context.API.getSyncQueue().find(item => item.entity === 'bookings' && item.action === 'update');
+  assert.deepEqual(JSON.parse(JSON.stringify(operation.data._base)), {
+    package_id: 'PKG-001', addon_ids: ['ADD-001'], discount: 10, fees: 5, agreed_total: 495
+  });
+});
+
 test('booking-scoped reads return cached rows and request the matching server collection', async () => {
   const { context, requests, collections } = createHarness();
 
@@ -313,6 +340,56 @@ test('flush removes acknowledged operations and records temporary-to-server ID a
   assert.equal(aliases[`services:${created.service_id}`], 42);
 });
 
+test('booking and dependent payment receive linked server IDs exactly once after replay', async () => {
+  const { context, collections } = createHarness();
+  const booking = await context.API.createBooking({
+    customer_name: 'Linked replay', contact: 'TEST-LINK', service_id: 1, service_ids: [1],
+    event_date: '2099-01-01', start_time: '10:00', end_time: '12:00', location: 'Synthetic venue',
+    agreed_total: 100, total: 100, status: 'Pending'
+  });
+  await context.API.createPayment({ booking_id: booking.id, amount: 25, method: 'GCash', payment_date: '2026-10-20 12:00:00' });
+
+  const first = await context.API.flushSyncQueue();
+  const second = await context.API.flushSyncQueue();
+
+  assert.equal(first.failed.length, 0);
+  assert.equal(second.committed.length, 0);
+  assert.equal(collections.bookings.length, 1);
+  assert.equal(collections.payments.length, 1);
+  assert.equal(collections.bookings[0].id, 42);
+  assert.equal(collections.payments[0].payment_id, 84);
+  assert.equal(collections.payments[0].booking_id, 42);
+  assert.equal(String(collections.bookings[0].id).startsWith('LOCAL-'), false);
+  assert.equal(String(collections.payments[0].payment_id).startsWith('LOCAL-'), false);
+});
+
+test('a rejected payment can be corrected in place and replayed without duplication', async () => {
+  const { context, collections } = createHarness();
+  collections.bookings.push({ id: 42, total: 100, amount_paid: 0, payment_status: 'Unpaid' });
+  const payment = await context.API.createPayment({ booking_id: 42, amount: '13.37', method: 'GCash', payment_date: '2026-10-20 12:00:00' });
+  const operationId = context.API.getSyncQueue()[0].client_id;
+
+  const rejected = await context.API.flushSyncQueue();
+  assert.equal(rejected.failed.length, 1);
+  assert.equal(context.API.getSyncQueue()[0].status, 'failed');
+  context.navigator.onLine = false;
+  await context.API.createCategory({ category_name: 'Unrelated valid work' });
+  await context.API.retrySyncOperation(operationId, { amount: '12.00' });
+  const correctedOperation = context.API.getSyncQueue().find(operation => operation.client_id === operationId);
+  assert.equal(correctedOperation.client_id, operationId);
+  assert.equal(correctedOperation.data.amount, '12.00');
+  assert.equal(context.API.getSyncQueue().some(operation => operation.entity === 'categories'), true, 'correcting money must retain unrelated queued work');
+  assert.equal(collections.payments.find(row => row.payment_id === payment.payment_id).amount, '12.00');
+
+  context.navigator.onLine = true;
+  const accepted = await context.API.flushSyncQueue();
+  const emptyRetry = await context.API.flushSyncQueue();
+  assert.equal(accepted.committed.length, 2);
+  assert.equal(emptyRetry.committed.length, 0);
+  assert.equal(collections.payments.length, 1);
+  assert.equal(collections.payments[0].payment_id, 84);
+});
+
 test('the facade exposes methods required by current pages and the sync UI', () => {
   const { context } = createHarness();
   const required = [
@@ -326,7 +403,7 @@ test('the facade exposes methods required by current pages and the sync UI', () 
   }
 });
 
-test('pending offline payments remain keyed by the exact local booking ID', async () => {
+test('pending offline payments remain separate from server-accepted totals', async () => {
   const paymentsSource = fs.readFileSync(path.join(root, 'js', 'payments.js'), 'utf8');
   const pendingBookingId = 'LOCAL-bookings-uuid-123';
   const context = vm.createContext({
@@ -350,7 +427,21 @@ test('pending offline payments remain keyed by the exact local booking ID', asyn
   );
 
   assert.equal(pending.get(pendingBookingId), 250);
-  assert.equal(accepted, 0, 'queued local payments must not count as server-accepted revenue');
+  assert.equal(accepted, 250, 'queued local payments must not alter the server-confirmed booking total');
+});
+
+test('creating and correcting queued payments do not mutate accepted booking totals', async () => {
+  const { context, collections } = createHarness();
+  collections.bookings.push({ id: 'BK-001', total: 500, amount_paid: 100, payment_status: 'Partially Paid' });
+  collections.payments.push({ payment_id: 'PAY-001', booking_id: 'BK-001', amount: 100, method: 'GCash', payment_method: 'GCash', payment_status: 'Completed', payment_date: '2026-10-20 12:00:00' });
+
+  await context.API.createPayment({ booking_id: 'BK-001', amount: 50, method: 'GCash', payment_date: '2026-10-20 12:00:00' });
+  assert.equal(collections.bookings[0].amount_paid, 100);
+  assert.equal(collections.bookings[0].payment_status, 'Partially Paid');
+
+  await context.API.updatePayment('PAY-001', { amount: 90, correction_reason: 'Synthetic correction' });
+  assert.equal(collections.bookings[0].amount_paid, 100);
+  assert.equal(collections.bookings[0].payment_status, 'Partially Paid');
 });
 
 test('itemized deposit deduction and refund actions remain in the offline outbox', async () => {
@@ -369,4 +460,13 @@ test('itemized deposit deduction and refund actions remain in the offline outbox
     context.API.getSyncQueue().filter(item => item.entity === 'deposits').map(item => item.action).join(','),
     'upsert,deduct,refund'
   );
+});
+
+test('offline deposits reject zero and do not overwrite recorded held money', async () => {
+  const { context, collections } = createHarness();
+
+  await assert.rejects(() => context.API.upsertDeposit('BK-001', { amount_held: 0 }), /greater than zero/);
+  await context.API.upsertDeposit('BK-001', { amount_held: 350 });
+  await assert.rejects(() => context.API.upsertDeposit('BK-001', { amount_held: 400 }), /cannot be overwritten/);
+  assert.equal(collections.deposits.find(row => row.booking_id === 'BK-001').amount_held, 350);
 });

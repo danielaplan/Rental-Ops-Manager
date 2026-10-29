@@ -71,7 +71,10 @@ async function renderPayments() {
   ]);
   const sortedPayments = payments.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
 
-  const totalCollected = sortedPayments.filter(p => !p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
+  const totalCollected = await bookings.reduce(async (sumPromise, booking) => {
+    const sum = await sumPromise;
+    return sum + await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex);
+  }, Promise.resolve(0));
   const pendingAmount = sortedPayments.filter(p => p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
   const totalOutstanding = await bookings.reduce(async (sumPromise, b) => {
     const sum = await sumPromise;

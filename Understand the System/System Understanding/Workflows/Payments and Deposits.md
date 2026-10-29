@@ -30,15 +30,19 @@ Ana owes ₱2,750. Her first Completed rental payment is ₱2,000, leaving ₱75
 ### Step-by-step workflow
 
 1. Record a rental payment with type, method, status, date, optional reference, and owner.
-2. The booking view sums only Completed payments.
+2. The booking view uses the server-confirmed sum of Completed payments. Queued creates and corrections are shown separately as Pending Sync and do not change the accepted total.
 3. Correct a payment from its history with an audit reason; direct and offline saves use the same server rule and do not create a money transfer.
-4. Record one held deposit amount. After that write is accepted or queued, the booking screen locks the amount instead of presenting it as editable.
+4. Record one positive held deposit amount. After that write is accepted or queued, the booking screen locks the amount instead of presenting it as editable. A legacy zero record may be corrected only while it is still Held and has no deductions or refund history.
 5. Add itemized deductions, each with affected item, reason, and amount.
 6. Mark a positive remaining refund as Refunded when the real-world refund has been handled.
 
 ### What Happens Behind the Scenes?
 
-Money is converted to integer cents for validation and returned as two-decimal strings. Payment state is derived: Unpaid, Partially Paid, or Fully Paid. Deposit refundable amount is amount held minus the sum of deductions. A transaction locks the relevant booking/deposit before changes.
+Money is converted to integer cents in both the browser and server before totals or remaining balances are compared. Values with more than two decimal places are rejected before they can enter the offline queue and are checked again during server replay. Payment state is derived: Unpaid, Partially Paid, or Fully Paid. Deposit refundable amount is amount held minus the sum of deductions. A transaction locks the relevant booking/deposit before changes.
+
+While disconnected, a new payment or correction remains a proposal in the outbox. Refreshing cached data does not add it to or subtract it from `amount_paid`. After the server accepts the operation, the normal refresh supplies the new confirmed total.
+
+If replay rejects a payment or deposit amount, the sync panel keeps that Pending Sync draft available. The owner can enter a corrected positive amount with no more than two decimal places and retry the same queued operation. Keeping its original client operation ID, together with the server receipt check, prevents a corrected retry or a lost acknowledgement from creating the same payment twice.
 
 ### Visual explanation
 
@@ -55,11 +59,15 @@ The two lines stay separate on purpose: rental payments reduce the rental balanc
 ### Important things to remember
 
 - Only Completed payment rows count toward collected revenue or the booking balance.
+- Pending Sync payments and corrections remain visible but never alter accepted revenue, outstanding balances, or payment status prematurely.
 - Methods are GCash or MariBank. Statuses are Pending, Completed, or Failed.
 - A deduction cannot exceed the remaining held amount.
+- A new deposit must be greater than zero. This is not a fixed business minimum: any positive negotiated amount is allowed. Legitimate held money cannot be overwritten after recording.
 - Deposits and deductions do not count as rental revenue.
 - The application records money events; it does not contact GCash, MariBank, a bank, or a refund gateway.
 - A Completed payment cannot exceed the remaining booking balance. Record the exact remaining amount instead; a separate credit/refund workflow would require a new approved policy.
+- Payment, deposit, and deduction amounts allow at most two decimal places. Exact-cent remaining payments are accepted without floating-point rounding.
+- A rejected monetary operation can be corrected from the sync panel without clearing valid neighboring work from the outbox.
 
 ### Remember This
 

@@ -136,7 +136,7 @@
                 <div class="border rounded p-3">
                 <h6>Negotiated refundable deposit</h6><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
                 <div class="row g-2">
-                  <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0" step="0.01"></div>
+                  <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0.01" step="0.01"></div>
                   <div class="col-sm-6"><label for="depositDeduction">Legacy aggregate deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01" readonly></div>
                   <div class="col-sm-6"><label for="depositReason">Deduction summary</label><input id="depositReason" class="form-control" type="text" readonly></div>
                   <div class="col-sm-6"><label for="depositRefund">Refundable amount (₱)</label><input id="depositRefund" class="form-control" readonly></div>
@@ -771,7 +771,7 @@ adminReady(async function () {
   });
   $('#saveDepositBtn').onAdmin('click', async function () {
     try {
-      const saved = await API.upsertDeposit(currentBookingId, { amount_held: Number($('#depositHeld').val()) });
+      const saved = await API.upsertDeposit(currentBookingId, { amount_held: $('#depositHeld').val() });
       setDepositForm(saved);
       $('#depositError').prop('hidden', true); showAdminToast(API.savedMessage());
     } catch (error) { $('#depositError').prop('hidden', false).text(error.message).trigger('focus'); }
@@ -1034,8 +1034,9 @@ function setDepositForm(deposit) {
   $('#depositDeductions').html(deductions.length?`<div class="table-wrap"><table class="admin-table"><thead><tr><th>Affected item</th><th>Reason</th><th>Amount</th><th>Recorded</th></tr></thead><tbody>${deductions.map(row=>`<tr><td>${escapeHtmlA(row.affected_item)}</td><td>${escapeHtmlA(row.reason)}</td><td>${BookingCalc.formatCurrency(row.amount)}</td><td>${escapeHtmlA(row.recorded_at)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="small text-muted">No deposit deductions recorded.</div>');
   const refunded=String(deposit.refund_status||'').toLowerCase()==='refunded';
   const depositRecorded=Boolean(deposit.deposit_id||deposit.pending_sync);
-  $('#depositHeld').prop('readonly',depositRecorded);
-  $('#saveDepositBtn').prop('disabled',depositRecorded).text(depositRecorded?'Held deposit recorded':'Save held deposit');
+  const repairableZero=Boolean(deposit.deposit_id)&&Number(deposit.amount_held)===0&&!refunded&&!deposit.refund_date&&!deductions.length&&Number(deposit.deduction_amount||0)===0;
+  $('#depositHeld').prop('readonly',depositRecorded&&!repairableZero);
+  $('#saveDepositBtn').prop('disabled',depositRecorded&&!repairableZero).text(repairableZero?'Correct zero deposit':depositRecorded?'Held deposit recorded':'Save held deposit');
   $('#addDeductionBtn').prop('disabled',!deposit.deposit_id||refunded);$('#refundDepositBtn').prop('disabled',!deposit.deposit_id||refunded||Number(deposit.refund_amount)<=0);
   renderDepositRefundState(deposit);
 }

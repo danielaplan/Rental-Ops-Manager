@@ -33,10 +33,22 @@ function saveDeposit(PDO $pdo, int $bookingId, array $body, ?int $ownerId = null
     if (!$ownerId) domainFail('An authenticated recording owner is required.');
     lockBooking($pdo,$bookingId);
     $held=moneyCents($body['amount_held'] ?? null);
+    if ($held<=0) domainFail('Held deposit amount must be greater than zero.');
     if (isset($body['deduction_amount']) && moneyCents($body['deduction_amount'])>0) domainFail('Record each deduction through the itemized deduction action.');
     $old=depositView($pdo,$bookingId);
     if ($old) {
-        if ($held!==moneyCents($old['amount_held'])) domainFail('An existing held amount cannot be overwritten.');
+        $oldHeld=moneyCents($old['amount_held']);
+        if ($held!==$oldHeld) {
+            $repairableZero=$oldHeld===0
+                && $old['refund_status']==='Held'
+                && empty($old['refund_date'])
+                && moneyCents($old['deduction_amount'])===0
+                && count($old['deductions'])===0;
+            if (!$repairableZero) domainFail('An existing held amount cannot be overwritten.');
+            $pdo->prepare('UPDATE deposits SET amount_held=?,updated_at=NOW() WHERE deposit_id=?')->execute([centsDecimal($held),$old['deposit_id']]);
+            auditWrite($pdo,$ownerId,'deposit_zero_corrected','deposit',(int)$old['deposit_id'],json_encode(['before'=>'0.00','after'=>centsDecimal($held)]));
+            return depositView($pdo,$bookingId);
+        }
         return $old;
     }
     $pdo->prepare("INSERT INTO deposits(booking_id,amount_held,refund_status,recorded_by,created_at,updated_at) VALUES(?,?,'Held',?,NOW(),NOW())")->execute([$bookingId,centsDecimal($held),$ownerId]);
