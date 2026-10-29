@@ -60,6 +60,7 @@ The diagram shows how the selected package, add-ons, discount, and fees lead to 
 
 - A booking cannot contain several services.
 - Customer, service, package, add-ons, allowances, discounts, fees, and agreed total can be altered only while Pending.
+- A booking belongs to the selected customer ID. A phone number is contact information, not a unique identity; two customers may share it without sharing bookings or totals.
 - A stale offline price edit cannot silently replace a newer accepted price. The owner must review the previous, current server, and local draft values before retrying.
 - Promotional packages are eligible against the booking's event date, not the date the owner enters the booking.
 - A package-free booking is valid; the owner supplies the agreed total.

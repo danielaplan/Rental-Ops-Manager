@@ -41,6 +41,8 @@ Ana’s Completed GCash payment is counted as collected revenue on its `payment_
 
 `reports.php` returns metric definitions with its data. Dashboard defaults to the current month in Asia/Manila. Compatibility fields remain for current screens. `audit.php` reads append-only `AUDIT_LOGS`; migration archive rows may also be included as historical evidence.
 
+The printable customer summary groups booking rows by `customer_id` and displays the corresponding customer name. It does not group by name or phone, because either value may legitimately be shared.
+
 ### Visual explanation
 
 ```mermaid
@@ -60,6 +62,7 @@ The diagram groups the source records by purpose: payments feed revenue, booking
 - Completed and cancellation totals are lifetime in `reportsBookings()`, while upcoming is period-filtered; definitions in the response disclose this.
 - `damaged_or_missing` is a global checklist count in the compatibility report field.
 - Dashboard inventory counts are placeholders set to zero.
+- Customer booking counts and paid totals remain separate when customers share a name or phone number.
 - Production reconciliation and representative-data performance remain external acceptance work.
 
 ### Remember This

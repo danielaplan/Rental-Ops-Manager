@@ -95,12 +95,24 @@ function createHarness() {
       const queue = JSON.parse(options.body).queue;
       const failed = queue.filter(operation => operation.entity === 'payments' && String(operation.data.amount) === '13.37');
       const accepted = queue.filter(operation => !failed.includes(operation));
+      const acknowledgementData = new Map();
       for (const operation of accepted) {
         if (operation.entity === 'bookings' && operation.action === 'create') {
           serverRows.bookings = [{ ...operation.data, booking_id: 42, id: 42, agreed_total: operation.data.agreed_total || operation.data.total || 100, completed_payments: 0 }];
         }
         if (operation.entity === 'payments' && operation.action === 'create') {
           serverRows.payments = [{ ...operation.data, payment_id: 84, booking_id: 42, payment_method: operation.data.payment_method || operation.data.method }];
+        }
+        if (operation.entity === 'deposits') {
+          if (operation.action === 'upsert') serverRows.deposits = [{ ...operation.data, deposit_id: 9, refund_status: 'Held', refund_date: null, deductions: [], deduction_amount: 0, refund_amount: Number(operation.data.amount_held) }];
+          if (operation.action === 'deduct') {
+            const deposit = serverRows.deposits[0];
+            deposit.deductions.push({ deduction_id: 10, affected_item: operation.data.affected_item, reason: operation.data.reason, amount: Number(operation.data.amount) });
+            deposit.deduction_amount += Number(operation.data.amount);
+            deposit.refund_amount = Number(deposit.amount_held) - deposit.deduction_amount;
+          }
+          if (operation.action === 'refund') Object.assign(serverRows.deposits[0], { refund_status: 'Refunded', refund_date: '2026-10-29 12:00:00' });
+          acknowledgementData.set(operation.client_id, JSON.parse(JSON.stringify(serverRows.deposits[0])));
         }
       }
       return {
@@ -110,7 +122,8 @@ function createHarness() {
           data: {
             committed: accepted.map(operation => ({
               client_id: operation.client_id,
-              server_id: operation.action === 'create' ? (operation.entity === 'payments' ? 84 : 42) : undefined
+              server_id: operation.action === 'create' ? (operation.entity === 'payments' ? 84 : 42) : undefined,
+              data: acknowledgementData.get(operation.client_id)
             })),
             conflicts: [],
             failed: failed.map(operation => ({ client_id: operation.client_id, reason: 'Synthetic rejected payment amount.' }))
@@ -403,6 +416,32 @@ test('the facade exposes methods required by current pages and the sync UI', () 
   }
 });
 
+test('customers sharing a phone retain separate booking summaries by stable customer ID', async () => {
+  const { context, collections } = createHarness();
+  context.navigator.onLine = false;
+  const sharedPhone = '0917-SHARED';
+  const first = await context.API.createBooking({
+    customer_name: 'Customer One', contact: sharedPhone, service_id: 1, service_ids: [1],
+    event_date: '2099-02-01', start_time: '10:00', end_time: '11:00', location: 'Venue One', total: 100
+  });
+  const second = await context.API.createBooking({
+    customer_name: 'Customer Two', contact: sharedPhone, service_id: 1, service_ids: [1],
+    event_date: '2099-02-02', start_time: '10:00', end_time: '11:00', location: 'Venue Two', total: 200
+  });
+  first.amount_paid = 25;
+  second.amount_paid = 80;
+
+  const summaries = await context.API.getCustomers();
+
+  assert.equal(summaries.length, 2);
+  assert.notEqual(first.customer_id, second.customer_id);
+  assert.deepEqual(summaries.map(customer => [customer.name, customer.bookings_count, customer.total_spent]), [
+    ['Customer One', 1, 25],
+    ['Customer Two', 1, 80]
+  ]);
+  assert.equal(collections.bookings.every(booking => booking.customer_id), true);
+});
+
 test('pending offline payments remain separate from server-accepted totals', async () => {
   const paymentsSource = fs.readFileSync(path.join(root, 'js', 'payments.js'), 'utf8');
   const pendingBookingId = 'LOCAL-bookings-uuid-123';
@@ -444,8 +483,8 @@ test('creating and correcting queued payments do not mutate accepted booking tot
   assert.equal(collections.bookings[0].payment_status, 'Partially Paid');
 });
 
-test('itemized deposit deduction and refund actions remain in the offline outbox', async () => {
-  const { context } = createHarness();
+test('refund stays pending until acknowledgement and then synchronizes authoritative deposit state', async () => {
+  const { context, collections } = createHarness();
 
   await context.API.upsertDeposit('BK-001', { amount_held: 350 });
   const deducted = await context.API.addDepositDeduction('BK-001', {
@@ -455,11 +494,18 @@ test('itemized deposit deduction and refund actions remain in the offline outbox
 
   assert.equal(deducted.deduction_amount, 50);
   assert.equal(deducted.refund_amount, 300);
-  assert.equal(refunded.refund_status, 'Refunded');
+  assert.equal(refunded.refund_status, 'Held');
+  assert.equal(refunded.refund_pending, true);
   assert.equal(
     context.API.getSyncQueue().filter(item => item.entity === 'deposits').map(item => item.action).join(','),
     'upsert,deduct,refund'
   );
+  const result = await context.API.flushSyncQueue();
+  assert.equal(result.failed.length, 0);
+  assert.equal(context.API.getSyncQueue().length, 0);
+  assert.equal(collections.deposits[0].refund_status, 'Refunded');
+  assert.equal(collections.deposits[0].refund_date, '2026-10-29 12:00:00');
+  assert.equal(collections.deposits[0].pending_sync, false);
 });
 
 test('offline deposits reject zero and do not overwrite recorded held money', async () => {

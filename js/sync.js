@@ -133,12 +133,18 @@
     return out;
   };
   const saveRows=(entity,rows)=>{STORAGE.memory[entity]=rows;STORAGE.saveAll(entity,rows);Promise.resolve(STORAGE.saveCache(entity,rows)).catch(error=>emit('api-read-error',{entity,message:error.message}));};
-  const remapAcceptedId=(entity,localId,serverId)=>{
+  const remapAcceptedId=(entity,localId,serverId,serverRecord)=>{
     const field=fields[entity];
     if(!field||!['bookings','payments'].includes(entity))return;
     const rows=STORAGE.getAll(entity),row=rows.find(value=>String(value[field])===String(localId)||String(value._server_id)===String(serverId));
+    const localCustomerId=entity==='bookings'?row?.customer_id:null;
     if(row){row[field]=serverId;row._server_id=serverId;saveRows(entity,rows);}
     if(entity==='bookings'){
+      if(row&&serverRecord?.customer_id!=null){
+        row.customer_id=serverRecord.customer_id;saveRows(entity,rows);
+        const customers=STORAGE.getAll('customers'),customer=customers.find(value=>String(value.customer_id)===String(localCustomerId));
+        if(customer){customer.customer_id='CUS-'+String(serverRecord.customer_id).padStart(3,'0');customer._server_id=serverRecord.customer_id;customer.pending_sync=false;saveRows('customers',customers);}
+      }
       Object.keys(fields).filter(name=>name!=='bookings').forEach(name=>{
         const related=STORAGE.getAll(name);let changed=false;
         related.forEach(value=>{if(String(value.booking_id)===String(localId)){value.booking_id=serverId;changed=true;}});
@@ -148,6 +154,16 @@
         if(String(operation.data?.booking_id)===String(localId)){operation.data.booking_id=serverId;persist(operation);}
       });
     }
+  };
+  const applyAcceptedDeposit=(operation,serverRecord)=>{
+    if(!serverRecord||typeof serverRecord!=='object')return;
+    const rows=STORAGE.getAll('deposits').slice();
+    const bookingId=operation.data?.booking_id??operation.local_id;
+    const index=rows.findIndex(row=>String(row.booking_id)===String(operation.local_id)||String(ref('bookings',row.booking_id))===String(ref('bookings',bookingId)));
+    const accepted=normalize('deposits',serverRecord);
+    accepted.booking_id=index>=0?rows[index].booking_id:operation.local_id;
+    if(index>=0)rows[index]={...rows[index],...accepted,pending_sync:false};else rows.push({...accepted,pending_sync:false});
+    saveRows('deposits',rows);
   };
   const nextLocalId=entity=>'LOCAL-'+entity+'-'+uuid();
   const defaults={
@@ -194,10 +210,14 @@
   };
   const upsertLocalCustomer=booking=>{
     const rows=STORAGE.getAll('customers').slice();
-    let row=rows.find(customer=>customer.contact===booking.contact);
-    if(row)Object.assign(row,{name:booking.customer_name,email:booking.email||row.email,pending_sync:true});
-    else{row={customer_id:nextLocalId('customers'),name:booking.customer_name,contact:booking.contact,email:booking.email||'',type:booking.customer_type||'Guest / No Account',pending_sync:true};rows.push(row);}
-    saveRows('customers',rows);return row;
+    const requested=booking.customer_id;
+    let row=requested==null?null:rows.find(customer=>String(customer.customer_id)===String(requested)||String(customer._server_id)===String(ref('customers',requested)));
+    if(!row){row={customer_id:nextLocalId('customers'),name:booking.customer_name,contact:booking.contact,email:booking.email||'',type:booking.customer_type||'Guest / No Account',pending_sync:true};rows.push(row);}
+    booking.customer_id=row.customer_id;
+    saveRows('customers',rows);
+    const bookings=STORAGE.getAll('bookings');const saved=bookings.find(value=>String(value.id)===String(booking.id));
+    if(saved){saved.customer_id=row.customer_id;saveRows('bookings',bookings);}
+    return row;
   };
   const validateBookingDraft=data=>{
     const bytes=value=>new TextEncoder().encode(String(value??'').trim()).length;
@@ -285,7 +305,7 @@
   API.getGallery=()=>cachedRead('gallery');
   API.getCustomers=async()=>{
     const [customers,bookings]=await Promise.all([cachedRead('customers'),API.getBookings()]);
-    return customers.map(customer=>{const related=bookings.filter(booking=>String(booking.customer_id)===String(customer._server_id||ref('customers',customer.customer_id))||booking.contact===customer.contact);return {...customer,bookings_count:related.length,total_spent:related.reduce((sum,booking)=>sum+Number(booking.amount_paid||0),0),type:related[0]?.customer_type||customer.type||'Guest / No Account'};});
+    return customers.map(customer=>{const customerId=customer._server_id||ref('customers',customer.customer_id);const related=bookings.filter(booking=>String(booking.customer_id)===String(customerId));return {...customer,bookings_count:related.length,total_spent:related.reduce((sum,booking)=>sum+Number(booking.amount_paid||0),0),type:related[0]?.customer_type||customer.type||'Guest / No Account'};});
   };
   const refreshObject=entity=>read(entity,'get').then(data=>{
     if(!data||typeof data!=='object'||Array.isArray(data)||queue().some(op=>op.entity===entity))return data;
@@ -363,7 +383,8 @@
   API.refundDeposit=async id=>{
     const deposit=await API.getDeposit(id);
     if(Number(deposit.refund_amount||0)<=0)throw new Error('No refundable balance remains for this deposit.');
-    Object.assign(deposit,{refund_status:'Refunded',refund_date:new Date().toISOString(),pending_sync:true});
+    if(queue().some(operation=>operation.entity==='deposits'&&operation.action==='refund'&&(String(operation.local_id)===String(id)||String(operation.data?.booking_id)===String(id))))throw new Error('This deposit refund is already pending synchronization.');
+    Object.assign(deposit,{refund_pending:true,pending_sync:true});
     saveRows('deposits',STORAGE.getAll('deposits').map(row=>String(row.booking_id)===String(id)?deposit:row));
     enqueue('deposits','refund',{booking_id:id},id);return deposit;
   };
@@ -419,9 +440,10 @@
         const data=await request('sync','commit',{queue:batch.map(op=>({...op,data:op.data}))});
         for(const ack of data.committed||[]){
           const op=batch.find(r=>r.client_id===ack.client_id);if(!op)continue;
+          if(op.entity==='deposits')applyAcceptedDeposit(op,ack.data);
           if(ack.server_id&&op.action==='create'){
             const aliases=STORAGE._get('er_sync_ids',{});aliases[op.entity+':'+op.local_id]=ack.server_id;STORAGE._set('er_sync_ids',aliases);
-            remapAcceptedId(op.entity,op.local_id,ack.server_id);
+            remapAcceptedId(op.entity,op.local_id,ack.server_id,ack.data);
             if(!['bookings','payments'].includes(op.entity)){
               const rows=STORAGE.getAll(op.entity);const row=rows.find(r=>String(r[fields[op.entity]])===String(op.local_id));if(row){row._server_id=ack.server_id;STORAGE.saveAll(op.entity,rows);}
             }

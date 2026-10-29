@@ -44,6 +44,8 @@ While disconnected, a new payment or correction remains a proposal in the outbox
 
 If replay rejects a payment or deposit amount, the sync panel keeps that Pending Sync draft available. The owner can enter a corrected positive amount with no more than two decimal places and retry the same queued operation. Keeping its original client operation ID, together with the server receipt check, prevents a corrected retry or a lost acknowledgement from creating the same payment twice.
 
+The refund button is available once a positive held deposit exists locally, including a newly queued deposit. Clicking it records a pending refund operation; the screen does not claim the deposit is Refunded until the server accepts the operation. Acceptance replaces the cached state with the server's `refund_status` and `refund_date`. A failed refund remains visible for retry in the sync panel.
+
 ### Visual explanation
 
 ```mermaid
@@ -68,6 +70,7 @@ The two lines stay separate on purpose: rental payments reduce the rental balanc
 - A Completed payment cannot exceed the remaining booking balance. Record the exact remaining amount instead; a separate credit/refund workflow would require a new approved policy.
 - Payment, deposit, and deduction amounts allow at most two decimal places. Exact-cent remaining payments are accepted without floating-point rounding.
 - A rejected monetary operation can be corrected from the sync panel without clearing valid neighboring work from the outbox.
+- “Refund pending” means the action is still in the outbox. “Refunded” means the shared server accepted it; neither label proves an external bank transfer.
 
 ### Remember This
 

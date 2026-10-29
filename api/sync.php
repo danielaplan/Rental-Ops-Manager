@@ -116,16 +116,14 @@ foreach ($queue as $item) {
         } elseif ($entity==='deposits' && in_array($action,['deduct','refund'],true)) {
             $bid=asInt($data['booking_id'] ?? null,1);
             if (!$bid) domainFail('A valid booking is required.');
-            lockBooking($pdo,$bid);
-            $deposit=depositView($pdo,$bid);
-            if (!$deposit) domainFail('Deposit not found.',404,'not_found');
-            if ($action==='deduct') addDepositDeduction($pdo,(int)$deposit['deposit_id'],$data,(int)$actor['user_id']);
-            elseif ($deposit['refund_status']!=='Refunded') {
-                if (moneyCents($deposit['refund_amount'] ?? 0)<=0) domainFail('No refundable balance remains for this deposit.',409,'invalid_state');
-                $pdo->prepare("UPDATE deposits SET refund_status='Refunded',refund_date=NOW(),updated_at=NOW() WHERE deposit_id=?")->execute([$deposit['deposit_id']]);
-                auditWrite($pdo,$actor['user_id'],'deposit_refunded','deposit',$deposit['deposit_id'],json_encode(['refund_amount'=>$deposit['refund_amount']]));
+            if ($action==='refund') $record=refundDeposit($pdo,$bid,(int)$actor['user_id']);
+            else {
+                lockBooking($pdo,$bid);
+                $deposit=depositView($pdo,$bid);
+                if (!$deposit) domainFail('Deposit not found.',404,'not_found');
+                addDepositDeduction($pdo,(int)$deposit['deposit_id'],$data,(int)$actor['user_id']);
+                $record=depositView($pdo,$bid);
             }
-            $record=depositView($pdo,$bid);
         } elseif ($entity==='delivery' && $action==='upsert') {
             $record=saveDelivery($pdo,$data,$actor);
         } elseif ($entity==='bookingItems' && $action==='generate') {

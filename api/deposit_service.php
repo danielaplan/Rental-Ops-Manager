@@ -29,6 +29,20 @@ function addDepositDeduction(PDO $pdo, int $depositId, array $body, int $ownerId
     auditWrite($pdo,$ownerId,'deposit_deduction','deduction',$id,json_encode($body));
     return $id;
 }
+function refundDeposit(PDO $pdo, int $bookingId, int $ownerId): array {
+    lockBooking($pdo,$bookingId);
+    $lock=$pdo->prepare('SELECT deposit_id FROM deposits WHERE booking_id=? FOR UPDATE');
+    $lock->execute([$bookingId]);
+    $deposit=depositView($pdo,$bookingId);
+    if (!$deposit) domainFail('Deposit not found.',404,'not_found');
+    if ($deposit['refund_status']!=='Refunded') {
+        $refundCents=moneyCents($deposit['refund_amount'] ?? '0.00');
+        if ($refundCents<=0) domainFail('No refundable balance remains for this deposit.',409,'invalid_state');
+        $pdo->prepare("UPDATE deposits SET refund_status='Refunded',refund_date=NOW(),updated_at=NOW() WHERE deposit_id=?")->execute([$deposit['deposit_id']]);
+        auditWrite($pdo,$ownerId,'deposit_refunded','deposit',(int)$deposit['deposit_id'],json_encode(['refund_amount'=>$deposit['refund_amount']]));
+    }
+    return depositView($pdo,$bookingId);
+}
 function saveDeposit(PDO $pdo, int $bookingId, array $body, ?int $ownerId = null): array {
     if (!$ownerId) domainFail('An authenticated recording owner is required.');
     lockBooking($pdo,$bookingId);

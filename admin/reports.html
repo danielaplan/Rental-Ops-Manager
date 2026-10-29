@@ -299,21 +299,22 @@ function renderReportReceipt() {
   const $body = $('#reportReceiptBody').empty();
   $('#receiptRangeLabel').text(rangeLabel);
 
-  const customerTotals = {};
+  const customerTotals = new Map();
   bookings.forEach(b => {
-    const name = b.customer_name || 'Unknown customer';
-    if (!customerTotals[name]) customerTotals[name] = { bookings: 0, paid: 0 };
-    customerTotals[name].bookings += 1;
-    customerTotals[name].paid += acceptedPayments.get(String(b.id)) || 0;
+    const key = String(b.customer_id ?? `booking:${b.id}`);
+    const totals = customerTotals.get(key) || { name: b.customer_name || 'Unknown customer', bookings: 0, paid: 0 };
+    totals.bookings += 1;
+    totals.paid += acceptedPayments.get(String(b.id)) || 0;
+    customerTotals.set(key, totals);
   });
   const pendingByBooking = new Map();
   pendingPayments.forEach(payment => {
     const key = String(payment.booking_id);
     pendingByBooking.set(key, (pendingByBooking.get(key) || 0) + Number(payment.amount || 0));
   });
-  const customerRows = Object.entries(customerTotals)
-    .sort((a, b) => b[1].paid - a[1].paid)
-    .map(([name, totals]) => `<tr><td>${escapeHtmlA(name)}</td><td>${totals.bookings}</td><td>${BookingCalc.formatCurrency(totals.paid)}</td></tr>`)
+  const customerRows = [...customerTotals.values()]
+    .sort((a, b) => b.paid - a.paid)
+    .map(totals => `<tr><td>${escapeHtmlA(totals.name)}</td><td>${totals.bookings}</td><td>${BookingCalc.formatCurrency(totals.paid)}</td></tr>`)
     .join('');
   const bookingRows = bookings.slice().sort((a, b) => (a.event_date || '').localeCompare(b.event_date || ''))
     .map(b => `<tr>

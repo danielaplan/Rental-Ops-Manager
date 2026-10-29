@@ -83,6 +83,39 @@ test('CRUD writes use PHP action parameters, numeric IDs, and mapped fields', as
   assert.equal(requests.every(request => request.options.headers.Authorization === 'Bearer test-token'), true);
 });
 
+test('direct customer summaries associate bookings by customer ID instead of shared phone', async () => {
+  const { API } = harness(request => {
+    const url = new URL(request.url);
+    if (url.pathname.endsWith('/customers.php')) return { data: [
+      { customer_id: 1, full_name: 'Customer One', contact_number: '0917-SHARED' },
+      { customer_id: 2, full_name: 'Customer Two', contact_number: '0917-SHARED' }
+    ] };
+    if (url.pathname.endsWith('/bookings.php')) return { data: [
+      { booking_id: 10, customer_id: 1, customer_name: 'Customer One', contact: '0917-SHARED', amount_paid: 25 },
+      { booking_id: 20, customer_id: 2, customer_name: 'Customer Two', contact: '0917-SHARED', amount_paid: 80 }
+    ] };
+    return { data: [] };
+  });
+
+  const summaries = await API.getCustomers();
+
+  assert.deepEqual(JSON.parse(JSON.stringify(summaries.map(customer => [customer.name, customer.bookings_count, customer.total_spent]))), [
+    ['Customer One', 1, 25],
+    ['Customer Two', 1, 80]
+  ]);
+});
+
+test('customer upsert uses an explicit customer ID and never selects by phone', async () => {
+  const { API, requests } = harness(() => ({ data: { customer_id: 2, full_name: 'Customer Two', contact_number: '0917-SHARED' } }));
+
+  await API.upsertCustomerFromBooking({ customer_id: 'CUS-002', customer_name: 'Customer Two', contact: '0917-SHARED' });
+  await API.upsertCustomerFromBooking({ customer_name: 'New Customer', contact: '0917-SHARED' });
+
+  assert.equal(requests[0].url, 'http://localhost/rental/api/customers.php?do=update&id=2');
+  assert.equal(requests[1].url, 'http://localhost/rental/api/customers.php?do=create');
+  assert.equal(requests.some(request => request.url.includes('do=search')), false);
+});
+
 test('special workflows target their actual PHP actions', async () => {
   const { API, requests } = harness(() => ({ data: {} }));
 

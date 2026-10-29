@@ -114,6 +114,18 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   await request('api/deposits.php?do=upsert',{booking_id:preciseDeposit.booking_id,amount_held:'10.001'},400);
   await request('api/deposits.php?do=upsert',{booking_id:preciseDeposit.booking_id,amount_held:'10.00'});
   await request('api/deposits.php?do=deduct',{booking_id:preciseDeposit.booking_id,amount:'0.001',affected_item:'Test item',reason:'Invalid precision'},400);
+  const directRefund = (await request('api/deposits.php?do=refund',{booking_id:preciseDeposit.booking_id})).data;
+  assert.equal(directRefund.refund_status,'Refunded');
+  assert.ok(directRefund.refund_date);
+  const syncedRefundBooking = (await book()).data;
+  const refundReplay = await request('api/sync.php?do=commit',{queue:[
+    {client_id:`refund-upsert-${Date.now()}`,entity:'deposits',action:'upsert',data:{booking_id:syncedRefundBooking.booking_id,amount_held:'40.00'}},
+    {client_id:`refund-mark-${Date.now()}`,entity:'deposits',action:'refund',data:{booking_id:syncedRefundBooking.booking_id}}
+  ]});
+  assert.equal(refundReplay.data.failed.length,0);
+  assert.equal(refundReplay.data.committed.length,2);
+  assert.equal(refundReplay.data.committed[1].data.refund_status,'Refunded');
+  assert.ok(refundReplay.data.committed[1].data.refund_date);
   const legacyZero = (await book()).data;
   sql(`USE \`${process.env.AKAD_TEST_DB_NAME}\`; INSERT INTO deposits(booking_id,amount_held,refund_status,recorded_by,created_at,updated_at) VALUES(${Number(legacyZero.booking_id)},0.00,'Held',1,NOW(),NOW());`);
   const correctedZero = (await request('api/deposits.php?do=upsert',{booking_id:legacyZero.booking_id,amount_held:'75.00'})).data;
