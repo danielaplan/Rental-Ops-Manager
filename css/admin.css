@@ -97,16 +97,15 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   display: flex;
   width: var(--a-sidebar-collapsed-w);
   flex-direction: column;
-  background: radial-gradient(circle at 20% 0, color-mix(in srgb, var(--a-accent) 16%, transparent), transparent 18rem), rgba(23,23,20,.62);
+  background: rgba(18,18,16,.86);
   color: rgba(255,255,255,0.85);
   position: fixed;
   top: var(--a-sidebar-inset);
   left: var(--a-sidebar-inset);
   bottom: var(--a-sidebar-inset);
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   border: 1px solid rgba(255,255,255,.09);
-  border-radius: 20px;
+  border-radius: 12px;
   box-shadow: 0 22px 55px rgba(23,23,20,.24), inset 0 1px 0 rgba(255,255,255,.07);
   backdrop-filter: blur(9px) saturate(112%);
   -webkit-backdrop-filter: blur(9px) saturate(112%);
@@ -115,12 +114,13 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   scrollbar-color: color-mix(in srgb, var(--a-accent) 46%, transparent) transparent;
   transition: width .24s ease, transform .25s ease, box-shadow .24s ease;
 }
-.admin-sidebar:hover,
-.admin-sidebar:focus-within { width: var(--a-sidebar-w); box-shadow: 0 26px 66px rgba(23,23,20,.30), inset 0 1px 0 rgba(255,255,255,.08); }
+.admin-sidebar.is-expanded { width: var(--a-sidebar-w); background: radial-gradient(circle at 20% 0, color-mix(in srgb, var(--a-accent) 9%, transparent), transparent 18rem), rgba(18,18,16,.86); box-shadow: 0 26px 66px rgba(23,23,20,.30), inset 0 1px 0 rgba(255,255,255,.08); }
 .admin-sidebar .brand {
+  position: relative;
   display: flex;
   min-height: 76px;
   align-items: center;
+  flex: 0 0 76px;
   gap: .75rem;
   margin: 0 .65rem;
   padding: 1rem .55rem;
@@ -128,7 +128,9 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   font-size: 1.15rem;
   color: #fff;
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
 }
+.admin-sidebar:not(.is-expanded) .brand { justify-content: center; gap: 0; margin-inline: 0; padding-inline: 0; }
 .sidebar-brand-mark {
   display: grid;
   width: 34px;
@@ -142,14 +144,20 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   font-weight: 800;
   padding-top: 7px;
 }
-.sidebar-brand-mark img { width: 100%; height: 100%; object-fit: contain; }
-.sidebar-brand-mark.has-image { padding: 0; border-radius: 9px; background: rgba(255,255,255,.08); clip-path: none; }
+.sidebar-brand-mark img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+.sidebar-brand-mark.has-image { padding: 3px; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: rgba(255,255,255,.08); clip-path: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+.admin-sidebar:not(.is-expanded) .sidebar-brand-mark { position: absolute; left: 50%; width: 38px; height: 38px; flex-basis: 38px; margin: 0; transform: translateX(-50%); }
+.admin-sidebar.is-expanded .brand { justify-content: flex-start; }
 .sidebar-brand-copy { min-width: 0; opacity: 0; transform: translateX(-6px); white-space: nowrap; transition: opacity .16s ease, transform .2s ease; }
 .sidebar-brand-copy .brand-name { display: block; max-width: 165px; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-brand-copy small { display: block; margin-top: 3px; color: rgba(255,255,255,.5); font: 500 .7rem/1 'Inter', sans-serif; }
-.admin-sidebar:hover .sidebar-brand-copy,
-.admin-sidebar:focus-within .sidebar-brand-copy { opacity: 1; transform: translateX(0); }
-.admin-sidebar nav { min-height: 0; flex: 1; flex-wrap: nowrap; padding-bottom: .65rem; }
+.admin-sidebar.is-expanded .sidebar-brand-copy { opacity: 1; transform: translateX(0); }
+.admin-sidebar nav { min-height: 0; flex: 1; flex-wrap: nowrap; overflow-x: hidden; overflow-y: auto; padding-bottom: .65rem; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--a-accent) 46%, transparent) transparent; }
+.admin-sidebar nav::-webkit-scrollbar { width: 5px; }
+.admin-sidebar nav::-webkit-scrollbar-track { background: transparent; }
+.admin-sidebar nav::-webkit-scrollbar-thumb { border-radius: 99px; background: color-mix(in srgb, var(--a-accent) 40%, transparent); }
+.admin-sidebar:not(.is-expanded) nav { position: relative; }
+.admin-sidebar:not(.is-expanded) nav::before { position: absolute; top: 18px; bottom: 54px; left: 50%; width: 1px; background: linear-gradient(transparent, rgba(255,255,255,.18) 8%, rgba(255,255,255,.18) 92%, transparent); content: ''; transform: translateX(-50%); }
 .admin-sidebar .nav-link {
   margin: 0.16rem 0.65rem;
   color: rgba(255,255,255,0.75);
@@ -163,9 +171,10 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease;
 }
 .admin-sidebar .nav-link i { width: 18px; flex: 0 0 18px; font-size: 1rem; text-align: center; }
+.admin-sidebar:not(.is-expanded) .nav-link { position: relative; z-index: 1; }
+.admin-sidebar:not(.is-expanded) .nav-link i { display: grid; width: 28px; height: 28px; place-items: center; flex-basis: 28px; margin-left: -5px; border: 1px solid rgba(255,255,255,.10); border-radius: 50%; background: rgba(18,18,16,.92); }
 .admin-sidebar .nav-label { opacity: 0; transform: translateX(-5px); white-space: nowrap; transition: opacity .15s ease, transform .2s ease; }
-.admin-sidebar:hover .nav-label,
-.admin-sidebar:focus-within .nav-label { opacity: 1; transform: translateX(0); }
+.admin-sidebar.is-expanded .nav-label { opacity: 1; transform: translateX(0); }
 .admin-sidebar .nav-link:hover { background: rgba(255,255,255,0.07); color: #fff; transform: translateX(2px); }
 .admin-sidebar .nav-link.active {
   background: linear-gradient(90deg, color-mix(in srgb, var(--a-accent) 22%, transparent), rgba(255,255,255,.07));
@@ -182,15 +191,19 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   padding: 1rem 1.5rem 0.3rem;
 }
 .admin-sidebar .nav-section-label span { opacity: 0; white-space: nowrap; transition: opacity .15s ease; }
-.admin-sidebar:hover .nav-section-label span,
-.admin-sidebar:focus-within .nav-section-label span { opacity: 1; }
+.admin-sidebar.is-expanded .nav-section-label span { opacity: 1; }
+.admin-sidebar:not(.is-expanded) .nav-section-label { height: 0; overflow: hidden; padding: 0; }
 .admin-sidebar .sidebar-logout {
   min-height: 40px;
   margin-top: auto;
   padding-block: .58rem;
   border-top: 1px solid rgba(255,255,255,.12);
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 7px 7px;
 }
+.admin-sidebar-edge-toggle { position: fixed; z-index: 1040; top: 34px; left: calc(var(--a-sidebar-inset) + var(--a-sidebar-collapsed-w) - 15px); display: grid; width: 30px; height: 30px; place-items: center; padding: 0; border: 1px solid rgba(255,255,255,.22); border-radius: 50%; background: rgba(18,18,16,.88); color: #fff; box-shadow: 0 8px 20px rgba(0,0,0,.25); backdrop-filter: blur(9px); transition: left .24s ease, transform .2s ease, background-color .2s ease; }
+.admin-sidebar-edge-toggle:hover, .admin-sidebar-edge-toggle:focus-visible { background: var(--a-primary); transform: scale(1.08); }
+.admin-sidebar-edge-toggle:focus-visible { outline: 3px solid color-mix(in srgb, var(--a-accent) 45%, transparent); outline-offset: 2px; }
+.admin-body.admin-sidebar-expanded .admin-sidebar-edge-toggle { left: calc(var(--a-sidebar-inset) + var(--a-sidebar-w) - 15px); }
 
 .nav-tabs {
   border-bottom: 1px solid var(--a-border);
@@ -334,11 +347,11 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
     transform: translateX(calc(-100% - 24px));
     transition: transform 0.25s ease;
   }
-  .admin-sidebar:hover,
-  .admin-sidebar:focus-within { width: min(280px, calc(100vw - 32px)); }
+  .admin-sidebar.is-expanded { width: min(280px, calc(100vw - 32px)); }
   .admin-sidebar .sidebar-brand-copy,
   .admin-sidebar .nav-label,
   .admin-sidebar .nav-section-label span { opacity: 1; transform: none; }
+  .admin-sidebar-edge-toggle { display: none; }
   .admin-sidebar.show { transform: translateX(0); }
   .admin-main { margin-left: 0; padding: 1.2rem; }
   .admin-mobile-toggle { display: inline-flex !important; }

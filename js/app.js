@@ -314,7 +314,7 @@ async function renderGallery() {
   $('#galleryCarousel').toggle(shown.length > 0);
   [...shown, ...shown].forEach((img, index) => {
     $wrap.append(`
-      <div class="gallery-slide" onmouseenter="pauseGalleryCarousel()" onmouseleave="startGalleryCarousel()" aria-hidden="${index >= shown.length ? 'true' : 'false'}">
+        <div class="gallery-slide" onmouseenter="pauseGalleryCarousel()" onmouseleave="startGalleryCarousel()" aria-hidden="${index >= shown.length ? 'true' : 'false'}">
         <div class="gallery-item">
           <img src="${escapeHtml(safeWebUrl(img.image))}" alt="${escapeHtml(img.title)}">
           <div class="gallery-caption">${escapeHtml(img.title)}</div>
@@ -366,9 +366,6 @@ function shiftGalleryCarousel(direction) {
   const gap = Number.parseFloat(styles?.columnGap || styles?.gap || '0') || 0;
   const step = firstSlide.getBoundingClientRect().width + gap;
   const loopWidth = track.scrollWidth / 2;
-
-  // Before moving backwards past the first copy, silently switch to the
-  // identical position in the duplicate set. The visible slide does not move.
   if (direction < 0 && loopWidth > 0 && galleryCarouselOffset + step > 0) {
     galleryCarouselOffset -= loopWidth;
     track.style.transition = 'none';
@@ -381,8 +378,6 @@ function shiftGalleryCarousel(direction) {
   track.style.transform = `translate3d(${galleryCarouselOffset}px,0,0)`;
   galleryCarouselShiftTimer = window.setTimeout(() => {
     galleryCarouselShiftTimer = null;
-    // After moving into the duplicate set, silently return to its matching
-    // position in the first set so both arrows can continue forever.
     if (loopWidth > 0) {
       while (galleryCarouselOffset <= -loopWidth) galleryCarouselOffset += loopWidth;
       while (galleryCarouselOffset > 0) galleryCarouselOffset -= loopWidth;
@@ -408,6 +403,7 @@ function animateGalleryCarousel(timestamp) {
 async function renderContact() {
   const cached = publicContentCache();
   const c = cached;
+  const settings = publicSettingsCache();
   const phone = c.contact_phone === '0917-123-4567' ? '' : (c.contact_phone || '');
   const email = c.contact_email === 'hello@fiestaandco.ph' ? '' : (c.contact_email || '');
   const address = c.contact_address === '123 Rizal Avenue, Caloocan City, Metro Manila' ? '' : (c.contact_address || '');
@@ -416,8 +412,10 @@ async function renderContact() {
   $('#contactEmail').text(email).attr('href', email ? 'mailto:' + email : '#');
   $('#contactEmail').closest('.contact-info-item').toggle(!!email);
   $('#contactAddress').text(address).closest('.contact-info-item').toggle(!!address);
-  const facebook = safeWebUrl(c.contact_facebook === 'https://facebook.com/fiestaandco' ? '' : c.contact_facebook);
-  const instagram = safeWebUrl(c.contact_instagram === 'https://instagram.com/fiestaandco' ? '' : c.contact_instagram);
+  const contentFacebook = c.contact_facebook === 'https://facebook.com/fiestaandco' ? '' : c.contact_facebook;
+  const contentInstagram = c.contact_instagram === 'https://instagram.com/fiestaandco' ? '' : c.contact_instagram;
+  const facebook = safeWebUrl(contentFacebook || settings.facebook);
+  const instagram = safeWebUrl(contentInstagram || settings.instagram);
   const bookingLink = document.getElementById('howFacebookLink');
   if (bookingLink) {
     bookingLink.hidden = !facebook;

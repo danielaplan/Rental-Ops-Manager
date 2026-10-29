@@ -10,7 +10,7 @@
   .hero-copy { max-width: 570px; padding: 116px 0 42px; text-align: left; }
   .hero-copy .kicker, .hero-desc { margin-inline: auto; }
   .hero-copy .kicker, .hero-desc { margin-left: 0; }
-  .hero-overlay { background: linear-gradient(90deg, rgba(16,14,12,.72), rgba(16,14,12,.44) 72%, rgba(16,14,12,.14)); }
+  .hero-overlay { background: linear-gradient(rgba(8,8,7,.24), rgba(8,8,7,.24)), linear-gradient(90deg, rgba(12,11,9,.82), rgba(12,11,9,.56) 72%, rgba(12,11,9,.24)); }
   .featured-image img { height: clamp(280px, 48svh, 400px); min-height: 0; }
   .featured-copy { padding-block: 58px; }
   .step-item::after { display: none; }
@@ -32,7 +32,7 @@
   .stat-item:nth-child(n+3) { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--color-border); }
   .gallery-viewport { height: min(310px, 43vh); }
   .gallery-track { gap: 14px; }
-  .gallery-slide { width: min(56vw, 215px); height: min(270px, 38vh); }
+  .gallery-slide { width: min(56vw, 215px); height: min(290px, 40vh); }
   .gallery-slide:hover { transform: scale(1.05); }
   .gallery-control { width: 36px; height: 36px; }
   .gallery-control-prev { left: 5px; }
@@ -53,8 +53,8 @@
   .hero-copy { padding: 150px 0 34px; }
   .hero-title { font-size: clamp(34px, 11vw, 39px); }
   .hero-desc { font-size: 16px; }
-  .hero-image-wrap > img { object-position: 24% center; }
-  .hero-overlay { background: linear-gradient(90deg, rgba(16,14,12,.70), rgba(16,14,12,.42)), linear-gradient(0deg, rgba(12,10,8,.26), transparent); }
+  .hero-image-wrap > img { object-fit: cover; object-position: 24% center; filter: blur(.8px); transform: scale(1.014); }
+  .hero-overlay { background: linear-gradient(rgba(8,8,7,.28), rgba(8,8,7,.28)), linear-gradient(90deg, rgba(12,11,9,.82), rgba(12,11,9,.52)), linear-gradient(0deg, rgba(8,7,6,.34), transparent); }
   .hero-proof { margin-top: 30px; }
   .service-card-body { min-height: 205px; }
   .featured-image { padding: 24px 18px 0; }

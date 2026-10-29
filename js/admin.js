@@ -185,14 +185,53 @@ function safeAdminImageUrl(value) {
   }
 }
 
-function bindAdminSidebarAutoCollapse() {
+function setAdminSidebarExpanded(expanded) {
   const sidebar = document.getElementById('adminSidebar');
-  if (!sidebar || sidebar.dataset.autoCollapseBound === 'true') return;
-  sidebar.dataset.autoCollapseBound = 'true';
-  sidebar.addEventListener('pointerleave', () => {
-    const focused = document.activeElement;
-    if (focused && sidebar.contains(focused) && typeof focused.blur === 'function') focused.blur();
-  });
+  if (!sidebar?.classList) return;
+  sidebar.classList.toggle('is-expanded', expanded);
+  document.body?.classList?.toggle('admin-sidebar-expanded', expanded);
+  const toggle = document.getElementById('adminSidebarSizeBtn');
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', String(expanded));
+    toggle.setAttribute('aria-label', expanded ? 'Collapse admin sidebar' : 'Expand admin sidebar');
+    toggle.setAttribute('title', expanded ? 'Collapse sidebar' : 'Expand sidebar');
+    const icon = toggle.querySelector('i');
+    if (icon) icon.className = `bi ${expanded ? 'bi-chevron-double-left' : 'bi-chevron-double-right'}`;
+    const label = toggle.querySelector('.nav-label');
+    if (label) label.textContent = expanded ? 'Collapse sidebar' : 'Expand sidebar';
+  }
+  try { window.localStorage.setItem('akad_admin_sidebar_expanded', expanded ? '1' : '0'); } catch {}
+}
+
+function toggleAdminSidebarSize() {
+  const sidebar = document.getElementById('adminSidebar');
+  if (!sidebar?.classList) return;
+  setAdminSidebarExpanded(!sidebar.classList.contains('is-expanded'));
+}
+
+function ensureAdminSidebarSizeToggle() {
+  if (document.getElementById('adminSidebarSizeBtn')) return;
+  if (typeof document.createElement !== 'function' || !document.body?.appendChild) return;
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.id = 'adminSidebarSizeBtn';
+  toggle.className = 'admin-sidebar-edge-toggle';
+  toggle.title = 'Expand sidebar';
+  toggle.setAttribute('aria-label', 'Expand or collapse admin sidebar');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('onclick', 'toggleAdminSidebarSize()');
+  toggle.innerHTML = '<i class="bi bi-chevron-double-right" aria-hidden="true"></i><span class="visually-hidden">Expand sidebar</span>';
+  document.body.appendChild(toggle);
+}
+
+function bindAdminSidebarSizeToggle() {
+  ensureAdminSidebarSizeToggle();
+  const toggle = document.getElementById('adminSidebarSizeBtn');
+  if (!toggle || typeof toggle.addEventListener !== 'function') return;
+  let expanded = false;
+  try { expanded = window.localStorage.getItem('akad_admin_sidebar_expanded') === '1'; } catch {}
+  setAdminSidebarExpanded(expanded);
+  toggle.onclick = toggleAdminSidebarSize;
 }
 
 function updateAdminSidebarBrand() {
@@ -228,6 +267,7 @@ async function renderAdminSidebar(activeHref) {
   });
   html += `<a class="nav-link sidebar-logout" href="#" id="adminLogoutBtn" title="Logout"><i class="bi bi-box-arrow-right"></i><span class="nav-label">Logout</span></a></nav>`;
   $('#adminSidebar').html(html);
+  bindAdminSidebarSizeToggle();
   $('#adminLogoutBtn').on('click', function (e) {
     e.preventDefault();
     if (confirm('Log out of the admin panel?')) { AdminAuth.logout(); }
@@ -261,7 +301,6 @@ async function initAdminChrome(activeHref, pageTitle) {
   }
   $('#adminPageTitle').text(pageTitle);
   initAdminSpaNavigation();
-  bindAdminSidebarAutoCollapse();
   window.initSyncPanel?.();
   await renderActionNotifications();
 
