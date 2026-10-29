@@ -45,6 +45,25 @@ function requireCurrentApprovalBase(array $old, array $body): void {
     }
 }
 
+function requireRecoveredEquipmentBeforeCancellation(PDO $pdo, int $bookingId): void {
+    $q = $pdo->prepare("SELECT checklist_item_id FROM booking_checklist_items
+        WHERE booking_id=? AND COALESCE(quantity_released,0)>0 AND (
+          checked_by IS NULL OR checked_at IS NULL OR condition_in IS NULL OR TRIM(condition_in)='' OR
+          return_status NOT IN ('inspected','damaged','missing') OR quantity_returned>quantity_released OR
+          (quantity_returned<quantity_released AND (return_status<>'missing' OR condition_in<>'Missing'))
+        ) LIMIT 1 FOR UPDATE");
+    $q->execute([$bookingId]);
+    $unresolved = (bool)$q->fetchColumn();
+    if (!$unresolved) {
+        $q = $pdo->prepare('SELECT booking_item_id FROM booking_items WHERE booking_id=? AND released_qty>returned_qty LIMIT 1 FOR UPDATE');
+        $q->execute([$bookingId]);
+        $unresolved = (bool)$q->fetchColumn();
+    }
+    if ($unresolved) {
+        domainFail('Return and inspect all dispatched equipment before cancelling this booking.',409,'equipment_recovery_required');
+    }
+}
+
 function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $ownerId): int {
     foreach (['status','customer_name','contact','contact_number','email','location','event_location','cancellation_reason','theme_notes','source','event_type','special_requests','customer_type'] as $field) {
         if (isset($body[$field]) && !is_string($body[$field])) domainFail($field.' must be text.');
@@ -73,6 +92,7 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     if ($status === 'Cancelled') {
         $reason = trim((string)($body['cancellation_reason'] ?? ''));
         if (!$reason) domainFail('A cancellation reason is required.');
+        requireRecoveredEquipmentBeforeCancellation($pdo,(int)$id);
         $pdo->prepare("UPDATE bookings SET status='Cancelled',cancellation_reason=? WHERE booking_id=?")->execute([$reason,$id]);
         auditWrite($pdo,$ownerId,'cancellation','booking',$id,$reason,$old['status'],'Cancelled');
         return $id;
@@ -123,6 +143,14 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     $snapshotPrice = $packageChanged ? ($package['price'] ?? null) : $old['package_price_snapshot'];
     $totals = $old && !$packageChanged && !array_intersect(['addon_ids','discount','fees'],array_keys($body)) ? ['subtotal'=>$old['subtotal'],'addons_total'=>$old['addons_total'],'total'=>$old['total']] : calculateBookingTotals($pdo,$serviceId,$packageId,$addons,$discount,$fees,$snapshotPrice);
     $agreed = centsDecimal(moneyCents($body['agreed_total'] ?? $body['total'] ?? ($old['agreed_total'] ?? $totals['total'])));
+    if ($old) {
+        $q = $pdo->prepare("SELECT COALESCE(SUM(amount),0) FROM payments WHERE booking_id=? AND payment_status='Completed'");
+        $q->execute([(int)$old['booking_id']]);
+        $collectedCents = moneyCents($q->fetchColumn());
+        if (moneyCents($agreed) < $collectedCents) {
+            domainFail('The agreed total cannot be lower than completed payments already collected.',409,'collected_payments_exceed_total');
+        }
+    }
     $conflicts = ['bookings'=>[],'blocks'=>[]];
     $reason = '';
     $changedReservation = !$old || $old['status'] !== $status || (int)$old['service_id'] !== $serviceId || $old['blocked_start_datetime'] !== $blockedStart || $old['blocked_end_datetime'] !== $blockedEnd;

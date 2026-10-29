@@ -2,6 +2,10 @@
 
 Completion pass: 2026-10-15. This matrix supplements the revised backend plan and supersedes older blanket completion claims. **Implemented** describes repository code; **locally verified** describes only the synthetic environment below. Neither means operational migration, client acceptance, or production readiness.
 
+## Booking integrity acceptance scenarios — 2026-10-29
+
+Five previously reported integrity cases are enforced in the shared direct/offline domain paths: collected payments set the booking-price floor; payment corrections reopen an underpaid Completed booking without losing return-review evidence; unresolved dispatched equipment blocks cancellation; referenced packages cannot move services; and outstanding balances exclude cancelled bookings consistently across Payments, Dashboard, and Reports. `tests/fixed-bug-scenarios.test.cjs` simulates all five on a runner-owned synthetic database. The focused and final consolidated scenario runs passed 5/5; affected booking, catalog, finance, sync and 43 frontend regressions passed. Two broad consolidated runs each encountered one unrelated intermittent empty MySQL CLI scalar read (history retention once and booking reconciliation once); both affected suites passed immediately when rerun alone. No operational database, migration, deployment, browser-device or client acceptance was performed.
+
 ## Awaiting Payment policy completion — 2026-10-16
 
 The approved unpaid-balance policy is implemented across the shared release service, direct API, offline sync, notifications, reports, admin labels and tests. Complete return review releases service capacity. An unpaid booking becomes `Awaiting Payment`, remains incomplete, and shows the exact balance/action notice. Only completed rental payments covering the agreed total permit the later `Completed` transition. The complete non-migration runner passed on synthetic `akad_verify_plan_1792150757195_24148`: 9 backend/sync test files, 17/17 offline checks, 36/36 frontend tests, syntax and diff checks. [Evidence](../tests/acceptance-results/1792150756830-33488/summary.json).

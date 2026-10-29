@@ -317,7 +317,7 @@ test('the facade exposes methods required by current pages and the sync UI', () 
   const { context } = createHarness();
   const required = [
     'getItemHistory', 'getBooking', 'getPaymentsForBooking', 'getSettings',
-    'getWebsiteContent', 'refreshSharedData', 'flushSyncQueue', 'savedMessage',
+    'getWebsiteContent', 'refreshSharedData', 'flushSyncQueue', 'savedMessage', 'discardSyncOperation',
     'getDeposit', 'upsertDeposit', 'getDelivery', 'upsertDelivery', 'finalizeReturn'
   ];
 

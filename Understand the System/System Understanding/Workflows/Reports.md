@@ -57,6 +57,7 @@ The diagram groups the source records by purpose: payments feed revenue, booking
 
 - Reports are operational summaries, not formal accounting statements or proof of bank settlement.
 - Pending and Failed payments do not count as revenue. Deposits never count as rental revenue.
+- Payments, Dashboard, and Reports use the same lifetime outstanding-balance rule and exclude Cancelled or Rejected bookings.
 - Completed and cancellation totals are lifetime in `reportsBookings()`, while upcoming is period-filtered; definitions in the response disclose this.
 - `damaged_or_missing` is a global checklist count in the compatibility report field.
 - Dashboard inventory counts are placeholders set to zero.

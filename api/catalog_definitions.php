@@ -27,6 +27,13 @@ function packageCrudDefinition(): array {
     $record = $values + ($old ?? []);
     $service = asInt($record['service_id'] ?? null,1);
     if (!$service) domainFail('A valid service is required.');
+    if ($old && array_key_exists('service_id',$values) && $service!==(int)$old['service_id']) {
+        $q = db()->prepare('SELECT booking_id FROM bookings WHERE package_id=? LIMIT 1 FOR UPDATE');
+        $q->execute([(int)$old['package_id']]);
+        if ($q->fetchColumn()) {
+            domainFail('A package used by an existing booking cannot move to another service.',409,'referenced_package_service_change');
+        }
+    }
     $q = db()->prepare('SELECT 1 FROM services WHERE service_id=?');
     $q->execute([$service]);
     if (!$q->fetchColumn()) domainFail('Service not found.');
