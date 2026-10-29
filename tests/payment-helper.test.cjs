@@ -32,3 +32,19 @@ test('recordPayment preserves an explicitly supplied payment_date', async () => 
 
   assert.equal(payload.payment_date, '2026-10-27 09:00:00');
 });
+
+test('recordPayment rejects excessive precision before calling the API', async () => {
+  let calls = 0;
+  const helper = loadPaymentsHelper(async value => { calls += 1; return value; });
+
+  assert.equal(await helper.recordPayment(12, '10.001', 'GCash', ''), null);
+  assert.equal(calls, 0);
+});
+
+test('remaining balance uses integer cents for exact fractional payments', async () => {
+  const helper = loadPaymentsHelper(async value => value);
+  const pending = new Map();
+
+  assert.equal(await helper.remainingBalance({ id: 12, total: '0.30', amount_paid: '0.10' }, pending), 0.2);
+  assert.equal(await helper.paymentStatus({ id: 12, total: '0.30', amount_paid: '0.30' }, pending), 'Fully Paid');
+});

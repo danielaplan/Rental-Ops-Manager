@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
 
 // The runner owns these PHP processes and a freshly seeded synthetic database.
 assert.match(process.env.AKAD_TEST_DB_NAME || '', /^akad_verify_plan_\d+_\d+$/,
@@ -6,6 +7,13 @@ assert.match(process.env.AKAD_TEST_DB_NAME || '', /^akad_verify_plan_\d+_\d+$/,
 const base = process.env.AKAD_TEST_BASE_URL;
 assert.ok(base && /^http:\/\/127\.0\.0\.1:\d+\/$/.test(base));
 let token;
+function sql(input) {
+  const mysql = process.env.AKAD_TEST_MYSQL || 'C:/xampp/mysql/bin/mysql.exe';
+  const result = spawnSync(mysql, ['--host', process.env.AKAD_DB_HOST || 'localhost', '--user', process.env.AKAD_DB_USER || 'root', '--default-character-set=utf8mb4'], {
+    input, encoding: 'utf8', env: {...process.env, MYSQL_PWD: process.env.AKAD_DB_PASS || ''},
+  });
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+}
 async function request(path, body, expected = 200, method = body ? 'POST' : 'GET') {
   const response = await fetch(new URL(path, base), {
     method,

@@ -70,8 +70,12 @@ async function renderPayments() {
     PaymentsHelper.pendingAmountsByBooking()
   ]);
   const sortedPayments = payments.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+  const balanceBookings = bookings.filter(b => !['Cancelled', 'Rejected'].includes(b.status));
 
-  const totalCollected = sortedPayments.filter(p => !p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
+  const totalCollected = await bookings.reduce(async (sumPromise, booking) => {
+    const sum = await sumPromise;
+    return sum + await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex);
+  }, Promise.resolve(0));
   const pendingAmount = sortedPayments.filter(p => p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
   const totalOutstanding = await PaymentsHelper.totalOutstanding(bookings, pendingPaymentIndex);
   const fullyPaidCount = (await Promise.all(bookings.map(async b => ({

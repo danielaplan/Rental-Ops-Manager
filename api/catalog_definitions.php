@@ -27,6 +27,13 @@ function packageCrudDefinition(): array {
     $record = $values + ($old ?? []);
     $service = asInt($record['service_id'] ?? null,1);
     if (!$service) domainFail('A valid service is required.');
+    if ($old && array_key_exists('service_id',$values) && $service!==(int)$old['service_id']) {
+        $q = db()->prepare('SELECT booking_id FROM bookings WHERE package_id=? LIMIT 1 FOR UPDATE');
+        $q->execute([(int)$old['package_id']]);
+        if ($q->fetchColumn()) {
+            domainFail('A package used by an existing booking cannot move to another service.',409,'referenced_package_service_change');
+        }
+    }
     $q = db()->prepare('SELECT 1 FROM services WHERE service_id=?');
     $q->execute([$service]);
     if (!$q->fetchColumn()) domainFail('Service not found.');
@@ -78,7 +85,13 @@ function packageCrudDefinition(): array {
 }
 
 function addonCrudDefinition(): array {
-    return ['addons', 'addon_id', ['service_id', 'name', 'price', 'status'], ['status' => 'Active'], [], null, true];
+    return ['addons', 'addon_id', ['service_id', 'name', 'price', 'status'], ['status' => 'Active'], [], function ($values, $old) {
+        if (array_key_exists('price', $values)) {
+            $cents = moneyCents($values['price']);
+            $values['price'] = centsDecimal($cents);
+        }
+        return $values;
+    }, true];
 }
 
 function galleryCrudDefinition(): array {
@@ -86,7 +99,14 @@ function galleryCrudDefinition(): array {
 }
 
 function rentalItemCrudDefinition(): array {
-    return ['rental_items','rental_item_id',['service_id','name','quantity','item_code','required','tracking','status','condition','notes'],['quantity'=>1,'required'=>0,'tracking'=>'quantity','status'=>'Available','condition'=>'Good']];
+    return ['rental_items','rental_item_id',['service_id','name','quantity','item_code','required','tracking','status','condition','notes'],['quantity'=>1,'required'=>0,'tracking'=>'quantity','status'=>'Available','condition'=>'Good'],[],function ($values,$old) {
+        if (array_key_exists('quantity',$values)) {
+            $qty=asInt($values['quantity'],0);
+            if ($qty===null || $qty<0) domainFail('Quantity must be a non-negative integer.');
+            $values['quantity']=$qty;
+        }
+        return $values;
+    }];
 }
 
 function categoryCrudDefinition(): array {

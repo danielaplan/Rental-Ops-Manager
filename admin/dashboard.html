@@ -128,7 +128,7 @@
 <script>
 adminReady(async function () {
   await API.ready;
-  await initAdminChrome('dashboard.html', 'Dashboard');
+  if (!(await initAdminChrome('dashboard.html', 'Dashboard'))) return;
   await renderDashboard();
   await API.refreshSharedData();
 
@@ -168,6 +168,7 @@ async function renderDashboard() {
   // Render top stat cards
   const cards = [
     { label: "Collected Revenue", value: BookingCalc.formatCurrency(acceptedRevenue), icon: "bi-cash-stack", cls: "success" },
+    { label: "Outstanding Balance", value: BookingCalc.formatCurrency(stats.balances?.outstanding_balances || 0), icon: "bi-hourglass-split", cls: "warn" },
     { label: "Total Bookings", value: stats.total_bookings, icon: "bi-journal-check" },
     { label: "Pending Approval", value: stats.pending_bookings, icon: "bi-hourglass-split", cls: "warn" },
     { label: "Confirmed Events", value: stats.confirmed_bookings, icon: "bi-check2-circle" },

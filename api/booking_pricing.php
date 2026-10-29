@@ -67,7 +67,9 @@ function calculateBookingTotals(PDO $pdo, int $serviceId, ?int $packageId, array
             throw new InvalidArgumentException('One or more selected add-ons are not valid for this service.');
         }
         foreach ($prices as $addon) {
-            $addonsTotal += (int)round((float)$addon['price'] * 100);
+            $price = (int)round((float)$addon['price'] * 100);
+            if ($price < 0) throw new InvalidArgumentException('Add-on price cannot be negative.');
+            $addonsTotal += $price;
         }
     }
 

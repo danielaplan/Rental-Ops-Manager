@@ -136,7 +136,7 @@
                 <div class="border rounded p-3">
                 <h6>Negotiated refundable deposit</h6><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
                 <div class="row g-2">
-                  <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0" step="0.01"></div>
+                  <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0.01" step="0.01"></div>
                   <div class="col-sm-6"><label for="depositDeduction">Legacy aggregate deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01" readonly></div>
                   <div class="col-sm-6"><label for="depositReason">Deduction summary</label><input id="depositReason" class="form-control" type="text" readonly></div>
                   <div class="col-sm-6"><label for="depositRefund">Refundable amount (₱)</label><input id="depositRefund" class="form-control" readonly></div>
@@ -439,7 +439,7 @@ adminReady(async function () {
     if (pending) {
       const [customers, services] = await Promise.all([API.getCustomers(), API.getActiveServices()]);
       $('#editCustomerId').html(customers.map(customer => `<option value="${escapeHtmlA(customer.customer_id)}">${escapeHtmlA(customer.name)} · ${escapeHtmlA(customer.contact || 'No contact')}</option>`).join(''));
-      const selectedCustomer = customers.find(customer => String(customer.contact) === String(booking.contact) || String(customer._server_id ?? customer.customer_id).replace(/^CUS-0*/, '') === String(booking.customer_id));
+      const selectedCustomer = customers.find(customer => String(customer._server_id ?? customer.customer_id).replace(/^CUS-0*/, '') === String(booking.customer_id).replace(/^CUS-0*/, ''));
       if (selectedCustomer) $('#editCustomerId').val(selectedCustomer.customer_id);
       $('#editServiceId').html(services.map(service => `<option value="${escapeHtmlA(service.service_id)}">${escapeHtmlA(service.name)}</option>`).join('')).val(booking.service_ids?.[0] || '');
       $('#editPreparation').val(Number(booking.preparation_minutes || 0));
@@ -784,7 +784,7 @@ adminReady(async function () {
   });
   $('#saveDepositBtn').onAdmin('click', async function () {
     try {
-      const saved = await API.upsertDeposit(currentBookingId, { amount_held: Number($('#depositHeld').val()) });
+      const saved = await API.upsertDeposit(currentBookingId, { amount_held: $('#depositHeld').val() });
       setDepositForm(saved);
       $('#depositError').prop('hidden', true); showAdminToast(API.savedMessage());
     } catch (error) { $('#depositError').prop('hidden', false).text(error.message).trigger('focus'); }
@@ -1047,21 +1047,24 @@ function setDepositForm(deposit) {
   $('#depositDeductions').html(deductions.length?`<div class="table-wrap"><table class="admin-table"><thead><tr><th>Affected item</th><th>Reason</th><th>Amount</th><th>Recorded</th></tr></thead><tbody>${deductions.map(row=>`<tr><td>${escapeHtmlA(row.affected_item)}</td><td>${escapeHtmlA(row.reason)}</td><td>${BookingCalc.formatCurrency(row.amount)}</td><td>${escapeHtmlA(row.recorded_at)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="small text-muted">No deposit deductions recorded.</div>');
   const refunded=String(deposit.refund_status||'').toLowerCase()==='refunded';
   const depositRecorded=Boolean(deposit.deposit_id||deposit.pending_sync);
-  $('#depositHeld').prop('readonly',depositRecorded);
-  $('#saveDepositBtn').prop('disabled',depositRecorded).text(depositRecorded?'Held deposit recorded':'Save held deposit');
-  $('#addDeductionBtn').prop('disabled',!deposit.deposit_id||refunded);$('#refundDepositBtn').prop('disabled',!deposit.deposit_id||refunded||Number(deposit.refund_amount)<=0);
+  const refundOperation=API.getSyncQueue().find(item=>item.entity==='deposits'&&item.action==='refund'&&(String(item.local_id)===String(deposit.booking_id)||String(item.data?.booking_id)===String(deposit.booking_id)));
+  const repairableZero=Boolean(deposit.deposit_id)&&Number(deposit.amount_held)===0&&!refunded&&!deposit.refund_date&&!deductions.length&&Number(deposit.deduction_amount||0)===0;
+  $('#depositHeld').prop('readonly',depositRecorded&&!repairableZero);
+  $('#saveDepositBtn').prop('disabled',depositRecorded&&!repairableZero).text(repairableZero?'Correct zero deposit':depositRecorded?'Held deposit recorded':'Save held deposit');
+  $('#addDeductionBtn').prop('disabled',!deposit.deposit_id||refunded);$('#refundDepositBtn').prop('disabled',!depositRecorded||refunded||Number(deposit.refund_amount)<=0||Boolean(refundOperation));
   renderDepositRefundState(deposit);
 }
 
 function renderDepositRefundState(deposit) {
   const labels={held:'Held — refund not yet recorded',refunded:'Refunded'};
   const label=labels[String(deposit.refund_status||'').toLowerCase()]||'Not recorded';
-  const operation=API.getSyncQueue().find(item=>item.entity==='deposits'&&String(item.local_id)===String(deposit.booking_id));
+  const operations=API.getSyncQueue().filter(item=>item.entity==='deposits'&&(String(item.local_id)===String(deposit.booking_id)||String(item.data?.booking_id)===String(deposit.booking_id)));
+  const operation=operations.find(item=>item.action==='refund')||operations.find(item=>item.status==='failed'||item.status==='conflict')||operations[0];
   if(operation?.status==='failed'||operation?.status==='conflict'){
     $('#depositRefundState').text(`${label} · ${operation.status==='conflict'?'Needs review':'Save failed'}: ${operation.reason||'Retry from the sync panel.'}`);
     return;
   }
-  $('#depositRefundState').text(deposit.pending_sync?`${label} · Pending Sync`:label);
+  $('#depositRefundState').text(operation?.action==='refund'||deposit.refund_pending?`Refund pending · Pending Sync`:deposit.pending_sync?`${label} · Pending Sync`:label);
 }
 
 function setDeliveryForm(delivery) {
