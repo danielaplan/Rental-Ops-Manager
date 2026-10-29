@@ -41,8 +41,8 @@
     const error=document.querySelector('#syncReadError');
     if(error){error.textContent=readError;error.hidden=!readError;}
     document.querySelector('#syncNow').disabled=!navigator.onLine||syncing||working;
-    document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||(!navigator.onLine&&!button.matches('[data-discard]'));});
-    document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline pages are ready on this device. Existing signed-in sessions can record local entries.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
+    document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||!navigator.onLine;});
+    document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline app pages are cached on this device. With an existing signed-in session and saved data, supported entries can be recorded locally; the cache does not download new server data.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
     if(working||document.activeElement?.closest('.sync-edit'))return;
 
     // Build stale-edit comparison table for conflicts

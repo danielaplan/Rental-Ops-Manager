@@ -37,6 +37,8 @@ An owner saves Ana’s booking while offline. The browser assigns a local ID and
 6. The reply separates committed, conflict, and failed operations.
 7. Conflicts stay visible for owner review; a corrected retry receives a new operation ID.
 
+The browser also caches every admin page and its local app assets after offline setup succeeds. This makes navigation possible during an outage, but it does not download fresh server data; supported offline work still needs an existing signed-in session and previously saved data.
+
 ### What Happens Behind the Scenes?
 
 The receipt ledger and local-to-server ID map live in `APP_SETTINGS` row 2. Identical retries return the stored acknowledgement; reusing an accepted operation ID with changed data fails. Booking `_base` values detect stale edits for selected reservation fields.

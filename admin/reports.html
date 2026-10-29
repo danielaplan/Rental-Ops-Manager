@@ -206,8 +206,11 @@ async function renderReport(startDate, endDate) {
         : 'All booking dates';
         currentReport = { report: r, bookings: filteredBookings, customerCount, rangeLabel, pendingPayments, pendingPaymentTotal, acceptedPayments };
   $('#reportRangeLabel').text(rangeLabel);
-        $('#reportEmptyState').prop('hidden', filteredBookings.length > 0);
-        $('#reportVisualizations, #reportStatsRow').prop('hidden', filteredBookings.length === 0);
+  const hasBookings = filteredBookings.length > 0;
+  $('#reportEmptyState').prop('hidden', hasBookings);
+  // Payment-date revenue remains meaningful even when no booking event falls in this period.
+  $('#reportVisualizations').prop('hidden', !hasBookings);
+  $('#reportStatsRow').prop('hidden', false);
 
   const $stats = $('#reportStatsRow').empty();
   [

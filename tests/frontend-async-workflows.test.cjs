@@ -176,6 +176,19 @@ test('report keeps newest filters and renders numeric receipt totals', async () 
   assert.doesNotMatch(h.node('#reportReceiptBody').html, /NaN|Promise/);
 });
 
+test('report keeps payment-date revenue visible when no booking event matches the period', async () => {
+  const h = harness('admin/reports.html', {
+    getReportStats: async () => ({ total_bookings: 0, total_revenue_collected: 125, popular_services: [], package_popularity: [] }),
+    getBookings: async () => [{ id: 1, customer_name: 'Earlier event', event_date: '2026-09-30', total: 500, amount_paid: 125 }],
+    getPayments: async () => [], getRentalItems: async () => []
+  });
+  await h.context.renderReport('2026-10-01', '2026-10-01');
+  assert.equal(h.node('#reportEmptyState').props.hidden, false);
+  assert.equal(h.node('#reportVisualizations').props.hidden, true);
+  assert.equal(h.node('#reportStatsRow').props.hidden, false);
+  assert.match(h.node('#reportStatsRow').html, /Total Revenue[\s\S]*125/);
+});
+
 test('dashboard keeps the newest response and charts numeric accepted payments', async () => {
   const old = deferred(); let calls = 0;
   const stats = { total_bookings: 2, upcoming_bookings: [{ id: 7, customer_name: 'Customer', event_date: '2026-10-20', total: 2500, status: 'Confirmed', service_name: 'Karaoke Rental' }] };
@@ -418,4 +431,16 @@ test('sync summary separates pending, conflicts, and failed operations', () => {
   vm.runInContext(fs.readFileSync(path.join(root, 'js/sync-ui.js'), 'utf8'), context);
   context.window.initSyncPanel();
   assert.equal(element('#syncStatus').textContent, 'Online · 0 pending · 8 conflicts · 21 need attention');
+});
+
+test('offline readiness covers every admin page and explains the saved-data boundary', () => {
+  const shell = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+  const syncUi = fs.readFileSync(path.join(root, 'js/sync-ui.js'), 'utf8');
+  const files = JSON.parse(shell.match(/const FILES=(\[[^;]+\]);/)?.[1] || '[]');
+  for (const page of fs.readdirSync(path.join(root, 'admin')).filter(name => name.endsWith('.html'))) {
+    assert.match(shell, new RegExp(`admin/${page.replace('.', '\\.')}`), `${page} must be cached for offline navigation`);
+  }
+  for (const file of files) assert.ok(fs.existsSync(path.join(root, file)), `${file} must exist before the service worker caches it`);
+  assert.match(syncUi, /Offline app pages are cached on this device/);
+  assert.match(syncUi, /the cache does not download new server data/);
 });
