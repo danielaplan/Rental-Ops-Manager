@@ -1,6 +1,6 @@
 ---
 title: "Booking and Pricing"
-date: 2026-10-19
+date: 2026-10-29
 tags:
   - akad
   - system-understanding
@@ -38,7 +38,9 @@ Ana chooses one karaoke service, a ₱2,500 package, and a ₱300 add-on. With a
 
 ### What Happens Behind the Scenes?
 
-`saveBooking()` is shared by direct and sync paths. It validates catalog relationships, promotion dates, dates, location, allowances, pricing inputs, status transitions, and conflicts in one transaction. Catalog pricing is package + add-ons − discount + fees, never below zero. `agreed_total` is the contractual booking total used for balances.
+`saveBooking()` is shared by direct and sync paths. It validates catalog relationships, promotion dates, dates, location, allowances, pricing inputs, status transitions, and conflicts in one transaction. Catalog pricing is package + add-ons − discount + fees, never below zero. `agreed_total` is the contractual booking total used for balances. Offline Pending-booking edits carry their original package, add-ons, discount, fees, and agreed total; if another device changed one first, replay stops as a visible stale conflict.
+
+The same transaction locks an existing booking before changing its price. A new agreed total below Completed payments is rejected without changing the booking, checklist, payment, or audit records. A package already referenced by a booking may still be renamed or repriced for future catalog use, but it cannot move to another service; the booking keeps its package snapshots.
 
 ### Visual explanation
 
@@ -60,11 +62,16 @@ The diagram shows how the selected package, add-ons, discount, and fees lead to 
 
 - A booking cannot contain several services.
 - Customer, service, package, add-ons, allowances, discounts, fees, and agreed total can be altered only while Pending.
+- A booking belongs to the selected customer ID. A phone number is contact information, not a unique identity; two customers may share it without sharing bookings or totals.
+- A stale offline price edit cannot silently replace a newer accepted price. The owner must review the previous, current server, and local draft values before retrying.
 - Promotional packages are eligible against the booking's event date, not the date the owner enters the booking.
 - A package-free booking is valid; the owner supplies the agreed total.
+- A package referenced by any booking cannot move to another service; unreferenced packages may move.
 - Cancelling requires a reason and retains linked history. A confirmed booking cannot move back to Pending.
 - Pending and Confirmed are the only create states. Post-event states require the release workflow.
 - Delivery fees are stored separately and are not automatically added to the booking total.
+- An agreed total cannot be reduced below the sum of Completed rental payments.
+- A package already referenced by a booking cannot be moved to another service; create a new package for that service instead. Existing booking name and price snapshots remain unchanged by ordinary catalog edits.
 
 ### Remember This
 

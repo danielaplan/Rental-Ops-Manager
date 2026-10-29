@@ -1,5 +1,34 @@
 <?php
 require_once __DIR__ . '/domain.php';
+require_once __DIR__ . '/availability_service.php';
+
+function reconcilePaymentLifecycleAfterSave(PDO $pdo, array $booking, int $ownerId, bool $isCorrection): void {
+    $bookingId = (int)$booking['booking_id'];
+    $q = $pdo->prepare("SELECT COALESCE(SUM(amount),0) FROM payments WHERE booking_id=? AND payment_status='Completed'");
+    $q->execute([$bookingId]);
+    $balanceCents = max(0,moneyCents($booking['agreed_total'])-moneyCents($q->fetchColumn()));
+    $balance = centsDecimal($balanceCents);
+
+    if ($isCorrection && $booking['status']==='Completed' && $balanceCents>0) {
+        $pdo->prepare("UPDATE bookings SET status='Awaiting Payment',completed_at=NULL WHERE booking_id=?")->execute([$bookingId]);
+        $message = 'A payment correction reopened this booking. Collect the outstanding rental balance of ₱'.$balance.' before completing it again.';
+        $pdo->prepare("INSERT INTO notifications(user_id,booking_id,notification_type,message,requires_action,created_at)
+            SELECT user_id,?,'awaiting_payment',?,1,NOW() FROM users WHERE role='owner' AND account_status='Active'
+            ON DUPLICATE KEY UPDATE message=VALUES(message),requires_action=1,resolved_at=NULL")->execute([$bookingId,$message]);
+        auditWrite($pdo,$ownerId,'payment_correction_reopened','booking',$bookingId,
+            'Completed payment correction left an outstanding rental balance of '.$balance.'. Equipment review remains preserved.',
+            'Completed','Awaiting Payment');
+        return;
+    }
+
+    if ($booking['status']==='Awaiting Payment') {
+        $message = $balanceCents>0
+            ? 'Collect the outstanding rental balance of ₱'.$balance.' before completing the booking.'
+            : 'Payment is fully collected. Complete the booking to resolve this notification.';
+        $pdo->prepare("UPDATE notifications SET message=?,requires_action=1,resolved_at=NULL
+            WHERE booking_id=? AND notification_type='awaiting_payment'")->execute([$message,$bookingId]);
+    }
+}
 
 function savePayment(PDO $pdo, string $action, ?int $id, array $body, array $owner): array {
     if (!in_array($action,['create','update'],true) || empty($owner['user_id'])) domainFail('An authenticated payment action is required.');
@@ -11,7 +40,7 @@ function savePayment(PDO $pdo, string $action, ?int $id, array $body, array $own
     }
     $bid=asInt($old['booking_id'] ?? $body['booking_id'] ?? null,1);
     if (!$bid) domainFail('A valid booking is required.');
-    lockBooking($pdo,$bid);
+    $booking=lockBooking($pdo,$bid);
     if ($old) {
         $q=$pdo->prepare('SELECT * FROM payments WHERE payment_id=? FOR UPDATE'); $q->execute([$id]); $old=$q->fetch();
         if (!is_string($body['correction_reason'] ?? null) || trim($body['correction_reason'])==='') domainFail('A correction reason is required.');
@@ -44,6 +73,29 @@ function savePayment(PDO $pdo, string $action, ?int $id, array $body, array $own
         $pdo->prepare("INSERT INTO payments(amount,payment_method,payment_type,payment_status,payment_date,payment_reference,notes,booking_id,recorded_by,recorded_at,provenance) VALUES(?,?,?,?,?,?,?,?,?,NOW(),'owner')")->execute([...$values,$bid,$owner['user_id']]);
         $id=(int)$pdo->lastInsertId();
     }
-    auditWrite($pdo,$owner['user_id'],$old?'payment_corrected':'payment_recorded','payment',$id,json_encode(['before'=>$old ?: null,'after'=>$values,'reason'=>$body['correction_reason'] ?? null]));
-    $q=$pdo->prepare('SELECT * FROM payments WHERE payment_id=?'); $q->execute([$id]); return $q->fetch();
+    auditWrite(
+        $pdo,
+        $owner['user_id'],
+        $old ? 'payment_corrected' : 'payment_recorded',
+        'payment',
+        $id,
+        json_encode([
+            'before' => $old ?: null,
+            'after' => $values,
+            'reason' => $body['correction_reason'] ?? null
+        ])
+    );
+
+    if ($old) {
+        reopenCompletedBookingForPaymentCorrection(
+            $pdo,
+            $bid,
+            (int)$owner['user_id'],
+            (int)$id
+        );
+    }
+
+    $q=$pdo->prepare('SELECT * FROM payments WHERE payment_id=?');
+    $q->execute([$id]);
+    return $q->fetch();
 }

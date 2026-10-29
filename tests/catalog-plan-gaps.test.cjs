@@ -81,11 +81,20 @@ test('catalog defaults, booking snapshots, eligibility, and retained cancellatio
   await saved('api/checklistTemplates.php?do=create', { package_id: pid, template_name: 'Catalog fixture template', items: [{ item_name: 'Microphone', expected_quantity: 1 }] });
   const booked = await create({ package_id: pid, status: 'Confirmed' });
   await saved(`api/packages.php?do=update&id=${pid}`, { package_name: 'Current catalog title', price: '999.00', status: 'Inactive' });
+  const otherService = await saved('api/services.php?do=create', { service_name: 'Other catalog service ' + Date.now() }, 201);
+  const blockedMove = await request(`api/packages.php?do=update&id=${pid}`, { service_id: otherService.service_id });
+  assert.equal(blockedMove.status, 409, JSON.stringify(blockedMove));
+  assert.equal(blockedMove.code, 'package_service_locked');
+  assert.equal(Number((await saved(`api/packages.php?do=get&id=${pid}`)).service_id), Number(sid));
   const historical = await saved(`api/bookings.php?do=update&id=${booked.booking_id}`, { theme_notes: 'Details only' });
   assert.equal(historical.package_name_snapshot, 'Original agreement package');
   assert.equal(Number(historical.package_price_snapshot), 200);
   assert.equal(Number(historical.agreed_total), 123.45);
   assert.equal((await request('api/bookings.php?do=create', { ...bookingBody, package_id: pid })).status, 400);
+  const movable = await saved('api/packages.php?do=create', {
+    service_id: sid, package_name: 'Unreferenced movable package', price: '50.00',
+  }, 201);
+  assert.equal(Number((await saved(`api/packages.php?do=update&id=${movable.package_id}`, { service_id: otherService.service_id })).service_id), Number(otherService.service_id));
   const promo = await saved('api/packages.php?do=create', {
     service_id: sid, package_name: 'May promotion', price: '150.00', is_promotional: true,
     promotion_start_date: '9080-05-01', promotion_end_date: '9080-05-31',

@@ -1,6 +1,6 @@
 ---
 title: "Reports and Audit History"
-date: 2026-10-17
+date: 2026-10-29
 tags:
   - akad
   - system-understanding
@@ -30,7 +30,7 @@ Ana’s Completed GCash payment is counted as collected revenue on its `payment_
 ### Step-by-step workflow
 
 1. Choose a date range for the detailed report.
-2. Revenue sums Completed payments whose payment date is in the range.
+2. Revenue sums Completed payments whose payment date is in the range, even when no booking event starts in that range.
 3. Event counts and popularity use booking event-start dates in the range.
 4. Outstanding balances use agreed totals minus all Completed payments and exclude Cancelled bookings.
 5. Deposits, refundable balances, and deductions are lifetime operational figures.
@@ -40,6 +40,8 @@ Ana’s Completed GCash payment is counted as collected revenue on its `payment_
 ### What Happens Behind the Scenes?
 
 `reports.php` returns metric definitions with its data. Dashboard defaults to the current month in Asia/Manila. Compatibility fields remain for current screens. `audit.php` reads append-only `AUDIT_LOGS`; migration archive rows may also be included as historical evidence.
+
+The printable customer summary groups booking rows by `customer_id` and displays the corresponding customer name. It does not group by name or phone, because either value may legitimately be shared.
 
 ### Visual explanation
 
@@ -57,9 +59,11 @@ The diagram groups the source records by purpose: payments feed revenue, booking
 
 - Reports are operational summaries, not formal accounting statements or proof of bank settlement.
 - Pending and Failed payments do not count as revenue. Deposits never count as rental revenue.
+- Payments, Dashboard, and Reports use the same lifetime outstanding-balance rule and exclude Cancelled or Rejected bookings.
 - Completed and cancellation totals are lifetime in `reportsBookings()`, while upcoming is period-filtered; definitions in the response disclose this.
 - `damaged_or_missing` is a global checklist count in the compatibility report field.
 - Dashboard inventory counts are placeholders set to zero.
+- Payments, Dashboard, and Reports use the same lifetime outstanding-balance rule. Date filters still control the other report activity figures; pending-sync payments are disclosed separately until accepted by the server.
 - Production reconciliation and representative-data performance remain external acceptance work.
 
 ### Remember This

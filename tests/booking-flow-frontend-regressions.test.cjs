@@ -47,6 +47,21 @@ test('return conditions, deposit lock, and payment correction controls match ser
   assert.match(payments, /js-correct-payment/);
 });
 
+test('deposit refund control supports a queued held deposit and waits for server acknowledgement', () => {
+  const source = fs.readFileSync(path.join(root, 'admin', 'bookings.html'), 'utf8');
+  const sync = fs.readFileSync(path.join(root, 'js', 'sync.js'), 'utf8');
+  const depositService = fs.readFileSync(path.join(root, 'api', 'deposit_service.php'), 'utf8');
+  const depositsEndpoint = fs.readFileSync(path.join(root, 'api', 'deposits.php'), 'utf8');
+  const syncEndpoint = fs.readFileSync(path.join(root, 'api', 'sync.php'), 'utf8');
+  assert.match(source, /!depositRecorded\|\|refunded\|\|Number\(deposit\.refund_amount\)<=0\|\|Boolean\(refundOperation\)/);
+  assert.match(source, /Refund pending · Pending Sync/);
+  assert.match(sync, /refund_pending:true,pending_sync:true/);
+  assert.match(sync, /applyAcceptedDeposit\(op,ack\.data\)/);
+  assert.match(depositService, /function refundDeposit\(PDO \$pdo, int \$bookingId, int \$ownerId\): array/);
+  assert.match(depositsEndpoint, /return refundDeposit\(\$pdo,\$bid,\(int\)\$owner\['user_id'\]\)/);
+  assert.match(syncEndpoint, /\$record=refundDeposit\(\$pdo,\$bid,\(int\)\$actor\['user_id'\]\)/);
+});
+
 test('Pending alteration exposes every mutable booking term without changing non-Pending edits', () => {
   const source = read('admin/bookings.html');
   for (const id of ['editPendingFields', 'editCustomerId', 'editServiceId', 'editPackageId', 'editAddonList', 'editPreparation', 'editTravel', 'editDiscount', 'editFees', 'editAgreedTotal']) {

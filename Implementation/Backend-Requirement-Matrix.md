@@ -2,6 +2,18 @@
 
 Completion pass: 2026-10-15. This matrix supplements the revised backend plan and supersedes older blanket completion claims. **Implemented** describes repository code; **locally verified** describes only the synthetic environment below. Neither means operational migration, client acceptance, or production readiness.
 
+## Financial, equipment-history, catalog, and balance safeguards — 2026-10-29
+
+| Finding | Status | Current verification |
+| --- | --- | --- |
+| Booking price can fall below collected payments | **Done** | PHP negative test plus finance HTTP regression: ₱800 collected rejects ₱500 and retains ₱1,000 / ₱800 / ₱200. |
+| Payment correction leaves an unpaid booking Completed | **Done** | PHP lifecycle and booking HTTP regression: ₱1,000 corrected to ₱600 reopens Awaiting Payment with ₱400 due, audit, notification, and retained review. |
+| Cancellation after dispatch blocks returns | **Done** | PHP negative/positive tests plus booking regression; offline request remains active until server acceptance. |
+| Moving packages breaks existing bookings | **Done** | PHP negative/positive tests plus catalog regression; referenced move is rejected and unreferenced move succeeds. |
+| Balance alignment across views | **Done** | Finance regression and frontend contract/harness confirm one lifetime non-Cancelled rule across Payments, Dashboard, Reports, and backend reporting. |
+
+The isolated PHP unit file passed 4/4 and its lifecycle file passed 1/1. The consolidated non-migration acceptance runner passed all nine backend/sync suites, all 19 offline integration checks, all 54 frontend harness tests, syntax, and whitespace checks. The run wrote local evidence under the intentionally ignored `tests/acceptance-results/1793269532066-15628/` directory. This is synthetic local evidence, not a physical-browser, device, production, or client-acceptance result.
+
 ## Awaiting Payment policy completion — 2026-10-16
 
 The approved unpaid-balance policy is implemented across the shared release service, direct API, offline sync, notifications, reports, admin labels and tests. Complete return review releases service capacity. An unpaid booking becomes `Awaiting Payment`, remains incomplete, and shows the exact balance/action notice. Only completed rental payments covering the agreed total permit the later `Completed` transition. The complete non-migration runner passed on synthetic `akad_verify_plan_1792150757195_24148`: 9 backend/sync test files, 17/17 offline checks, 36/36 frontend tests, syntax and diff checks. [Evidence](../tests/acceptance-results/1792150756830-33488/summary.json).
@@ -99,16 +111,16 @@ A post-implementation compatibility review found that the existing dashboard and
 | B3-08 | Checklist review/deductions/release/status/notices/audit commit together using shared validation; unpaid reviewed bookings release service capacity into `Awaiting Payment`, and only full completed rental payment permits `Completed`; L, F, O. | Locally verified with direct and offline synthetic flows. Production/device acceptance remains open. |
 | B3-09 | Authenticated allowance updates, default copying, zero overrides, unchanged historical bookings; C, S. | None identified in authorized local implementation. |
 | B4-01 | Shared package metadata validation/archive and booking eligibility checks; C, S. | Current implemented/tested promotion/package behavior was owner-approved on 2026-10-16. |
-| B4-02 | Shared payment service, derived balances, optional references, audited correction reason; F, S, R. | No new refund/overpayment policies invented. |
-| B4-03 | Serialized held deposit/itemized deductions/refunds, nonnegative refundable balance; F, R, O, S. | Operational legacy refund evidence. |
+| B4-02 | Shared payment service, separate confirmed and Pending Sync amounts, integer-cent browser/server validation, derived balances, exact remaining-payment support, overpayment rejection, optional references, audited correction reason; F, S, R. | Frontend simulation passed; added replay/reconnect database assertions require rerun when local MySQL is available; no new refund/credit policy invented. |
+| B4-03 | Serialized positive held deposit/itemized deductions/refunds, guarded audited repair of untouched legacy zero records, immutable nonzero held money, integer-cent precision checks before queue and on server, nonnegative refundable balance; F, R, O, S. | Added direct/replay database assertions require rerun when local MySQL is available; operational legacy refund evidence remains separate. |
 | B4-04 | Versioned templates and transactional booking copies, shared inspected quantities/conditions; C, L, O. | Current implemented/tested checklist behavior was owner-approved on 2026-10-16. |
 | B4-05 | Direct and replay delivery share methods, fee bounds, responsibilities, notes and audit; C, S. | Distance/routing/pricing expansion remains out of scope. |
 | B4-06 | Shared audit writes for direct and replay booking/payment/catalog/delivery/history operations and automated lifecycle; C, L, F, S, A, R. | No claim of recovering unknown legacy history. |
 | B5-01 | Completed payments by payment date; deposits/pending/failed excluded; F. | Production financial reconciliation remains owner acceptance. |
 | B5-02 | Separately defined summaries plus inspectable upcoming/cancellation/overlap lists; F. | Lifetime versus period metrics explicitly labeled; no inferred cancellation-refund rules. |
 | B5-03 | Service/package popularity by revised event dates, cancellation policy labeled; F. | Current implemented/tested report definitions were owner-approved on 2026-10-16; production reconciliation remains separate. |
-| B6-01 | Removal superseded: sync retained and routed through shared authoritative helpers; S, O, UI. | No sync removal authorized. |
-| B6-02 | Removal superseded: business settings row 1 and receipt/mapping row 2 retained; O, S and `sync_state.php`. | Existing unbounded JSON receipt growth remains a documented scaling limit. |
+| B6-01 | Removal superseded: sync retained and routed through shared authoritative helpers; reservation and pricing `_base` values produce visible stale conflicts instead of silent overwrite; S, O, UI. | Frontend base-value simulation passed; two-device pricing-conflict database assertion requires rerun when local MySQL is available. |
+| B6-02 | Removal superseded: business settings row 1 and receipt/mapping row 2 retained; accepted booking/payment IDs replace temporary local primary keys exactly once while aliases continue resolving queued dependencies; O, S and `sync_state.php`. | Linked replay simulation passed; database-backed exactly-once assertion requires rerun when local MySQL is available. Existing unbounded JSON receipt growth remains a documented scaling limit. |
 
 ## Requirements not represented by a dedicated backend task
 

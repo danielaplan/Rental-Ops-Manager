@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/domain.php';
+require_once __DIR__ . '/booking_pricing.php';
 
 function bookingDatetime($value): string {
     if (!is_string($value)) domainFail('A valid event datetime is required.');
@@ -94,10 +95,11 @@ function releaseBooking(PDO $pdo, int $id, array $body, int $ownerId): array {
         if (!is_array($item)) domainFail('Invalid checklist item.');
         $itemId = asInt($item['checklist_item_id'] ?? null, 1);
         $quantity = asInt($item['quantity_returned'] ?? null, 0);
+        if ($quantity < 0) domainFail('Returned quantity cannot be negative.');
         $condition = trim((string)($item['condition_in'] ?? ''));
         $status = strtolower((string)($item['return_status'] ?? 'inspected'));
         if (!$itemId || $quantity === null || !$condition || !in_array($status,['inspected','damaged','missing'],true)) domainFail('Each return needs a valid quantity, condition, and inspection status.');
-        updateChecklistItem($pdo,$id,$itemId,['quantity_returned'=>$quantity,'condition_in'=>$condition],$ownerId);
+        updateChecklistItem($pdo,$id,$itemId,['quantity_returned'=>$quantity,'condition_in'=>$condition,'notes'=>$item['notes'] ?? null],$ownerId);
     }
     $q = $pdo->prepare("SELECT checklist_item_id FROM booking_checklist_items WHERE booking_id=? AND (checked_by IS NULL OR checked_at IS NULL OR condition_in IS NULL OR TRIM(condition_in)='' OR return_status NOT IN ('inspected','damaged','missing') OR quantity_returned>quantity_released OR (quantity_returned<quantity_released AND (return_status<>'missing' OR condition_in<>'Missing'))) LIMIT 1");
     $q->execute([$id]);
@@ -128,4 +130,87 @@ function releaseBooking(PDO $pdo, int $id, array $body, int $ownerId): array {
     $pdo->prepare("UPDATE notifications SET resolved_at=COALESCE(resolved_at,NOW()) WHERE booking_id=? AND notification_type='awaiting_completion'")->execute([$id]);
     auditWrite($pdo,$ownerId,'manual_release','booking',$id,$notes.'; rental balance fully paid.','Awaiting Completion','Completed');
     return lockBooking($pdo,$id);
+}
+
+function reopenCompletedBookingForPaymentCorrection(
+    PDO $pdo,
+    int $bookingId,
+    int $ownerId,
+    int $paymentId
+): void {
+    $booking = lockBooking($pdo, $bookingId);
+
+    if ($booking['status'] !== 'Completed') {
+        return;
+    }
+
+    $balanceCents = bookingBalanceCents(
+        $pdo,
+        $bookingId,
+        $booking['agreed_total']
+    );
+
+    if ($balanceCents <= 0) {
+        return;
+    }
+
+    // A Completed booking should already contain completed review evidence.
+    if (!$booking['released_by']) {
+        domainFail(
+            'The completed booking has no release review evidence.',
+            409,
+            'missing_release_review'
+        );
+    }
+
+    $balance = centsDecimal($balanceCents);
+
+    $pdo->prepare(
+        "UPDATE bookings
+         SET status = 'Awaiting Payment',
+             completed_at = NULL
+         WHERE booking_id = ?"
+    )->execute([$bookingId]);
+
+    $message =
+        'A payment correction reopened an outstanding rental balance of ₱'
+        . $balance . '.';
+
+    $pdo->prepare(
+        "INSERT INTO notifications(
+            user_id,
+            booking_id,
+            notification_type,
+            message,
+            requires_action,
+            created_at
+         )
+         SELECT
+            user_id,
+            ?,
+            'awaiting_payment',
+            ?,
+            1,
+            NOW()
+         FROM users
+         WHERE role = 'owner'
+           AND account_status = 'Active'
+         ON DUPLICATE KEY UPDATE
+            message = VALUES(message),
+            requires_action = 1,
+            resolved_at = NULL"
+    )->execute([$bookingId, $message]);
+
+    auditWrite(
+        $pdo,
+        $ownerId,
+        'payment_correction_reopened',
+        'booking',
+        $bookingId,
+        'Payment '.$paymentId
+            .' was corrected; outstanding rental balance: '
+            .$balance.'.',
+        'Completed',
+        'Awaiting Payment'
+    );
 }

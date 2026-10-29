@@ -136,7 +136,7 @@
                 <div class="border rounded p-3">
                 <h6>Negotiated refundable deposit</h6><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
                 <div class="row g-2">
-                  <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0" step="0.01"></div>
+                  <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0.01" step="0.01"></div>
                   <div class="col-sm-6"><label for="depositDeduction">Legacy aggregate deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01" readonly></div>
                   <div class="col-sm-6"><label for="depositReason">Deduction summary</label><input id="depositReason" class="form-control" type="text" readonly></div>
                   <div class="col-sm-6"><label for="depositRefund">Refundable amount (₱)</label><input id="depositRefund" class="form-control" readonly></div>
@@ -305,7 +305,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingTitle" aria-hidden="true"><div class="modal-dialog"><form class="modal-content" id="cancelBookingForm"><div class="modal-header"><h5 class="modal-title" id="cancelBookingTitle">Cancel booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>This keeps the booking in history and releases its reserved schedule.</p><label class="form-label" for="cancellationReason">Cancellation reason</label><textarea class="form-control" id="cancellationReason" rows="3" maxlength="5000" required></textarea><div id="cancellationError" class="text-danger small mt-2" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button><button type="submit" class="btn btn-danger">Confirm cancellation</button></div></form></div></div>
+<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingTitle" aria-hidden="true"><div class="modal-dialog"><form class="modal-content" id="cancelBookingForm"><div class="modal-header"><h5 class="modal-title" id="cancelBookingTitle">Cancel booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>This keeps the booking in history and releases its reserved schedule. If equipment has already been dispatched, record every returned quantity and incoming condition in the Return tab before cancelling.</p><label class="form-label" for="cancellationReason">Cancellation reason</label><textarea class="form-control" id="cancellationReason" rows="3" maxlength="5000" required></textarea><div id="cancellationError" class="text-danger small mt-2" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button><button type="submit" class="btn btn-danger">Confirm cancellation</button></div></form></div></div>
 
 <div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingTitle" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -439,7 +439,7 @@ adminReady(async function () {
     if (pending) {
       const [customers, services] = await Promise.all([API.getCustomers(), API.getActiveServices()]);
       $('#editCustomerId').html(customers.map(customer => `<option value="${escapeHtmlA(customer.customer_id)}">${escapeHtmlA(customer.name)} · ${escapeHtmlA(customer.contact || 'No contact')}</option>`).join(''));
-      const selectedCustomer = customers.find(customer => String(customer.contact) === String(booking.contact) || String(customer._server_id ?? customer.customer_id).replace(/^CUS-0*/, '') === String(booking.customer_id));
+      const selectedCustomer = customers.find(customer => String(customer._server_id ?? customer.customer_id).replace(/^CUS-0*/, '') === String(booking.customer_id).replace(/^CUS-0*/, ''));
       if (selectedCustomer) $('#editCustomerId').val(selectedCustomer.customer_id);
       $('#editServiceId').html(services.map(service => `<option value="${escapeHtmlA(service.service_id)}">${escapeHtmlA(service.name)}</option>`).join('')).val(booking.service_ids?.[0] || '');
       $('#editPreparation').val(Number(booking.preparation_minutes || 0));
@@ -470,7 +470,20 @@ adminReady(async function () {
     event.preventDefault(); const reason=$('#cancellationReason').val().trim();
     if(!reason){$('#cancellationError').text('Enter a cancellation reason.').prop('hidden',false);return;}
     const button=$(this).find('[type=submit]').prop('disabled',true);
-    try{await API.updateBooking(currentBookingId,{status:'Cancelled',cancellation_reason:reason});bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal')).hide();await renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());showAdminToast(API.savedMessage());}
+    try{
+      const items=await API.getBookingItems(currentBookingId);
+      const unresolved=items.some(item=>Number(item.released_qty||0)>0&&(
+        Number(item.returned_qty||0)<Number(item.released_qty||0)||
+        !String(item.condition||item.condition_in||'').trim()||
+        !['inspected','damaged'].includes(String(item.return_status||'pending').toLowerCase())
+      ));
+      if(unresolved)throw new Error('Equipment has already been dispatched. Record the returned quantity and condition for every released item in the Return tab before cancelling this booking.');
+      const submission=await API.requestBookingCancellation(currentBookingId,reason);
+      const syncResult=await API.flushSyncQueue();
+      const rejected=[...(syncResult?.failed||[]),...(syncResult?.conflicts||[])].find(item=>item.client_id===submission?.operation_id);
+      if(rejected){API.discardSyncOperation?.(submission.operation_id);await API.refreshSharedData();throw new Error(rejected.reason||'The server rejected this cancellation.');}
+      bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal')).hide();await renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());showAdminToast(syncResult===null?'Cancellation is pending server validation; the booking remains active until accepted.':API.savedMessage());
+    }
     catch(error){$('#cancellationError').text(error.message).prop('hidden',false);}
     finally{button.prop('disabled',false);}
   });
@@ -771,7 +784,7 @@ adminReady(async function () {
   });
   $('#saveDepositBtn').onAdmin('click', async function () {
     try {
-      const saved = await API.upsertDeposit(currentBookingId, { amount_held: Number($('#depositHeld').val()) });
+      const saved = await API.upsertDeposit(currentBookingId, { amount_held: $('#depositHeld').val() });
       setDepositForm(saved);
       $('#depositError').prop('hidden', true); showAdminToast(API.savedMessage());
     } catch (error) { $('#depositError').prop('hidden', false).text(error.message).trigger('focus'); }
@@ -1034,21 +1047,24 @@ function setDepositForm(deposit) {
   $('#depositDeductions').html(deductions.length?`<div class="table-wrap"><table class="admin-table"><thead><tr><th>Affected item</th><th>Reason</th><th>Amount</th><th>Recorded</th></tr></thead><tbody>${deductions.map(row=>`<tr><td>${escapeHtmlA(row.affected_item)}</td><td>${escapeHtmlA(row.reason)}</td><td>${BookingCalc.formatCurrency(row.amount)}</td><td>${escapeHtmlA(row.recorded_at)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="small text-muted">No deposit deductions recorded.</div>');
   const refunded=String(deposit.refund_status||'').toLowerCase()==='refunded';
   const depositRecorded=Boolean(deposit.deposit_id||deposit.pending_sync);
-  $('#depositHeld').prop('readonly',depositRecorded);
-  $('#saveDepositBtn').prop('disabled',depositRecorded).text(depositRecorded?'Held deposit recorded':'Save held deposit');
-  $('#addDeductionBtn').prop('disabled',!deposit.deposit_id||refunded);$('#refundDepositBtn').prop('disabled',!deposit.deposit_id||refunded||Number(deposit.refund_amount)<=0);
+  const refundOperation=API.getSyncQueue().find(item=>item.entity==='deposits'&&item.action==='refund'&&(String(item.local_id)===String(deposit.booking_id)||String(item.data?.booking_id)===String(deposit.booking_id)));
+  const repairableZero=Boolean(deposit.deposit_id)&&Number(deposit.amount_held)===0&&!refunded&&!deposit.refund_date&&!deductions.length&&Number(deposit.deduction_amount||0)===0;
+  $('#depositHeld').prop('readonly',depositRecorded&&!repairableZero);
+  $('#saveDepositBtn').prop('disabled',depositRecorded&&!repairableZero).text(repairableZero?'Correct zero deposit':depositRecorded?'Held deposit recorded':'Save held deposit');
+  $('#addDeductionBtn').prop('disabled',!deposit.deposit_id||refunded);$('#refundDepositBtn').prop('disabled',!depositRecorded||refunded||Number(deposit.refund_amount)<=0||Boolean(refundOperation));
   renderDepositRefundState(deposit);
 }
 
 function renderDepositRefundState(deposit) {
   const labels={held:'Held — refund not yet recorded',refunded:'Refunded'};
   const label=labels[String(deposit.refund_status||'').toLowerCase()]||'Not recorded';
-  const operation=API.getSyncQueue().find(item=>item.entity==='deposits'&&String(item.local_id)===String(deposit.booking_id));
+  const operations=API.getSyncQueue().filter(item=>item.entity==='deposits'&&(String(item.local_id)===String(deposit.booking_id)||String(item.data?.booking_id)===String(deposit.booking_id)));
+  const operation=operations.find(item=>item.action==='refund')||operations.find(item=>item.status==='failed'||item.status==='conflict')||operations[0];
   if(operation?.status==='failed'||operation?.status==='conflict'){
     $('#depositRefundState').text(`${label} · ${operation.status==='conflict'?'Needs review':'Save failed'}: ${operation.reason||'Retry from the sync panel.'}`);
     return;
   }
-  $('#depositRefundState').text(deposit.pending_sync?`${label} · Pending Sync`:label);
+  $('#depositRefundState').text(operation?.action==='refund'||deposit.refund_pending?`Refund pending · Pending Sync`:deposit.pending_sync?`${label} · Pending Sync`:label);
 }
 
 function setDeliveryForm(delivery) {

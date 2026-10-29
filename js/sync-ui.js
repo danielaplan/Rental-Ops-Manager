@@ -15,24 +15,39 @@
       document.querySelector('.admin-topbar')?.after(panel);
       panel.querySelector('#syncNow').addEventListener('click', () => runSync(async () => { await API.refreshSharedData(); await API.flushSyncQueue(); }));
       panel.addEventListener('submit',e=>{
+        if(e.target.matches('.sync-money-edit')){
+          e.preventDefault();const form=e.target,amount=form.elements.amount.value;
+          if(!/^\d{1,8}(?:\.\d{1,2})?$/.test(amount)||Number(amount)<=0){form.querySelector('[role=alert]').textContent='Enter a positive amount with at most two decimal places.';return;}
+          void runSync(() => API.retrySyncOperation(form.dataset.operation,{[form.dataset.field]:amount}));return;
+        }
         if(!e.target.matches('.sync-edit'))return;e.preventDefault();
         const form=e.target,date=form.elements.event_date.value,start=form.elements.start_time.value,end=form.elements.end_time.value,location=form.elements.event_location.value.trim();
         if(!date||!start||!end||start>=end||!location){form.querySelector('[role=alert]').textContent='Choose a location, date and an end time after the start time.';return;}
         void runSync(() => API.retrySyncOperation(form.dataset.operation,{event_date:date,start_time:start,end_time:end,event_location:location}));
       });
-      panel.addEventListener('click',e=>{const button=e.target.closest('[data-retry]');if(button)void runSync(() => API.retrySyncOperation(button.dataset.retry));});
+      panel.addEventListener('click',e=>{
+        const retry=e.target.closest('[data-retry]');
+        if(retry){void runSync(() => API.retrySyncOperation(retry.dataset.retry));return;}
+        const discard=e.target.closest('[data-discard]');
+        if(!discard)return;
+        const operation=API.getSyncQueue().find(op=>op.client_id===discard.dataset.discard);
+        const label=operation?.data?.customer_name||operation?.local_id||operation?.entity||'this local change';
+        if(!window.confirm(`Discard ${label}? This removes only the unsynced local change; accepted server records are not deleted.`))return;
+        void runSync(async()=>{API.discardSyncOperation(discard.dataset.discard);if(navigator.onLine)await API.refreshSharedData();});
+      });
     }
     render();
   };
   function render(){
     const status=document.querySelector('#syncStatus');if(!status)return;
-    const ops=API.getSyncQueue(),conflicts=ops.filter(op=>op.status==='conflict').length,failed=ops.filter(op=>op.status==='failed').length;
-    status.textContent=(navigator.onLine?'Online':'Offline')+' · '+(syncing?'Syncing · ':'')+ops.length+' Pending Sync'+(conflicts?' · '+conflicts+' conflicts':'')+(failed?' · '+failed+' need attention':'');
+    const ops=API.getSyncQueue(),pending=ops.filter(op=>op.status==='pending').length,conflicts=ops.filter(op=>op.status==='conflict').length,failed=ops.filter(op=>op.status==='failed').length;
+    const counts=ops.length?`${pending} pending · ${conflicts} conflicts · ${failed} need attention`:'All changes synced';
+    status.textContent=(navigator.onLine?'Online':'Offline')+' · '+(syncing?'Syncing · ':'')+counts;
     const error=document.querySelector('#syncReadError');
     if(error){error.textContent=readError;error.hidden=!readError;}
     document.querySelector('#syncNow').disabled=!navigator.onLine||syncing||working;
     document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||!navigator.onLine;});
-    document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline pages are ready on this device. Existing signed-in sessions can record local entries.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
+    document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline app pages are cached on this device. With an existing signed-in session and saved data, supported entries can be recorded locally; the cache does not download new server data.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
     if(working||document.activeElement?.closest('.sync-edit'))return;
 
     // Build stale-edit comparison table for conflicts
@@ -62,13 +77,15 @@
     document.querySelector('#syncOperations').innerHTML=ops.length ? ops.map(op=>{
       const booking=STORAGE.getAll('bookings').find(b=>String(b.id)===String(op.local_id)),draft={...booking,...op.data};
       const comparison = staleComparison(op);
+      const moneyField=op.entity==='payments'?'amount':op.entity==='deposits'?(op.action==='upsert'?'amount_held':op.action==='deduct'?'amount':null):null;
+      const moneyEditor=moneyField&&['failed','conflict'].includes(op.status)?`<form class="sync-money-edit row g-2 mt-2" data-operation="${esc(op.client_id)}" data-field="${esc(moneyField)}"><div class="col-sm-6"><label for="money-${op.client_id}">Corrected amount</label><input required class="form-control" id="money-${op.client_id}" name="amount" inputmode="decimal" value="${esc(op.data[moneyField]??'')}"></div><div class="col-sm-6 align-self-end"><button class="btn btn-sm btn-admin-primary">Correct and retry</button></div><div role="alert" class="text-danger small"></div></form>`:'';
       const editor=op.entity==='bookings'&&['conflict','failed'].includes(op.status)?`<details><summary>Edit booking event details and retry</summary>${comparison}<form class="sync-edit row g-2 mt-1" data-operation="${esc(op.client_id)}">
         <div class="col-sm-4"><label for="date-${op.client_id}">Event date</label><input required class="form-control" id="date-${op.client_id}" name="event_date" type="date" value="${esc(draft.event_date||'')}"></div>
         <div class="col-sm-4"><label for="start-${op.client_id}">Start time</label><input required class="form-control" id="start-${op.client_id}" name="start_time" type="time" value="${esc(String(draft.start_time||'').slice(0,5))}"></div>
         <div class="col-sm-4"><label for="end-${op.client_id}">End time</label><input required class="form-control" id="end-${op.client_id}" name="end_time" type="time" value="${esc(String(draft.end_time||'').slice(0,5))}"></div>
         <div class="col-12"><label for="location-${op.client_id}">Event location</label><input required class="form-control" id="location-${op.client_id}" name="event_location" type="text" value="${esc(draft.event_location||draft.location||'')}"></div>
         <div role="alert" class="text-danger small"></div><div><button class="btn btn-sm btn-admin-primary">Apply and retry</button></div></form></details>`:'';
-      return `<article class="border-top py-2"><strong>${esc(op.entity)} · ${esc(op.action)}</strong><span class="badge bg-secondary ms-2">${esc(op.status==='pending'?'Pending Sync':op.status)}</span><p class="small mb-1">${esc(draft.customer_name||op.local_id||'')} ${esc(draft.event_date||'')}</p>${op.reason?`<p class="text-danger small" role="alert">${esc(op.reason)} Your draft is retained.</p>`:''}${editor}${op.status==='failed'&&!editor?`<button type="button" class="btn btn-sm btn-outline-secondary" data-retry="${op.client_id}">Retry</button>`:''}</article>`;
+      return `<article class="border-top py-2"><strong>${esc(op.entity)} · ${esc(op.action)}</strong><span class="badge bg-secondary ms-2">${esc(op.status==='pending'?'Pending Sync':op.status)}</span><p class="small mb-1">${esc(draft.customer_name||op.local_id||'')} ${esc(draft.event_date||'')}</p>${op.reason?`<p class="text-danger small" role="alert">${esc(op.reason)} Your draft is retained.</p>`:''}${moneyEditor}${editor}${op.status==='failed'&&!editor&&!moneyEditor?`<button type="button" class="btn btn-sm btn-outline-secondary" data-retry="${op.client_id}">Retry</button>`:''}</article>`;
     }).join(''):'<p class="small text-muted mb-0">No pending changes for this signed-in user.</p>';
   }
   window.addEventListener('sync-state-changed',e=>{if(e.detail?.syncing!==undefined)syncing=e.detail.syncing;render();});

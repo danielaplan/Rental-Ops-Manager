@@ -300,10 +300,10 @@ const API = (() => {
 
     async upsertCustomerFromBooking(booking) {
       const contact = booking.contact ?? booking.contact_number;
-      const matches = await list("customers.php", "customers", { do: "search", q: contact || "" });
-      const existing = matches.find(row => row.contact === contact);
       const data = { name: booking.customer_name, contact, email: booking.email || "" };
-      return existing ? update("customers.php", "customers", existing.customer_id, data) : create("customers.php", "customers", data);
+      return booking.customer_id
+        ? update("customers.php", "customers", booking.customer_id, data)
+        : create("customers.php", "customers", data);
     },
     async getCustomers() {
       const [customers, bookings] = await Promise.all([
@@ -312,9 +312,7 @@ const API = (() => {
       ]);
       return customers.map(customer => {
         const customerId = serverId(customer.customer_id);
-        const related = bookings.filter(booking =>
-          String(booking.customer_id) === String(customerId) || booking.contact === customer.contact
-        );
+        const related = bookings.filter(booking => String(booking.customer_id) === String(customerId));
         return {
           ...customer,
           type: related[0]?.customer_type || customer.type || "Guest / No Account",
