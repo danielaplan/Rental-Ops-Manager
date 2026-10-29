@@ -9,7 +9,7 @@ const mysql = process.env.AKAD_TEST_MYSQL || 'C:/xampp/mysql/bin/mysql.exe';
 const database = `akad_verify_plan_${Date.now()}_${process.pid}`;
 const children = [];
 function sql(input) {
-  const result = spawnSync(mysql, ['--host', process.env.AKAD_DB_HOST || 'localhost', '--user', process.env.AKAD_DB_USER || 'root', '--default-character-set=utf8mb4'], {
+  const result = spawnSync(mysql, ['--host', process.env.AKAD_DB_HOST || 'localhost', '--port', process.env.AKAD_DB_PORT || '3306', '--user', process.env.AKAD_DB_USER || 'root', '--default-character-set=utf8mb4'], {
     input, encoding: 'utf8', env: {...process.env, MYSQL_PWD: process.env.AKAD_DB_PASS || ''}, maxBuffer: 8 * 1024 * 1024,
   });
   if (result.error || result.status !== 0) throw result.error || new Error(result.stderr);
@@ -52,7 +52,8 @@ async function main() {
   for (const file of files) {
     // Keep draining PHP's log pipe while the test runs; a blocked pipe stalls the server.
     await new Promise((resolve,reject)=>{
-      const test=spawn(process.execPath,[file],{cwd:root,env,stdio:'inherit',windowsHide:true});
+      const isPhp=path.extname(file).toLowerCase()==='.php';
+      const test=spawn(isPhp?php:process.execPath,[file],{cwd:root,env,stdio:'inherit',windowsHide:true});
       test.once('error',reject);
       test.once('exit',code=>code===0?resolve():reject(new Error(`${file} failed (${code})`)));
     });

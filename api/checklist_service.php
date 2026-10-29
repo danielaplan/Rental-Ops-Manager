@@ -46,3 +46,35 @@ function updateChecklistItem(PDO $pdo, int $bookingId, int $itemId, array $body,
     $q->execute([$itemId, $bookingId]);
     return $q->fetch();
 }
+
+function requireEquipmentRecoveryBeforeCancellation(
+    PDO $pdo,
+    int $bookingId
+): void {
+    // The booking row is already locked by saveBooking. Treat checklist
+    // quantities as the dispatch evidence so an incomplete/legacy release
+    // record cannot allow physical equipment to be stranded.
+    $unresolved = $pdo->prepare(
+        "SELECT checklist_item_id
+         FROM booking_checklist_items
+         WHERE booking_id = ?
+           AND quantity_released > 0
+           AND (
+               quantity_returned < quantity_released
+               OR condition_in IS NULL
+               OR TRIM(condition_in) = ''
+               OR return_status NOT IN ('inspected', 'damaged')
+           )
+         LIMIT 1
+         FOR UPDATE"
+    );
+    $unresolved->execute([$bookingId]);
+
+    if ($unresolved->fetchColumn()) {
+        domainFail(
+            'Equipment has already been dispatched. Record the returned quantity and condition for every released item before cancelling this booking.',
+            409,
+            'equipment_return_required'
+        );
+    }
+}

@@ -77,11 +77,8 @@ async function renderPayments() {
     return sum + await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex);
   }, Promise.resolve(0));
   const pendingAmount = sortedPayments.filter(p => p.pending_sync).reduce((s, p) => s + Number(p.amount), 0);
-  const totalOutstanding = await balanceBookings.reduce(async (sumPromise, b) => {
-    const sum = await sumPromise;
-    return sum + await PaymentsHelper.remainingBalance(b, pendingPaymentIndex);
-  }, Promise.resolve(0));
-  const fullyPaidCount = (await Promise.all(balanceBookings.map(async b => ({
+  const totalOutstanding = await PaymentsHelper.totalOutstanding(bookings, pendingPaymentIndex);
+  const fullyPaidCount = (await Promise.all(bookings.map(async b => ({
     booking: b,
     status: await PaymentsHelper.paymentStatus(b, pendingPaymentIndex)
   })))).filter(item => item.status === 'Fully Paid').length;
@@ -122,7 +119,8 @@ async function renderPayments() {
   });
 
   const outstanding = [];
-  for (const b of balanceBookings) {
+  for (const b of bookings) {
+    if (String(b.status || '').toLowerCase() === 'cancelled') continue;
     const balance = await PaymentsHelper.remainingBalance(b, pendingPaymentIndex);
     if (balance > 0) outstanding.push({ booking: b, balance, paid: await PaymentsHelper.acceptedAmountPaid(b, pendingPaymentIndex), status: await PaymentsHelper.paymentStatus(b, pendingPaymentIndex) });
   }

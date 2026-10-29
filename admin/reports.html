@@ -192,7 +192,7 @@ async function renderReport(startDate, endDate) {
   const pendingPayments = payments.filter(payment => payment.pending_sync && bookingIds.has(String(payment.booking_id)));
   const pendingPaymentTotal = pendingPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
   const totalRevenue = Number(report.total_revenue_collected || 0);
-  const outstandingBalance = Number(report.balances?.outstanding_balances || 0);
+  const outstandingBalance = await PaymentsHelper.totalOutstanding(bookings, pendingPaymentIndex);
   const acceptedPayments = new Map(await Promise.all(filteredBookings.map(async booking =>
     [String(booking.id), await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex)])));
   if (version !== reportVersion) return;
@@ -218,7 +218,7 @@ async function renderReport(startDate, endDate) {
     { label: "Customers", value: customerCount, icon: "bi-people" },
     { label: "Total Revenue", value: BookingCalc.formatCurrency(r.total_revenue), icon: "bi-cash-stack" },
     { label: "Payments Pending Sync", value: BookingCalc.formatCurrency(pendingPaymentTotal), icon: "bi-cloud-arrow-up", cls: pendingPaymentTotal > 0 ? "warn" : "" },
-    { label: "Outstanding Balance", value: BookingCalc.formatCurrency(r.outstanding_balance), icon: "bi-hourglass-split", cls: "warn" },
+    { label: "Lifetime Outstanding Balance", value: BookingCalc.formatCurrency(r.outstanding_balance), icon: "bi-hourglass-split", cls: "warn" },
     { label: "Awaiting Payment", value: r.awaiting_payment, icon: "bi-cash-coin", cls: Number(r.awaiting_payment) > 0 ? "warn" : "" },
     { label: "Damaged / Missing Items", value: r.damaged_or_missing, icon: "bi-exclamation-triangle", cls: "danger" }
   ].forEach(s => {

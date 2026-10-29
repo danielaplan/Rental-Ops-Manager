@@ -4,6 +4,33 @@
  * Calculate a booking's base package, selected add-ons, discount, and fees
  * from current database prices. Client-supplied subtotal fields are ignored.
  */
+function completedBookingPaymentsCents(PDO $pdo, int $bookingId): int
+{
+    $query = $pdo->prepare(
+        "SELECT amount
+         FROM payments
+         WHERE booking_id = ?
+           AND payment_status = 'Completed'
+         ORDER BY payment_id
+         FOR UPDATE"
+    );
+    $query->execute([$bookingId]);
+    $total = 0;
+    foreach ($query->fetchAll(PDO::FETCH_COLUMN) as $amount) {
+        $total += moneyCents($amount);
+    }
+    return $total;
+}
+
+function bookingBalanceCents(
+    PDO $pdo,
+    int $bookingId,
+    $agreedTotal
+): int {
+    return moneyCents($agreedTotal)
+        - completedBookingPaymentsCents($pdo, $bookingId);
+}
+
 function calculateBookingTotals(PDO $pdo, int $serviceId, ?int $packageId, array $addonIds, $discount, $fees, $snapshotPrice = null): array
 {
     $packagePrice = $snapshotPrice ?? 0;

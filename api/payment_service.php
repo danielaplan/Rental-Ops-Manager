@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/domain.php';
+require_once __DIR__ . '/availability_service.php';
 
 function reconcilePaymentLifecycleAfterSave(PDO $pdo, array $booking, int $ownerId, bool $isCorrection): void {
     $bookingId = (int)$booking['booking_id'];
@@ -72,7 +73,29 @@ function savePayment(PDO $pdo, string $action, ?int $id, array $body, array $own
         $pdo->prepare("INSERT INTO payments(amount,payment_method,payment_type,payment_status,payment_date,payment_reference,notes,booking_id,recorded_by,recorded_at,provenance) VALUES(?,?,?,?,?,?,?,?,?,NOW(),'owner')")->execute([...$values,$bid,$owner['user_id']]);
         $id=(int)$pdo->lastInsertId();
     }
-    auditWrite($pdo,$owner['user_id'],$old?'payment_corrected':'payment_recorded','payment',$id,json_encode(['before'=>$old ?: null,'after'=>$values,'reason'=>$body['correction_reason'] ?? null]));
-    reconcilePaymentLifecycleAfterSave($pdo,$booking,(int)$owner['user_id'],(bool)$old);
-    $q=$pdo->prepare('SELECT * FROM payments WHERE payment_id=?'); $q->execute([$id]); return $q->fetch();
+    auditWrite(
+        $pdo,
+        $owner['user_id'],
+        $old ? 'payment_corrected' : 'payment_recorded',
+        'payment',
+        $id,
+        json_encode([
+            'before' => $old ?: null,
+            'after' => $values,
+            'reason' => $body['correction_reason'] ?? null
+        ])
+    );
+
+    if ($old) {
+        reopenCompletedBookingForPaymentCorrection(
+            $pdo,
+            $bid,
+            (int)$owner['user_id'],
+            (int)$id
+        );
+    }
+
+    $q=$pdo->prepare('SELECT * FROM payments WHERE payment_id=?');
+    $q->execute([$id]);
+    return $q->fetch();
 }

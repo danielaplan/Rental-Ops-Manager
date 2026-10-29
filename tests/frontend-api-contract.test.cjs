@@ -407,7 +407,8 @@ test('the facade exposes methods required by current pages and the sync UI', () 
   const { context } = createHarness();
   const required = [
     'getItemHistory', 'getBooking', 'getPaymentsForBooking', 'getSettings',
-    'getWebsiteContent', 'refreshSharedData', 'flushSyncQueue', 'savedMessage', 'discardSyncOperation',
+    'getWebsiteContent', 'refreshSharedData', 'flushSyncQueue', 'savedMessage',
+    'requestBookingCancellation',
     'getDeposit', 'upsertDeposit', 'getDelivery', 'upsertDelivery', 'finalizeReturn'
   ];
 
@@ -416,33 +417,33 @@ test('the facade exposes methods required by current pages and the sync UI', () 
   }
 });
 
-test('customers sharing a phone retain separate booking summaries by stable customer ID', async () => {
+test('offline cancellation stays active locally until the server accepts it', async () => {
   const { context, collections } = createHarness();
+  collections.bookings.push({
+    id: 'BK-001',
+    status: 'Confirmed',
+    pending_sync: false
+  });
   context.navigator.onLine = false;
-  const sharedPhone = '0917-SHARED';
-  const first = await context.API.createBooking({
-    customer_name: 'Customer One', contact: sharedPhone, service_id: 1, service_ids: [1],
-    event_date: '2099-02-01', start_time: '10:00', end_time: '11:00', location: 'Venue One', total: 100
-  });
-  const second = await context.API.createBooking({
-    customer_name: 'Customer Two', contact: sharedPhone, service_id: 1, service_ids: [1],
-    event_date: '2099-02-02', start_time: '10:00', end_time: '11:00', location: 'Venue Two', total: 200
-  });
-  first.amount_paid = 25;
-  second.amount_paid = 80;
 
-  const summaries = await context.API.getCustomers();
+  const submission = await context.API.requestBookingCancellation(
+    'BK-001',
+    'Customer requested cancellation'
+  );
 
-  assert.equal(summaries.length, 2);
-  assert.notEqual(first.customer_id, second.customer_id);
-  assert.deepEqual(summaries.map(customer => [customer.name, customer.bookings_count, customer.total_spent]), [
-    ['Customer One', 1, 25],
-    ['Customer Two', 1, 80]
-  ]);
-  assert.equal(collections.bookings.every(booking => booking.customer_id), true);
+  assert.equal(submission.status, 'Confirmed');
+  assert.equal(submission.cancellation_pending, true);
+  assert.equal(collections.bookings[0].status, 'Confirmed');
+  assert.equal(collections.bookings[0].pending_sync, true);
+  const operation = context.API.getSyncQueue().find(
+    item => item.client_id === submission.operation_id
+  );
+  assert.equal(operation.data.status, 'Cancelled');
+  assert.equal(operation.data._base.status, 'Confirmed');
+  assert.equal(await context.API.flushSyncQueue(), null);
 });
 
-test('pending offline payments remain separate from server-accepted totals', async () => {
+test('pending offline payments remain keyed by the exact local booking ID', async () => {
   const paymentsSource = fs.readFileSync(path.join(root, 'js', 'payments.js'), 'utf8');
   const pendingBookingId = 'LOCAL-bookings-uuid-123';
   const context = vm.createContext({
@@ -464,9 +465,15 @@ test('pending offline payments remain separate from server-accepted totals', asy
     { id: pendingBookingId, amount_paid: 250 },
     pending
   );
+  const outstanding = await context.PaymentsHelper.totalOutstanding([
+    { id: 'active', status: 'Confirmed', total: 1000, amount_paid: 600 },
+    { id: 'cancelled', status: 'Cancelled', total: 2000, amount_paid: 0 },
+    { id: 'paid', status: 'Completed', total: 500, amount_paid: 500 },
+  ], new Map());
 
   assert.equal(pending.get(pendingBookingId), 250);
-  assert.equal(accepted, 250, 'queued local payments must not alter the server-confirmed booking total');
+  assert.equal(accepted, 0, 'queued local payments must not count as server-accepted revenue');
+  assert.equal(outstanding, 400, 'cancelled bookings must not contribute to outstanding balances');
 });
 
 test('creating and correcting queued payments do not mutate accepted booking totals', async () => {

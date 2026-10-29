@@ -66,6 +66,15 @@ const PaymentsHelper = {
     return Math.max(total - paid, 0) / 100;
   },
 
+  async totalOutstanding(bookings, pendingAmounts) {
+    let total = 0;
+    for (const booking of bookings) {
+      if (String(booking.status || '').toLowerCase() === 'cancelled') continue;
+      total += await PaymentsHelper.remainingBalance(booking, pendingAmounts);
+    }
+    return total;
+  },
+
   recordPayment(bookingId, amount, method, notes, details = {}) {
     const paymentCents = PaymentsHelper.amountCents(amount);
     if (paymentCents === null || paymentCents <= 0) return Promise.resolve(null);

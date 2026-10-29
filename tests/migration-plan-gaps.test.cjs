@@ -11,7 +11,7 @@ const php = process.env.PHP_BINARY || 'C:\\xampp\\php\\php.exe';
 const env = { ...process.env, AKAD_DB_NAME: database };
 const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'akad-migration-gap-'));
 const resolutionFile = path.join(directory, 'resolutions.json');
-const connect = `$p=new PDO('mysql:host='.(getenv('AKAD_DB_HOST')?:'localhost').';charset=utf8mb4',getenv('AKAD_DB_USER')?:'root',getenv('AKAD_DB_PASS')?:'',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);`;
+const connect = `$p=new PDO('mysql:host='.(getenv('AKAD_DB_HOST')?:'localhost').';port='.(getenv('AKAD_DB_PORT')?:'3306').';charset=utf8mb4',getenv('AKAD_DB_USER')?:'root',getenv('AKAD_DB_PASS')?:'',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);`;
 function command(args, input) {
   const result = spawnSync(php, args, { cwd: path.resolve(__dirname, '..'), env, encoding: 'utf8', input });
   if (result.error) throw result.error;

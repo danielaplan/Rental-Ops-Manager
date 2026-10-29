@@ -1,6 +1,6 @@
 ---
 title: "Equipment Release and Return"
-date: 2026-10-19
+date: 2026-10-29
 tags:
   - akad
   - system-understanding
@@ -61,7 +61,7 @@ The diagram follows equipment information from the reusable package template to 
 - Returned quantity cannot exceed released quantity. A short return must be marked missing.
 - Every reviewed row needs a return condition and inspected/damaged/missing state.
 - Equipment release is rejected for a non-Confirmed booking, an incomplete outgoing checklist, or a duplicate release.
-- Cancellation is rejected while dispatched checklist quantities still need a return inspection. The owner must first record returned, damaged, or missing equipment so cancellation cannot strand an uneditable checklist.
+- A booking with dispatched equipment cannot be cancelled while any released quantity remains unreturned, missing, or uninspected. Record the return first; a fully recovered and documented dispatch may then be cancelled without erasing its checklist or release history. An offline cancellation request keeps the current lifecycle status until the server accepts it.
 - Checklist rows document equipment; catalog quantity is not a real-time stock-reservation engine.
 
 ### Remember This

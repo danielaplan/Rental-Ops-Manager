@@ -67,6 +67,7 @@ function harness(file, api = {}) {
       pendingAmountsByBooking: async () => new Map(),
       acceptedAmountPaid: async booking => Number(booking.amount_paid || 0),
       remainingBalance: async booking => Number(booking.total || 0) - Number(booking.amount_paid || 0),
+      totalOutstanding: async bookings => bookings.filter(booking => booking.status !== 'Cancelled').reduce((sum,booking)=>sum+Math.max(Number(booking.total||0)-Number(booking.amount_paid||0),0),0),
       paymentStatus: async () => 'Partial'
     }
   });

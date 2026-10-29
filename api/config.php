@@ -57,6 +57,7 @@ if ($production) {
 }
 
 define('DB_HOST', akadConfigValue('AKAD_DB_HOST', 'localhost'));
+define('DB_PORT', akadConfigValue('AKAD_DB_PORT', '3306'));
 define('DB_NAME', akadConfigValue('AKAD_DB_NAME', 'akad_rentals'));
 define('DB_USER', akadConfigValue('AKAD_DB_USER', 'root'));
 define('DB_PASS', akadConfigValue('AKAD_DB_PASS', ''));
@@ -104,7 +105,7 @@ function db() {
     static $pdo = null;
     if ($pdo !== null) return $pdo;
 
-    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHAR;
+    $dsn = 'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=' . DB_CHAR;
     $opts = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

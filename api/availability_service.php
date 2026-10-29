@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/domain.php';
+require_once __DIR__ . '/booking_pricing.php';
 
 function bookingDatetime($value): string {
     if (!is_string($value)) domainFail('A valid event datetime is required.');
@@ -129,4 +130,87 @@ function releaseBooking(PDO $pdo, int $id, array $body, int $ownerId): array {
     $pdo->prepare("UPDATE notifications SET resolved_at=COALESCE(resolved_at,NOW()) WHERE booking_id=? AND notification_type='awaiting_completion'")->execute([$id]);
     auditWrite($pdo,$ownerId,'manual_release','booking',$id,$notes.'; rental balance fully paid.','Awaiting Completion','Completed');
     return lockBooking($pdo,$id);
+}
+
+function reopenCompletedBookingForPaymentCorrection(
+    PDO $pdo,
+    int $bookingId,
+    int $ownerId,
+    int $paymentId
+): void {
+    $booking = lockBooking($pdo, $bookingId);
+
+    if ($booking['status'] !== 'Completed') {
+        return;
+    }
+
+    $balanceCents = bookingBalanceCents(
+        $pdo,
+        $bookingId,
+        $booking['agreed_total']
+    );
+
+    if ($balanceCents <= 0) {
+        return;
+    }
+
+    // A Completed booking should already contain completed review evidence.
+    if (!$booking['released_by']) {
+        domainFail(
+            'The completed booking has no release review evidence.',
+            409,
+            'missing_release_review'
+        );
+    }
+
+    $balance = centsDecimal($balanceCents);
+
+    $pdo->prepare(
+        "UPDATE bookings
+         SET status = 'Awaiting Payment',
+             completed_at = NULL
+         WHERE booking_id = ?"
+    )->execute([$bookingId]);
+
+    $message =
+        'A payment correction reopened an outstanding rental balance of ₱'
+        . $balance . '.';
+
+    $pdo->prepare(
+        "INSERT INTO notifications(
+            user_id,
+            booking_id,
+            notification_type,
+            message,
+            requires_action,
+            created_at
+         )
+         SELECT
+            user_id,
+            ?,
+            'awaiting_payment',
+            ?,
+            1,
+            NOW()
+         FROM users
+         WHERE role = 'owner'
+           AND account_status = 'Active'
+         ON DUPLICATE KEY UPDATE
+            message = VALUES(message),
+            requires_action = 1,
+            resolved_at = NULL"
+    )->execute([$bookingId, $message]);
+
+    auditWrite(
+        $pdo,
+        $ownerId,
+        'payment_correction_reopened',
+        'booking',
+        $bookingId,
+        'Payment '.$paymentId
+            .' was corrected; outstanding rental balance: '
+            .$balance.'.',
+        'Completed',
+        'Awaiting Payment'
+    );
 }

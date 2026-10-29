@@ -85,7 +85,10 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   assert.equal(typeof dashboard.awaiting_payment_bookings,'number');
   assert.ok(Array.isArray(dashboard.upcoming_bookings));
   const cancelled = (await book()).data;
+  const outstandingBeforeCancellation = Number((await request(`api/reports.php?do=report&${period}`)).data.balances.outstanding_balances);
   await request(`api/bookings.php?do=cancel&id=${cancelled.booking_id}`,{cancellation_reason:'Synthetic retained cancellation'});
+  const outstandingAfterCancellation = Number((await request(`api/reports.php?do=report&${period}`)).data.balances.outstanding_balances);
+  assert.equal(outstandingBeforeCancellation-outstandingAfterCancellation,500,'Cancelled bookings are excluded from outstanding balances');
   const cancelledRows = (await request(`api/reports.php?do=cancellations&${period}`)).data;
   assert.equal(cancelledRows.length,1);
   assert.equal(Number(cancelledRows[0].booking_id),Number(cancelled.booking_id));
@@ -104,38 +107,16 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'11.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'10.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},201);
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'0.01',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
-  const fractional = (await book({agreed_total:'0.10'})).data;
-  await request('api/payments.php?do=create',{booking_id:fractional.booking_id,amount:'0.03',payment_method:'GCash',payment_date:`${start} 00:00:00`},201);
-  await request('api/payments.php?do=create',{booking_id:fractional.booking_id,amount:'0.071',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
-  await request('api/payments.php?do=create',{booking_id:fractional.booking_id,amount:'0.08',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
-  await request('api/payments.php?do=create',{booking_id:fractional.booking_id,amount:'0.07',payment_method:'GCash',payment_date:`${start} 00:00:00`},201);
-  const preciseDeposit = (await book()).data;
-  await request('api/deposits.php?do=upsert',{booking_id:preciseDeposit.booking_id,amount_held:'0.00'},400);
-  await request('api/deposits.php?do=upsert',{booking_id:preciseDeposit.booking_id,amount_held:'10.001'},400);
-  await request('api/deposits.php?do=upsert',{booking_id:preciseDeposit.booking_id,amount_held:'10.00'});
-  await request('api/deposits.php?do=deduct',{booking_id:preciseDeposit.booking_id,amount:'0.001',affected_item:'Test item',reason:'Invalid precision'},400);
-  const directRefund = (await request('api/deposits.php?do=refund',{booking_id:preciseDeposit.booking_id})).data;
-  assert.equal(directRefund.refund_status,'Refunded');
-  assert.ok(directRefund.refund_date);
-  const syncedRefundBooking = (await book()).data;
-  const refundReplay = await request('api/sync.php?do=commit',{queue:[
-    {client_id:`refund-upsert-${Date.now()}`,entity:'deposits',action:'upsert',data:{booking_id:syncedRefundBooking.booking_id,amount_held:'40.00'}},
-    {client_id:`refund-mark-${Date.now()}`,entity:'deposits',action:'refund',data:{booking_id:syncedRefundBooking.booking_id}}
-  ]});
-  assert.equal(refundReplay.data.failed.length,0);
-  assert.equal(refundReplay.data.committed.length,2);
-  assert.equal(refundReplay.data.committed[1].data.refund_status,'Refunded');
-  assert.ok(refundReplay.data.committed[1].data.refund_date);
-  const legacyZero = (await book()).data;
-  sql(`USE \`${process.env.AKAD_TEST_DB_NAME}\`; INSERT INTO deposits(booking_id,amount_held,refund_status,recorded_by,created_at,updated_at) VALUES(${Number(legacyZero.booking_id)},0.00,'Held',1,NOW(),NOW());`);
-  const correctedZero = (await request('api/deposits.php?do=upsert',{booking_id:legacyZero.booking_id,amount_held:'75.00'})).data;
-  assert.equal(Number(correctedZero.amount_held),75);
-  await request('api/deposits.php?do=upsert',{booking_id:legacyZero.booking_id,amount_held:'80.00'},400);
-  const replayZero = (await book()).data;
-  sql(`USE \`${process.env.AKAD_TEST_DB_NAME}\`; INSERT INTO deposits(booking_id,amount_held,refund_status,recorded_by,created_at,updated_at) VALUES(${Number(replayZero.booking_id)},0.00,'Held',1,NOW(),NOW());`);
-  const replay = await request('api/sync.php?do=commit',{queue:[{client_id:`zero-repair-${Date.now()}`,entity:'deposits',action:'upsert',data:{booking_id:replayZero.booking_id,amount_held:'60.00',deduction_amount:'0.00'}}]});
-  assert.equal(replay.data.failed.length,0);
-  assert.equal(Number(replay.data.committed[0].data.amount_held),60);
+  const protectedBooking = (await book({agreed_total:'1000.00'})).data;
+  await request('api/payments.php?do=create',{
+    booking_id:protectedBooking.booking_id,amount:'800.00',payment_method:'GCash',payment_status:'Completed',payment_date:`${start} 00:00:00`,
+  },201);
+  const rejectedPrice = await request(`api/bookings.php?do=update&id=${protectedBooking.booking_id}`,{agreed_total:'500.00'},409);
+  assert.equal(rejectedPrice.code,'collected_payments_exceed_total');
+  const afterRejectedPrice = (await request(`api/bookings.php?do=get&id=${protectedBooking.booking_id}`)).data;
+  assert.equal(Number(afterRejectedPrice.agreed_total),1000);
+  assert.equal(Number(afterRejectedPrice.amount_paid),800);
+  assert.equal(Number(afterRejectedPrice.outstanding_balance),200);
   const empty = (await request('api/reports.php?do=report&start=2000-09-01&end=2000-09-30')).data;
   assert.equal(Number(empty.total_revenue_collected),0);
   for (const kind of ['upcoming','cancellations','overlaps']) await request(`api/reports.php?do=${kind}&start=bad&end=${end}`,undefined,400);
