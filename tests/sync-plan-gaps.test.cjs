@@ -78,6 +78,20 @@ test('offline sync honors revised shared booking, financial, catalog, and histor
   assert.equal(staleApproval.conflicts.length, 1, JSON.stringify(staleApproval));
   assert.equal(staleApproval.conflicts[0].kind, 'stale');
   assert.equal((await request(`api/bookings.php?do=get&id=${staleBookingId}`)).status, 'Pending');
+  const priceTarget = await synced('bookings', 'create', { ...body, status: 'Pending', event_start_datetime: '9088-02-02 10:00:00', event_end_datetime: '9088-02-02 12:00:00' });
+  const priceBookingId = priceTarget.ack.server_id;
+  const originalPrice = await request(`api/bookings.php?do=get&id=${priceBookingId}`);
+  await synced('bookings', 'update', { id: priceBookingId, discount: '25.00', fees: '5.00', agreed_total: '480.00' });
+  const stalePrice = await commit(operation('bookings', 'update', {
+    id: priceBookingId, discount: '15.00', fees: '5.00', agreed_total: '490.00',
+    _base: { discount: originalPrice.discount, fees: originalPrice.fees, agreed_total: originalPrice.agreed_total },
+  }));
+  assert.equal(stalePrice.conflicts.length, 1, JSON.stringify(stalePrice));
+  assert.equal(stalePrice.conflicts[0].kind, 'stale');
+  assert.equal(Number(stalePrice.conflicts[0].server_record.discount), 25);
+  const retainedPrice = await request(`api/bookings.php?do=get&id=${priceBookingId}`);
+  assert.equal(Number(retainedPrice.discount), 25);
+  assert.equal(Number(retainedPrice.agreed_total), 480);
   const approved = await synced('bookings', 'create', {
     ...body, approve_conflicts: true, conflicting_booking_ids: [direct.booking_id], override_reason: 'Owner-approved synthetic overlap',
   });

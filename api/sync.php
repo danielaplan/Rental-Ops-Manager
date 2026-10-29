@@ -74,8 +74,24 @@ foreach ($queue as $item) {
                 if (!is_array($data['_base'])) domainFail('Invalid previous booking values.');
                 $old=lockBooking($pdo,$id);
                 foreach ($data['_base'] as $field=>$expected) {
-                    if (!in_array($field,['status','event_date','start_time','end_time','event_location','service_id','package_id','preparation_minutes','travel_minutes','event_start_datetime','event_end_datetime'],true)) continue;
+                    if (!in_array($field,['status','event_date','start_time','end_time','event_location','service_id','package_id','addon_ids','discount','fees','agreed_total','preparation_minutes','travel_minutes','event_start_datetime','event_end_datetime'],true)) continue;
                     $actual=$old[$field] ?? null;
+                    if ($field==='addon_ids') {
+                        if (!is_array($expected)) domainFail('Invalid previous add-on values.');
+                        $expected=array_map(fn($value)=>syncReference($value,'addons',$state,(int)$actor['user_id']),$expected);
+                        $actual=json_decode((string)$actual,true) ?: [];
+                        sort($expected); sort($actual);
+                        if ($actual===$expected) continue;
+                        $actual=json_encode($actual); $expected=json_encode($expected);
+                    }
+                    if (in_array($field,['discount','fees','agreed_total'],true)) {
+                        if (moneyCents($actual ?? 0)===moneyCents($expected ?? 0)) continue;
+                    }
+                    if (in_array($field,['service_id','package_id'],true)) {
+                        $actual=$actual===null?null:(int)$actual;
+                        $expected=$expected===null||$expected===''?null:(int)syncReference($expected,$field==='service_id'?'services':'packages',$state,(int)$actor['user_id']);
+                    }
+                    if (in_array($field,['preparation_minutes','travel_minutes'],true)) { $actual=(int)$actual; $expected=(int)$expected; }
                     if ($field==='status') { $actual=strtolower((string)$actual); $expected=strtolower((string)$expected); }
                     if (in_array($field,['start_time','end_time'],true)) { $actual=substr((string)$actual,0,5); $expected=substr((string)$expected,0,5); }
                     if (!is_scalar($expected) && $expected!==null) domainFail('Invalid previous booking value.');
@@ -100,16 +116,14 @@ foreach ($queue as $item) {
         } elseif ($entity==='deposits' && in_array($action,['deduct','refund'],true)) {
             $bid=asInt($data['booking_id'] ?? null,1);
             if (!$bid) domainFail('A valid booking is required.');
-            lockBooking($pdo,$bid);
-            $deposit=depositView($pdo,$bid);
-            if (!$deposit) domainFail('Deposit not found.',404,'not_found');
-            if ($action==='deduct') addDepositDeduction($pdo,(int)$deposit['deposit_id'],$data,(int)$actor['user_id']);
-            elseif ($deposit['refund_status']!=='Refunded') {
-                if (moneyCents($deposit['refund_amount'] ?? 0)<=0) domainFail('No refundable balance remains for this deposit.',409,'invalid_state');
-                $pdo->prepare("UPDATE deposits SET refund_status='Refunded',refund_date=NOW(),updated_at=NOW() WHERE deposit_id=?")->execute([$deposit['deposit_id']]);
-                auditWrite($pdo,$actor['user_id'],'deposit_refunded','deposit',$deposit['deposit_id'],json_encode(['refund_amount'=>$deposit['refund_amount']]));
+            if ($action==='refund') $record=refundDeposit($pdo,$bid,(int)$actor['user_id']);
+            else {
+                lockBooking($pdo,$bid);
+                $deposit=depositView($pdo,$bid);
+                if (!$deposit) domainFail('Deposit not found.',404,'not_found');
+                addDepositDeduction($pdo,(int)$deposit['deposit_id'],$data,(int)$actor['user_id']);
+                $record=depositView($pdo,$bid);
             }
-            $record=depositView($pdo,$bid);
         } elseif ($entity==='delivery' && $action==='upsert') {
             $record=saveDelivery($pdo,$data,$actor);
         } elseif ($entity==='bookingItems' && $action==='generate') {

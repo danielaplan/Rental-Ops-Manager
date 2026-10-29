@@ -47,7 +47,7 @@
     if (field && serverId != null) {
       const aliases=STORAGE._get('er_sync_ids',{});
       const alias=Object.keys(aliases).find(k => k.startsWith(entity+':') && String(aliases[k])===String(serverId));
-      out[field]=alias ? alias.slice(entity.length+1) : serverId;
+      out[field]=['bookings','payments'].includes(entity) ? serverId : (alias ? alias.slice(entity.length+1) : serverId);
       out._server_id=serverId;
     }
     if(entity==='bookings') {
@@ -133,6 +133,38 @@
     return out;
   };
   const saveRows=(entity,rows)=>{STORAGE.memory[entity]=rows;STORAGE.saveAll(entity,rows);Promise.resolve(STORAGE.saveCache(entity,rows)).catch(error=>emit('api-read-error',{entity,message:error.message}));};
+  const remapAcceptedId=(entity,localId,serverId,serverRecord)=>{
+    const field=fields[entity];
+    if(!field||!['bookings','payments'].includes(entity))return;
+    const rows=STORAGE.getAll(entity),row=rows.find(value=>String(value[field])===String(localId)||String(value._server_id)===String(serverId));
+    const localCustomerId=entity==='bookings'?row?.customer_id:null;
+    if(row){row[field]=serverId;row._server_id=serverId;saveRows(entity,rows);}
+    if(entity==='bookings'){
+      if(row&&serverRecord?.customer_id!=null){
+        row.customer_id=serverRecord.customer_id;saveRows(entity,rows);
+        const customers=STORAGE.getAll('customers'),customer=customers.find(value=>String(value.customer_id)===String(localCustomerId));
+        if(customer){customer.customer_id='CUS-'+String(serverRecord.customer_id).padStart(3,'0');customer._server_id=serverRecord.customer_id;customer.pending_sync=false;saveRows('customers',customers);}
+      }
+      Object.keys(fields).filter(name=>name!=='bookings').forEach(name=>{
+        const related=STORAGE.getAll(name);let changed=false;
+        related.forEach(value=>{if(String(value.booking_id)===String(localId)){value.booking_id=serverId;changed=true;}});
+        if(changed)saveRows(name,related);
+      });
+      queue().forEach(operation=>{
+        if(String(operation.data?.booking_id)===String(localId)){operation.data.booking_id=serverId;persist(operation);}
+      });
+    }
+  };
+  const applyAcceptedDeposit=(operation,serverRecord)=>{
+    if(!serverRecord||typeof serverRecord!=='object')return;
+    const rows=STORAGE.getAll('deposits').slice();
+    const bookingId=operation.data?.booking_id??operation.local_id;
+    const index=rows.findIndex(row=>String(row.booking_id)===String(operation.local_id)||String(ref('bookings',row.booking_id))===String(ref('bookings',bookingId)));
+    const accepted=normalize('deposits',serverRecord);
+    accepted.booking_id=index>=0?rows[index].booking_id:operation.local_id;
+    if(index>=0)rows[index]={...rows[index],...accepted,pending_sync:false};else rows.push({...accepted,pending_sync:false});
+    saveRows('deposits',rows);
+  };
   const nextLocalId=entity=>'LOCAL-'+entity+'-'+uuid();
   const defaults={
     categories:{status:'Active'},services:{status:'Active',featured:false,inclusions:[]},addons:{status:'Active'},
@@ -178,10 +210,14 @@
   };
   const upsertLocalCustomer=booking=>{
     const rows=STORAGE.getAll('customers').slice();
-    let row=rows.find(customer=>customer.contact===booking.contact);
-    if(row)Object.assign(row,{name:booking.customer_name,email:booking.email||row.email,pending_sync:true});
-    else{row={customer_id:nextLocalId('customers'),name:booking.customer_name,contact:booking.contact,email:booking.email||'',type:booking.customer_type||'Guest / No Account',pending_sync:true};rows.push(row);}
-    saveRows('customers',rows);return row;
+    const requested=booking.customer_id;
+    let row=requested==null?null:rows.find(customer=>String(customer.customer_id)===String(requested)||String(customer._server_id)===String(ref('customers',requested)));
+    if(!row){row={customer_id:nextLocalId('customers'),name:booking.customer_name,contact:booking.contact,email:booking.email||'',type:booking.customer_type||'Guest / No Account',pending_sync:true};rows.push(row);}
+    booking.customer_id=row.customer_id;
+    saveRows('customers',rows);
+    const bookings=STORAGE.getAll('bookings');const saved=bookings.find(value=>String(value.id)===String(booking.id));
+    if(saved){saved.customer_id=row.customer_id;saveRows('bookings',bookings);}
+    return row;
   };
   const validateBookingDraft=data=>{
     const bytes=value=>new TextEncoder().encode(String(value??'').trim()).length;
@@ -190,12 +226,19 @@
     if(bytes(data.email)>(newCustomer?100:255))throw new Error(`Email must be at most ${newCustomer?100:255} characters.`);
     if(bytes(data.event_location??data.location)>255)throw new Error('Event location must be at most 255 characters.');
   };
+  const moneyCents=value=>{
+    const text=String(value??'').trim();
+    if(!/^\d{1,8}(?:\.\d{1,2})?$/.test(text))throw new Error('Amount must be non-negative with at most two decimal places.');
+    const [whole,fraction='']=text.split('.');
+    return Number(whole)*100+Number(fraction.padEnd(2,'0'));
+  };
+  const centsDecimal=cents=>`${Math.trunc(cents/100)}.${String(cents%100).padStart(2,'0')}`;
   const validatePaymentDraft=(input,old)=>{
     const data={...(old||{}),...input};
-    const amount=Number(data.amount), status=data.payment_status||'Completed';
+    const amountCents=moneyCents(data.amount), status=data.payment_status||'Completed';
     const date=String(data.payment_date||'').trim();
     const reference=data.payment_reference;
-    if(!Number.isFinite(amount)||amount<=0)throw new Error('Enter a payment amount greater than zero.');
+    if(amountCents<=0)throw new Error('Enter a payment amount greater than zero.');
     if(!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(date)||Number.isNaN(Date.parse(date.replace(' ','T'))))throw new Error('Enter a valid payment date and time.');
     if(new Date(date.replace(' ','T'))>new Date())throw new Error('Payment date cannot be in the future.');
     if(reference!==null&&reference!==undefined&&(!String(reference).trim()||new TextEncoder().encode(String(reference)).length>150))throw new Error('Payment reference must be at most 150 characters.');
@@ -203,8 +246,8 @@
     const bookingId=data.booking_id;
     const booking=STORAGE.getAll('bookings').find(row=>String(ref('bookings',row.id??row.booking_id))===String(ref('bookings',bookingId)));
     if(!booking)return;
-    const prior=STORAGE.getAll('payments').filter(row=>String(row.payment_status||'Completed')==='Completed'&&String(row.payment_id)!==String(old?.payment_id)).filter(row=>String(ref('bookings',row.booking_id))===String(ref('bookings',bookingId))).reduce((sum,row)=>sum+Number(row.amount||0),0);
-    if(amount>Math.max(Number(booking.total||0)-prior,0))throw new Error('Completed payment exceeds the remaining booking balance.');
+    const priorCents=STORAGE.getAll('payments').filter(row=>String(row.payment_status||'Completed')==='Completed'&&String(row.payment_id)!==String(old?.payment_id)).filter(row=>String(ref('bookings',row.booking_id))===String(ref('bookings',bookingId))).reduce((sum,row)=>sum+moneyCents(row.amount||0),0);
+    if(amountCents>Math.max(moneyCents(booking.total||0)-priorCents,0))throw new Error('Completed payment exceeds the remaining booking balance.');
   };
   const actions={
     createCategory:['categories','create'],updateCategory:['categories','update'],deleteCategory:['categories','delete'],
@@ -222,7 +265,10 @@
       const old=id==null?null:STORAGE.getAll(entity).find(row=>String(row[fields[entity]])===String(id));
       const input=action==='create'?(args[0]||{}):action==='update'?(args[1]||{}):{};
       if(entity==='bookings')validateBookingDraft(input);
-      if(entity==='payments')validatePaymentDraft(input,old);
+      if(entity==='payments'){
+        validatePaymentDraft(input,old);
+        input.amount=centsDecimal(moneyCents(input.amount??old?.amount));
+      }
       let result;
       if(action==='create')result=createLocal(entity,input);
       else if(action==='update')result=updateLocal(entity,id,input);
@@ -231,20 +277,15 @@
       const localId=action==='create'?result[fields[entity]]:id;
       const data=payload(entity,input);if(action!=='create')data.id=localId;
       if(entity==='bookings'&&action==='update'&&old){
-        data._base={};['status','event_date','start_time','end_time','event_location'].filter(key=>key in data).forEach(key=>data._base[key]=old[key]??old.location);
+        data._base={};
+        ['status','event_date','start_time','end_time','event_location','package_id','addon_ids','discount','fees','agreed_total','preparation_minutes','travel_minutes']
+          .filter(key=>key in data).forEach(key=>data._base[key]=structuredClone(old[key]??(key==='event_location'?old.location:null)));
+        if('service_ids' in data)data._base.service_id=old.service_id??old.service_ids?.[0]??null;
       }
       enqueue(entity,action,data,localId);
         if(entity==='bookings'&&action==='create'){
           upsertLocalCustomer(result);generateLocalChecklist(localId,result.service_ids||[],result.package_id);
         enqueue('bookingItems','generate',{booking_id:localId,service_ids:data.service_ids||[]},localId);
-      }
-      if(entity==='payments'&&action==='create'){
-        const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(result.booking_id));
-        if(booking){booking.amount_paid=Number(booking.amount_paid||0)+Number(result.amount||0);booking.payment_status=booking.amount_paid>=Number(booking.total||0)?'Fully Paid':'Partial';saveRows('bookings',STORAGE.getAll('bookings'));}
-      }
-      if(entity==='payments'&&action==='update'){
-        const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(result.booking_id));
-        if(booking){booking.amount_paid=STORAGE.getAll('payments').filter(row=>String(row.booking_id)===String(result.booking_id)&&String(row.payment_status||'Completed')==='Completed').reduce((sum,row)=>sum+Number(row.amount||0),0);booking.payment_status=booking.amount_paid>=Number(booking.total||0)?'Fully Paid':booking.amount_paid>0?'Partial':'Unpaid';saveRows('bookings',STORAGE.getAll('bookings'));}
       }
       return result;
     };
@@ -264,7 +305,7 @@
   API.getGallery=()=>cachedRead('gallery');
   API.getCustomers=async()=>{
     const [customers,bookings]=await Promise.all([cachedRead('customers'),API.getBookings()]);
-    return customers.map(customer=>{const related=bookings.filter(booking=>String(booking.customer_id)===String(customer._server_id||ref('customers',customer.customer_id))||booking.contact===customer.contact);return {...customer,bookings_count:related.length,total_spent:related.reduce((sum,booking)=>sum+Number(booking.amount_paid||0),0),type:related[0]?.customer_type||customer.type||'Guest / No Account'};});
+    return customers.map(customer=>{const customerId=customer._server_id||ref('customers',customer.customer_id);const related=bookings.filter(booking=>String(booking.customer_id)===String(customerId));return {...customer,bookings_count:related.length,total_spent:related.reduce((sum,booking)=>sum+Number(booking.amount_paid||0),0),type:related[0]?.customer_type||customer.type||'Guest / No Account'};});
   };
   const refreshObject=entity=>read(entity,'get').then(data=>{
     if(!data||typeof data!=='object'||Array.isArray(data)||queue().some(op=>op.entity===entity))return data;
@@ -320,23 +361,30 @@
     }catch(error){emit('api-read-error',{entity:'deposits',message:error.message});return await API.getDeposit(id);}
   };
   API.upsertDeposit=async(id,data)=>{
-    const held=Number(data.amount_held),ded=Number(data.deduction_amount||0);
-    if(!Number.isFinite(held)||!Number.isFinite(ded)||held<0||ded<0||ded>held||(ded>0&&!String(data.deduction_reason||'').trim()))throw new Error('Enter non-negative amounts, keep deductions within the deposit, and give a reason for deductions.');
-    const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));const result={...data,booking_id:id,deductions:[],deduction_amount:ded,refund_amount:held-ded,refund_status:'Held',pending_sync:true};rows.push(result);saveRows('deposits',rows);enqueue('deposits','upsert',result,id);return result;
+    const heldCents=moneyCents(data.amount_held),dedCents=moneyCents(data.deduction_amount||0);
+    if(heldCents<=0)throw new Error('Held deposit amount must be greater than zero.');
+    if(dedCents>heldCents||(dedCents>0&&!String(data.deduction_reason||'').trim()))throw new Error('Enter non-negative amounts, keep deductions within the deposit, and give a reason for deductions.');
+    const existing=await API.getDeposit(id),existingCents=moneyCents(existing.amount_held||0);
+    const repairableZero=Boolean(existing.deposit_id)&&existingCents===0&&String(existing.refund_status||'Held')==='Held'&&!existing.refund_date&&moneyCents(existing.deduction_amount||0)===0&&!(existing.deductions||[]).length;
+    if((existing.deposit_id||existing.pending_sync)&&heldCents!==existingCents&&!repairableZero)throw new Error('An existing held amount cannot be overwritten.');
+    const held=heldCents/100,ded=dedCents/100,refund=(heldCents-dedCents)/100;
+    const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));const result={...data,booking_id:id,amount_held:held,deductions:[],deduction_amount:ded,refund_amount:refund,refund_status:'Held',pending_sync:true};rows.push(result);saveRows('deposits',rows);enqueue('deposits','upsert',result,id);return result;
   };
   API.addDepositDeduction=async(id,data)=>{
-    const deposit=await API.getDeposit(id),amount=Number(data.amount),held=Number(deposit.amount_held||0),current=Number(deposit.deduction_amount||0);
+    const deposit=await API.getDeposit(id),amountCents=moneyCents(data.amount),heldCents=moneyCents(deposit.amount_held||0),currentCents=moneyCents(deposit.deduction_amount||0);
     if(!deposit.deposit_id&&!deposit.pending_sync)throw new Error('Save the held deposit before adding deductions.');
-    if(!Number.isFinite(amount)||amount<=0||!String(data.affected_item||'').trim()||!String(data.reason||'').trim()||current+amount>held)throw new Error('Enter an affected item, reason, and amount within the held deposit.');
+    if(amountCents<=0||!String(data.affected_item||'').trim()||!String(data.reason||'').trim()||currentCents+amountCents>heldCents)throw new Error('Enter an affected item, reason, and amount within the held deposit.');
+    const amount=amountCents/100;
     const deduction={deduction_id:'LOCAL-deduction-'+uuid(),affected_item:data.affected_item,reason:data.reason,amount,recorded_at:new Date().toISOString(),pending_sync:true};
-    Object.assign(deposit,{deductions:[...(deposit.deductions||[]),deduction],deduction_amount:current+amount,refund_amount:held-current-amount,pending_sync:true});
+    Object.assign(deposit,{deductions:[...(deposit.deductions||[]),deduction],deduction_amount:(currentCents+amountCents)/100,refund_amount:(heldCents-currentCents-amountCents)/100,pending_sync:true});
     saveRows('deposits',STORAGE.getAll('deposits').map(row=>String(row.booking_id)===String(id)?deposit:row));
     enqueue('deposits','deduct',{booking_id:id,affected_item:data.affected_item,reason:data.reason,amount},id);return deposit;
   };
   API.refundDeposit=async id=>{
     const deposit=await API.getDeposit(id);
     if(Number(deposit.refund_amount||0)<=0)throw new Error('No refundable balance remains for this deposit.');
-    Object.assign(deposit,{refund_status:'Refunded',refund_date:new Date().toISOString(),pending_sync:true});
+    if(queue().some(operation=>operation.entity==='deposits'&&operation.action==='refund'&&(String(operation.local_id)===String(id)||String(operation.data?.booking_id)===String(id))))throw new Error('This deposit refund is already pending synchronization.');
+    Object.assign(deposit,{refund_pending:true,pending_sync:true});
     saveRows('deposits',STORAGE.getAll('deposits').map(row=>String(row.booking_id)===String(id)?deposit:row));
     enqueue('deposits','refund',{booking_id:id},id);return deposit;
   };
@@ -375,7 +423,18 @@
   API.ready=STORAGE.restoreCache().catch(error=>{emit('api-read-error',{entity:'offline cache',message:error.message});});
   API.retrySyncOperation=(id,patch={})=>{
     const op=queue().find(r=>r.client_id===id);if(!op)return;
-    op.data={...op.data,...patch};if(op.conflict_kind==='stale'&&op.server_record&&op.data._base)Object.keys(op.data._base).forEach(k=>op.data._base[k]=op.server_record[k]);
+    const corrected={...op.data,...patch};
+    if(op.entity==='payments'){
+      const old=STORAGE.getAll('payments').find(row=>String(row.payment_id)===String(op.local_id));
+      validatePaymentDraft(corrected,old);
+      corrected.amount=centsDecimal(moneyCents(corrected.amount));
+      if(old){Object.assign(old,corrected,{pending_sync:true});saveRows('payments',STORAGE.getAll('payments'));}
+    }
+    if(op.entity==='deposits'){
+      const field=op.action==='upsert'?'amount_held':'amount';
+      if(field in corrected){const cents=moneyCents(corrected[field]);if(cents<=0)throw new Error('Enter an amount greater than zero.');corrected[field]=centsDecimal(cents);}
+    }
+    op.data=corrected;if(op.conflict_kind==='stale'&&op.server_record&&op.data._base)Object.keys(op.data._base).forEach(k=>op.data._base[k]=op.server_record[k]);
     op.status='pending';delete op.reason;delete op.server_record;persist(op);
     queue().filter(r=>r.status==='failed'&&r.reason?.startsWith('Related ')).forEach(r=>{r.status='pending';persist(r);});
     return API.flushSyncQueue();
@@ -391,9 +450,13 @@
         const data=await request('sync','commit',{queue:batch.map(op=>({...op,data:op.data}))});
         for(const ack of data.committed||[]){
           const op=batch.find(r=>r.client_id===ack.client_id);if(!op)continue;
+          if(op.entity==='deposits')applyAcceptedDeposit(op,ack.data);
           if(ack.server_id&&op.action==='create'){
             const aliases=STORAGE._get('er_sync_ids',{});aliases[op.entity+':'+op.local_id]=ack.server_id;STORAGE._set('er_sync_ids',aliases);
-            const rows=STORAGE.getAll(op.entity);const row=rows.find(r=>String(r[fields[op.entity]])===String(op.local_id));if(row){row._server_id=ack.server_id;STORAGE.saveAll(op.entity,rows);}
+            remapAcceptedId(op.entity,op.local_id,ack.server_id,ack.data);
+            if(!['bookings','payments'].includes(op.entity)){
+              const rows=STORAGE.getAll(op.entity);const row=rows.find(r=>String(r[fields[op.entity]])===String(op.local_id));if(row){row._server_id=ack.server_id;STORAGE.saveAll(op.entity,rows);}
+            }
           }
           localStorage.removeItem(prefix+op.client_id);
         }
