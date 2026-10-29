@@ -72,9 +72,34 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     if ($old && $old['status'] === 'Confirmed' && $status === 'Pending') domainFail('A confirmed booking must be cancelled with a reason to stop reserving its service.',409,'invalid_transition');
     if ($status === 'Cancelled') {
         $reason = trim((string)($body['cancellation_reason'] ?? ''));
-        if (!$reason) domainFail('A cancellation reason is required.');
-        $pdo->prepare("UPDATE bookings SET status='Cancelled',cancellation_reason=? WHERE booking_id=?")->execute([$reason,$id]);
-        auditWrite($pdo,$ownerId,'cancellation','booking',$id,$reason,$old['status'],'Cancelled');
+
+        if (!$reason) {
+            domainFail('A cancellation reason is required.');
+        }
+
+        requireEquipmentRecoveryBeforeCancellation(
+            $pdo,
+            (int)$old['booking_id']
+        );
+
+        $pdo->prepare(
+            "UPDATE bookings
+            SET status='Cancelled',
+                cancellation_reason=?
+            WHERE booking_id=?"
+        )->execute([$reason, $id]);
+
+        auditWrite(
+            $pdo,
+            $ownerId,
+            'cancellation',
+            'booking',
+            $id,
+            $reason,
+            $old['status'],
+            'Cancelled'
+        );
+
         return $id;
     }
     $customerId = entityId($body['customer_id'] ?? ($old['customer_id'] ?? null));
@@ -109,7 +134,7 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     if (!$location || strlen($location)>255) domainFail('Event location must contain 1 to 255 bytes.');
     $package = null;
     if ($packageId) {
-        $q = $pdo->prepare('SELECT * FROM packages WHERE package_id=? AND service_id=?');
+        $q = $pdo->prepare('SELECT * FROM packages WHERE package_id=? AND service_id=? FOR UPDATE');
         $q->execute([$packageId,$serviceId]);
         $package = $q->fetch();
         if (!$package) domainFail('Package does not belong to the selected service.');
@@ -123,21 +148,21 @@ function saveBooking(PDO $pdo, string $action, ?int $id, array $body, int $owner
     $snapshotPrice = $packageChanged ? ($package['price'] ?? null) : $old['package_price_snapshot'];
     $totals = $old && !$packageChanged && !array_intersect(['addon_ids','discount','fees'],array_keys($body)) ? ['subtotal'=>$old['subtotal'],'addons_total'=>$old['addons_total'],'total'=>$old['total']] : calculateBookingTotals($pdo,$serviceId,$packageId,$addons,$discount,$fees,$snapshotPrice);
     $agreed = centsDecimal(moneyCents($body['agreed_total'] ?? $body['total'] ?? ($old['agreed_total'] ?? $totals['total'])));
-        if ($old) {
-            $completedCents = completedBookingPaymentsCents(
-                $pdo,
-                (int)$old['booking_id']
-            );
-            $agreedCents = moneyCents($agreed);
+    if ($old) {
+        $completedCents = completedBookingPaymentsCents(
+            $pdo,
+            (int)$old['booking_id']
+        );
+        $agreedCents = moneyCents($agreed);
 
-            if ($agreedCents < $completedCents) {
-                domainFail(
-                    'Agreed total cannot be less than completed rental payments.',
-                    409,
-                    'collected_payments_exceed_total'
-                );
-            }
+        if ($agreedCents < $completedCents) {
+            domainFail(
+                'Agreed total cannot be less than completed rental payments.',
+                409,
+                'collected_payments_exceed_total'
+            );
         }
+    }
     $conflicts = ['bookings'=>[],'blocks'=>[]];
     $reason = '';
     $changedReservation = !$old || $old['status'] !== $status || (int)$old['service_id'] !== $serviceId || $old['blocked_start_datetime'] !== $blockedStart || $old['blocked_end_datetime'] !== $blockedEnd;

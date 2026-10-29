@@ -119,6 +119,7 @@ All database connection overrides:
 
 ```powershell
 $env:AKAD_DB_HOST = 'localhost'
+$env:AKAD_DB_PORT = '3306'
 $env:AKAD_DB_NAME = 'akad_rentals'
 $env:AKAD_DB_USER = 'root'
 $env:AKAD_DB_PASS = 'your-password-here'
@@ -153,6 +154,14 @@ Requires Node.js 20+. Start MySQL first.
 ```powershell
 node tests/run_backend_acceptance.cjs
 ```
+
+**Focused safeguard tests:**
+```powershell
+node tests/run_revised_backend.cjs test_fixes.php
+node tests/run_revised_backend.cjs test_booking_flow.php
+```
+
+The PHP files intentionally refuse direct access unless `AKAD_TEST_DB_NAME` and `AKAD_DB_NAME` identify the same runner-owned synthetic database. This prevents `php test_fixes.php` or `php test_booking_flow.php` from accidentally using the normal local database.
 
 **Frontend tests:**
 ```powershell

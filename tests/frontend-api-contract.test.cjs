@@ -318,12 +318,39 @@ test('the facade exposes methods required by current pages and the sync UI', () 
   const required = [
     'getItemHistory', 'getBooking', 'getPaymentsForBooking', 'getSettings',
     'getWebsiteContent', 'refreshSharedData', 'flushSyncQueue', 'savedMessage',
+    'requestBookingCancellation',
     'getDeposit', 'upsertDeposit', 'getDelivery', 'upsertDelivery', 'finalizeReturn'
   ];
 
   for (const name of required) {
     assert.equal(typeof context.API[name], 'function', `API.${name} must exist`);
   }
+});
+
+test('offline cancellation stays active locally until the server accepts it', async () => {
+  const { context, collections } = createHarness();
+  collections.bookings.push({
+    id: 'BK-001',
+    status: 'Confirmed',
+    pending_sync: false
+  });
+  context.navigator.onLine = false;
+
+  const submission = await context.API.requestBookingCancellation(
+    'BK-001',
+    'Customer requested cancellation'
+  );
+
+  assert.equal(submission.status, 'Confirmed');
+  assert.equal(submission.cancellation_pending, true);
+  assert.equal(collections.bookings[0].status, 'Confirmed');
+  assert.equal(collections.bookings[0].pending_sync, true);
+  const operation = context.API.getSyncQueue().find(
+    item => item.client_id === submission.operation_id
+  );
+  assert.equal(operation.data.status, 'Cancelled');
+  assert.equal(operation.data._base.status, 'Confirmed');
+  assert.equal(await context.API.flushSyncQueue(), null);
 });
 
 test('pending offline payments remain keyed by the exact local booking ID', async () => {
@@ -348,9 +375,15 @@ test('pending offline payments remain keyed by the exact local booking ID', asyn
     { id: pendingBookingId, amount_paid: 250 },
     pending
   );
+  const outstanding = await context.PaymentsHelper.totalOutstanding([
+    { id: 'active', status: 'Confirmed', total: 1000, amount_paid: 600 },
+    { id: 'cancelled', status: 'Cancelled', total: 2000, amount_paid: 0 },
+    { id: 'paid', status: 'Completed', total: 500, amount_paid: 500 },
+  ], new Map());
 
   assert.equal(pending.get(pendingBookingId), 250);
   assert.equal(accepted, 0, 'queued local payments must not count as server-accepted revenue');
+  assert.equal(outstanding, 400, 'cancelled bookings must not contribute to outstanding balances');
 });
 
 test('itemized deposit deduction and refund actions remain in the offline outbox', async () => {

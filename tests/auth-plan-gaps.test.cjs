@@ -8,7 +8,7 @@ const bases = [process.env.AKAD_TEST_BASE_URL,process.env.AKAD_TEST_BASE_URL_2];
 assert.ok(bases.every(base=>/^http:\/\/127\.0\.0\.1:\d+\/$/.test(base || '')));
 function sql(statement) {
   const result = spawnSync(process.env.AKAD_TEST_MYSQL || 'C:/xampp/mysql/bin/mysql.exe',[
-    '--host',process.env.AKAD_DB_HOST || 'localhost','--user',process.env.AKAD_DB_USER || 'root','--batch','--skip-column-names',database,
+    '--host',process.env.AKAD_DB_HOST || 'localhost','--port',process.env.AKAD_DB_PORT || '3306','--user',process.env.AKAD_DB_USER || 'root','--batch','--skip-column-names',database,
   ],{input:statement,encoding:'utf8',windowsHide:true,env:{...process.env,MYSQL_PWD:process.env.AKAD_DB_PASS || ''}});
   assert.ifError(result.error);
   assert.equal(result.status,0,result.stderr);

@@ -1,6 +1,6 @@
 ---
 title: "Payments and Deposits"
-date: 2026-10-19
+date: 2026-10-29
 tags:
   - akad
   - system-understanding
@@ -60,6 +60,7 @@ The two lines stay separate on purpose: rental payments reduce the rental balanc
 - Deposits and deductions do not count as rental revenue.
 - The application records money events; it does not contact GCash, MariBank, a bank, or a refund gateway.
 - A Completed payment cannot exceed the remaining booking balance. Record the exact remaining amount instead; a separate credit/refund workflow would require a new approved policy.
+- If a correction makes a reviewed Completed booking unpaid, the payment and lifecycle change commit together: the booking returns to Awaiting Payment, keeps its completed equipment review, clears its completion time, and opens an owner notification for the exact balance.
 
 ### Remember This
 

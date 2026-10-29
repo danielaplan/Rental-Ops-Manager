@@ -305,7 +305,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingTitle" aria-hidden="true"><div class="modal-dialog"><form class="modal-content" id="cancelBookingForm"><div class="modal-header"><h5 class="modal-title" id="cancelBookingTitle">Cancel booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>This keeps the booking in history and releases its reserved schedule.</p><label class="form-label" for="cancellationReason">Cancellation reason</label><textarea class="form-control" id="cancellationReason" rows="3" maxlength="5000" required></textarea><div id="cancellationError" class="text-danger small mt-2" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button><button type="submit" class="btn btn-danger">Confirm cancellation</button></div></form></div></div>
+<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingTitle" aria-hidden="true"><div class="modal-dialog"><form class="modal-content" id="cancelBookingForm"><div class="modal-header"><h5 class="modal-title" id="cancelBookingTitle">Cancel booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>This keeps the booking in history and releases its reserved schedule. If equipment has already been dispatched, record every returned quantity and incoming condition in the Return tab before cancelling.</p><label class="form-label" for="cancellationReason">Cancellation reason</label><textarea class="form-control" id="cancellationReason" rows="3" maxlength="5000" required></textarea><div id="cancellationError" class="text-danger small mt-2" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button><button type="submit" class="btn btn-danger">Confirm cancellation</button></div></form></div></div>
 
 <div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingTitle" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -470,7 +470,20 @@ adminReady(async function () {
     event.preventDefault(); const reason=$('#cancellationReason').val().trim();
     if(!reason){$('#cancellationError').text('Enter a cancellation reason.').prop('hidden',false);return;}
     const button=$(this).find('[type=submit]').prop('disabled',true);
-    try{await API.updateBooking(currentBookingId,{status:'Cancelled',cancellation_reason:reason});bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal')).hide();await renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());showAdminToast(API.savedMessage());}
+    try{
+      const items=await API.getBookingItems(currentBookingId);
+      const unresolved=items.some(item=>Number(item.released_qty||0)>0&&(
+        Number(item.returned_qty||0)<Number(item.released_qty||0)||
+        !String(item.condition||item.condition_in||'').trim()||
+        !['inspected','damaged'].includes(String(item.return_status||'pending').toLowerCase())
+      ));
+      if(unresolved)throw new Error('Equipment has already been dispatched. Record the returned quantity and condition for every released item in the Return tab before cancelling this booking.');
+      const submission=await API.requestBookingCancellation(currentBookingId,reason);
+      const syncResult=await API.flushSyncQueue();
+      const rejected=[...(syncResult?.failed||[]),...(syncResult?.conflicts||[])].find(item=>item.client_id===submission?.operation_id);
+      if(rejected){API.discardSyncOperation?.(submission.operation_id);await API.refreshSharedData();throw new Error(rejected.reason||'The server rejected this cancellation.');}
+      bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal')).hide();await renderBookingsTable($('#filterStatus').val(),$('#filterSearch').val());showAdminToast(syncResult===null?'Cancellation is pending server validation; the booking remains active until accepted.':API.savedMessage());
+    }
     catch(error){$('#cancellationError').text(error.message).prop('hidden',false);}
     finally{button.prop('disabled',false);}
   });

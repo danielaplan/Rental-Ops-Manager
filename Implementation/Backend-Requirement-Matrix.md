@@ -2,6 +2,18 @@
 
 Completion pass: 2026-10-15. This matrix supplements the revised backend plan and supersedes older blanket completion claims. **Implemented** describes repository code; **locally verified** describes only the synthetic environment below. Neither means operational migration, client acceptance, or production readiness.
 
+## Financial, equipment-history, catalog, and balance safeguards — 2026-10-29
+
+| Finding | Status | Current verification |
+| --- | --- | --- |
+| Booking price can fall below collected payments | **Done** | PHP negative test plus finance HTTP regression: ₱800 collected rejects ₱500 and retains ₱1,000 / ₱800 / ₱200. |
+| Payment correction leaves an unpaid booking Completed | **Done** | PHP lifecycle and booking HTTP regression: ₱1,000 corrected to ₱600 reopens Awaiting Payment with ₱400 due, audit, notification, and retained review. |
+| Cancellation after dispatch blocks returns | **Done** | PHP negative/positive tests plus booking regression; offline request remains active until server acceptance. |
+| Moving packages breaks existing bookings | **Done** | PHP negative/positive tests plus catalog regression; referenced move is rejected and unreferenced move succeeds. |
+| Balance alignment across views | **Done** | Finance regression and frontend contract/harness confirm one lifetime non-Cancelled rule across Payments, Dashboard, Reports, and backend reporting. |
+
+The isolated PHP unit file passed 4/4 and its lifecycle file passed 1/1. The consolidated non-migration acceptance runner passed all nine backend/sync suites, all 19 offline integration checks, all 54 frontend harness tests, syntax, and whitespace checks. The run wrote local evidence under the intentionally ignored `tests/acceptance-results/1793269532066-15628/` directory. This is synthetic local evidence, not a physical-browser, device, production, or client-acceptance result.
+
 ## Awaiting Payment policy completion — 2026-10-16
 
 The approved unpaid-balance policy is implemented across the shared release service, direct API, offline sync, notifications, reports, admin labels and tests. Complete return review releases service capacity. An unpaid booking becomes `Awaiting Payment`, remains incomplete, and shows the exact balance/action notice. Only completed rental payments covering the agreed total permit the later `Completed` transition. The complete non-migration runner passed on synthetic `akad_verify_plan_1792150757195_24148`: 9 backend/sync test files, 17/17 offline checks, 36/36 frontend tests, syntax and diff checks. [Evidence](../tests/acceptance-results/1792150756830-33488/summary.json).

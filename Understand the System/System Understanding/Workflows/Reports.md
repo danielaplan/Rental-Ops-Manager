@@ -1,6 +1,6 @@
 ---
 title: "Reports and Audit History"
-date: 2026-10-17
+date: 2026-10-29
 tags:
   - akad
   - system-understanding
@@ -60,6 +60,7 @@ The diagram groups the source records by purpose: payments feed revenue, booking
 - Completed and cancellation totals are lifetime in `reportsBookings()`, while upcoming is period-filtered; definitions in the response disclose this.
 - `damaged_or_missing` is a global checklist count in the compatibility report field.
 - Dashboard inventory counts are placeholders set to zero.
+- Payments, Dashboard, and Reports use the same lifetime outstanding-balance rule. Date filters still control the other report activity figures; pending-sync payments are disclosed separately until accepted by the server.
 - Production reconciliation and representative-data performance remain external acceptance work.
 
 ### Remember This

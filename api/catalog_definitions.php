@@ -30,6 +30,20 @@ function packageCrudDefinition(): array {
     $q = db()->prepare('SELECT 1 FROM services WHERE service_id=?');
     $q->execute([$service]);
     if (!$q->fetchColumn()) domainFail('Service not found.');
+    if ($old && (int)$old['service_id'] !== $service) {
+        // tableCrudSave already holds the package row lock. Booking saves lock the
+        // same package row before creating a reference, so this read can remain
+        // non-locking and avoids reversing the booking -> package lock order.
+        $q = db()->prepare('SELECT booking_id FROM bookings WHERE package_id=? ORDER BY booking_id LIMIT 1');
+        $q->execute([(int)$old['package_id']]);
+        if ($q->fetchColumn()) {
+            domainFail(
+                'This package is used by existing bookings and cannot be moved to another service. Create a new package for the other service instead.',
+                409,
+                'package_service_locked'
+            );
+        }
+    }
     if (!is_string($record['package_name'] ?? null) || trim($record['package_name'])==='' || strlen($record['package_name'])>100) domainFail('Package name must contain 1 to 100 bytes.');
     if (!in_array($record['status'] ?? '',['Active','Inactive'],true)) domainFail('Invalid package status.');
     if (!array_key_exists('price',$record)) domainFail('Package price is required.');

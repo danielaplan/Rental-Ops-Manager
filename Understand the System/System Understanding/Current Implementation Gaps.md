@@ -1,6 +1,6 @@
 ---
 title: "Current Implementation Gaps"
-date: 2026-10-17
+date: 2026-10-29
 tags:
   - akad
   - system-understanding
@@ -21,7 +21,7 @@ status: current-source-reviewed
 | Offline receipts | All receipts/ID maps share growing JSON in `APP_SETTINGS` row 2. | Sync commits serialize on one row and no retention policy exists. |
 | Stale detection | Sync `_base` checks selected booking reservation fields. | It is not general conflict detection for every field/entity. |
 | Accounting | The app records payments, refunds, deposits, and deductions. | It does not move money or replace formal accounting/reconciliation. |
-| Reports | Revenue is Completed payments by payment date; some totals are lifetime, compatibility damaged/missing is global, dashboard inventory is zero. | Read returned metric definitions and do not overstate date filters. |
+| Reports | Revenue is Completed payments by payment date; outstanding balance is lifetime and excludes Cancelled bookings; compatibility damaged/missing is global; dashboard inventory is zero. | Date filters do not change the lifetime outstanding balance. Read returned metric definitions and do not overstate date filters. |
 | Inventory | Checklists record expected/released/returned quantities. | They do not reserve or decrement a real-time stock pool. |
 | Setup | Schema uses `IF NOT EXISTS` tables plus bare indexes; PHP/SQL table-name case differs. | Validate reruns and host configuration. |
 | Deployment | TLS/origins, scheduler, representative performance, devices, backups, and client acceptance are external. | Local passing tests do not equal production readiness. |

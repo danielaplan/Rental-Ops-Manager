@@ -233,7 +233,7 @@
       if(entity==='bookings'&&action==='update'&&old){
         data._base={};['status','event_date','start_time','end_time','event_location'].filter(key=>key in data).forEach(key=>data._base[key]=old[key]??old.location);
       }
-      enqueue(entity,action,data,localId);
+      const operation=enqueue(entity,action,data,localId);
         if(entity==='bookings'&&action==='create'){
           upsertLocalCustomer(result);generateLocalChecklist(localId,result.service_ids||[],result.package_id);
         enqueue('bookingItems','generate',{booking_id:localId,service_ids:data.service_ids||[]},localId);
@@ -246,7 +246,7 @@
         const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(result.booking_id));
         if(booking){booking.amount_paid=STORAGE.getAll('payments').filter(row=>String(row.booking_id)===String(result.booking_id)&&String(row.payment_status||'Completed')==='Completed').reduce((sum,row)=>sum+Number(row.amount||0),0);booking.payment_status=booking.amount_paid>=Number(booking.total||0)?'Fully Paid':booking.amount_paid>0?'Partial':'Unpaid';saveRows('bookings',STORAGE.getAll('bookings'));}
       }
-      return result;
+      return {...result,operation_id:operation.client_id};
     };
   });
   const cachedRead=async(entity,action='all',query='',scope)=>{await read(entity,action,query,scope);return STORAGE.getAll(entity);};
@@ -258,6 +258,21 @@
   API.getAddonsForService=async id=>(await API.getAddons()).filter(row=>String(row.service_id)===String(id)&&row.status==='Active');
   API.getBookings=()=>cachedRead('bookings');
   API.getBooking=async id=>(await API.getBookings()).find(row=>String(row.id)===String(id))||null;
+  API.requestBookingCancellation=async(id,reason)=>{
+    const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(id));
+    if(!booking)throw new Error('Booking not found on this device.');
+    const cancellationReason=String(reason||'').trim();
+    if(!cancellationReason)throw new Error('A cancellation reason is required.');
+    const operation=enqueue('bookings','update',{
+      id,
+      status:'Cancelled',
+      cancellation_reason:cancellationReason,
+      _base:{status:booking.status}
+    },id);
+    booking.pending_sync=true;
+    saveRows('bookings',STORAGE.getAll('bookings'));
+    return {...booking,cancellation_pending:true,operation_id:operation.client_id};
+  };
   API.getPayments=()=>cachedRead('payments');
   API.getRentalItems=()=>cachedRead('rentalItems');
   API.getRentalItemsForService=async id=>(await API.getRentalItems()).filter(row=>String(row.service_id)===String(id));
@@ -362,6 +377,11 @@
     return record;
   };
   API.getSyncQueue=queue;
+  API.discardSyncOperation=id=>{
+    const operation=queue().find(row=>row.client_id===id);
+    if(!operation)return null;
+    localStorage.removeItem(prefix+id);reads.clear();emit('sync-state-changed');return operation;
+  };
   API.ready=STORAGE.restoreCache().catch(error=>{emit('api-read-error',{entity:'offline cache',message:error.message});});
   API.retrySyncOperation=(id,patch={})=>{
     const op=queue().find(r=>r.client_id===id);if(!op)return;

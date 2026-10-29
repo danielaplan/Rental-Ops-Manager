@@ -77,7 +77,10 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   assert.equal(typeof dashboard.awaiting_payment_bookings,'number');
   assert.ok(Array.isArray(dashboard.upcoming_bookings));
   const cancelled = (await book()).data;
+  const outstandingBeforeCancellation = Number((await request(`api/reports.php?do=report&${period}`)).data.balances.outstanding_balances);
   await request(`api/bookings.php?do=cancel&id=${cancelled.booking_id}`,{cancellation_reason:'Synthetic retained cancellation'});
+  const outstandingAfterCancellation = Number((await request(`api/reports.php?do=report&${period}`)).data.balances.outstanding_balances);
+  assert.equal(outstandingBeforeCancellation-outstandingAfterCancellation,500,'Cancelled bookings are excluded from outstanding balances');
   const cancelledRows = (await request(`api/reports.php?do=cancellations&${period}`)).data;
   assert.equal(cancelledRows.length,1);
   assert.equal(Number(cancelledRows[0].booking_id),Number(cancelled.booking_id));
@@ -96,6 +99,16 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'11.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'10.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},201);
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'0.01',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
+  const protectedBooking = (await book({agreed_total:'1000.00'})).data;
+  await request('api/payments.php?do=create',{
+    booking_id:protectedBooking.booking_id,amount:'800.00',payment_method:'GCash',payment_status:'Completed',payment_date:`${start} 00:00:00`,
+  },201);
+  const rejectedPrice = await request(`api/bookings.php?do=update&id=${protectedBooking.booking_id}`,{agreed_total:'500.00'},409);
+  assert.equal(rejectedPrice.code,'collected_payments_exceed_total');
+  const afterRejectedPrice = (await request(`api/bookings.php?do=get&id=${protectedBooking.booking_id}`)).data;
+  assert.equal(Number(afterRejectedPrice.agreed_total),1000);
+  assert.equal(Number(afterRejectedPrice.amount_paid),800);
+  assert.equal(Number(afterRejectedPrice.outstanding_balance),200);
   const empty = (await request('api/reports.php?do=report&start=2000-09-01&end=2000-09-30')).data;
   assert.equal(Number(empty.total_revenue_collected),0);
   for (const kind of ['upcoming','cancellations','overlaps']) await request(`api/reports.php?do=${kind}&start=bad&end=${end}`,undefined,400);

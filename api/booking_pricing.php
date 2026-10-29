@@ -7,14 +7,19 @@
 function completedBookingPaymentsCents(PDO $pdo, int $bookingId): int
 {
     $query = $pdo->prepare(
-        "SELECT COALESCE(SUM(amount), 0)
+        "SELECT amount
          FROM payments
          WHERE booking_id = ?
-           AND payment_status = 'Completed'"
+           AND payment_status = 'Completed'
+         ORDER BY payment_id
+         FOR UPDATE"
     );
     $query->execute([$bookingId]);
-
-    return moneyCents($query->fetchColumn());
+    $total = 0;
+    foreach ($query->fetchAll(PDO::FETCH_COLUMN) as $amount) {
+        $total += moneyCents($amount);
+    }
+    return $total;
 }
 
 function bookingBalanceCents(

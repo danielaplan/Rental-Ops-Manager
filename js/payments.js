@@ -51,6 +51,15 @@ const PaymentsHelper = {
     return Math.max(Number(booking.total || 0) - await PaymentsHelper.acceptedAmountPaid(booking, pendingAmounts), 0);
   },
 
+  async totalOutstanding(bookings, pendingAmounts) {
+    let total = 0;
+    for (const booking of bookings) {
+      if (String(booking.status || '').toLowerCase() === 'cancelled') continue;
+      total += await PaymentsHelper.remainingBalance(booking, pendingAmounts);
+    }
+    return total;
+  },
+
   recordPayment(bookingId, amount, method, notes, details = {}) {
     const paymentAmount = Number(amount);
     if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) return Promise.resolve(null);

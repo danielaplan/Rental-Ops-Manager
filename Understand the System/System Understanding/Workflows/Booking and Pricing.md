@@ -1,6 +1,6 @@
 ---
 title: "Booking and Pricing"
-date: 2026-10-19
+date: 2026-10-29
 tags:
   - akad
   - system-understanding
@@ -65,6 +65,8 @@ The diagram shows how the selected package, add-ons, discount, and fees lead to 
 - Cancelling requires a reason and retains linked history. A confirmed booking cannot move back to Pending.
 - Pending and Confirmed are the only create states. Post-event states require the release workflow.
 - Delivery fees are stored separately and are not automatically added to the booking total.
+- An agreed total cannot be reduced below the sum of Completed rental payments.
+- A package already referenced by a booking cannot be moved to another service; create a new package for that service instead. Existing booking name and price snapshots remain unchanged by ordinary catalog edits.
 
 ### Remember This
 
