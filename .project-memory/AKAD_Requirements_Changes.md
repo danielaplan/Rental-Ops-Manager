@@ -8,6 +8,12 @@ metadata:
   modified: 2026-10-16
 ---
 
+## Online-first limited offline recovery — 2026-10-30
+
+Offline synchronization is now a recovery-only outbox. The browser queues new booking drafts, checklist generation/edits, and return-inspection drafts; authoritative money, approval, lifecycle-finalization, delivery, catalog, settings/content, and owner writes use direct online endpoints. `api/sync.php` enforces the same allowlist and returns `online_required` for disallowed replay, including requests from older clients. The booking UI marks online-required controls while offline, and the sync panel explains that drafts are not official until accepted.
+
+Focused frontend contract/workflow checks, backend allowlist checks, offline conflict/idempotency checks, and syntax checks passed on isolated synthetic databases. The complete acceptance result is recorded in the dated development journal after its final rerun. No schema change or migration was required; no normal development, Hostinger, staging, production, or operational database was used.
+
 ## Awaiting Payment workflow implemented — 2026-10-16
 
 Added the approved two-stage post-event completion workflow. Complete return review releases service capacity. If completed rental payments are below `agreed_total`, the booking becomes `Awaiting Payment`, keeps an actionable owner notification and exact balance, rejects checklist/ordinary booking edits, and rejects completion. Once completed payments cover the total, an owner completion action records `Completed`, time and audit and resolves the notice. Direct API and offline replay use the same service. Dashboard/report counts and admin labels expose the state; upcoming availability excludes released bookings.

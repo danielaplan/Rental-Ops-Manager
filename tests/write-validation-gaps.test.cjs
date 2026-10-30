@@ -21,7 +21,7 @@ async function client() {
   return request;
 }
 
-test('sync rejects non-text deduction reasons atomically and permits a corrected retry', async () => {
+test('sync rejects every deposit replay before it can write money', async () => {
   const request = await client();
   const booking = await request('api/bookings.php?do=create', {
     customer_name: 'Validation fixture', contact: 'TEST-VALIDATION', service_id: 1,
@@ -39,10 +39,10 @@ test('sync rejects non-text deduction reasons atomically and permits a corrected
     assert.equal(await request(`api/deposits.php?booking_id=${booking.booking_id}`), null);
   }
   operation.data.deduction_reason = 'Synthetic cleaning charge';
-  const saved = await request('api/sync.php?do=commit', { queue: [operation] });
-  assert.equal(saved.failed.length, 0);
-  assert.equal(saved.committed[0].data.deductions[0].reason, operation.data.deduction_reason);
-  assert.deepEqual(await request('api/sync.php?do=commit', { queue: [operation] }), saved);
+  const blocked = await request('api/sync.php?do=commit', { queue: [operation] });
+  assert.equal(blocked.failed.length, 1);
+  assert.match(blocked.failed[0].reason, /requires an internet connection/);
+  assert.equal(await request(`api/deposits.php?booking_id=${booking.booking_id}`), null);
 });
 
 test('direct and sync history reject invalid booking links without appending rows', async () => {

@@ -179,3 +179,7 @@ Use this memory to quickly context future conversations about the AKAD requireme
 # Frontend implementation authorization — 2026-10-17
 
 The user asked to proceed with frontend implementation. This authorizes frontend code, the smallest supporting read-only backend contract required by the frontend, focused tests, isolated synthetic acceptance runs, and plan/memory updates. Preserve offline synchronization, the dirty worktree, and unrelated user changes. FR-10 internal availability blockouts remain deferred. No staging, commit, push, deployment, operational migration, or production-readiness claim is included.
+
+# Online-first limited offline recovery approved — 2026-10-30
+
+The user approved implementing the reimagined offline workflow on branch `codex/online-first-offline-recovery`. This supersedes the earlier broad “preserve offline sync” scope without deleting recovery synchronization. Offline replay is limited to new booking drafts, generated/edited checklist drafts, and return-inspection drafts. Payments, deposits/deductions/refunds, accepted-booking changes and approvals, cancellation, release, finalization, delivery, catalog/inventory/gallery metadata, settings, website content, and owner changes require internet. Reconnection sync remains automatic and **Refresh data and sync** remains available. FR-10 stays deferred. This approval does not authorize deployment, operational data changes, migration, staging, commit, or push.

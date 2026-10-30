@@ -55,7 +55,7 @@ Requests use JSON unless an upload is multipart. Successful responses normally u
 | [settings.php](Files/settings.php.md) | GET get; POST update. | Authenticated read; owner write. |
 | [supporting_service.php](Files/supporting_service.php.md) | saveDelivery(), saveItemHistory(), saveItemRelease(). | Caller supplies authenticated owner. |
 | [sync_state.php](Files/sync_state.php.md) | syncState(), syncReference(), saveSyncReceipt(). | Scoped by authenticated owner in sync transactions. |
-| [sync.php](Files/sync.php.md) | GET queue placeholder; POST commit up to 100 operations, including audited payment updates. | Authenticated owner. |
+| [sync.php](Files/sync.php.md) | GET queue placeholder; POST commit up to 100 booking, checklist, or return-inspection recovery drafts. | Authenticated owner; other writes return `online_required`. |
 | [websiteContent.php](Files/websiteContent.php.md) | GET get; POST update. | Public read; owner write. |
 
 ## Conflict and retry responses

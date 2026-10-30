@@ -53,13 +53,13 @@ test('direct and offline rental deletion retain every historical item link', asy
       const result = (await request('api/sync.php?do=commit', { queue: [operation] })).data;
       assert.equal(result.committed.length, 0);
       assert.equal(result.failed.length, 1);
-      assert.match(result.failed[0].reason, /history/i);
+      assert.match(result.failed[0].reason, /requires an internet connection/i);
     }
     assert.deepEqual((await request(`api/rentalItems.php?do=get&id=${id}`)).data, item);
     assert.equal(sql(`SELECT * FROM ${table} WHERE rental_item_id=${id};`), before);
     assert.equal(sql(`SELECT COUNT(*) FROM audit_logs WHERE record_type='rental_items' AND record_id=${id} AND action='delete';`), '0');
   }
-  for (const mode of ['direct', 'sync']) {
+  for (const mode of ['direct']) {
     const id = (await request('api/rentalItems.php?do=create', { service_id: 1, name: 'Unused item' }, 201)).data.rental_item_id;
     if (mode === 'direct') await request(`api/rentalItems.php?do=delete&id=${id}`, {});
     else {
