@@ -6,15 +6,16 @@ const { test } = require('node:test');
 const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
-test('manual booking uses event-date promotions, reusable customers, and bounded inputs', () => {
+test('manual booking keeps the create form focused and uses service allowance defaults', () => {
   const source = read('admin/manual-booking.html');
-  assert.match(source, /id="mCustomerId"/);
   assert.match(source, /id="mCustName" maxlength="100"/);
   assert.match(source, /id="mCustContact" maxlength="20"/);
-  assert.match(source, /id="mCustEmail" maxlength="100"/);
+  for (const removed of ['mCustomerId','mCustEmail','mCustType','mSource','mEventType','mGuests','mSpecialRequests','mThemeNotes','mPreparation','mTravel']) {
+    assert.doesNotMatch(source, new RegExp(`id="${removed}"`));
+  }
   assert.match(source, /const eventDate = \$\('#mDate'\)\.val\(\)/);
   assert.match(source, /promotion_start_date <= eventDate && p\.promotion_end_date >= eventDate/);
-  assert.match(source, /customer_id: \$\('#mCustomerId'\)\.val\(\) \|\| null/);
+  assert.match(source, /selectedServiceAllowances\(\)/);
   assert.doesNotMatch(source, /conflict_ids|reviewedConflictApproval/);
 });
 

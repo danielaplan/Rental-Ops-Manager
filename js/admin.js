@@ -162,6 +162,63 @@ function getAdminBusinessName(settings) {
   return savedName || CONFIG.businessNameFallback;
 }
 
+function normalizeAdminHexColor(value) {
+  return /^#[0-9a-f]{6}$/i.test(value || '') ? value : null;
+}
+
+function applyAdminAppearance(settings = null) {
+  const saved = settings || STORAGE._get(STORAGE_KEYS.settings, {});
+  const defaults = CONFIG.themeDefaults || { primary: '#8a633f', accent: '#d1a170' };
+  const root = document.documentElement;
+  root?.style?.setProperty('--a-primary', normalizeAdminHexColor(saved.primary_color) || defaults.primary);
+  root?.style?.setProperty('--a-accent', normalizeAdminHexColor(saved.accent_color) || defaults.accent);
+}
+
+function safeAdminImageUrl(value) {
+  if (typeof value !== 'string' || !value.trim()) return '';
+  try {
+    const url = new URL(value.trim(), window.location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch { return ''; }
+}
+
+function setAdminSidebarExpanded(expanded) {
+  const sidebar = document.getElementById('adminSidebar');
+  if (!sidebar?.classList) return;
+  sidebar.classList.toggle('is-expanded', expanded);
+  document.body?.classList?.toggle('admin-sidebar-expanded', expanded);
+  const toggle = document.getElementById('adminSidebarSizeBtn');
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', String(expanded));
+    toggle.setAttribute('aria-label', expanded ? 'Collapse admin sidebar' : 'Expand admin sidebar');
+    toggle.title = expanded ? 'Collapse sidebar' : 'Expand sidebar';
+    const icon = toggle.querySelector('i');
+    if (icon) icon.className = `bi ${expanded ? 'bi-chevron-double-left' : 'bi-chevron-double-right'}`;
+  }
+  try { localStorage.setItem('akad_admin_sidebar_expanded', expanded ? '1' : '0'); } catch {}
+}
+
+function toggleAdminSidebarSize() {
+  const sidebar = document.getElementById('adminSidebar');
+  if (sidebar) setAdminSidebarExpanded(!sidebar.classList.contains('is-expanded'));
+}
+
+function bindAdminSidebarSizeToggle() {
+  let toggle = document.getElementById('adminSidebarSizeBtn');
+  if (!toggle) {
+    toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.id = 'adminSidebarSizeBtn';
+    toggle.className = 'admin-sidebar-edge-toggle';
+    toggle.innerHTML = '<i class="bi bi-chevron-double-right" aria-hidden="true"></i><span class="visually-hidden">Expand sidebar</span>';
+    document.body.appendChild(toggle);
+  }
+  toggle.onclick = toggleAdminSidebarSize;
+  let expanded = false;
+  try { expanded = localStorage.getItem('akad_admin_sidebar_expanded') === '1'; } catch {}
+  setAdminSidebarExpanded(expanded);
+}
+
 function updateAdminSidebarBrand() {
   const brandName = document.querySelector('#adminSidebar .brand-name');
   if (brandName) {
@@ -171,8 +228,11 @@ function updateAdminSidebarBrand() {
 
 async function renderAdminSidebar(activeHref) {
   const settings = await API.getSettings().catch(() => ({}));
+  applyAdminAppearance(settings);
   const businessName = getAdminBusinessName(settings);
-  let html = `<div class="brand"><span class="brand-name">${escapeHtmlA(businessName)}</span><div class="small fw-normal" style="color:rgba(255,255,255,0.5);">Admin Panel</div></div><nav class="nav flex-column pt-2" aria-label="Admin navigation">`;
+  const logo = safeAdminImageUrl(settings.logo || STORAGE._get(STORAGE_KEYS.websiteContent, {}).logo);
+  const brandMark = logo ? `<img src="${escapeHtmlA(logo)}" alt="">` : `<span aria-hidden="true">${escapeHtmlA(businessName.charAt(0).toUpperCase() || 'A')}</span>`;
+  let html = `<div class="brand"><span class="sidebar-brand-mark${logo ? ' has-image' : ''}">${brandMark}</span><span class="sidebar-brand-copy"><span class="brand-name">${escapeHtmlA(businessName)}</span><small>Admin Panel</small></span></div><nav class="nav flex-column pt-2" aria-label="Admin navigation">`;
   ADMIN_NAV.forEach((item, index) => {
     if (item.section) {
       const visibleInSection = ADMIN_NAV.slice(index + 1).some(next => {
@@ -180,16 +240,17 @@ async function renderAdminSidebar(activeHref) {
         return (!OWNER_ONLY_ADMIN_PAGES.has(next.href) || isOwnerAdmin()) &&
           (!PRIMARY_OWNER_ONLY_ADMIN_PAGES.has(next.href) || isPrimaryOwnerAdmin());
       });
-      if (visibleInSection) html += `<div class="nav-section-label">${item.section}</div>`;
+      if (visibleInSection) html += `<div class="nav-section-label"><span>${item.section}</span></div>`;
     } else {
       if (OWNER_ONLY_ADMIN_PAGES.has(item.href) && !isOwnerAdmin()) return;
       if (PRIMARY_OWNER_ONLY_ADMIN_PAGES.has(item.href) && !isPrimaryOwnerAdmin()) return;
       const active = item.href === activeHref ? 'active' : '';
-      html += `<a class="nav-link ${active}" href="${item.href}"><i class="bi ${item.icon}"></i> ${item.label}</a>`;
+      html += `<a class="nav-link ${active}" href="${item.href}" title="${escapeHtmlA(item.label)}"><i class="bi ${item.icon}"></i><span class="nav-label">${item.label}</span></a>`;
     }
   });
-  html += `<a class="nav-link mt-3 border-top border-light border-opacity-25 pt-3" href="#" id="adminLogoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a></nav>`;
+  html += `<a class="nav-link sidebar-logout" href="#" id="adminLogoutBtn" title="Logout"><i class="bi bi-box-arrow-right"></i><span class="nav-label">Logout</span></a></nav>`;
   $('#adminSidebar').html(html);
+  bindAdminSidebarSizeToggle();
   $('#adminLogoutBtn').on('click', function (e) {
     e.preventDefault();
     if (confirm('Log out of the admin panel?')) { AdminAuth.logout(); }
@@ -213,6 +274,7 @@ async function initAdminChrome(activeHref, pageTitle) {
     else window.location.replace('dashboard.html');
     return;
   }
+  applyAdminAppearance();
   if (adminSpaActive) {
     document.querySelectorAll('#adminSidebar .nav-link').forEach(link => {
       link.classList.toggle('active', link.getAttribute('href') === activeHref);
@@ -238,6 +300,10 @@ async function initAdminChrome(activeHref, pageTitle) {
   });
   return true;
 }
+
+window.addEventListener?.('storage', event => {
+  if (event.key === STORAGE_KEYS.settings) applyAdminAppearance();
+});
 
 async function renderActionNotifications() {
   const topbar = document.querySelector('.admin-topbar');
@@ -553,24 +619,82 @@ function statusSelect(currentStatus, options, cssClass) {
   return `<select class="form-select form-select-sm ${cssClass || ''}">${options.map(o => `<option ${o === currentStatus ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
 }
 
+function resolveServicePresentationValue(service, field, content = null) {
+  const websiteContent = content || STORAGE._get(STORAGE_KEYS.websiteContent, {});
+  const map = websiteContent?.[field] || {};
+  const candidates = [service?.service_id, service?._server_id];
+  const serverId = service?._server_id ?? String(service?.service_id || '').match(/(\d+)$/)?.[1];
+  if (serverId !== undefined && serverId !== null && serverId !== '') {
+    candidates.push(`SVC-${String(serverId).padStart(3, '0')}`);
+    const aliases = STORAGE._get('er_sync_ids', {});
+    Object.entries(aliases).forEach(([key, value]) => {
+      if (key.startsWith('services:') && String(value) === String(serverId)) candidates.push(key.slice('services:'.length));
+    });
+  }
+  const key = candidates.find(candidate => candidate != null && map[String(candidate)]);
+  return key == null ? '' : map[String(key)];
+}
+
+function resolveServiceCategoryId(service, content = null) {
+  return service?.category_id || resolveServicePresentationValue(service, 'service_categories', content);
+}
+
+function resolveServiceImageUrl(service, content = null) {
+  return resolveServicePresentationValue(service, 'service_images', content) || service?.image || '';
+}
+
 // Upload through the existing authenticated endpoint, then save the URL normally.
 function attachAdminImageUpload(id) {
   const input = document.getElementById(id);
   const wrap = document.createElement('div');
   wrap.className = 'mt-2';
-  wrap.innerHTML = `<label class="form-label small" for="${id}File">Upload image from your device</label><input type="file" class="form-control" id="${id}File" accept="image/jpeg,image/png,image/gif,image/webp"><div class="form-text" role="status">JPG, PNG, GIF, or WebP; maximum 5 MB. Upload online, then save the form.</div><img alt="Image preview" hidden style="max-width:100%;max-height:140px;object-fit:contain;margin-top:8px">`;
+  wrap.innerHTML = `<label class="form-label small" for="${id}File">Upload image from your device</label><input type="file" class="form-control" id="${id}File" accept="image/jpeg,image/png,image/gif,image/webp"><div class="form-text" role="status">JPG, PNG, GIF, or WebP; maximum 5 MB. Upload online, then save the form.</div><div class="admin-image-preview mt-2" hidden data-image-preview><img alt="Image preview" style="max-height:140px"><button type="button" class="admin-image-preview-close" data-cancel-image-change aria-label="Cancel image change" title="Cancel image change"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>`;
   input.after(wrap);
-  const file = wrap.querySelector('input'), status = wrap.querySelector('div'), preview = wrap.querySelector('img');
+  const file = wrap.querySelector('input');
+  const status = wrap.querySelector('[role="status"]');
+  const previewWrap = wrap.querySelector('[data-image-preview]');
+  const preview = previewWrap.querySelector('img');
+  const cancel = previewWrap.querySelector('[data-cancel-image-change]');
+  let previousValue = '';
+  let hasPendingImageChange = false;
   const refresh = () => {
     try {
       const url = new URL(input.value, new URL('../', window.location.href));
-      preview.hidden = !input.value.trim() || !['http:', 'https:'].includes(url.protocol);
-      if (!preview.hidden) preview.src = url.href;
+      const hasPreview = !!input.value.trim() && ['http:', 'https:'].includes(url.protocol);
+      previewWrap.hidden = !hasPreview;
+      cancel.hidden = !hasPreview;
+      const cancelLabel = hasPendingImageChange ? 'Cancel image change' : 'Remove image';
+      cancel.setAttribute('aria-label', cancelLabel);
+      cancel.setAttribute('title', cancelLabel);
+      if (hasPreview) preview.src = url.href;
       else preview.removeAttribute('src');
-    } catch { preview.hidden = true; }
+    } catch {
+      previewWrap.hidden = true;
+      preview.removeAttribute('src');
+    }
   };
-  input.addEventListener('input', refresh);
-  input.form.addEventListener('reset', () => { file.value = ''; setTimeout(refresh, 0); });
+  input.addEventListener('input', () => {
+    hasPendingImageChange = false;
+    refresh();
+  });
+  input.form.addEventListener('reset', () => {
+    file.value = '';
+    hasPendingImageChange = false;
+    setTimeout(refresh, 0);
+  });
+  cancel.addEventListener('click', () => {
+    const wasPendingChange = hasPendingImageChange;
+    input.value = wasPendingChange ? previousValue : '';
+    file.value = '';
+    hasPendingImageChange = false;
+    status.textContent = wasPendingChange
+      ? (previousValue
+          ? 'Image change canceled. The previous image will be kept.'
+          : 'Image change canceled. No image is selected.')
+      : 'Image removed from this form. Save the form to publish the removal.';
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    refresh();
+  });
   file.addEventListener('change', async () => {
     const selected = file.files[0];
     if (!selected) return;
@@ -579,14 +703,16 @@ function attachAdminImageUpload(id) {
       file.value = '';
       return;
     }
+    previousValue = input.value;
     const controls = Array.from(input.form.querySelectorAll('input, button, select, textarea'));
     const disabled = controls.map(control => control.disabled);
     controls.forEach(control => { control.disabled = true; });
     status.textContent = 'Uploading image…';
     try {
       input.value = await API.uploadGalleryImage(selected);
+      hasPendingImageChange = true;
       refresh();
-      status.textContent = 'Image uploaded. Save the form to publish it.';
+      status.textContent = 'Image uploaded. Save the form to publish it, or cancel this image change.';
     } catch (error) { status.textContent = error.message; }
     finally {
       controls.forEach((control, index) => { control.disabled = disabled[index]; });

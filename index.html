@@ -48,7 +48,7 @@
           <h1 class="hero-title" id="heroTitle">Turn your celebration into a moment everyone remembers.</h1>
           <p class="hero-desc" id="heroDesc">We bring the music, the sweets, and the picture-perfect details—so you can be fully present for every smile.</p>
           <div class="d-flex gap-3 flex-wrap">
-            <a class="btn btn-primary-custom" href="#services">Explore services <i class="bi bi-arrow-right"></i></a>
+            <a class="btn btn-primary-custom" href="#services"><span id="heroButtonText">Explore services</span> <i class="bi bi-arrow-right"></i></a>
             <a href="#gallery" class="btn btn-hero-outline">See our celebrations</a>
           </div>
           <div class="hero-proof"><strong>3</strong><span>specialized event services,<br>one joyful celebration</span></div>
@@ -149,8 +149,8 @@
         </div>
       </div>
     </div>
-    <div class="text-center mt-4">
-      <a id="howFacebookLink" class="btn btn-primary-custom" target="_blank" rel="noopener noreferrer" hidden><i class="bi bi-messenger me-2" aria-hidden="true"></i>Message us on Facebook</a>
+    <div class="process-cta text-center">
+      <a id="howFacebookLink" class="btn btn-primary-custom" target="_blank" rel="noopener noreferrer" hidden><i class="bi bi-facebook me-2" aria-hidden="true"></i>Continue on Facebook</a>
     </div>
   </div>
 </section>
@@ -167,6 +167,12 @@
       <div class="gallery-viewport">
         <div class="gallery-track" id="galleryGrid" aria-live="polite"></div>
       </div>
+      <button class="gallery-control gallery-control-prev" type="button" aria-label="Show previous gallery image" onclick="shiftGalleryCarousel(-1)">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+      </button>
+      <button class="gallery-control gallery-control-next" type="button" aria-label="Show next gallery image" onclick="shiftGalleryCarousel(1)">
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </button>
     </div>
   </div>
 </section>

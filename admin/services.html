@@ -24,10 +24,16 @@
   </div>
 
   <div class="panel">
+    <div class="d-flex justify-content-end px-3 pt-3">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="showInactiveServices">
+        <label class="form-check-label small" for="showInactiveServices">Show inactive services</label>
+      </div>
+    </div>
     <div class="table-wrap">
       <table class="admin-table">
         <thead><tr>
-          <th>Service</th><th>Description</th><th>Preparation</th><th>Travel</th><th>Status</th><th>Actions</th>
+          <th>Service</th><th>Category</th><th>Description</th><th>Preparation</th><th>Travel</th><th>Status</th><th>Actions</th>
         </tr></thead>
         <tbody id="servicesBody"></tbody>
       </table>
@@ -51,13 +57,20 @@
             <input type="text" class="form-control" id="svcName" required>
           </div>
           <div class="col-12">
+            <label class="form-label" for="svcCategory">Category</label>
+            <select class="form-select" id="svcCategory" required>
+              <option value="">Select a category</option>
+            </select>
+            <div class="form-text">Categories are managed from the Categories page.</div>
+          </div>
+          <div class="col-12">
             <label class="form-label" for="svcDescription">Description</label>
             <textarea class="form-control" id="svcDescription" rows="2" required></textarea>
           </div>
           <div class="col-12">
             <label class="form-label" for="svcImage">Public service image URL (optional)</label>
             <input type="text" class="form-control" id="svcImage">
-            <div class="form-text">For a new service, save and sync it first, then edit it to add its public image.</div>
+            <div class="form-text">Enter an image URL or upload a file below. It will be saved together with the service.</div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="svcPreparation">Default preparation (minutes)</label>
@@ -98,28 +111,36 @@
 adminReady(async function () {
   await API.ready;
   await initAdminChrome('services.html', 'Services');
-  await renderServicesTable();
+  await populateServiceCategories(false);
+  await renderServicesTable(false);
+  Promise.all([API.getServices(), API.getCategories()])
+    .then(() => Promise.all([populateServiceCategories(false), renderServicesTable(false)]))
+    .catch(() => {});
   const refreshImage = attachAdminImageUpload('svcImage');
 
-  $('#addServiceBtn').onAdmin('click', function () {
+  $('#addServiceBtn').onAdmin('click', async function () {
     $('#serviceForm')[0].reset();
     $('#svcId').val('');
     $('#serviceFormTitle').text('Add Service');
     $('#svcStatus').val('Active');
     $('#svcPreparation, #svcTravel').val(0);
+    await populateServiceCategories(false);
     new bootstrap.Modal('#serviceFormModal').show();
   });
 
   $('.admin-main').onAdmin('click', '.js-edit-service', async function (event) {
     const target = $(event.target).closest('.js-edit-service');
     if (!target.length) return;
-    const s = (await API.getServices()).find(item => item.service_id === target.data('id'));
+    const s = STORAGE.getAll('services').find(item => item.service_id === target.data('id'));
     if (!s) return;
+    const assignedCategoryId = resolveServiceCategoryId(s);
+    await populateServiceCategories(false, assignedCategoryId);
     $('#svcId').val(s.service_id);
-    const content = await API.getWebsiteContent();
-    $('#svcImage').val(content.service_images?.[s.service_id] || '');
+    const content = STORAGE._get(STORAGE_KEYS.websiteContent, {});
+    $('#svcImage').val(resolveServiceImageUrl(s, content));
     refreshImage();
     $('#svcName').val(s.name);
+    $('#svcCategory').val(assignedCategoryId || '');
     $('#svcDescription').val(s.description);
     $('#svcStatus').val(s.status);
     $('#svcPreparation').val(s.default_preparation_minutes || 0);
@@ -132,15 +153,20 @@ adminReady(async function () {
     const target = $(event.target).closest('.js-delete-service');
     if (!target.length) return;
     const id = target.data('id');
-    return confirmDelete('Delete this service? Existing bookings and inventory may still refer to it.', async function () {
+    return confirmDelete('Archive this service? It will be hidden from active services but retained for existing bookings and history.', async function () {
       try {
+        await preserveServiceCategoryAssignment(STORAGE.getAll('services').find(service => service.service_id === id));
         await API.deleteService(id);
-        await renderServicesTable();
-        showAdminToast(API.savedMessage());
+        await renderServicesTable(false);
+        showAdminToast('Service archived');
       } catch (error) {
         showAdminToast(error.message, 'danger');
       }
     });
+  });
+
+  $('#showInactiveServices').onAdmin('change', function () {
+    renderServicesTable(false);
   });
 
   $('.admin-main').onAdmin('change', '.js-toggle-service-status', async function (event) {
@@ -148,6 +174,7 @@ adminReady(async function () {
     if (!target.length) return;
     const id = target.data('id');
     try {
+      await preserveServiceCategoryAssignment(STORAGE.getAll('services').find(service => service.service_id === id));
       await API.updateService(id, { status: target.is(':checked') ? 'Active' : 'Inactive' });
       showAdminToast(API.savedMessage());
     } catch (error) {
@@ -160,26 +187,26 @@ adminReady(async function () {
     e.preventDefault();
     const id = $('#svcId').val();
     const data = {
-      name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val(),
+      name: $('#svcName').val().trim(), category_id: $('#svcCategory').val(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val(),
       default_preparation_minutes: Number($('#svcPreparation').val()), default_travel_minutes: Number($('#svcTravel').val())
     };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
-      if ($('#svcImage').val().trim() && (!id || String(id).startsWith('LOCAL-'))) {
-        throw new Error('Save the service and finish syncing it first, then edit it to add an image.');
-      }
       const image = $('#svcImage').val().trim();
-      const content = await API.getWebsiteContent();
+      const content = STORAGE._get(STORAGE_KEYS.websiteContent, {});
       const changedImage = image !== (content.service_images?.[id] || '');
       const saved = id ? await API.updateService(id, data) : await API.createService(data);
       // Keep the created ID if the separate image save fails, allowing a safe retry.
       $('#svcId').val(saved.service_id);
-      if (changedImage) {
-        const latest = await API.getWebsiteContent();
-        await API.updateWebsiteContent({ ...latest, service_images: { ...latest.service_images, [saved.service_id]: image } });
-      }
+      const savedCategoryId = data.category_id;
+      const latest = STORAGE._get(STORAGE_KEYS.websiteContent, {});
+      await API.updateWebsiteContent({
+        ...latest,
+        service_images: changedImage ? { ...latest.service_images, [saved.service_id]: image } : latest.service_images,
+        service_categories: { ...latest.service_categories, [saved.service_id]: savedCategoryId }
+      });
       bootstrap.Modal.getInstance(document.getElementById('serviceFormModal')).hide();
-      await renderServicesTable();
+      await renderServicesTable(false);
       showAdminToast(API.savedMessage());
     } catch (error) {
       showAdminToast(error.message, 'danger');
@@ -189,17 +216,24 @@ adminReady(async function () {
   });
 });
 
-async function renderServicesTable() {
-  const services = await API.getServices();
+async function renderServicesTable(refreshData = false) {
+  const [allServices, categories] = refreshData
+    ? await Promise.all([API.getServices(), API.getCategories()])
+    : [STORAGE.getAll('services'), STORAGE.getAll('categories')];
+  const services = $('#showInactiveServices').is(':checked')
+    ? allServices
+    : allServices.filter(service => service.status !== 'Inactive');
+  const categoryNames = new Map(categories.map(category => [String(category.category_id), category.name]));
   const $body = $('#servicesBody').empty();
   if (!services.length) {
-    $body.append('<tr><td colspan="6" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
+    $body.append('<tr><td colspan="7" class="text-center text-muted py-4">No services yet. Add your first one.</td></tr>');
     return;
   }
   services.forEach(s => {
     $body.append(`
       <tr>
         <td class="fw-semibold">${escapeHtmlA(s.name)}${s.pending_sync ? '<span class="badge bg-warning text-dark ms-2">Pending Sync</span>' : ''}</td>
+        <td>${resolveServiceCategoryId(s) ? escapeHtmlA(categoryNames.get(String(resolveServiceCategoryId(s))) || 'Unknown category') : '<span class="text-muted">Unassigned</span>'}</td>
         <td>${escapeHtmlA(s.description || '')}</td>
         <td>${Number(s.default_preparation_minutes || 0)} min</td>
         <td>${Number(s.default_travel_minutes || 0)} min</td>
@@ -210,9 +244,34 @@ async function renderServicesTable() {
         </td>
         <td>
           <button class="btn btn-sm btn-outline-secondary js-edit-service" data-id="${escapeHtmlA(s.service_id)}" aria-label="Edit ${escapeHtmlA(s.name)}"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-outline-danger js-delete-service" data-id="${escapeHtmlA(s.service_id)}" aria-label="Delete ${escapeHtmlA(s.name)}"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm btn-outline-danger js-delete-service" data-id="${escapeHtmlA(s.service_id)}" aria-label="Archive ${escapeHtmlA(s.name)}" title="Archive service"><i class="bi bi-archive"></i></button>
         </td>
       </tr>`);
+  });
+}
+
+async function populateServiceCategories(refreshData = false, selectedId = '') {
+  const categories = refreshData ? await API.getCategories() : STORAGE.getAll('categories');
+  const selected = String(selectedId || '');
+  const $select = $('#svcCategory').empty().append('<option value="">Select a category</option>');
+  categories.forEach(category => {
+    if (category.status !== 'Active' && String(category.category_id) !== selected) return;
+    const inactiveLabel = category.status === 'Active' ? '' : ' (Inactive)';
+    $select.append(`<option value="${escapeHtmlA(category.category_id)}">${escapeHtmlA(category.name + inactiveLabel)}</option>`);
+  });
+  $select.val(selected);
+  if (!selected && $select.find('option').length === 2) $select.prop('selectedIndex', 1);
+}
+
+async function preserveServiceCategoryAssignment(service) {
+  if (!service) return;
+  const categoryId = resolveServiceCategoryId(service);
+  if (!categoryId) return;
+  const content = STORAGE._get(STORAGE_KEYS.websiteContent, {});
+  if (content.service_categories?.[service.service_id] === categoryId) return;
+  await API.updateWebsiteContent({
+    ...content,
+    service_categories: { ...content.service_categories, [service.service_id]: categoryId }
   });
 }
 </script>

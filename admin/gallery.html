@@ -51,8 +51,11 @@
             <input type="file" class="form-control" id="imgFile" accept="image/jpeg,image/png,image/gif,image/webp">
             <div class="form-text">JPG, PNG, GIF, or WebP; maximum 5 MB. Uploading requires a server connection.</div>
           </div>
-          <div class="mb-3" id="imgPreviewWrap" hidden>
-            <img id="imgPreview" alt="Selected gallery image preview" style="display:block;max-width:100%;max-height:200px;object-fit:contain;border-radius:8px;">
+          <div class="admin-image-preview mb-3" id="imgPreviewWrap" hidden>
+            <img id="imgPreview" alt="Selected gallery image preview" style="max-height:200px">
+            <button type="button" class="admin-image-preview-close" id="clearImgFile" aria-label="Remove selected file" title="Remove selected file">
+              <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="imgFeatured">
@@ -87,6 +90,7 @@ adminReady(async function () {
     const file = document.getElementById('imgFile').files[0];
     const image = document.getElementById('imgPreview');
     const wrap = document.getElementById('imgPreviewWrap');
+    const clearButton = document.getElementById('clearImgFile');
     if (image.dataset.objectUrl) URL.revokeObjectURL(image.dataset.objectUrl);
     image.dataset.objectUrl = '';
     const source = file ? URL.createObjectURL(file) : safeGalleryImageUrl($('#imgUrl').val());
@@ -98,6 +102,10 @@ adminReady(async function () {
     image.src = source;
     if (file) image.dataset.objectUrl = source;
     wrap.hidden = false;
+    clearButton.hidden = false;
+    const label = file ? 'Cancel selected upload' : 'Clear image selection';
+    clearButton.setAttribute('aria-label', label);
+    clearButton.setAttribute('title', label);
   };
 
   $('#addImageBtn').onAdmin('click', function () {
@@ -126,6 +134,11 @@ adminReady(async function () {
   });
 
   $('#imgFile').onAdmin('change', updateImagePreview);
+  $('#clearImgFile').onAdmin('click', function () {
+    if (document.getElementById('imgFile').files.length) $('#imgFile').val('');
+    else $('#imgUrl').val('');
+    updateImagePreview();
+  });
   $('#imgUrl').onAdmin('input', function () {
     if (!document.getElementById('imgFile').files.length) updateImagePreview();
   });
@@ -205,8 +218,9 @@ async function renderGallery() {
   images.forEach(img => {
     $wrap.append(`
       <div class="col-md-4 col-sm-6">
-        <div class="border rounded overflow-hidden">
+        <div class="border rounded overflow-hidden gallery-admin-card">
           <img src="${escapeHtmlA(safeGalleryImageUrl(img.image))}" alt="${escapeHtmlA(img.title)}" style="width:100%;height:160px;object-fit:cover;">
+          <button class="admin-image-preview-close gallery-admin-remove js-delete-img" data-id="${escapeHtmlA(img.image_id)}" aria-label="Delete ${escapeHtmlA(img.title)}" title="Delete image"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
           <div class="p-2">
             <div class="d-flex justify-content-between align-items-center">
               <span class="fw-semibold small">${escapeHtmlA(img.title)}</span>
@@ -214,7 +228,6 @@ async function renderGallery() {
             </div>
             <div class="mt-2 d-flex gap-1">
               <button class="btn btn-sm btn-outline-secondary js-edit-img" data-id="${escapeHtmlA(img.image_id)}" aria-label="Edit ${escapeHtmlA(img.title)}"><i class="bi bi-pencil"></i></button>
-              <button class="btn btn-sm btn-outline-danger js-delete-img" data-id="${escapeHtmlA(img.image_id)}" aria-label="Delete ${escapeHtmlA(img.title)}"><i class="bi bi-trash"></i></button>
             </div>
           </div>
         </div>
