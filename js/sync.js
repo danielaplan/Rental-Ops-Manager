@@ -7,6 +7,7 @@
   const prefix = 'er_sync_op_';
   const base = new URL('../api/',document.currentScript.src).href;
   const fields = {bookings:'id',categories:'category_id',services:'service_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id',packages:'package_id',checklistTemplates:'template_id',bookingItems:'booking_item_id',itemReleases:'release_id',itemHistory:'history_id',delivery:'booking_id',deposits:'booking_id'};
+  const direct = Object.fromEntries(Object.keys(API).filter(name=>typeof API[name]==='function').map(name=>[name,API[name].bind(API)]));
   let flushing = null;
   const reads = new Map();
   const uuid = () => crypto.randomUUID();
@@ -249,14 +250,13 @@
     const priorCents=STORAGE.getAll('payments').filter(row=>String(row.payment_status||'Completed')==='Completed'&&String(row.payment_id)!==String(old?.payment_id)).filter(row=>String(ref('bookings',row.booking_id))===String(ref('bookings',bookingId))).reduce((sum,row)=>sum+moneyCents(row.amount||0),0);
     if(amountCents>Math.max(moneyCents(booking.total||0)-priorCents,0))throw new Error('Completed payment exceeds the remaining booking balance.');
   };
-  const actions={
-    createCategory:['categories','create'],updateCategory:['categories','update'],deleteCategory:['categories','delete'],
-    createService:['services','create'],updateService:['services','update'],deleteService:['services','delete'],
-    createAddon:['addons','create'],updateAddon:['addons','update'],deleteAddon:['addons','delete'],
-    createRentalItem:['rentalItems','create'],updateRentalItem:['rentalItems','update'],deleteRentalItem:['rentalItems','delete'],
-    createGalleryImage:['gallery','create'],updateGalleryImage:['gallery','update'],deleteGalleryImage:['gallery','delete'],
-    createBooking:['bookings','create'],updateBooking:['bookings','update'],deleteBooking:['bookings','delete'],createPayment:['payments','create'],updatePayment:['payments','update']
+  const onlineError=label=>{const error=new Error(`${label} requires an internet connection.`);error.code='online_required';return error;};
+  const onlineOnly=(name,label)=>async(...args)=>{
+    if(!navigator.onLine)throw onlineError(label);
+    const method=direct[name];if(!method)throw new Error(`${label} is unavailable.`);
+    const result=await method(...args);reads.clear();return result;
   };
+  const actions={createBooking:['bookings','create']};
   Object.entries(actions).forEach(([name,[entity,action]])=>{
     API[name]=async function(...args){
       if(!owner())throw new Error('Sign in before saving.');
@@ -290,6 +290,15 @@
       return {...result,operation_id:operation.client_id};
     };
   });
+  [
+    ['createCategory','Catalog changes'],['updateCategory','Catalog changes'],['deleteCategory','Catalog changes'],
+    ['createService','Catalog changes'],['updateService','Catalog changes'],['deleteService','Catalog changes'],
+    ['createAddon','Catalog changes'],['updateAddon','Catalog changes'],['deleteAddon','Catalog changes'],
+    ['createRentalItem','Inventory changes'],['updateRentalItem','Inventory changes'],['deleteRentalItem','Inventory changes'],
+    ['createGalleryImage','Gallery changes'],['updateGalleryImage','Gallery changes'],['deleteGalleryImage','Gallery changes'],
+    ['updateBooking','Booking changes and approvals'],['deleteBooking','Booking deletion'],
+    ['createPayment','Payments'],['updatePayment','Payments']
+  ].forEach(([name,label])=>{API[name]=onlineOnly(name,label);});
   const cachedRead=async(entity,action='all',query='',scope)=>{await read(entity,action,query,scope);return STORAGE.getAll(entity);};
   API.getCategories=()=>cachedRead('categories');
   API.getServices=()=>cachedRead('services');
@@ -300,19 +309,11 @@
   API.getBookings=()=>cachedRead('bookings');
   API.getBooking=async id=>(await API.getBookings()).find(row=>String(row.id)===String(id))||null;
   API.requestBookingCancellation=async(id,reason)=>{
-    const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(id));
-    if(!booking)throw new Error('Booking not found on this device.');
+    if(!navigator.onLine)throw onlineError('Booking cancellation');
     const cancellationReason=String(reason||'').trim();
     if(!cancellationReason)throw new Error('A cancellation reason is required.');
-    const operation=enqueue('bookings','update',{
-      id,
-      status:'Cancelled',
-      cancellation_reason:cancellationReason,
-      _base:{status:booking.status}
-    },id);
-    booking.pending_sync=true;
-    saveRows('bookings',STORAGE.getAll('bookings'));
-    return {...booking,cancellation_pending:true,operation_id:operation.client_id};
+    const saved=await request('bookings','cancel',{cancellation_reason:cancellationReason},'&id='+encodeURIComponent(ref('bookings',id)));
+    reads.clear();return normalize('bookings',saved);
   };
   API.getPayments=()=>cachedRead('payments');
   API.getRentalItems=()=>cachedRead('rentalItems');
@@ -330,23 +331,8 @@
   API.refreshWebsiteContent=()=>refreshObject('websiteContent');
   API.getSettings=async()=>{await refreshObject('settings');return STORAGE._get(STORAGE_KEYS.settings,{});};
   API.getWebsiteContent=async()=>{await refreshObject('websiteContent');return STORAGE._get(STORAGE_KEYS.websiteContent,{});};
-  const wrapSingletonUpdate=(name,entity,relatedGetter,relatedEntity)=>{
-    API[name]=async function(data){
-      if(!owner())throw new Error('Sign in before saving.');
-      const key=entity==='settings'?STORAGE_KEYS.settings:STORAGE_KEYS.websiteContent;
-      const result={...STORAGE._get(key,{}),...data};STORAGE.setOne(entity,result);
-      enqueue(entity,'update',result,entity+'-singleton');
-      const relatedKey=relatedEntity==='settings'?STORAGE_KEYS.settings:STORAGE_KEYS.websiteContent;
-      const related={...STORAGE._get(relatedKey,{})};
-      if(entity==='settings')Object.assign(related,{business_name:result.business_name,contact_phone:result.phone,contact_email:result.email,contact_address:result.address,contact_facebook:result.facebook,contact_instagram:result.instagram});
-      else Object.assign(related,{business_name:result.business_name,phone:result.contact_phone,email:result.contact_email,address:result.contact_address,facebook:result.contact_facebook,instagram:result.contact_instagram});
-      STORAGE.setOne(relatedEntity,related);
-      enqueue(relatedEntity,'update',related,relatedEntity+'-singleton');
-      return result;
-    };
-  };
-  wrapSingletonUpdate('updateSettings','settings','getWebsiteContent','websiteContent');
-  wrapSingletonUpdate('updateWebsiteContent','websiteContent','getSettings','settings');
+  API.updateSettings=onlineOnly('updateSettings','Settings changes');
+  API.updateWebsiteContent=onlineOnly('updateWebsiteContent','Website content changes');
   API.refreshSharedData=()=>owner()?Promise.all([
     ...['services','categories','packages','addons','rentalItems','checklistTemplates','bookings','payments','customers','gallery'].map(entity=>read(entity)),
     refreshObject('settings'),refreshObject('websiteContent')
@@ -356,11 +342,11 @@
   API.getItemHistory=async id=>{if(!String(ref('rentalItems',id)).startsWith('LOCAL-'))await read('itemHistory','forItem','&rental_item_id='+encodeURIComponent(ref('rentalItems',id)),{field:'rental_item_id',value:id});return STORAGE.getAll('itemHistory').filter(row=>String(row.rental_item_id)===String(id));};
   API.generateBookingChecklist=async(id,serviceIds)=>{const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(id));const result=generateLocalChecklist(id,serviceIds,booking?.package_id);enqueue('bookingItems','generate',{booking_id:id,service_ids:serviceIds},id);return result;};
   API.updateBookingItem=async(id,data)=>{const row=updateLocal('bookingItems',id,data);if(!row)throw new Error('Checklist item not found on this device.');enqueue('bookingItems','update',{...data,booking_id:row.booking_id,checklist_item_id:row.checklist_item_id,template_item_id:row.template_item_id,rental_item_id:row.rental_item_id},id);return row;};
-  API.deleteBookingItem=async id=>{deleteLocal('bookingItems',id);enqueue('bookingItems','delete',{id},id);return true;};
-  API.logItemHistory=async entry=>{const row=createLocal('itemHistory',{date:new Date().toISOString(),...entry});enqueue('itemHistory','create',entry,row.history_id);return row;};
-  API.recordRelease=async(bookingId,releasedBy,notes)=>{const row=createLocal('itemReleases',{booking_id:bookingId,released_by:releasedBy,notes:notes||'',released_at:new Date().toISOString()});enqueue('itemReleases','create',{booking_id:bookingId,released_by:releasedBy,notes:notes||''},row.release_id);return row;};
+  API.deleteBookingItem=onlineOnly('deleteBookingItem','Checklist deletion');
+  API.logItemHistory=onlineOnly('logItemHistory','Inventory history changes');
+  API.recordRelease=onlineOnly('recordRelease','Equipment release');
   API.recordReturn=async(bookingId,inspectedBy,itemResults,notes)=>{const rows=STORAGE.getAll('bookingItems');for(const item of itemResults){const row=rows.find(value=>String(value.booking_item_id)===String(item.booking_item_id));if(row)Object.assign(row,{returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||'',inspected:true,pending_sync:true});}saveRows('bookingItems',rows);const items=itemResults.map(item=>({checklist_item_id:item.checklist_item_id??item.booking_item_id,template_item_id:item.template_item_id,rental_item_id:item.rental_item_id??null,returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||''}));enqueue('equipment','inspect',{booking_id:bookingId,inspected_by:inspectedBy,items},bookingId);return {booking_id:bookingId,items,pending_sync:true};};
-  API.finalizeReturn=async(id,review={})=>{const operation=enqueue('equipment','finalizeReturn',{booking_id:id,...review},id);return {booking_id:id,status:'pending',pending_sync:true,operation_id:operation.client_id};};
+  API.finalizeReturn=onlineOnly('finalizeReturn','Final return review');
   API.getPackages=()=>cachedRead('packages');
   API.getChecklistTemplates=()=>cachedRead('checklistTemplates');
   API.getDeposit=async id=>STORAGE.getAll('deposits').find(r=>String(r.booking_id)===String(id))||{booking_id:id,amount_held:0,deduction_amount:0,deduction_reason:'',refund_amount:0};
@@ -375,34 +361,9 @@
       return await API.getDeposit(id);
     }catch(error){emit('api-read-error',{entity:'deposits',message:error.message});return await API.getDeposit(id);}
   };
-  API.upsertDeposit=async(id,data)=>{
-    const heldCents=moneyCents(data.amount_held),dedCents=moneyCents(data.deduction_amount||0);
-    if(heldCents<=0)throw new Error('Held deposit amount must be greater than zero.');
-    if(dedCents>heldCents||(dedCents>0&&!String(data.deduction_reason||'').trim()))throw new Error('Enter non-negative amounts, keep deductions within the deposit, and give a reason for deductions.');
-    const existing=await API.getDeposit(id),existingCents=moneyCents(existing.amount_held||0);
-    const repairableZero=Boolean(existing.deposit_id)&&existingCents===0&&String(existing.refund_status||'Held')==='Held'&&!existing.refund_date&&moneyCents(existing.deduction_amount||0)===0&&!(existing.deductions||[]).length;
-    if((existing.deposit_id||existing.pending_sync)&&heldCents!==existingCents&&!repairableZero)throw new Error('An existing held amount cannot be overwritten.');
-    const held=heldCents/100,ded=dedCents/100,refund=(heldCents-dedCents)/100;
-    const rows=STORAGE.getAll('deposits').filter(r=>String(r.booking_id)!==String(id));const result={...data,booking_id:id,amount_held:held,deductions:[],deduction_amount:ded,refund_amount:refund,refund_status:'Held',pending_sync:true};rows.push(result);saveRows('deposits',rows);enqueue('deposits','upsert',result,id);return result;
-  };
-  API.addDepositDeduction=async(id,data)=>{
-    const deposit=await API.getDeposit(id),amountCents=moneyCents(data.amount),heldCents=moneyCents(deposit.amount_held||0),currentCents=moneyCents(deposit.deduction_amount||0);
-    if(!deposit.deposit_id&&!deposit.pending_sync)throw new Error('Save the held deposit before adding deductions.');
-    if(amountCents<=0||!String(data.affected_item||'').trim()||!String(data.reason||'').trim()||currentCents+amountCents>heldCents)throw new Error('Enter an affected item, reason, and amount within the held deposit.');
-    const amount=amountCents/100;
-    const deduction={deduction_id:'LOCAL-deduction-'+uuid(),affected_item:data.affected_item,reason:data.reason,amount,recorded_at:new Date().toISOString(),pending_sync:true};
-    Object.assign(deposit,{deductions:[...(deposit.deductions||[]),deduction],deduction_amount:(currentCents+amountCents)/100,refund_amount:(heldCents-currentCents-amountCents)/100,pending_sync:true});
-    saveRows('deposits',STORAGE.getAll('deposits').map(row=>String(row.booking_id)===String(id)?deposit:row));
-    enqueue('deposits','deduct',{booking_id:id,affected_item:data.affected_item,reason:data.reason,amount},id);return deposit;
-  };
-  API.refundDeposit=async id=>{
-    const deposit=await API.getDeposit(id);
-    if(Number(deposit.refund_amount||0)<=0)throw new Error('No refundable balance remains for this deposit.');
-    if(queue().some(operation=>operation.entity==='deposits'&&operation.action==='refund'&&(String(operation.local_id)===String(id)||String(operation.data?.booking_id)===String(id))))throw new Error('This deposit refund is already pending synchronization.');
-    Object.assign(deposit,{refund_pending:true,pending_sync:true});
-    saveRows('deposits',STORAGE.getAll('deposits').map(row=>String(row.booking_id)===String(id)?deposit:row));
-    enqueue('deposits','refund',{booking_id:id},id);return deposit;
-  };
+  API.upsertDeposit=onlineOnly('upsertDeposit','Deposits');
+  API.addDepositDeduction=onlineOnly('addDepositDeduction','Deposit deductions');
+  API.refundDeposit=onlineOnly('refundDeposit','Deposit refunds');
   API.getDelivery=async id=>STORAGE.getAll('delivery').find(r=>String(r.booking_id)===String(id))||{booking_id:id,delivery_method:'self_pickup',delivery_fee:0,fee_shouldered_by:'renter'};
   API.refreshDelivery=async id=>{
     if(String(ref('bookings',id)).startsWith('LOCAL-')||!navigator.onLine)return await API.getDelivery(id);
@@ -415,15 +376,7 @@
       return await API.getDelivery(id);
     }catch(error){emit('api-read-error',{entity:'delivery',message:error.message});return await API.getDelivery(id);}
   };
-  API.upsertDelivery=async(id,data)=>{
-    const fee=Number(data.delivery_fee);
-    if(!['self_pickup','lalamove','owner_delivered'].includes(data.delivery_method)||!['renter','owner','included','Customer','Owner','Included in package'].includes(data.fee_shouldered_by)||!Number.isFinite(fee)||fee<0)throw new Error('Choose a delivery method and fee arrangement, and enter a non-negative delivery fee.');
-    if(!owner())throw new Error('Sign in before saving delivery details.');
-    const record={booking_id:id,delivery_method:data.delivery_method,delivery_fee:fee,fee_shouldered_by:data.fee_shouldered_by,delivery_notes:data.delivery_notes||null,pending_sync:true};
-    const rows=STORAGE.getAll('delivery').filter(r=>String(r.booking_id)!==String(id));rows.push(record);saveRows('delivery',rows);
-    enqueue('delivery','upsert',{booking_id:id,delivery_method:record.delivery_method,delivery_fee:fee,fee_shouldered_by:record.fee_shouldered_by,delivery_notes:record.delivery_notes},id);
-    return record;
-  };
+  API.upsertDelivery=onlineOnly('upsertDelivery','Delivery changes');
   API.getSyncQueue=queue;
   API.discardSyncOperation=id=>{
     const operation=queue().find(row=>row.client_id===id);

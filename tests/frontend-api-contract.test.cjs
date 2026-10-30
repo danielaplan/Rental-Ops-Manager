@@ -117,6 +117,18 @@ function createHarness() {
       }
       return {
         ok: true,
+        text: async () => JSON.stringify({
+          ok: true,
+          data: {
+            committed: accepted.map(operation => ({
+              client_id: operation.client_id,
+              server_id: operation.action === 'create' ? (operation.entity === 'payments' ? 84 : 42) : undefined,
+              data: acknowledgementData.get(operation.client_id)
+            })),
+            conflicts: [],
+            failed: failed.map(operation => ({ client_id: operation.client_id, reason: 'Synthetic rejected payment amount.' }))
+          }
+        }),
         json: async () => ({
           ok: true,
           data: {
@@ -134,6 +146,7 @@ function createHarness() {
     const entity = Object.keys(serverRows).find(name => String(url).includes(`/${name}.php`));
     return {
       ok: true,
+      text: async () => JSON.stringify({ ok: true, data: entity ? serverRows[entity] : [] }),
       json: async () => ({ ok: true, data: entity ? serverRows[entity] : [] })
     };
   };
@@ -212,21 +225,12 @@ test('server refresh preserves cached presentation fields that PHP does not stor
   assert.equal(collections.services[0].image, 'cached-service.jpg');
 });
 
-test('writes resolve to a pending local draft and enqueue an authenticated sync operation', async () => {
+test('catalog writes require an internet connection and never enter the offline queue', async () => {
   const { context } = createHarness();
+  context.navigator.onLine = false;
 
-  const createdPromise = context.API.createService({ name: 'Sweet Corner', description: 'Desserts' });
-  assert.equal(typeof createdPromise.then, 'function', 'API.createService() must return a Promise');
-  const created = await createdPromise;
-
-  assert.equal(created.pending_sync, true);
-  assert.match(created.service_id, /^LOCAL-services-/);
-
-  const queue = context.API.getSyncQueue();
-  assert.equal(queue.length, 1);
-  assert.equal(queue[0].entity, 'services');
-  assert.equal(queue[0].action, 'create');
-  assert.equal(queue[0].owner_id, 7);
+  await assert.rejects(context.API.createService({ name: 'Sweet Corner' }), /requires an internet connection/);
+  assert.equal(context.API.getSyncQueue().length, 0);
 });
 
 test('oversized booking text is rejected before creating a local draft or sync operation', async () => {
@@ -245,21 +249,19 @@ test('oversized booking text is rejected before creating a local draft or sync o
   assert.equal(context.API.getSyncQueue().length, 0);
 });
 
-test('queued booking price edits retain pricing base values for stale conflict detection', async () => {
+test('booking edits require an internet connection and do not mutate cached pricing', async () => {
   const { context, collections } = createHarness();
   collections.bookings.push({
     id: 'BK-001', service_id: 1, service_ids: ['SVC-001'], package_id: 'PKG-001', addon_ids: ['ADD-001'],
     discount: 10, fees: 5, agreed_total: 495, status: 'Pending'
   });
 
-  await context.API.updateBooking('BK-001', {
+  context.navigator.onLine = false;
+  await assert.rejects(context.API.updateBooking('BK-001', {
     package_id: 'PKG-001', addon_ids: ['ADD-001'], discount: 20, fees: 5, agreed_total: 485
-  });
-
-  const operation = context.API.getSyncQueue().find(item => item.entity === 'bookings' && item.action === 'update');
-  assert.deepEqual(JSON.parse(JSON.stringify(operation.data._base)), {
-    package_id: 'PKG-001', addon_ids: ['ADD-001'], discount: 10, fees: 5, agreed_total: 495
-  });
+  }), /requires an internet connection/);
+  assert.equal(collections.bookings[0].agreed_total, 495);
+  assert.equal(context.API.getSyncQueue().length, 0);
 });
 
 test('booking-scoped reads return cached rows and request the matching server collection', async () => {
@@ -277,51 +279,39 @@ test('booking-scoped reads return cached rows and request the matching server co
   );
 });
 
-test('item history writes resolve to a pending draft with an addressable queue entry', async () => {
+test('inventory history writes require an internet connection', async () => {
   const { context } = createHarness();
+  context.navigator.onLine = false;
 
-  const created = await context.API.logItemHistory({
+  await assert.rejects(context.API.logItemHistory({
     rental_item_id: 'RI-001', booking_id: 'BK-001',
     action: 'Returned', qty: 1, condition: 'Good'
-  });
-
-  assert.ok(created, 'API.logItemHistory() must return the local history row');
-  assert.equal(created.pending_sync, true);
-  assert.match(created.history_id, /^LOCAL-itemHistory-/);
-  const operation = context.API.getSyncQueue().find(item => item.entity === 'itemHistory');
-  assert.equal(operation.local_id, created.history_id);
+  }), /requires an internet connection/);
+  assert.equal(context.API.getSyncQueue().length, 0);
 });
 
-test('item history reads refresh only the requested item and retain pending history', async () => {
+test('item history reads still refresh the requested item', async () => {
   const { context, requests, collections } = createHarness();
-  const pending = await context.API.logItemHistory({
-    rental_item_id: 'RI-001', booking_id: 'BK-001',
-    action: 'Inspected offline', qty: 1, condition: 'Good'
-  });
-
   const history = await context.API.getItemHistory('RI-001');
 
   assert.equal(Array.isArray(history), true);
-  assert.ok(history.some(row => row.history_id === pending.history_id));
   await settle();
 
   assert.ok(requests.some(request => request.url.includes('/api/itemHistory.php?do=forItem&rental_item_id=1')));
   assert.ok(collections.itemHistory.some(row => row.rental_item_id === 'RI-002'));
-  assert.ok(collections.itemHistory.some(row => row.history_id === pending.history_id && row.pending_sync));
   assert.ok(collections.itemHistory.some(row => row.rental_item_id === 'RI-001' && row.action === 'Returned'));
 });
 
-test('release and return queue one atomic server operation without client-written history', async () => {
-  const { context, collections } = createHarness();
+test('release requires internet while return inspection remains an offline draft', async () => {
+  const { context } = createHarness();
+  context.navigator.onLine = false;
 
-  await context.API.recordRelease('BK-001', 'Owner', 'Released offline');
+  await assert.rejects(context.API.recordRelease('BK-001', 'Owner', 'Released offline'), /requires an internet connection/);
   await context.API.recordReturn('BK-001', 'Owner', [{
-    rental_item_id: 'RI-001', returned_qty: 1, condition: 'Good'
+    booking_item_id: 'BI-001', rental_item_id: 'RI-001', returned_qty: 1, condition: 'Good'
   }], 'Returned offline');
 
-  const historyOperations = context.API.getSyncQueue().filter(item => item.entity === 'itemHistory');
-  assert.equal(historyOperations.length, 0);
-  assert.ok(context.API.getSyncQueue().some(item => item.entity === 'itemReleases'));
+  assert.equal(context.API.getSyncQueue().some(item => item.entity === 'itemReleases'), false);
   assert.ok(context.API.getSyncQueue().some(item => item.entity === 'equipment' && item.action === 'inspect'));
 });
 
@@ -341,66 +331,23 @@ test('shared refresh includes every unscoped admin collection', async () => {
   }
 });
 
-test('flush removes acknowledged operations and records temporary-to-server ID aliases', async () => {
+test('flush removes an acknowledged booking draft and records its server ID alias', async () => {
   const { context, values } = createHarness();
-  const created = await context.API.createService({ name: 'Queued service' });
+  const created = await context.API.createBooking({ customer_name: 'Queued booking', contact: 'TEST', service_id: 1 });
 
   const result = await context.API.flushSyncQueue();
 
   assert.equal(result.failed.length, 0);
   assert.equal(context.API.getSyncQueue().length, 0);
   const aliases = JSON.parse(values.get('er_sync_ids'));
-  assert.equal(aliases[`services:${created.service_id}`], 42);
+  assert.equal(aliases[`bookings:${created.id}`], 42);
 });
 
-test('booking and dependent payment receive linked server IDs exactly once after replay', async () => {
-  const { context, collections } = createHarness();
-  const booking = await context.API.createBooking({
-    customer_name: 'Linked replay', contact: 'TEST-LINK', service_id: 1, service_ids: [1],
-    event_date: '2099-01-01', start_time: '10:00', end_time: '12:00', location: 'Synthetic venue',
-    agreed_total: 100, total: 100, status: 'Pending'
-  });
-  await context.API.createPayment({ booking_id: booking.id, amount: 25, method: 'GCash', payment_date: '2026-10-20 12:00:00' });
-
-  const first = await context.API.flushSyncQueue();
-  const second = await context.API.flushSyncQueue();
-
-  assert.equal(first.failed.length, 0);
-  assert.equal(second.committed.length, 0);
-  assert.equal(collections.bookings.length, 1);
-  assert.equal(collections.payments.length, 1);
-  assert.equal(collections.bookings[0].id, 42);
-  assert.equal(collections.payments[0].payment_id, 84);
-  assert.equal(collections.payments[0].booking_id, 42);
-  assert.equal(String(collections.bookings[0].id).startsWith('LOCAL-'), false);
-  assert.equal(String(collections.payments[0].payment_id).startsWith('LOCAL-'), false);
-});
-
-test('a rejected payment can be corrected in place and replayed without duplication', async () => {
-  const { context, collections } = createHarness();
-  collections.bookings.push({ id: 42, total: 100, amount_paid: 0, payment_status: 'Unpaid' });
-  const payment = await context.API.createPayment({ booking_id: 42, amount: '13.37', method: 'GCash', payment_date: '2026-10-20 12:00:00' });
-  const operationId = context.API.getSyncQueue()[0].client_id;
-
-  const rejected = await context.API.flushSyncQueue();
-  assert.equal(rejected.failed.length, 1);
-  assert.equal(context.API.getSyncQueue()[0].status, 'failed');
+test('payments never enter the offline recovery queue', async () => {
+  const { context } = createHarness();
   context.navigator.onLine = false;
-  await context.API.createCategory({ category_name: 'Unrelated valid work' });
-  await context.API.retrySyncOperation(operationId, { amount: '12.00' });
-  const correctedOperation = context.API.getSyncQueue().find(operation => operation.client_id === operationId);
-  assert.equal(correctedOperation.client_id, operationId);
-  assert.equal(correctedOperation.data.amount, '12.00');
-  assert.equal(context.API.getSyncQueue().some(operation => operation.entity === 'categories'), true, 'correcting money must retain unrelated queued work');
-  assert.equal(collections.payments.find(row => row.payment_id === payment.payment_id).amount, '12.00');
-
-  context.navigator.onLine = true;
-  const accepted = await context.API.flushSyncQueue();
-  const emptyRetry = await context.API.flushSyncQueue();
-  assert.equal(accepted.committed.length, 2);
-  assert.equal(emptyRetry.committed.length, 0);
-  assert.equal(collections.payments.length, 1);
-  assert.equal(collections.payments[0].payment_id, 84);
+  await assert.rejects(context.API.createPayment({ booking_id: 42, amount: 25, method: 'GCash' }), /requires an internet connection/);
+  assert.equal(context.API.getSyncQueue().length, 0);
 });
 
 test('the facade exposes methods required by current pages and the sync UI', () => {
@@ -417,7 +364,7 @@ test('the facade exposes methods required by current pages and the sync UI', () 
   }
 });
 
-test('offline cancellation stays active locally until the server accepts it', async () => {
+test('booking cancellation requires internet and leaves the cached booking unchanged', async () => {
   const { context, collections } = createHarness();
   collections.bookings.push({
     id: 'BK-001',
@@ -426,21 +373,12 @@ test('offline cancellation stays active locally until the server accepts it', as
   });
   context.navigator.onLine = false;
 
-  const submission = await context.API.requestBookingCancellation(
+  await assert.rejects(context.API.requestBookingCancellation(
     'BK-001',
     'Customer requested cancellation'
-  );
-
-  assert.equal(submission.status, 'Confirmed');
-  assert.equal(submission.cancellation_pending, true);
+  ), /requires an internet connection/);
   assert.equal(collections.bookings[0].status, 'Confirmed');
-  assert.equal(collections.bookings[0].pending_sync, true);
-  const operation = context.API.getSyncQueue().find(
-    item => item.client_id === submission.operation_id
-  );
-  assert.equal(operation.data.status, 'Cancelled');
-  assert.equal(operation.data._base.status, 'Confirmed');
-  assert.equal(await context.API.flushSyncQueue(), null);
+  assert.equal(context.API.getSyncQueue().length, 0);
 });
 
 test('pending offline payments remain keyed by the exact local booking ID', async () => {
@@ -476,50 +414,32 @@ test('pending offline payments remain keyed by the exact local booking ID', asyn
   assert.equal(outstanding, 400, 'cancelled bookings must not contribute to outstanding balances');
 });
 
-test('creating and correcting queued payments do not mutate accepted booking totals', async () => {
+test('offline payment attempts do not mutate accepted booking totals', async () => {
   const { context, collections } = createHarness();
   collections.bookings.push({ id: 'BK-001', total: 500, amount_paid: 100, payment_status: 'Partially Paid' });
   collections.payments.push({ payment_id: 'PAY-001', booking_id: 'BK-001', amount: 100, method: 'GCash', payment_method: 'GCash', payment_status: 'Completed', payment_date: '2026-10-20 12:00:00' });
+  context.navigator.onLine = false;
 
-  await context.API.createPayment({ booking_id: 'BK-001', amount: 50, method: 'GCash', payment_date: '2026-10-20 12:00:00' });
-  assert.equal(collections.bookings[0].amount_paid, 100);
-  assert.equal(collections.bookings[0].payment_status, 'Partially Paid');
-
-  await context.API.updatePayment('PAY-001', { amount: 90, correction_reason: 'Synthetic correction' });
+  await assert.rejects(context.API.createPayment({ booking_id: 'BK-001', amount: 50, method: 'GCash' }), /requires an internet connection/);
   assert.equal(collections.bookings[0].amount_paid, 100);
   assert.equal(collections.bookings[0].payment_status, 'Partially Paid');
 });
 
-test('refund stays pending until acknowledgement and then synchronizes authoritative deposit state', async () => {
-  const { context, collections } = createHarness();
+test('deposit changes require internet and never enter the offline queue', async () => {
+  const { context } = createHarness();
+  context.navigator.onLine = false;
 
-  await context.API.upsertDeposit('BK-001', { amount_held: 350 });
-  const deducted = await context.API.addDepositDeduction('BK-001', {
-    affected_item: 'Table cloth', reason: 'Synthetic stain', amount: 50
-  });
-  const refunded = await context.API.refundDeposit('BK-001');
-
-  assert.equal(deducted.deduction_amount, 50);
-  assert.equal(deducted.refund_amount, 300);
-  assert.equal(refunded.refund_status, 'Held');
-  assert.equal(refunded.refund_pending, true);
-  assert.equal(
-    context.API.getSyncQueue().filter(item => item.entity === 'deposits').map(item => item.action).join(','),
-    'upsert,deduct,refund'
-  );
-  const result = await context.API.flushSyncQueue();
-  assert.equal(result.failed.length, 0);
+  await assert.rejects(context.API.upsertDeposit('BK-001', { amount_held: 350 }), /requires an internet connection/);
+  await assert.rejects(context.API.addDepositDeduction('BK-001', { affected_item: 'Table cloth', reason: 'Stain', amount: 50 }), /requires an internet connection/);
+  await assert.rejects(context.API.refundDeposit('BK-001'), /requires an internet connection/);
   assert.equal(context.API.getSyncQueue().length, 0);
-  assert.equal(collections.deposits[0].refund_status, 'Refunded');
-  assert.equal(collections.deposits[0].refund_date, '2026-10-29 12:00:00');
-  assert.equal(collections.deposits[0].pending_sync, false);
 });
 
-test('offline deposits reject zero and do not overwrite recorded held money', async () => {
-  const { context, collections } = createHarness();
+test('delivery and final return approval require internet', async () => {
+  const { context } = createHarness();
+  context.navigator.onLine = false;
 
-  await assert.rejects(() => context.API.upsertDeposit('BK-001', { amount_held: 0 }), /greater than zero/);
-  await context.API.upsertDeposit('BK-001', { amount_held: 350 });
-  await assert.rejects(() => context.API.upsertDeposit('BK-001', { amount_held: 400 }), /cannot be overwritten/);
-  assert.equal(collections.deposits.find(row => row.booking_id === 'BK-001').amount_held, 350);
+  await assert.rejects(context.API.upsertDelivery('BK-001', { delivery_method: 'self_pickup', delivery_fee: 0, fee_shouldered_by: 'renter' }), /requires an internet connection/);
+  await assert.rejects(context.API.finalizeReturn('BK-001'), /requires an internet connection/);
+  assert.equal(context.API.getSyncQueue().length, 0);
 });

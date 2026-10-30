@@ -11,7 +11,7 @@
   window.initSyncPanel=()=>{
     if(!document.querySelector('#syncPanel')){
       const panel=document.createElement('details');panel.id='syncPanel';panel.className='sync-panel border rounded p-3 mb-3 bg-white';
-      panel.innerHTML='<summary><span id="syncStatus" role="status" aria-live="polite"></span></summary><p id="offlineSetup" class="small mt-2 mb-2"></p><p id="syncReadError" class="small text-danger mb-2" role="alert" hidden></p><button type="button" class="btn btn-sm btn-outline-secondary" id="syncNow">Refresh data and sync</button><div id="syncOperations" class="mt-3"></div>';
+      panel.innerHTML='<summary><span id="syncStatus" role="status" aria-live="polite"></span></summary><p id="offlineSetup" class="small mt-2 mb-2"></p><p class="small text-muted mb-2">Offline recovery is limited to booking drafts, checklist drafts, and return-inspection drafts. Money, approvals, finalization, catalog, settings, and owner changes require internet.</p><p id="syncReadError" class="small text-danger mb-2" role="alert" hidden></p><button type="button" class="btn btn-sm btn-outline-secondary" id="syncNow">Refresh data and sync</button><div id="syncOperations" class="mt-3"></div>';
       document.querySelector('.admin-topbar')?.after(panel);
       panel.querySelector('#syncNow').addEventListener('click', () => runSync(async () => { await API.refreshSharedData(); await API.flushSyncQueue(); }));
       panel.addEventListener('submit',e=>{
@@ -47,7 +47,13 @@
     if(error){error.textContent=readError;error.hidden=!readError;}
     document.querySelector('#syncNow').disabled=!navigator.onLine||syncing||working;
     document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||!navigator.onLine;});
-    document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Offline app pages are cached on this device. With an existing signed-in session and saved data, supported entries can be recorded locally; the cache does not download new server data.':'Offline setup is not complete yet. Keep this page online until setup finishes.';
+    document.querySelectorAll('[data-online-required]').forEach(control=>{
+      control.setAttribute('aria-disabled',navigator.onLine?'false':'true');
+      control.classList.toggle('opacity-50',!navigator.onLine);
+      if(!navigator.onLine)control.title='Internet connection required';
+      else if(control.title==='Internet connection required')control.removeAttribute('title');
+    });
+    document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Recovery pages are cached on this device. Offline drafts are not official until the server accepts them; the cache does not download new server data.':'Offline recovery setup is not complete yet. Keep this page online until setup finishes.';
     if(working||document.activeElement?.closest('.sync-edit'))return;
 
     // Build stale-edit comparison table for conflicts
@@ -91,6 +97,11 @@
   }
   window.addEventListener('sync-state-changed',e=>{if(e.detail?.syncing!==undefined)syncing=e.detail.syncing;render();});
   window.addEventListener('offline-ready',render);
+  document.addEventListener('click',event=>{
+    if(navigator.onLine||!event.target.closest?.('[data-online-required]'))return;
+    event.preventDefault();event.stopImmediatePropagation();
+    window.showAdminToast?.('This action requires an internet connection.','warning');
+  },true);
   document.addEventListener('input',e=>{const modal=e.target.closest('#bookingDetailModal');if(modal)modal.dataset.edited='true';});
   document.addEventListener('change',e=>{const modal=e.target.closest('#bookingDetailModal');if(modal)modal.dataset.edited='true';});
   document.addEventListener('hidden.bs.modal',e=>{if(e.target.id==='bookingDetailModal')delete e.target.dataset.edited;});

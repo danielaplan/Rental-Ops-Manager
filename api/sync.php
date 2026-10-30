@@ -47,6 +47,10 @@ foreach ($queue as $item) {
         if (!is_array($item) || !is_string($client) || $client==='' || strlen($client)>128) domainFail('A valid operation ID is required.');
         $entity=$item['entity'] ?? ''; $action=$item['action'] ?? ''; $data=$item['data'] ?? null;
         if (!is_string($entity) || !is_string($action) || !is_array($data)) domainFail('Operation entity, action, and object data are required.');
+        $offlineAllowed=($entity==='bookings' && $action==='create')
+            || ($entity==='bookingItems' && in_array($action,['generate','update'],true))
+            || ($entity==='equipment' && $action==='inspect');
+        if (!$offlineAllowed) domainFail('This action requires an internet connection and cannot be replayed from the offline queue.',422,'online_required');
         if (isset($item['owner_id']) && (int)$item['owner_id']!==(int)$actor['user_id']) domainFail('This operation belongs to another user.');
         $hash=hash('sha256',json_encode([$entity,$action,$data,$item['local_id'] ?? null],JSON_THROW_ON_ERROR));
         $pdo->beginTransaction();
