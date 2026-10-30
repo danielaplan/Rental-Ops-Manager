@@ -6,7 +6,7 @@ const { test } = require('node:test');
 
 const root = path.resolve(__dirname, '..');
 
-function createHarness() {
+function createHarness(harnessOptions = {}) {
   const values = new Map();
   const requests = [];
   const collections = {
@@ -78,6 +78,7 @@ function createHarness() {
   };
 
   const serverRows = {
+    bookings: [],
     services: [{ service_id: 1, service_name: 'Karaoke Rental', status: 'Active' }],
     bookingItems: [{
       booking_item_id: 1, booking_id: 1, rental_item_id: 1,
@@ -91,6 +92,17 @@ function createHarness() {
 
   const fetch = async (url, options = {}) => {
     requests.push({ url: String(url), options });
+    if (String(url).includes('/api/bookings.php?do=create')) {
+      if (harnessOptions.bookingCreateNetworkFailure) throw new TypeError('synthetic network failure');
+      if (harnessOptions.bookingCreateValidationError) return {
+        ok: false,
+        text: async () => JSON.stringify({ ok: false, error: 'Synthetic booking validation error.', code: 'validation' })
+      };
+      const input = JSON.parse(options.body || '{}');
+      const saved = { ...input, booking_id: 42, id: 42, status: input.status || 'Pending', amount_paid: 0 };
+      serverRows.bookings = [saved];
+      return { ok: true, text: async () => JSON.stringify({ ok: true, data: saved }) };
+    }
     if (String(url).includes('/api/sync.php')) {
       const queue = JSON.parse(options.body).queue;
       const failed = queue.filter(operation => operation.entity === 'payments' && String(operation.data.amount) === '13.37');
@@ -333,7 +345,9 @@ test('shared refresh includes every unscoped admin collection', async () => {
 
 test('flush removes an acknowledged booking draft and records its server ID alias', async () => {
   const { context, values } = createHarness();
+  context.navigator.onLine = false;
   const created = await context.API.createBooking({ customer_name: 'Queued booking', contact: 'TEST', service_id: 1 });
+  context.navigator.onLine = true;
 
   const result = await context.API.flushSyncQueue();
 
@@ -341,6 +355,50 @@ test('flush removes an acknowledged booking draft and records its server ID alia
   assert.equal(context.API.getSyncQueue().length, 0);
   const aliases = JSON.parse(values.get('er_sync_ids'));
   assert.equal(aliases[`bookings:${created.id}`], 42);
+});
+
+test('online booking creation uses the authoritative endpoint without entering the queue', async () => {
+  const { context, requests } = createHarness();
+  const saved = await context.API.createBooking({ customer_name: 'Online booking', contact: 'TEST', service_id: 1, status: 'Pending' });
+
+  assert.equal(saved.id, 42);
+  assert.equal(context.API.getSyncQueue().length, 0);
+  assert.ok(requests.some(request => request.url.includes('/api/bookings.php?do=create')));
+  assert.equal(context.API.savedMessage(), 'Saved by the server.');
+});
+
+test('server booking validation errors are not converted into offline drafts', async () => {
+  const { context, collections } = createHarness({ bookingCreateValidationError: true });
+
+  await assert.rejects(context.API.createBooking({ customer_name: 'Invalid online booking', contact: 'TEST', service_id: 1 }), /Synthetic booking validation error/);
+  assert.equal(collections.bookings.length, 0);
+  assert.equal(context.API.getSyncQueue().length, 0);
+});
+
+test('a genuine network failure falls back to a Pending unpaid booking draft', async () => {
+  const { context } = createHarness({ bookingCreateNetworkFailure: true });
+  const created = await context.API.createBooking({ customer_name: 'Recovery booking', contact: 'TEST', service_id: 1, status: 'Confirmed', amount_paid: 400, approve_conflicts: true });
+  const operation = context.API.getSyncQueue().find(item => item.entity === 'bookings');
+
+  assert.equal(created.status, 'Pending');
+  assert.equal(created.amount_paid, 0);
+  assert.equal(operation.data.status, 'Pending');
+  assert.equal('approve_conflicts' in operation.data, false);
+  assert.equal(context.API.savedMessage(), 'Saved as an offline draft. Pending server validation.');
+});
+
+test('intended payment reminders follow a booking ID after server acceptance', async () => {
+  const { context } = createHarness();
+  context.navigator.onLine = false;
+  const created = await context.API.createBooking({ customer_name: 'Reminder booking', contact: 'TEST', service_id: 1 });
+  context.API.rememberIntendedPayment(created.id, 400, 'GCash');
+  context.navigator.onLine = true;
+
+  await context.API.flushSyncQueue();
+
+  assert.equal(context.API.getIntendedPayment(created.id), null);
+  assert.equal(context.API.getIntendedPayment(42).amount, 400);
+  assert.equal(context.API.getIntendedPayment(42).method, 'GCash');
 });
 
 test('payments never enter the offline recovery queue', async () => {
@@ -356,6 +414,7 @@ test('the facade exposes methods required by current pages and the sync UI', () 
     'getItemHistory', 'getBooking', 'getPaymentsForBooking', 'getSettings',
     'getWebsiteContent', 'refreshSharedData', 'flushSyncQueue', 'savedMessage',
     'requestBookingCancellation',
+    'rememberIntendedPayment', 'getIntendedPayment', 'clearIntendedPayment',
     'getDeposit', 'upsertDeposit', 'getDelivery', 'upsertDelivery', 'finalizeReturn'
   ];
 

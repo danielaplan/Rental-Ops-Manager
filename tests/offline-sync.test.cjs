@@ -25,28 +25,36 @@ async function client() {
 test('offline booking draft replays once and a conflicting draft is retained', async () => {
   const request = await client();
   let sequence = 0;
-  const booking = {
-    customer_name: 'Offline conflict fixture', contact: `O${Date.now()}`, service_ids: [1],
-    event_start_datetime: '9095-01-01 10:00:00', event_end_datetime: '9095-01-01 12:00:00',
-    event_location: 'Synthetic offline venue', status: 'Confirmed', agreed_total: '100.00',
-  };
   const operation = data => ({
     client_id: `offline-booking-${Date.now()}-${++sequence}`,
     entity: 'bookings', action: 'create', data,
   });
 
-  const firstOperation = operation(booking);
+  const firstOperation = operation({
+    customer_name: 'Offline idempotency fixture', contact: `O${Date.now()}`, service_ids: [1],
+    event_start_datetime: '9095-01-02 10:00:00', event_end_datetime: '9095-01-02 12:00:00',
+    event_location: 'Synthetic offline venue', status: 'Pending', agreed_total: '100.00',
+  });
   const first = await request('api/sync.php?do=commit', { queue: [firstOperation] });
   assert.equal(first.committed.length, 1, JSON.stringify(first));
   assert.equal(first.conflicts.length, 0, JSON.stringify(first));
   assert.deepEqual(await request('api/sync.php?do=commit', { queue: [firstOperation] }), first);
 
-  const conflictOperation = operation({ ...booking, contact: `C${Date.now()}` });
+  const reserved = await request('api/bookings.php?do=create', {
+    customer_name: 'Authoritative conflict fixture', contact: `A${Date.now()}`, service_ids: [1],
+    event_start_datetime: '9095-01-01 10:00:00', event_end_datetime: '9095-01-01 12:00:00',
+    event_location: 'Synthetic online venue', status: 'Confirmed', agreed_total: '100.00',
+  }, 201);
+  const conflictOperation = operation({
+    customer_name: 'Offline conflict fixture', contact: `C${Date.now()}`, service_ids: [1],
+    event_start_datetime: '9095-01-01 10:00:00', event_end_datetime: '9095-01-01 12:00:00',
+    event_location: 'Synthetic offline venue', status: 'Pending', agreed_total: '100.00',
+  });
   const conflict = await request('api/sync.php?do=commit', { queue: [conflictOperation] });
   assert.equal(conflict.committed.length, 0, JSON.stringify(conflict));
   assert.equal(conflict.conflicts.length, 1, JSON.stringify(conflict));
   assert.equal(conflict.conflicts[0].client_id, conflictOperation.client_id);
-  assert.ok(conflict.conflicts[0].details.bookings.some(row => Number(row.booking_id) === Number(first.committed[0].server_id)));
+  assert.ok(conflict.conflicts[0].details.bookings.some(row => Number(row.booking_id) === Number(reserved.booking_id)));
 });
 
 test('offline payment replay is rejected without changing the booking', async () => {

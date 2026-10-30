@@ -8,7 +8,9 @@
   const base = new URL('../api/',document.currentScript.src).href;
   const fields = {bookings:'id',categories:'category_id',services:'service_id',addons:'addon_id',customers:'customer_id',payments:'payment_id',rentalItems:'rental_item_id',gallery:'image_id',packages:'package_id',checklistTemplates:'template_id',bookingItems:'booking_item_id',itemReleases:'release_id',itemHistory:'history_id',delivery:'booking_id',deposits:'booking_id'};
   const direct = Object.fromEntries(Object.keys(API).filter(name=>typeof API[name]==='function').map(name=>[name,API[name].bind(API)]));
+  const intendedPaymentKey='er_intended_payments';
   let flushing = null;
+  let lastWriteMode = 'server';
   const reads = new Map();
   const uuid = () => crypto.randomUUID();
   const session = () => STORAGE._get(STORAGE_KEYS.adminSession, {});
@@ -26,6 +28,15 @@
     return list.sort((a,b) => a.sequence-b.sequence || a.client_id.localeCompare(b.client_id));
   };
   const persist = op => { STORAGE._set(prefix+op.client_id,op); emit('sync-state-changed'); };
+  const offlineAllowedOperation=op=>(op?.entity==='bookings'&&op?.action==='create')
+    ||(op?.entity==='bookingItems'&&['generate','update'].includes(op?.action))
+    ||(op?.entity==='equipment'&&op?.action==='inspect');
+  const retainRestrictedLegacyOperations=()=>{
+    queue().forEach(op=>{
+      if(offlineAllowedOperation(op)||op.status!=='pending')return;
+      persist({...op,status:'failed',reason:'This older offline action now requires an internet connection. Review it, discard the local change, and perform the action again while online.',legacy_online_required:true});
+    });
+  };
   const dirty = (entity,id) => queue().some(op => op.entity===entity && String(op.local_id)===String(id));
   const ref = (entity,id) => {
     const aliases = STORAGE._get('er_sync_ids', {});
@@ -141,6 +152,10 @@
     const localCustomerId=entity==='bookings'?row?.customer_id:null;
     if(row){row[field]=serverId;row._server_id=serverId;saveRows(entity,rows);}
     if(entity==='bookings'){
+      const reminders=STORAGE._get(intendedPaymentKey,{});
+      if(reminders[localId]){
+        reminders[serverId]=reminders[localId];delete reminders[localId];STORAGE._set(intendedPaymentKey,reminders);
+      }
       if(row&&serverRecord?.customer_id!=null){
         row.customer_id=serverRecord.customer_id;saveRows(entity,rows);
         const customers=STORAGE.getAll('customers'),customer=customers.find(value=>String(value.customer_id)===String(localCustomerId));
@@ -254,48 +269,43 @@
   const onlineOnly=(name,label)=>async(...args)=>{
     if(!navigator.onLine)throw onlineError(label);
     const method=direct[name];if(!method)throw new Error(`${label} is unavailable.`);
-    const result=await method(...args);reads.clear();return result;
+    const result=await method(...args);lastWriteMode='server';reads.clear();return result;
   };
-  const actions={createBooking:['bookings','create']};
-  Object.entries(actions).forEach(([name,[entity,action]])=>{
-    API[name]=async function(...args){
+  const createOfflineBookingDraft=input=>{
+      const entity='bookings',action='create';
       if(!owner())throw new Error('Sign in before saving.');
-      if(entity==='bookings'&&action==='update'&&String(args[1]?.status).toLowerCase()==='completed')throw new Error('Complete a return inspection before marking this booking Completed.');
-      const id=action==='create'?null:args[0];
-      const old=id==null?null:STORAGE.getAll(entity).find(row=>String(row[fields[entity]])===String(id));
-      const input=action==='create'?(args[0]||{}):action==='update'?(args[1]||{}):{};
-      if(entity==='bookings')validateBookingDraft(input);
-      if(entity==='payments'){
-        validatePaymentDraft(input,old);
-        input.amount=centsDecimal(moneyCents(input.amount??old?.amount));
-      }
-      let result;
-      if(action==='create')result=createLocal(entity,input);
-      else if(action==='update')result=updateLocal(entity,id,input);
-      else result=deleteLocal(entity,id);
-      if(action==='update'&&!result)throw new Error('Record not found on this device.');
-      const localId=action==='create'?result[fields[entity]]:id;
-      const data=payload(entity,input);if(action!=='create')data.id=localId;
-      if(entity==='bookings'&&action==='update'&&old){
-        data._base={};
-        ['status','event_date','start_time','end_time','event_location','package_id','addon_ids','discount','fees','agreed_total','preparation_minutes','travel_minutes']
-          .filter(key=>key in data).forEach(key=>data._base[key]=structuredClone(old[key]??(key==='event_location'?old.location:null)));
-        if('service_ids' in data)data._base.service_id=old.service_id??old.service_ids?.[0]??null;
-      }
+      validateBookingDraft(input);
+      const safeInput={...input,status:'Pending',amount_paid:0};
+      delete safeInput.approve_conflicts;delete safeInput.conflicting_booking_ids;delete safeInput.override_reason;delete safeInput.approval_base;
+      const result=createLocal(entity,safeInput);
+      const localId=result[fields[entity]];
+      const data=payload(entity,safeInput);
       const operation=enqueue(entity,action,data,localId);
-        if(entity==='bookings'&&action==='create'){
-          upsertLocalCustomer(result);generateLocalChecklist(localId,result.service_ids||[],result.package_id);
-        enqueue('bookingItems','generate',{booking_id:localId,service_ids:data.service_ids||[]},localId);
-      }
+      upsertLocalCustomer(result);generateLocalChecklist(localId,result.service_ids||[],result.package_id);
+      enqueue('bookingItems','generate',{booking_id:localId,service_ids:data.service_ids||[]},localId);
+      lastWriteMode='draft';
       return {...result,operation_id:operation.client_id};
-    };
-  });
+  };
+  API.createBooking=async input=>{
+    if(!owner())throw new Error('Sign in before saving.');
+    validateBookingDraft(input||{});
+    if(!navigator.onLine)return createOfflineBookingDraft(input||{});
+    try{
+      const saved=await direct.createBooking(input||{});lastWriteMode='server';reads.clear();return saved;
+    }catch(error){
+      if(error?.code!=='network_error')throw error;
+      return createOfflineBookingDraft(input||{});
+    }
+  };
   [
     ['createCategory','Catalog changes'],['updateCategory','Catalog changes'],['deleteCategory','Catalog changes'],
     ['createService','Catalog changes'],['updateService','Catalog changes'],['deleteService','Catalog changes'],
     ['createAddon','Catalog changes'],['updateAddon','Catalog changes'],['deleteAddon','Catalog changes'],
     ['createRentalItem','Inventory changes'],['updateRentalItem','Inventory changes'],['deleteRentalItem','Inventory changes'],
-    ['createGalleryImage','Gallery changes'],['updateGalleryImage','Gallery changes'],['deleteGalleryImage','Gallery changes'],
+    ['uploadGalleryImage','Gallery uploads'],['createGalleryImage','Gallery changes'],['updateGalleryImage','Gallery changes'],['deleteGalleryImage','Gallery changes'],
+    ['createPackage','Package changes'],['updatePackage','Package changes'],['deletePackage','Package changes'],
+    ['createChecklistTemplate','Checklist template changes'],['updateChecklistTemplate','Checklist template changes'],['deleteChecklistTemplate','Checklist template changes'],
+    ['createOwner','Owner account changes'],['setOwnerActive','Owner account changes'],['resetOwnerPassword','Owner account changes'],
     ['updateBooking','Booking changes and approvals'],['deleteBooking','Booking deletion'],
     ['createPayment','Payments'],['updatePayment','Payments']
   ].forEach(([name,label])=>{API[name]=onlineOnly(name,label);});
@@ -377,6 +387,16 @@
     }catch(error){emit('api-read-error',{entity:'delivery',message:error.message});return await API.getDelivery(id);}
   };
   API.upsertDelivery=onlineOnly('upsertDelivery','Delivery changes');
+  API.rememberIntendedPayment=(bookingId,amount,method)=>{
+    const cents=moneyCents(amount);if(cents<=0)return null;
+    const reminders=STORAGE._get(intendedPaymentKey,{});
+    reminders[bookingId]={amount:cents/100,method:method||'',recorded:false,created_at:new Date().toISOString()};
+    STORAGE._set(intendedPaymentKey,reminders);emit('api-data-changed',{entity:'bookings'});return reminders[bookingId];
+  };
+  API.getIntendedPayment=bookingId=>STORAGE._get(intendedPaymentKey,{})[bookingId]||null;
+  API.clearIntendedPayment=bookingId=>{
+    const reminders=STORAGE._get(intendedPaymentKey,{});delete reminders[bookingId];STORAGE._set(intendedPaymentKey,reminders);emit('api-data-changed',{entity:'bookings'});
+  };
   API.getSyncQueue=queue;
   API.discardSyncOperation=id=>{
     const operation=queue().find(row=>row.client_id===id);
@@ -404,6 +424,7 @@
   };
   const flush = async () => {
     if(!navigator.onLine||!owner()||!session()?.session_token)return null;
+    retainRestrictedLegacyOperations();
     const aggregate={committed:[],conflicts:[],failed:[]};
     let pending=queue().filter(op=>op.status==='pending');
     while(pending.length){
@@ -449,13 +470,14 @@
     flushing=(navigator.locks?navigator.locks.request('akad-outbox',flush):flush()).finally(()=>{flushing=null;});
     return flushing;
   };
-  API.savedMessage=()=>navigator.onLine?'Saved on this device. Pending Sync until accepted.':'Saved offline. Pending Sync.';
+  API.savedMessage=()=>lastWriteMode==='draft'?'Saved as an offline draft. Pending server validation.':'Saved by the server.';
   // Upgrade old queue entries without removing any failed or conflicting draft.
   const legacy=STORAGE._get('er_sync_queue',[]);
   if(legacy.length&&owner()){
     legacy.forEach((op,i)=>persist({...op,client_id:uuid(),owner_id:owner(),local_id:op.local_id||op.data?.id,status:'pending',sequence:Date.now()*1000+i,timestamp:op.timestamp||new Date().toISOString()}));
     localStorage.removeItem('er_sync_queue');
   }
+  retainRestrictedLegacyOperations();
   window.addEventListener('online',()=>{API.flushSyncQueue();API.refreshSharedData();});
   window.addEventListener('offline',()=>emit('sync-state-changed'));
   window.addEventListener('storage',()=>emit('sync-state-changed'));

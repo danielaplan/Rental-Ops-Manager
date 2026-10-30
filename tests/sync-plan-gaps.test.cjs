@@ -36,6 +36,21 @@ test('offline replay accepts recovery drafts and rejects authoritative operation
   assert.equal(booking.committed.length, 1, JSON.stringify(booking));
   assert.equal(booking.failed.length, 0, JSON.stringify(booking));
 
+  for (const invalidDraft of [
+    { status: 'Confirmed' },
+    { status: 'Pending', amount_paid: '10.00' },
+    { status: 'Pending', approve_conflicts: true, conflicting_booking_ids: [booking.committed[0].server_id], override_reason: 'Not allowed offline' },
+  ]) {
+    const result = await commit('bookings', 'create', {
+      customer_name: 'Invalid offline authority fixture', contact: `I${Date.now()}${sequence}`, service_ids: [1],
+      event_start_datetime: '9088-04-02 10:00:00', event_end_datetime: '9088-04-02 12:00:00',
+      event_location: 'Synthetic venue', agreed_total: '100.00', ...invalidDraft,
+    });
+    assert.equal(result.committed.length, 0, JSON.stringify(result));
+    assert.equal(result.failed.length, 1, JSON.stringify(result));
+    assert.match(result.failed[0].reason, /must remain Pending/);
+  }
+
   for (const [entity, action, data] of [
     ['bookings', 'update', { id: booking.committed[0].server_id, status: 'Confirmed' }],
     ['bookings', 'delete', { id: booking.committed[0].server_id, cancellation_reason: 'Synthetic' }],

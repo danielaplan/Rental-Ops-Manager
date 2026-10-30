@@ -12,7 +12,11 @@ metadata:
 
 Offline synchronization is now a recovery-only outbox. The browser queues new booking drafts, checklist generation/edits, and return-inspection drafts; authoritative money, approval, lifecycle-finalization, delivery, catalog, settings/content, and owner writes use direct online endpoints. `api/sync.php` enforces the same allowlist and returns `online_required` for disallowed replay, including requests from older clients. The booking UI marks online-required controls while offline, and the sync panel explains that drafts are not official until accepted.
 
+After the main-branch rebase, booking creation was made explicitly online-first: a local Pending unpaid draft is created only when offline or when the create transport fails, never for an ordinary server validation error. Offline-entered payment amounts are local intention reminders rather than payments and follow the booking's accepted ID until recorded online. The server also rejects offline create payloads that claim Confirmed status, accepted money, or overlap approval. Final Hostinger scenarios F04 and F12 document the exact approval and recovery checks.
+
 Focused frontend contract/workflow checks, backend allowlist checks, offline conflict/idempotency checks, and syntax checks passed on isolated synthetic databases. The complete acceptance result is recorded in the dated development journal after its final rerun. No schema change or migration was required; no normal development, Hostinger, staging, production, or operational database was used.
+
+The final post-rebase non-migration acceptance run passed all 13 runner stages with unchanged source: ten backend/sync files, 68 frontend tests, syntax, and whitespace checks. Evidence is `tests/acceptance-results/1793337477627-5976/summary.json`. A PHP 8.0-compatible `array_merge()` replacement fixed the return-inspection runtime error found by the first full rerun without changing the approved workflow.
 
 ## Awaiting Payment workflow implemented — 2026-10-16
 

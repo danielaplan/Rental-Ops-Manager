@@ -42,4 +42,5 @@ Use future dates far enough away from real bookings. Replace the dates only if t
 | F06 | F: Completed rental payment ₱500; held deposit ₱300; deduction ₱100 with reason `HST FINAL test deduction`; refund the remaining ₱200 only. |
 | F08 | H: Completed payment ₱200 with reference `HST-F08-PAID`; cancellation reason `HST FINAL — customer cancelled test booking`. |
 | F10 | I: Use a partial completed rental payment. Record the visible remaining balance before return review, then settle exactly that remaining amount after the booking becomes Awaiting Payment. |
+| F12 | J: Enter an intended ₱400 payment while offline, then record it online once after synchronization with reference `HST-F12-INTENT`. |
 

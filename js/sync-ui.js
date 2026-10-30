@@ -1,5 +1,32 @@
 ﻿(() => {
   let syncing=false,working=false,readError='',refreshTimer=null;
+  const onlinePolicySelectors=[
+    '#addonForm','#categoryForm','#contentForm','#imageForm','#itemForm','#ownerForm','#packageForm','#templateForm','#serviceForm','#settingsForm',
+    '#addAddonBtn','#addCategoryBtn','#addImageBtn','#addItemBtn','#addOwnerBtn','#addPackageBtn','#addServiceBtn',
+    '.js-delete-addon','.js-edit-addon','.js-toggle-addon-status','.js-delete-cat','.js-edit-cat','.js-delete-img','.js-edit-img',
+    '.js-delete-item','.js-edit-item','.js-owner-password','.js-owner-status','.js-archive-package','.js-edit-package',
+    '.js-template-package','.js-template-toggle','.js-delete-service','.js-edit-service','.js-toggle-service-status'
+  ].join(',');
+  function markOnlineControls(root=document){
+    const matches=[];
+    if(root.nodeType===1&&root.matches?.(onlinePolicySelectors))matches.push(root);
+    root.querySelectorAll?.(onlinePolicySelectors).forEach(node=>matches.push(node));
+    matches.forEach(node=>node.setAttribute('data-online-required',''));
+  }
+  function applyOnlineControlState(){
+    markOnlineControls();
+    document.querySelectorAll('[data-online-required]').forEach(control=>{
+      const targets=control.matches('form')?control.querySelectorAll('button[type="submit"],input,select,textarea'):[control];
+      targets.forEach(target=>{
+        if(!navigator.onLine&&!target.disabled){target.disabled=true;target.dataset.onlinePolicyDisabled='true';}
+        else if(navigator.onLine&&target.dataset.onlinePolicyDisabled==='true'){target.disabled=false;delete target.dataset.onlinePolicyDisabled;}
+      });
+      control.setAttribute('aria-disabled',navigator.onLine?'false':'true');
+      control.classList.toggle('opacity-50',!navigator.onLine);
+      if(!navigator.onLine)control.title='Internet connection required';
+      else if(control.title==='Internet connection required')control.removeAttribute('title');
+    });
+  }
   async function runSync(work) {
     if (working) return;
     working=true; readError=''; render();
@@ -36,6 +63,10 @@
         void runSync(async()=>{API.discardSyncOperation(discard.dataset.discard);if(navigator.onLine)await API.refreshSharedData();});
       });
     }
+    if(typeof MutationObserver!=='undefined'&&!window.akadOnlinePolicyObserver){
+      window.akadOnlinePolicyObserver=new MutationObserver(records=>{records.forEach(record=>record.addedNodes.forEach(markOnlineControls));applyOnlineControlState();});
+      window.akadOnlinePolicyObserver.observe(document.body,{childList:true,subtree:true});
+    }
     render();
   };
   function render(){
@@ -47,12 +78,7 @@
     if(error){error.textContent=readError;error.hidden=!readError;}
     document.querySelector('#syncNow').disabled=!navigator.onLine||syncing||working;
     document.querySelectorAll('#syncOperations button').forEach(button=>{button.disabled=working||syncing||!navigator.onLine;});
-    document.querySelectorAll('[data-online-required]').forEach(control=>{
-      control.setAttribute('aria-disabled',navigator.onLine?'false':'true');
-      control.classList.toggle('opacity-50',!navigator.onLine);
-      if(!navigator.onLine)control.title='Internet connection required';
-      else if(control.title==='Internet connection required')control.removeAttribute('title');
-    });
+    applyOnlineControlState();
     document.querySelector('#offlineSetup').textContent=window.akadOfflineReady?'Recovery pages are cached on this device. Offline drafts are not official until the server accepts them; the cache does not download new server data.':'Offline recovery setup is not complete yet. Keep this page online until setup finishes.';
     if(working||document.activeElement?.closest('.sync-edit'))return;
 
@@ -99,6 +125,11 @@
   window.addEventListener('offline-ready',render);
   document.addEventListener('click',event=>{
     if(navigator.onLine||!event.target.closest?.('[data-online-required]'))return;
+    event.preventDefault();event.stopImmediatePropagation();
+    window.showAdminToast?.('This action requires an internet connection.','warning');
+  },true);
+  document.addEventListener('submit',event=>{
+    if(navigator.onLine||!event.target.matches?.('[data-online-required]'))return;
     event.preventDefault();event.stopImmediatePropagation();
     window.showAdminToast?.('This action requires an internet connection.','warning');
   },true);
