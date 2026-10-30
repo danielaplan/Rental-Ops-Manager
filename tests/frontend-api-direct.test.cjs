@@ -115,6 +115,16 @@ test('gallery image uploads use authenticated multipart form data', async () => 
   assert.deepEqual(requests[0].options.body.fields, [['image', file]]);
 });
 
+test('service image uploads use the dedicated authenticated multipart endpoint', async () => {
+  const file = { name: 'karaoke.jpg', type: 'image/jpeg' };
+  const { API, requests } = harness(() => ({ data: '/rental/uploads/services/saved.jpg' }));
+  const image = await API.uploadServiceImage(file);
+  assert.equal(image, '/rental/uploads/services/saved.jpg');
+  assert.equal(requests[0].url, 'http://localhost/rental/api/service-upload.php');
+  assert.equal(requests[0].options.headers.Authorization, 'Bearer test-token');
+  assert.deepEqual(requests[0].options.body.fields, [['image', file]]);
+});
+
 test('non-JSON and API errors produce useful typed errors', async () => {
   const invalid = harness(() => ({ status: 500, raw: '<?php error' }));
   await assert.rejects(invalid.API.getServices(), error => error.code === 'invalid_response' && error.status === 500);

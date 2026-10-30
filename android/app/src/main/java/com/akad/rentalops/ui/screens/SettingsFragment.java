@@ -27,8 +27,6 @@ public class SettingsFragment extends FormScreen {
             case "booking_hours_open": return "sHoursOpen";
             case "booking_hours_close": return "sHoursClose";
             case "cancellation_policy": return "sCancelPolicy";
-            case "primary_color": return "sPrimaryColor";
-            case "accent_color": return "sAccentColor";
             default: return null;
         }
     }
@@ -48,9 +46,6 @@ public class SettingsFragment extends FormScreen {
                 .add(FormField.time("booking_hours_open", "Booking Hours — Open").value("08:00"))
                 .add(FormField.time("booking_hours_close", "Booking Hours — Close").value("22:00"))
                 .add(FormField.multi("cancellation_policy", "Cancellation Policy")));
-        l.add(new Section("Appearance (hex colours, applied to the public website)")
-                .add(FormField.text("primary_color", "Primary Color").value("#1F4E45"))
-                .add(FormField.text("accent_color", "Accent Color").value("#D9A441")));
         return l;
     }
 

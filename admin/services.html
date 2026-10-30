@@ -45,6 +45,7 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="svcId">
+        <input type="hidden" id="svcImage">
         <div class="row g-3">
           <div class="col-12">
             <label class="form-label" for="svcName">Service Name</label>
@@ -53,6 +54,12 @@
           <div class="col-12">
             <label class="form-label" for="svcDescription">Description</label>
             <textarea class="form-control" id="svcDescription" rows="2" required></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="svcImageFile">Service Image</label>
+            <input type="file" class="form-control" id="svcImageFile" accept="image/jpeg,image/png,image/gif,image/webp">
+            <div class="form-text">JPG, PNG, GIF, or WebP, up to 5 MB. Leave empty to keep the current image.</div>
+            <img id="svcImagePreview" class="mt-2 rounded d-none" alt="Service image preview" style="width:100%;max-height:190px;object-fit:cover">
           </div>
           <div class="col-md-6">
             <label class="form-label" for="svcPreparation">Default preparation (minutes)</label>
@@ -98,6 +105,9 @@ adminReady(async function () {
   $('#addServiceBtn').onAdmin('click', function () {
     $('#serviceForm')[0].reset();
     $('#svcId').val('');
+    $('#svcImage').val('');
+    $('#svcImageFile').val('');
+    $('#svcImagePreview').attr('src', '').addClass('d-none');
     $('#serviceFormTitle').text('Add Service');
     $('#svcStatus').val('Active');
     $('#svcPreparation, #svcTravel').val(0);
@@ -112,6 +122,9 @@ adminReady(async function () {
     $('#svcId').val(s.service_id);
     $('#svcName').val(s.name);
     $('#svcDescription').val(s.description);
+    $('#svcImage').val(s.image || '');
+    $('#svcImageFile').val('');
+    $('#svcImagePreview').attr('src', s.image || '').toggleClass('d-none', !s.image);
     $('#svcStatus').val(s.status);
     $('#svcPreparation').val(s.default_preparation_minutes || 0);
     $('#svcTravel').val(s.default_travel_minutes || 0);
@@ -152,10 +165,13 @@ adminReady(async function () {
     const id = $('#svcId').val();
     const data = {
       name: $('#svcName').val().trim(), description: $('#svcDescription').val().trim(), status: $('#svcStatus').val(),
+      image: $('#svcImage').val(),
       default_preparation_minutes: Number($('#svcPreparation').val()), default_travel_minutes: Number($('#svcTravel').val())
     };
     const submit = $(this).find('[type="submit"]').prop('disabled', true);
     try {
+      const imageFile = $('#svcImageFile')[0].files[0];
+      if (imageFile) data.image = await API.uploadServiceImage(imageFile);
       if (id) await API.updateService(id, data);
       else await API.createService(data);
       bootstrap.Modal.getInstance(document.getElementById('serviceFormModal')).hide();
@@ -166,6 +182,13 @@ adminReady(async function () {
     } finally {
       submit.prop('disabled', false);
     }
+  });
+
+  $('#svcImageFile').onAdmin('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    $('#svcImagePreview').attr('src', previewUrl).removeClass('d-none').one('load', () => URL.revokeObjectURL(previewUrl));
   });
 });
 

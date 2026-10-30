@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+    <EditText android:id="@+id/serviceNameInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Service name" android:singleLine="true" />
+    <EditText android:id="@+id/serviceDescriptionInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:hint="Description" android:minLines="2" android:gravity="top" />
+    <Button android:id="@+id/serviceChooseImage" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Choose image from device" />
+    <TextView android:id="@+id/serviceImageStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Optional. JPG, PNG, GIF, or WebP up to 5 MB." android:textColor="@color/muted" android:textSize="12sp" />
+    <ImageView android:id="@+id/serviceImagePreview" android:layout_width="match_parent" android:layout_height="170dp" android:layout_marginTop="10dp" android:contentDescription="Service image preview" android:scaleType="centerCrop" android:visibility="gone" />
+    <EditText android:id="@+id/servicePreparationInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:hint="Preparation minutes" android:inputType="number" />
+    <EditText android:id="@+id/serviceTravelInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:hint="Travel minutes" android:inputType="number" />
+    <Spinner android:id="@+id/serviceStatusInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" />
+    <TextView android:id="@+id/serviceFormError" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/badge_danger" android:visibility="gone" />
+  </LinearLayout>
+</ScrollView>

@@ -17,6 +17,10 @@ The app connects to the production PHP API at `https://akadrentals.uccit3b.com/a
 
 The app needs an owner account that exists in the deployed database. It no longer accepts the former in-memory demo credentials.
 
+## Visual design
+
+The native interface follows the current web admin presentation: charcoal navigation, warm brown and bronze accents, cream backgrounds, softly rounded panels, and a layered glass-style login screen. This alignment is implemented in Android resources and layouts only; it does not duplicate or replace the PHP business rules, web offline queue, or server synchronization logic.
+
 ## Local verification
 
 From this directory, run:

@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS SERVICES (
     service_id   INT          NOT NULL AUTO_INCREMENT,
     service_name VARCHAR(50)  NOT NULL,
     description  TEXT,
+    image        VARCHAR(500) NULL,
     default_preparation_minutes INT UNSIGNED NOT NULL DEFAULT 0,
     default_travel_minutes INT UNSIGNED NOT NULL DEFAULT 0,
     status       VARCHAR(20) NOT NULL DEFAULT 'Active',

@@ -1,7 +1,11 @@
 package com.akad.rentalops.util;
 
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.OpenableColumns;
 
 import com.akad.rentalops.BuildConfig;
 
@@ -9,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -80,6 +85,66 @@ public final class Api {
         post("auth.php", q("do", "logout"), body, cb);
     }
 
+    /** Uploads a gallery image using the same multipart contract as the web gallery form. */
+    public static void uploadGalleryImage(final ContentResolver resolver, final Uri image, final Callback cb) {
+        uploadImage("gallery-upload.php", resolver, image, cb);
+    }
+
+    /** Uploads an image used by a public service card. */
+    public static void uploadServiceImage(final ContentResolver resolver, final Uri image, final Callback cb) {
+        uploadImage("service-upload.php", resolver, image, cb);
+    }
+
+    private static void uploadImage(final String endpoint, final ContentResolver resolver, final Uri image, final Callback cb) {
+        POOL.execute(new Runnable() {
+            @Override public void run() {
+                HttpURLConnection connection = null;
+                try {
+                    String mime = resolver.getType(image);
+                    if (mime == null || !mime.startsWith("image/")) mime = "application/octet-stream";
+                    String filename = displayName(resolver, image);
+                    String boundary = "----AkadAndroid" + System.currentTimeMillis();
+                    connection = (HttpURLConnection) new URL(urlFor(endpoint, null)).openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setConnectTimeout(TIMEOUT_MS);
+                    connection.setReadTimeout(60_000);
+                    connection.setDoOutput(true);
+                    connection.setChunkedStreamingMode(16 * 1024);
+                    connection.setRequestProperty("Accept", "application/json");
+                    connection.setRequestProperty("Authorization", "Bearer " + Prefs.token());
+                    connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+                    try (DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                         InputStream in = resolver.openInputStream(image)) {
+                        if (in == null) throw new IllegalArgumentException("The selected image could not be opened.");
+                        out.writeBytes("--" + boundary + "\r\n");
+                        out.writeBytes("Content-Disposition: form-data; name=\"image\"; filename=\"" + safeFilename(filename) + "\"\r\n");
+                        out.writeBytes("Content-Type: " + mime + "\r\n\r\n");
+                        byte[] buffer = new byte[16 * 1024];
+                        int count;
+                        while ((count = in.read(buffer)) != -1) out.write(buffer, 0, count);
+                        out.writeBytes("\r\n--" + boundary + "--\r\n");
+                    }
+
+                    int status = connection.getResponseCode();
+                    String raw = read(status >= 200 && status < 400 ? connection.getInputStream() : connection.getErrorStream());
+                    JSONObject response = new JSONObject(raw);
+                    if (status == HttpURLConnection.HTTP_UNAUTHORIZED) notifyUnauthorized();
+                    if (status < 200 || status >= 300 || !response.optBoolean("ok", false)) {
+                        fail(cb, response.optString("error", "Image upload failed."), response.optString("code", "server_error"), status);
+                        return;
+                    }
+                    final Object data = response.opt("data");
+                    MAIN.post(new Runnable() { @Override public void run() { cb.onSuccess(data); } });
+                } catch (Exception ex) {
+                    fail(cb, "Unable to upload the image. Check the selected file and your internet connection.", "network_error", 0);
+                } finally {
+                    if (connection != null) connection.disconnect();
+                }
+            }
+        });
+    }
+
     /** Performs an authenticated request to the PHP API and delivers its JSON data on the main thread. */
     private static void run(final String method, final String endpoint, final Map<String, String> query,
                             final JSONObject body, final Callback cb) {
@@ -105,7 +170,8 @@ public final class Api {
                     int status = connection.getResponseCode();
                     String raw = read(status >= 200 && status < 400 ? connection.getInputStream() : connection.getErrorStream());
                     JSONObject response = new JSONObject(raw);
-                    if (status == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                    // A rejected sign-in is expected validation, not an expired authenticated session.
+                    if (status == HttpURLConnection.HTTP_UNAUTHORIZED && !("auth.php".equals(endpoint) && query == null)) {
                         notifyUnauthorized();
                     }
                     if (status < 200 || status >= 300 || !response.optBoolean("ok", false)) {
@@ -146,6 +212,20 @@ public final class Api {
             while ((line = reader.readLine()) != null) text.append(line);
         }
         return text.toString();
+    }
+
+    private static String displayName(ContentResolver resolver, Uri uri) {
+        try (Cursor cursor = resolver.query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                String name = cursor.getString(0);
+                if (name != null && !name.trim().isEmpty()) return name;
+            }
+        } catch (Exception ignored) {}
+        return "gallery-image";
+    }
+
+    private static String safeFilename(String filename) {
+        return filename.replace("\"", "").replace("\r", "").replace("\n", "");
     }
 
     private static void notifyUnauthorized() {

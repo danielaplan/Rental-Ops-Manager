@@ -20,10 +20,10 @@ public class BarChartView extends View {
     public BarChartView(Context c, AttributeSet a) { super(c, a); init(); }
 
     private void init() {
-        bar.setColor(0xFF3F7266);
-        grid.setColor(0xFFE3E0D6);
+        bar.setColor(0xFF8A633F);
+        grid.setColor(0xFFDDD7CE);
         grid.setStrokeWidth(ChartUtil.dp(getContext(), 1));
-        text.setColor(0xFF6B6960);
+        text.setColor(0xFF68645E);
         text.setTextSize(ChartUtil.sp(getContext(), 10));
     }
 

@@ -422,7 +422,7 @@ public final class MockStore {
                 audit(1, "owner_login", "user", 1, "Owner signed in", "", "", today(-7))));
         settings = Js.of("business_name", "AKAD Sweet Party Rentals", "logo", "", "phone", "0917-123-4567", "email", "akad@example.com", "address", "Metro Manila",
                 "facebook", "facebook.com/akadrentals", "instagram", "instagram.com/akadrentals", "min_booking_notice_days", 2, "booking_hours_open", "08:00",
-                "booking_hours_close", "22:00", "cancellation_policy", "Cancellations 3 days before the event are fully refundable.", "primary_color", "#1F4E45", "accent_color", "#D9A441");
+                "booking_hours_close", "22:00", "cancellation_policy", "Cancellations 3 days before the event are fully refundable.", "primary_color", "#8A633F", "accent_color", "#D1A170");
         content = Js.of("business_name", "AKAD Sweet Party Rentals", "logo", "", "hero_title", "Make every celebration sweeter",
                 "hero_description", "Karaoke rental, Sweet Corner packages, and balloon decorations.", "hero_image", "", "hero_button_text", "Book now",
                 "about_title", "About us", "about_description", "We provide karaoke rental, Sweet Corner packages, and balloon decorations.",

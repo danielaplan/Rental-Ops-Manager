@@ -2,7 +2,7 @@
 require_once __DIR__.'/crud.php';
 
 function serviceCrudDefinition(): array {
-    return ['services','service_id',['service_name','description','status','default_preparation_minutes','default_travel_minutes'],
+    return ['services','service_id',['service_name','description','image','status','default_preparation_minutes','default_travel_minutes'],
     ['status'=>'Active','default_preparation_minutes'=>0,'default_travel_minutes'=>0],[],function ($values,$old) {
         $record = $values + ($old ?? []);
         if (!is_string($record['service_name'] ?? null) || trim($record['service_name'])==='' || strlen($record['service_name'])>50) domainFail('Service name must contain 1 to 50 bytes.');
@@ -15,6 +15,12 @@ function serviceCrudDefinition(): array {
             }
         }
         if (isset($values['description']) && !is_string($values['description'])) domainFail('Description must be text.');
+        if (array_key_exists('image',$values)) {
+            if (!is_string($values['image'])) domainFail('Service image must be text.');
+            $image = trim($values['image']);
+            if (strlen($image)>500 || ($image!=='' && !preg_match('#^/(?:[A-Za-z0-9._~-]+/)*[A-Za-z0-9._~-]+$#',$image))) domainFail('Service image must be a valid uploaded image path.');
+            $values['image'] = $image === '' ? null : $image;
+        }
         return $values;
     },true];
 }

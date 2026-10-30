@@ -92,7 +92,7 @@ public class CalendarFragment extends BaseFragment {
             t.setText(n);
             t.setGravity(android.view.Gravity.CENTER);
             t.setTextSize(11);
-            t.setTextColor(0xFF6B6960);
+            t.setTextColor(0xFF68645E);
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams(GridLayout.spec(GridLayout.UNDEFINED), GridLayout.spec(GridLayout.UNDEFINED, 1f));
             lp.width = 0;
             grid.addView(t, lp);

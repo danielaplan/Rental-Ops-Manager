@@ -1,25 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Mobile version of admin/login.html -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/primary_dark"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/login_hero_bg" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_login_image_overlay" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:letterSpacing="0.18"
+            android:text="AKAD SWEET PARTY RENTALS"
+            android:textColor="@color/accent"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
+            android:text="Behind every beautiful celebration."
+            android:textColor="@color/warm_white"
+            android:textSize="29sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_login_card"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:elevation="18dp"
+            android:padding="28dp">
 
             <ImageView
                 android:layout_width="40dp"
@@ -27,7 +64,7 @@
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@null"
                 android:src="@drawable/ic_lock"
-                app:tint="@color/primary" />
+                app:tint="@color/accent" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -35,7 +72,7 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="@string/admin_panel"
-                android:textColor="@color/primary_dark"
+                android:textColor="@color/warm_white"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -45,7 +82,7 @@
                 android:layout_marginBottom="20dp"
                 android:gravity="center"
                 android:text="@string/sign_in_subtitle"
-                android:textColor="@color/muted"
+                android:textColor="@color/warm_muted"
                 android:textSize="13sp" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -53,6 +90,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 android:hint="@string/contact_number"
+                app:boxBackgroundColor="@color/login_field"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
+                app:boxStrokeColor="@color/login_field_stroke"
+                android:textColorHint="@color/login_hint"
+                app:hintTextColor="@color/login_hint"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -60,6 +105,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="phone"
+                    android:textColor="@color/warm_white"
+                    android:textColorHint="@color/login_hint"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,7 +115,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:hint="@string/password"
+                app:boxBackgroundColor="@color/login_field"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
+                app:boxStrokeColor="@color/login_field_stroke"
+                android:textColorHint="@color/login_hint"
                 app:endIconMode="password_toggle"
+                app:endIconTint="@color/warm_muted"
+                app:hintTextColor="@color/login_hint"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -76,13 +132,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
+                    android:textColor="@color/warm_white"
+                    android:textColorHint="@color/login_hint"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/loginError"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="wrap_content" 
                 android:layout_marginBottom="8dp"
                 android:textColor="@color/badge_danger"
                 android:textSize="13sp"
@@ -109,9 +167,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:gravity="center"
-                android:text="UI preview — any contact number and password works."
-                android:textColor="@color/muted"
+                android:text="Secure access for authorized owners."
+                android:textColor="@color/warm_muted"
                 android:textSize="12sp" />
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

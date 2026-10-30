@@ -290,7 +290,7 @@ public class ReportsFragment extends BaseFragment {
             else if (st.equals("Cancelled") || st.equals("Rejected")) counts[5]++;
         }
         String[] allNames = {"Pending", "Confirmed", "Awaiting Completion", "Awaiting Payment", "Completed", "Cancelled/Rejected"};
-        int[] allColors = {0xFFD9A441, 0xFF14332C, 0xFF6C757D, 0xFFC77700, 0xFF2E6E5F, 0xFFB5B0A3};
+        int[] allColors = {0xFFD1A170, 0xFF171714, 0xFF6C757D, 0xFFC77700, 0xFF8A633F, 0xFFB5B0A3};
         List<String> names = new ArrayList<>();
         List<Integer> colorList = new ArrayList<>();
         List<Double> vals = new ArrayList<>();
@@ -342,9 +342,9 @@ public class ReportsFragment extends BaseFragment {
         int accent, tint;
         switch (cls) {
             case "success": accent = 0xFF2E6E5F; tint = 0xFF2E6E5F; break;
-            case "warn": accent = 0xFFD9A441; tint = 0xFFD9A441; break;
+            case "warn": accent = 0xFFD1A170; tint = 0xFFD1A170; break;
             case "danger": accent = 0xFFC0392B; tint = 0xFFC0392B; break;
-            default: accent = 0x8C1F4E45; tint = 0xFF1F4E45;
+            default: accent = 0x8C8A633F; tint = 0xFF8A633F;
         }
         iv.setColorFilter(tint);
         GradientDrawable box = new GradientDrawable();

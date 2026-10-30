@@ -27,6 +27,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         Prefs.init(this);
+        // A listener owned by a previous MainActivity must not turn a rejected sign-in into a screen reload.
+        Api.setUnauthorizedListener(null);
         // Fix #1 from login.html: only skip the form when the server confirms the token.
         setContentView(R.layout.activity_login);
         user = findViewById(R.id.loginUsername);

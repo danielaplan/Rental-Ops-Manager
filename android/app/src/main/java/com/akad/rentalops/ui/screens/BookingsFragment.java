@@ -52,18 +52,19 @@ public class BookingsFragment extends ListScreen {
     /** Shared by Bookings, Dashboard, Calendar and Reports. */
     public static RowAdapter.Row toBookingRow(JSONObject o, Lookups.Pairs services) {
         String id = Js.s(o, "booking_id").isEmpty() ? Js.s(o, "id") : Js.s(o, "booking_id");
-        String ref = Js.s(o, "booking_reference");
         double total = Js.d(o, "total");
         double paid = Js.d(o, "amount_paid");
         String svc = Js.s(o, "service_name");
         if (svc.isEmpty() && services != null) svc = services.nameOf(Js.s(o, "service_id"));
+        String customer = Js.s(o, "customer_name");
+        String bookingLabel = "Booking #" + id;
         return new RowAdapter.Row(o)
-                .title((ref.isEmpty() ? "Booking #" + id : ref) + " · " + Js.s(o, "customer_name"))
-                .subtitle(Fmt.date(Js.s(o, "event_date")) + ", " + Fmt.time(Js.s(o, "start_time")) + "–" + Fmt.time(Js.s(o, "end_time")))
+                .title(customer.isEmpty() ? bookingLabel : customer)
+                .subtitle(bookingLabel + " · " + Fmt.date(Js.s(o, "event_date")) + ", " + Fmt.time(Js.s(o, "start_time")) + "–" + Fmt.time(Js.s(o, "end_time")))
                 .detail(svc)
                 .meta(Fmt.peso(total))
-                .badge(Fmt.titleCase(Js.s(o, "status")))
-                .badge2(o.has("amount_paid") ? Fmt.paymentStatus(total, paid) : "");
+                .badge(o.has("amount_paid") ? Fmt.paymentStatus(total, paid) : Js.s(o, "payment_status"))
+                .badge2(Fmt.titleCase(Js.s(o, "status")));
     }
 
     @Override protected boolean canAdd() { return true; }

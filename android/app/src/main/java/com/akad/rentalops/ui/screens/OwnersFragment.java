@@ -1,18 +1,23 @@
 package com.akad.rentalops.ui.screens;
 
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AlertDialog;
 
-import com.akad.rentalops.ui.FormField;
-import com.akad.rentalops.ui.FormUi;
+import com.akad.rentalops.R;
 import com.akad.rentalops.ui.ListScreen;
 import com.akad.rentalops.ui.RowAdapter;
 import com.akad.rentalops.util.Api;
 import com.akad.rentalops.util.Js;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 /** admin/owners.html -> api/owners.php (primary owner only). */
 public class OwnersFragment extends ListScreen {
@@ -30,21 +35,7 @@ public class OwnersFragment extends ListScreen {
 
     @Override protected boolean canAdd() { return true; }
 
-    @Override protected void onAdd() {
-        List<FormField> f = new ArrayList<>();
-        f.add(FormField.text("full_name", "Full name").req());
-        f.add(FormField.text("username", "Username").req());
-        f.add(new FormField("contact_number", "Contact number", FormField.Type.PHONE).req());
-        f.add(new FormField("password", "Password", FormField.Type.PASSWORD).req());
-        FormUi.dialog(requireContext(), "Add Owner", f, new FormUi.Submit() {
-            @Override public void onSubmit(JSONObject v) {
-                Api.create("owners.php", v, new Api.Callback() {
-                    @Override public void onSuccess(Object d) { if (alive()) { saved(); reload(); } }
-                    @Override public void onError(String m, String c, int s) { toast(m); }
-                });
-            }
-        }, null);
-    }
+    @Override protected void onAdd() { ownerDialog(null); }
 
     @Override protected void onRowClick(RowAdapter.Row row) {
         final JSONObject o = row.raw;
@@ -57,7 +48,7 @@ public class OwnersFragment extends ListScreen {
                         if (which == 0) {
                             Api.post("owners.php", Api.q("do", active ? "deactivate" : "reactivate", "id", id), new JSONObject(), cb());
                         } else {
-                            resetPassword(id);
+                            ownerDialog(id);
                         }
                     }
                 }).show();
@@ -70,13 +61,90 @@ public class OwnersFragment extends ListScreen {
         };
     }
 
-    private void resetPassword(final String id) {
-        List<FormField> f = new ArrayList<>();
-        f.add(new FormField("password", "New password", FormField.Type.PASSWORD).req());
-        FormUi.dialog(requireContext(), "Reset password", f, new FormUi.Submit() {
-            @Override public void onSubmit(JSONObject v) {
-                Api.post("owners.php", Api.q("do", "resetPassword", "id", id), v, cb());
+    private void ownerDialog(final String resetOwnerId) {
+        final boolean resetting = resetOwnerId != null;
+        View root = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_owner_account, null);
+        LinearLayout details = root.findViewById(R.id.ownerAccountDetails);
+        TextInputEditText name = root.findViewById(R.id.ownerNameInput);
+        TextInputEditText username = root.findViewById(R.id.ownerUsernameInput);
+        TextInputEditText contact = root.findViewById(R.id.ownerContactInput);
+        TextInputEditText password = root.findViewById(R.id.ownerPasswordInput);
+        TextInputLayout nameLayout = root.findViewById(R.id.ownerNameLayout);
+        TextInputLayout usernameLayout = root.findViewById(R.id.ownerUsernameLayout);
+        TextInputLayout passwordLayout = root.findViewById(R.id.ownerPasswordLayout);
+        TextView formError = root.findViewById(R.id.ownerFormError);
+        if (resetting) {
+            details.setVisibility(View.GONE);
+            passwordLayout.setHint("New password");
+        }
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle(resetting ? "Reset password" : "Add Owner")
+                .setView(root)
+                .setPositiveButton(resetting ? "Reset password" : "Create Owner", null)
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            nameLayout.setError(null);
+            usernameLayout.setError(null);
+            passwordLayout.setError(null);
+            formError.setVisibility(View.GONE);
+
+            String passwordValue = String.valueOf(password.getText());
+            int passwordBytes = passwordValue.getBytes(StandardCharsets.UTF_8).length;
+            boolean valid = true;
+            if (passwordBytes < 8 || passwordBytes > 72) {
+                passwordLayout.setError("Password must contain 8 to 72 bytes.");
+                valid = false;
             }
-        }, null);
+
+            String nameValue = String.valueOf(name.getText()).trim();
+            String usernameValue = String.valueOf(username.getText()).trim();
+            if (!resetting) {
+                if (nameValue.isEmpty()) {
+                    nameLayout.setError("Full name is required.");
+                    valid = false;
+                }
+                if (!usernameValue.matches("[A-Za-z0-9_.-]{1,100}")) {
+                    usernameLayout.setError("Use letters, numbers, dots, underscores, or hyphens.");
+                    valid = false;
+                }
+            }
+            if (!valid) return;
+
+            setDialogBusy(dialog, true);
+            JSONObject values = Js.of("password", passwordValue);
+            if (!resetting) {
+                Js.put(values, "full_name", nameValue);
+                Js.put(values, "username", usernameValue);
+                String contactValue = String.valueOf(contact.getText()).trim();
+                Js.put(values, "contact_number", contactValue.isEmpty() ? JSONObject.NULL : contactValue);
+            }
+            Api.Callback callback = new Api.Callback() {
+                @Override public void onSuccess(Object data) {
+                    if (!alive()) return;
+                    dialog.dismiss();
+                    saved();
+                    reload();
+                }
+
+                @Override public void onError(String message, String code, int status) {
+                    setDialogBusy(dialog, false);
+                    formError.setText(message);
+                    formError.setVisibility(View.VISIBLE);
+                }
+            };
+            if (resetting) {
+                Api.post("owners.php", Api.q("do", "resetPassword", "id", resetOwnerId), values, callback);
+            } else {
+                Api.create("owners.php", values, callback);
+            }
+        }));
+        dialog.show();
+    }
+
+    private void setDialogBusy(AlertDialog dialog, boolean busy) {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(!busy);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(!busy);
     }
 }

@@ -10,13 +10,14 @@
         <item name="colorSurface">@color/surface</item>
         <item name="colorOutline">@color/border</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="android:navigationBarColor">@color/primary_dark</item>
         <item name="android:textColorPrimary">@color/text</item>
         <item name="android:textColorSecondary">@color/muted</item>
     </style>
 
     <style name="Panel" parent="">
         <item name="android:background">@drawable/bg_panel</item>
-        <item name="android:padding">16dp</item>
+        <item name="android:padding">18dp</item>
     </style>
     <style name="PanelTitle" parent="">
         <item name="android:textSize">16sp</item>
@@ -43,17 +44,17 @@
     <style name="PrimaryButton" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/primary</item>
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">8dp</item>
+        <item name="cornerRadius">10dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
     <style name="AccentButton" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/accent</item>
         <item name="android:textColor">@color/primary_dark</item>
-        <item name="cornerRadius">8dp</item>
+        <item name="cornerRadius">10dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
     <style name="OutlineButton" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="cornerRadius">8dp</item>
+        <item name="cornerRadius">10dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
 </resources>

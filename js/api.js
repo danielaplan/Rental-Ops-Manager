@@ -233,6 +233,11 @@ const API = (() => {
     createService: data => create("services.php", "services", data),
     updateService: (id, data) => update("services.php", "services", id, data),
     deleteService: async id => { await remove("services.php", id); return true; },
+    uploadServiceImage: file => {
+      const formData = new FormData();
+      formData.append("image", file);
+      return request("service-upload.php", { formData, timeoutMs: 60000 });
+    },
 
     getAddons: () => list("addons.php", "addons", { do: "all" }),
     getAddonsForService: serviceId => list("addons.php", "addons", { do: "forService", service_id: serverId(serviceId) }),

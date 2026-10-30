@@ -3,6 +3,7 @@ package com.akad.rentalops.ui.charts;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -10,7 +11,7 @@ import android.view.View;
 
 /** "Revenue & Bookings Trend": revenue (left axis, filled) + bookings (right axis) per month. */
 public class LineChartView extends View {
-    private static final int GREEN = 0xFF1F4E45, GOLD = 0xFFD9A441, GRID = 0xFFE3E0D6, TEXT = 0xFF6B6960;
+    private static final int GREEN = 0xFF8A633F, GOLD = 0xFFD1A170, GRID = 0xFFDDD7CE, TEXT = 0xFF68645E;
     private String[] labels = new String[0];
     private double[] revenue = new double[0], bookings = new double[0];
     private float progress = 1f;
@@ -30,6 +31,7 @@ public class LineChartView extends View {
         fill1.setColor(GREEN); fill1.setAlpha(25); fill1.setStyle(Paint.Style.FILL);
         line2.setColor(GOLD); line2.setStyle(Paint.Style.STROKE); line2.setStrokeWidth(ChartUtil.dp(getContext(), 2));
         line2.setStrokeJoin(Paint.Join.ROUND);
+        line2.setPathEffect(new DashPathEffect(new float[]{ChartUtil.dp(getContext(), 8), ChartUtil.dp(getContext(), 6)}, 0));
     }
 
     public void setData(String[] labels, double[] revenue, double[] bookings) {

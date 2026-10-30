@@ -8,6 +8,6 @@ public final class Images {
     private Images() {}
 
     public static void load(ImageView view, String src) {
-        view.setImageDrawable(new ColorDrawable(0xFFE3E0D6));
+        view.setImageDrawable(new ColorDrawable(0xFFDDD7CE));
     }
 }

@@ -69,19 +69,20 @@ public class PaymentsFragment extends ListScreen {
 
     @Override protected RowAdapter.Row toRow(JSONObject o) {
         JSONObject b = bookings.get(Js.s(o, "booking_id"));
-        String ref = b == null ? "Booking #" + Js.s(o, "booking_id") : (Js.s(b, "booking_reference").isEmpty() ? "Booking #" + Js.s(b, "booking_id") : Js.s(b, "booking_reference"));
+        String bookingId = b == null ? Js.s(o, "booking_id") : Js.s(b, "booking_id");
+        String bookingLabel = "Booking #" + bookingId;
         String who = b == null ? "" : Js.s(b, "customer_name");
         if (Js.s(o, "_kind").equals("balance")) {
             double total = Js.d(b, "agreed_total") > 0 ? Js.d(b, "agreed_total") : Js.d(b, "total");
             double paid = Js.d(b, "amount_paid");
-            return new RowAdapter.Row(o).title("Balance · " + ref).subtitle(who)
+            return new RowAdapter.Row(o).title("Balance · " + bookingLabel).subtitle(who)
                     .detail("Total " + Fmt.peso(total) + " · Paid " + Fmt.peso(paid))
                     .meta(Fmt.peso(balance(b))).badge(Fmt.paymentStatus(total, paid));
         }
         String method = Js.s(o, "payment_method");
         method = method.equalsIgnoreCase("gcash") ? "GCash" : method.equalsIgnoreCase("maribank") ? "MariBank" : method;
         String type = Js.s(o, "payment_type");
-        return new RowAdapter.Row(o).title(ref + " · " + who)
+        return new RowAdapter.Row(o).title(bookingLabel + " · " + who)
                 .subtitle(method + (type.isEmpty() ? "" : " · " + type) + " · " + Fmt.date(Js.s(o, "payment_date")))
                 .detail(Js.s(o, "payment_reference").isEmpty() ? Js.s(o, "notes") : Js.s(o, "payment_reference"))
                 .meta(Fmt.peso(Js.d(o, "amount"))).badge(Js.s(o, "payment_status"));

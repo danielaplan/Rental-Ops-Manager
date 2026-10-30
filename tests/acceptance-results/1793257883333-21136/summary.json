@@ -1,0 +1,265 @@
+{
+  "started_at": "2026-10-29T07:11:23.335Z",
+  "output": "C:\\xampp\\htdocs\\SystemIntegration\\AKASD\\Rental-Ops-Manager\\tests\\acceptance-results\\1793257883333-21136",
+  "backend": [
+    "tests/backend-revised-requirements.test.cjs",
+    "tests/catalog-plan-gaps.test.cjs",
+    "tests/booking-plan-gaps.test.cjs",
+    "tests/finance-plan-gaps.test.cjs",
+    "tests/auth-plan-gaps.test.cjs",
+    "tests/sync-plan-gaps.test.cjs",
+    "tests/write-validation-gaps.test.cjs",
+    "tests/history-template-gaps.test.cjs",
+    "tests/offline-sync.test.cjs"
+  ],
+  "frontend": [
+    "tests/public-site-data.test.cjs",
+    "tests/frontend-api-contract.test.cjs",
+    "tests/frontend-async-workflows.test.cjs",
+    "tests/frontend-api-direct.test.cjs",
+    "tests/booking-flow-frontend-regressions.test.cjs",
+    "tests/production-config.test.cjs"
+  ],
+  "results": [
+    {
+      "name": "backend-backend-revised-requirements",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/backend-revised-requirements.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 177
+    },
+    {
+      "name": "backend-catalog-plan-gaps",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/catalog-plan-gaps.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 152
+    },
+    {
+      "name": "backend-booking-plan-gaps",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/booking-plan-gaps.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 135
+    },
+    {
+      "name": "backend-finance-plan-gaps",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/finance-plan-gaps.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 132
+    },
+    {
+      "name": "backend-auth-plan-gaps",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/auth-plan-gaps.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 132
+    },
+    {
+      "name": "backend-sync-plan-gaps",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/sync-plan-gaps.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 141
+    },
+    {
+      "name": "backend-write-validation-gaps",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/write-validation-gaps.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 141
+    },
+    {
+      "name": "backend-history-template-gaps",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/history-template-gaps.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 144
+    },
+    {
+      "name": "backend-offline-sync",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/run_revised_backend.cjs",
+        "tests/offline-sync.test.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 135
+    },
+    {
+      "name": "frontend",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "--test",
+        "tests/public-site-data.test.cjs",
+        "tests/frontend-api-contract.test.cjs",
+        "tests/frontend-async-workflows.test.cjs",
+        "tests/frontend-api-direct.test.cjs",
+        "tests/booking-flow-frontend-regressions.test.cjs",
+        "tests/production-config.test.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 753
+    },
+    {
+      "name": "syntax",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "tests/check_syntax.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 8363
+    },
+    {
+      "name": "diff-check",
+      "command": "git",
+      "args": [
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 168
+    }
+  ],
+  "exclusions": [
+    "migration execution (including synthetic migration regression)",
+    "legacy internal blockout draft",
+    "operational database access",
+    "manual browser/device/owner acceptance",
+    "production/performance acceptance"
+  ],
+  "source_sha256": {
+    "api/addons.php": "5dd869d015bb50ba14a0e6ce8489003f2fde433ee730cd84776f37a0759a4cc5",
+    "api/audit.php": "d7d772ca79692da9e37aa4f0553f820eed1b50db3f17d119b114579e27b850df",
+    "api/auth.php": "c0f14bd69efa366f9cce87b03c46207fce13478e05ae8ce32a8b57440ee6ca28",
+    "api/availabilityBlocks.php": "2a855590f6a5a277e33f0ee0b300e560fa6238c7476a509291d374f8461c1557",
+    "api/availability_service.php": "aa34bb6ebdc684678162208002fc3cb377401195fe6cee27d42bbb839ffe37f2",
+    "api/bookingItems.php": "125977b750b85dd44fb657145d4a7f359cf7842a1545ebd65507dde24c5e647f",
+    "api/bookings.php": "29cc07a7823145a87b393e4988e1acc8f9ee07e3dcb50a34794632e8b98e3f9c",
+    "api/booking_items_service.php": "58fdb203766f315b94b89658292bdb31c04da55036b2bfc3b8b311c876ff5d89",
+    "api/booking_pricing.php": "a579885154a4bc827740ad3984725e83a6ad2db98c8fc4d1acf65752ebeb67c7",
+    "api/booking_service.php": "e84e52b0a1114f95d27c1128fdda0984f43e449ef4f88c4f5cb504527f1320ba",
+    "api/catalog_definitions.php": "6fa083596195f2327b7329c06065591399a7338d9210cccc0c3f2410273cc954",
+    "api/categories.php": "e5bef6aad960e8e2164527be6c8b7480c03ef59179a6595648abec988c7991ad",
+    "api/checklistTemplates.php": "09d8fd3eaf3789ff1969f135adef723c59cf93e00f15ac97ccc495f80411e371",
+    "api/checklist_service.php": "f9c156f37aba080c9bfb50c75183482cb381f9b35a19dd0f67885a3a387f75be",
+    "api/config.php": "2c8beedb7c1c2444f95c99aa3b3827e79fce601026c24329cd5c2ba3756ee0c5",
+    "api/crud.php": "66474b6bd3f3c95b8deee2ba2c6f0b1d117fb6525fed6ae1d29e8ec27377262d",
+    "api/customers.php": "5ab39f2121960d01b241a6a417d5fc00d321b55cbe883f2b12dfe875b477d777",
+    "api/delivery.php": "468c119cf749ea2881cf1a6db37f75d29b7e6cd0a4f4a8fb07827609b4d38c58",
+    "api/deposits.php": "cbf97ff6a8228687e36940f1ef19c6baf0c5c251cd07f7cc005c7e87303b192e",
+    "api/deposit_service.php": "67073b64d5d15198b735b5e15618c705207b5b3b5e6708770f361d24ad307796",
+    "api/domain.php": "d7a8904279eb178c2593829f5cf4364ddc374133878a3af746f95d9d6c302bb3",
+    "api/equipment.php": "16ec2b9bae9acf5a067bd6c774bd6cd5f2c24cfc21f6953559943bb54ed32d0a",
+    "api/equipment_service.php": "ddb5e71a014912ce6edd1540650c60ad892116044479dc50bd49bd5ad361912b",
+    "api/gallery-upload.php": "8adf6e4ce021329dd8a42a406649ec927514521ebb6de4e82796f6fc6ddcbf5d",
+    "api/gallery.php": "1810400866bb30750ee6d4b9f2b1df36d8c5b98f07359681fb3d8a19625b7665",
+    "api/itemHistory.php": "319eac07d1eaec6be088186bd6cc66022d90f3f1b8c98d36377c16065f709a0c",
+    "api/itemReleases.php": "f31124f3d7816262f11290a1643b07f49da06ed91de7b66b235a87e47a9f2727",
+    "api/notifications.php": "e375d9f52b308efa4ca90dbcab42a8f0d992926df7b1e2a8688cf9f92c6775c3",
+    "api/owners.php": "584c25f1e40743909d3bbf30d69dddd64e005d3fc29dcfddbadb0ca92186146d",
+    "api/packages.php": "0343dd9c346cbcb4715956014d2ff987a17fa7d09a27694651799f3a3ad8b235",
+    "api/payments.php": "736e89b9c1aa96ea2e8f01b2c6cc7840b197c28bab690af0b68e9721aaa56391",
+    "api/payment_service.php": "e7bdcbc7c7d588e65c148ec226c2a24af7350570d64407167b8449ae1802ff4c",
+    "api/rentalItems.php": "be9864cf786ae7a83a3052e04c6253779067956ae9350be6be6de02c376f676b",
+    "api/reports.php": "99353c74ae37393cd568ca961d513ff68f022e5554707f124afbd7d1850fe1cc",
+    "api/services.php": "f4c9d2c078d99582b8fc80bedbc3ecee93b5b10ec8b14ba52f77a86798d4902f",
+    "api/settings.php": "395a5d0ad5e5be495d239f40b61ea38d0f0c90a70cfd7e42f350cb5581ebafe8",
+    "api/supporting_service.php": "8ed2e306e391f706389c73b608dd875cff94315b3f0f79990775ec42a965e87d",
+    "api/sync.php": "828af0e52c1864942470241d9143f9133112082462be6d764fc8c988e913358f",
+    "api/sync_state.php": "c9a124b4bf4b4dc56a22f495e0b32dd4a606fe59099d8d2865cd1fd5cb0dc163",
+    "api/websiteContent.php": "d19c6ef4f796ca045a76c437173871361abd5a1228431dc40669f8c919018442",
+    "js/admin.js": "695104762b0ac202201e91fb001c32d3d1e4d92a7ecf7c55657a2234604c81a7",
+    "js/api.js": "5bc4c4bec7a97f0c031dbbca101366fac40f34579da58f7e0c64b2ff775394c9",
+    "js/app.js": "9a7e05d74b7cb48c53fb52c62669cfb77d8c3e71d0de3164ee9e19198242f42a",
+    "js/bookings.js": "b78210c2cb39aa948d1d85e5c58d884371abdeb620f3d972b15c754f74908311",
+    "js/calendar.js": "bfce9a4713a1d24734c125951933574c0965ac235d0a5e4e323a5c561e1d9e48",
+    "js/config.js": "0278436f04bb40aa41ca2465323f289c09a5bbb02bf1b053ba0e2730a85750f0",
+    "js/customers.js": "0b3985675a0c17e22df34b252d0b2ecaace382505f361f394c2adf95e6903fdd",
+    "js/inventory.js": "a9fbf71876854377cfc93ebba9665c7015b6b016c88e4e42a455bd66790caf16",
+    "js/offline.js": "7a5a0e5d7006bfe8cb748d6d346e607398da423d6ac9fcf66f64fd0672b0abab",
+    "js/payments.js": "a04a55c88cb852e10b7d43fdc5e3e0e73172b10d025d88abce4bcad079391e54",
+    "js/services.js": "37051ef9ed7ace1d8dba69ba79cf0fb16b3d3fd958a4501a4a15e6b57909d055",
+    "js/storage.js": "47872863e8fa11e00df7481bdcf825a6d34b96d2b0f17f05482402fda67615d9",
+    "js/sync-ui.js": "db181d396a42c99f27be12198a36f115caa37e72cca0f88bb8f4044314183958",
+    "js/sync.js": "4cd89d7737b9deb353043191501bbb2fee3f59e3775a0b58083cf91d20d38132",
+    "admin/addons.html": "22408b042d704cf04a10f17d87554fab654a79e3110146f2a38a416a398fb607",
+    "admin/audit.html": "3a4ccb9067dfc417416f3a95e455572fb2aa513553d231b8e480e1a4db5418d8",
+    "admin/bookings.html": "286169a95d119b3a07d7b4c6f9467aa88676c52861da67ea52434e5578c1ace7",
+    "admin/calendar.html": "823e47abd3c7c7d4cf6f5f230679f41493d153661a30d3881d66119252ccba42",
+    "admin/categories.html": "4c4facfe9eed26d6b77c8c6ad5f0461dcc6d4c11171af57b31c060abbabb5e12",
+    "admin/content.html": "68525457e155411d1b8cc7935ea3b3d865427ce990a15beb4cf7246b8bfa0714",
+    "admin/customers.html": "b274c735c4404cc12720fdeff218352ae18d4333ebde9d410ce0df4fc1ad5137",
+    "admin/dashboard.html": "07b9682b1aeef29baac6b0162ba082e038e86dd1d3053b6475cb18f83c621e7d",
+    "admin/gallery.html": "0f466320859a0f922a2d5bea6c4327ac3049542f952db6d09de784470b494c48",
+    "admin/inventory.html": "dcd34a9380d56be1eb8bb777dcfa7c7e047f11fdb289dfe314a13445e9fc1166",
+    "admin/login.html": "d79c63802817e2a51b0e5b1972aaa9c300b44982ccee338b8eece909354789de",
+    "admin/manual-booking.html": "ecb710a6787571bad6f09d312ff9b3eea87aae9daf3daa40f33151a03c93b9a8",
+    "admin/owners.html": "240331234e94a5914f9c2f47cf0faa4463375b2379576124b2f2030569560f3e",
+    "admin/packages.html": "6e72ce58d361e6b6f27a5fcacb33726065392c43f45d894b122275851f5b4b66",
+    "admin/payments.html": "4acfff18af01170625344cc8edfd4d7a6726001cc4e7a2a17b95f8c1b43595a3",
+    "admin/reports.html": "c7c298961a106b28a2d3dc6e38fcdfb97fa87e068935ca279eba1098136ce483",
+    "admin/services.html": "bbcb1fdf9635a0199d7ab967bdb2747a7dc1d4b2f60166d91062652df2ab8b61",
+    "admin/settings.html": "ce534f16c3938da956c4f880b7f053ef28746cc2d1ee8c88439455f29cc1f942",
+    "db/migrations/20261015_revised_backend.php": "8f36ac6f7b8bcbd3b99bdc72ef3610d336bbcf4c4201b26e946884d61205cb10",
+    "db/schema.sql": "c6e5daa43bf6239e619a34d5bbbf5f673598b9151f57352c7a94fcd6db3ae11a",
+    "db/seed.sql": "f48bd6786a62e7ab76ff8c7c775731666d2ee4ed012336746645a36fdfe78a5c",
+    "scripts/reconcile_bookings.php": "d097e7fce7d06117006341ad3529c9b988a499719d961bd5bf9439238044377b",
+    "scripts/vendor_offline_assets.py": "cd074d0212c7e262636787607b92d0a75a3cfb53633ddca83e4ff61d91d2deec",
+    "tests/auth-plan-gaps.test.cjs": "7123d7c426538c0733124d56fe43f0fc43850fb2c4d7eac69ce06ac227548106",
+    "tests/backend-revised-requirements.test.cjs": "60d848570d165d0c7f425409c8c1954299cdd2a1b196caadaa95847e47429987",
+    "tests/booking-flow-frontend-regressions.test.cjs": "56e5856505fab5f21afeb59cc858e9025c42df574014d6fcac070ba317382631",
+    "tests/booking-plan-gaps.test.cjs": "e377bd48d2933b037c3f3ed68ca49097e3108d48e7f2862926875597f38fecf6",
+    "tests/browser-verification.html": "d944ab177b2c67005c40afeae1668a944e660b977a321f60b96e35e64d735aa7",
+    "tests/catalog-plan-gaps.test.cjs": "27cb303eb965c5bc9285afeefce8840a16ba8805cd63eebff1f2900faa507344",
+    "tests/check_browser_results.py": "a7a244d75e8712bfea33fbc743b24eff830086d9ae3656a21bbdb4e581d01d21",
+    "tests/check_syntax.cjs": "3fa2ff99f3eb7605c32adad40ca0cdf2a424957b144f629953bd6a67e6b9b3c1",
+    "tests/check_syntax.py": "cba2674a347230aa5996ccdca2909ce8de000456fd0943190115b4da5e5cfc31",
+    "tests/control_verification_server.py": "6dacfb6e861532e3ed956432a10b87428a2daa4a199f9bc186d430456c6346aa",
+    "tests/finance-plan-gaps.test.cjs": "ad6dbeb1703c9cce0a274157996c10126f25818dfa7f50b1d5ae891c1a6561e1",
+    "tests/frontend-api-contract.test.cjs": "e07d7c0a39153bbb89d4d178f599543912f538f30d78322d5c9a0a8c2a625396",
+    "tests/frontend-api-direct.test.cjs": "6842b8cc0e843da7f75ecbda2eb892d9ad6a2d411e75a260e0d1bf84166aa11d",
+    "tests/frontend-async-workflows.test.cjs": "5dfc16cbc340ebc1192142640e94c3688e221c42cc6c126990418e15c3c0be38",
+    "tests/history-template-gaps.test.cjs": "594d0d3b4799c57ed3f65903376bc0c2c40a28d94e06d16c07a315e1b757448e",
+    "tests/migration-plan-gaps.test.cjs": "a0ab04f886a3b1b5ed79397c6c4eecceec6de0dd677e8c4ad8d7b79db7b2a0ec",
+    "tests/offline-sync.test.cjs": "16ef6e107771bfb4e01640544a01c199d36ea8ec9314dbb9fe4ec6fa05cddaf1",
+    "tests/payment-helper.test.cjs": "fca2793ad73e47c4bb24345b788ec33672ece859daa4d6020704683b967a7f54",
+    "tests/performance.py": "55c512425b6e2b5acc06da83335f9c8740336390cb5ca9392177655911ef6590",
+    "tests/production-config.test.cjs": "a55e1ef455e80257a2c6ddc78dd1fd8240a5c9db7598bc3eb054dc58f22e354d",
+    "tests/public-site-data.test.cjs": "582116ec9d25e1d51d54fbb9a6a20e99eb0aea7a22db08474531a586129f2be0",
+    "tests/run_backend_acceptance.cjs": "5fec03d5a211461172ad537a7faa450ef4a88e759957a1b978edd453691eaba5",
+    "tests/run_revised_backend.cjs": "b70fbbd0fde6983819296ad23f7b209a7997f46feb5fda5f9319c05a5f4399e5",
+    "tests/start_verification.py": "3addb48a9f6e52cdcf7cb980b65f8a2a0b5a1c41d3132b4c2d38bce1ad2017c2",
+    "tests/sync-plan-gaps.test.cjs": "02cbf4bdd18dbcb6f382d52c94760360643080a0c0a3987eb2e68792ff93837c",
+    "tests/write-validation-gaps.test.cjs": "967eb02e0f87eb7bf066494c9f988d97b0d2757fc16922b06e25a404cd748e55",
+    "sw.js": "f7d2743cc1d1db2e0149e8cbcfea2bfdd9b0e3fc598438fb7562176411bb96d8"
+  },
+  "source_unchanged": true,
+  "passed": false,
+  "finished_at": "2026-10-29T07:11:33.998Z"
+}

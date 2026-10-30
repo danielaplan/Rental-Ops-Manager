@@ -22,7 +22,7 @@ public class DonutChartView extends View {
 
     private void init() {
         arc.setStyle(Paint.Style.STROKE);
-        text.setColor(0xFF6B6960);
+        text.setColor(0xFF68645E);
         text.setTextSize(ChartUtil.sp(getContext(), 10));
     }
 
@@ -59,7 +59,7 @@ public class DonutChartView extends View {
         double total = 0;
         for (double v : values) total += v;
         if (total <= 0) {
-            arc.setColor(0xFFE3E0D6);
+            arc.setColor(0xFFDDD7CE);
             c.drawArc(oval, 0, 360, false, arc);
         } else {
             float start = -90f;

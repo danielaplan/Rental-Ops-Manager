@@ -127,12 +127,12 @@ public class InventoryFragment extends BaseFragment {
     // ------------------------------------------------------------------ stat cards
     private void renderStats() {
         statsGrid.removeAllViews();
-        card("Total Items", items.length(), R.drawable.ic_list, 0xFF1F4E45);
+        card("Total Items", items.length(), R.drawable.ic_list, 0xFF8A633F);
         card("Available", count("Available"), R.drawable.ic_check_circle, 0xFF2E6E5F);
-        card("Reserved", count("Reserved"), R.drawable.ic_tag, 0xFF1F4E45);
-        card("On Rental", count("On Rental"), R.drawable.ic_truck, 0xFF1F4E45);
+        card("Reserved", count("Reserved"), R.drawable.ic_tag, 0xFF8A633F);
+        card("On Rental", count("On Rental"), R.drawable.ic_truck, 0xFF8A633F);
         card("Damaged", count("Damaged"), R.drawable.ic_warning, 0xFFC0392B);
-        card("Maintenance", count("Under Maintenance"), R.drawable.ic_settings, 0xFFD9A441);
+        card("Maintenance", count("Under Maintenance"), R.drawable.ic_settings, 0xFFD1A170);
         card("Missing", count("Missing"), R.drawable.ic_flag, 0xFFC0392B);
     }
 
@@ -171,7 +171,7 @@ public class InventoryFragment extends BaseFragment {
         LinearLayout row = new LinearLayout(getContext());
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        if (zebra) row.setBackgroundColor(0x0A1F4E45);
+        if (zebra) row.setBackgroundColor(0x0A8A633F);
 
         // item name, with the red * for items required by their service
         SpannableStringBuilder name = new SpannableStringBuilder(Js.s(o, "name"));
@@ -194,7 +194,7 @@ public class InventoryFragment extends BaseFragment {
         actions.setOrientation(LinearLayout.HORIZONTAL);
         actions.setLayoutParams(new LinearLayout.LayoutParams((int) (COL_ALL[6] * d), ViewGroup.LayoutParams.WRAP_CONTENT));
         actions.setPadding((int) (6 * d), (int) (8 * d), 0, (int) (8 * d));
-        actions.addView(actionButton(R.drawable.ic_edit, 0xFF6B6960, "Edit", new Runnable() { public void run() { edit(o); } }));
+        actions.addView(actionButton(R.drawable.ic_edit, 0xFF68645E, "Edit", new Runnable() { public void run() { edit(o); } }));
         actions.addView(actionButton(R.drawable.ic_history, 0xFF2F80ED, "History", new Runnable() { public void run() { history(o); } }));
         actions.addView(actionButton(R.drawable.ic_delete, 0xFFC0392B, "Delete", new Runnable() { public void run() { confirmDelete(o); } }));
         row.addView(actions);

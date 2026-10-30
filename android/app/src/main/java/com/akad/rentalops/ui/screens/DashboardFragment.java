@@ -165,7 +165,7 @@ public class DashboardFragment extends BaseFragment {
 
         // booking status doughnut (colors follow the website chart)
         String[] names = {"Pending", "Confirmed", "Awaiting Payment", "Completed", "Cancelled"};
-        int[] colors = {0xFFD9A441, 0xFF14332C, 0xFFE08A1E, 0xFF2E6E5F, 0xFFE74C3C};
+        int[] colors = {0xFFD1A170, 0xFF171714, 0xFFC77800, 0xFF8A633F, 0xFFE74C3C};
         double[] vals = new double[names.length];
         for (int i = 0; i < bookings.length(); i++) {
             String st = Fmt.titleCase(Js.s(Js.at(bookings, i), "status"));
@@ -188,6 +188,8 @@ public class DashboardFragment extends BaseFragment {
         grid.removeAllViews();
         int awaiting = Js.i(stats, "awaiting_payment_bookings"), attn = Js.i(stats, "items_needing_attention");
         card("Collected Revenue", Fmt.peso(Js.d(stats, "total_revenue")), R.drawable.ic_money, "success");
+        double outstandingBalance = outstandingBalance();
+        card("Outstanding Balance", Fmt.peso(outstandingBalance), R.drawable.ic_hourglass, outstandingBalance > 0 ? "warn" : "");
         card("Total Bookings", String.valueOf(Js.i(stats, "total_bookings")), R.drawable.ic_list, "");
         card("Pending Approval", String.valueOf(Js.i(stats, "pending_bookings")), R.drawable.ic_hourglass, "warn");
         card("Confirmed Events", String.valueOf(Js.i(stats, "confirmed_bookings")), R.drawable.ic_check_circle, "");
@@ -196,6 +198,31 @@ public class DashboardFragment extends BaseFragment {
         card("Active Services", String.valueOf(Js.i(stats, "active_services")), R.drawable.ic_box, "");
         card("Items On Rental", String.valueOf(Js.i(stats, "items_on_rental")), R.drawable.ic_truck, "");
         card("Needs Attention", String.valueOf(attn), R.drawable.ic_warning, attn > 0 ? "danger" : "");
+    }
+
+    /** Mirrors the web dashboard: only server-confirmed Completed payments reduce accepted balance. */
+    private double outstandingBalance() {
+        Map<String, Double> completedByBooking = new HashMap<>();
+        for (int i = 0; i < payments.length(); i++) {
+            JSONObject payment = Js.at(payments, i);
+            if (!"Completed".equalsIgnoreCase(Js.s(payment, "payment_status"))) continue;
+            String bookingId = Js.s(payment, "booking_id");
+            completedByBooking.put(bookingId, completedByBooking.getOrDefault(bookingId, 0d) + Js.d(payment, "amount"));
+        }
+
+        double outstanding = 0;
+        for (int i = 0; i < bookings.length(); i++) {
+            JSONObject booking = Js.at(bookings, i);
+            String statusName = Fmt.titleCase(Js.s(booking, "status"));
+            if ("Cancelled".equals(statusName) || "Rejected".equals(statusName)) continue;
+            String bookingId = Js.s(booking, "booking_id").isEmpty() ? Js.s(booking, "id") : Js.s(booking, "booking_id");
+            double total = Js.d(booking, "agreed_total") > 0 ? Js.d(booking, "agreed_total") : Js.d(booking, "total");
+            double accepted = completedByBooking.containsKey(bookingId)
+                    ? completedByBooking.get(bookingId)
+                    : Js.d(booking, "amount_paid");
+            outstanding += Math.max(0, total - accepted);
+        }
+        return outstanding;
     }
 
     private void card(String label, String value, int icon, String cls) {
@@ -207,9 +234,9 @@ public class DashboardFragment extends BaseFragment {
         int accent, tint;
         switch (cls) {
             case "success": accent = 0xFF2E6E5F; tint = 0xFF2E6E5F; break;
-            case "warn": accent = 0xFFD9A441; tint = 0xFFD9A441; break;
+            case "warn": accent = 0xFFD1A170; tint = 0xFFD1A170; break;
             case "danger": accent = 0xFFC0392B; tint = 0xFFC0392B; break;
-            default: accent = 0x8C1F4E45; tint = 0xFF1F4E45;
+            default: accent = 0x8C8A633F; tint = 0xFF8A633F;
         }
         iv.setColorFilter(tint);
         GradientDrawable box = new GradientDrawable();
@@ -293,12 +320,17 @@ public class DashboardFragment extends BaseFragment {
         }
         for (int i = 0; i < up.length(); i++) {
             final JSONObject b = Js.at(up, i);
-            String id = Js.s(b, "id");
-            String[] cells = {Js.s(b, "booking_reference").isEmpty() ? id : Js.s(b, "booking_reference"), Js.s(b, "customer_name"),
+            String id = Js.s(b, "booking_id").isEmpty() ? Js.s(b, "id") : Js.s(b, "booking_id");
+            String[] cells = {id, Js.s(b, "customer_name"),
                     Fmt.date(Js.s(b, "event_date")), Js.s(b, "service_name"), Fmt.peso(Js.d(b, "total")), Fmt.titleCase(Js.s(b, "status"))};
             LinearLayout row = tableRow(cells, Fmt.titleCase(Js.s(b, "status")), false);
             row.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) { if (nav() != null) nav().openBooking(Js.s(b, "id")); }
+                @Override public void onClick(View v) {
+                    if (nav() != null) {
+                        String bookingId = Js.s(b, "booking_id").isEmpty() ? Js.s(b, "id") : Js.s(b, "booking_id");
+                        nav().openBooking(bookingId);
+                    }
+                }
             });
             upcoming.addView(row);
         }

@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Palette copied from css/admin.css (:root) -->
-    <color name="primary">#1F4E45</color>
-    <color name="primary_dark">#14332C</color>
-    <color name="accent">#D9A441</color>
-    <color name="bg">#F4F3EE</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="text">#201F1C</color>
-    <color name="muted">#6B6960</color>
-    <color name="border">#E3E0D6</color>
+    <!-- Palette aligned with UIdesigns/finalfinalUI without changing app behavior. -->
+    <color name="primary">#8A633F</color>
+    <color name="primary_dark">#171714</color>
+    <color name="accent">#D1A170</color>
+    <color name="bg">#F6F3ED</color>
+    <color name="surface">#FFFDF9</color>
+    <color name="text">#1D1D1A</color>
+    <color name="muted">#68645E</color>
+    <color name="border">#DDD7CE</color>
+    <color name="warm_white">#FFF8EE</color>
+    <color name="warm_muted">#E9DCCB</color>
+    <color name="login_field">#D91D1712</color>
+    <color name="login_field_stroke">#CCFFF6E6</color>
     <color name="white">#FFFFFF</color>
     <!-- Bootstrap contextual badge colours used by CONFIG.*StatusColors -->
     <color name="badge_success">#198754</color>
-    <color name="badge_warning">#D9A441</color>
+    <color name="badge_warning">#D1A170</color>
     <color name="badge_danger">#C0392B</color>
     <color name="badge_info">#0DCAF0</color>
-    <color name="badge_primary">#1F4E45</color>
+    <color name="badge_primary">#8A633F</color>
     <color name="badge_secondary">#6C757D</color>
     <color name="badge_dark">#212529</color>
 </resources>
