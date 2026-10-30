@@ -53,6 +53,13 @@
               <option>Inactive</option>
             </select>
           </div>
+          <section class="mt-4" id="categoryServicesSection" aria-labelledby="categoryServicesTitle" hidden>
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+              <h6 class="mb-0" id="categoryServicesTitle">Services using this category</h6>
+              <span class="badge text-bg-secondary" id="categoryServicesCount">0</span>
+            </div>
+            <div class="list-group" id="categoryServicesList"></div>
+          </section>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -75,11 +82,16 @@
 adminReady(async function () {
   await API.ready;
   await initAdminChrome('categories.html', 'Categories');
-  await renderCategoriesTable();
+  await renderCategoriesTable(false);
+  Promise.all([API.getCategories(), API.getServices()])
+    .then(() => renderCategoriesTable(false))
+    .catch(() => {});
 
   $('#addCategoryBtn').onAdmin('click', function () {
     $('#categoryForm')[0].reset();
     $('#catId').val('');
+    $('#categoryServicesSection').prop('hidden', true);
+    $('#categoryServicesList').empty();
     $('#categoryFormTitle').text('Add Category');
     new bootstrap.Modal('#categoryFormModal').show();
   });
@@ -87,12 +99,14 @@ adminReady(async function () {
   $('.admin-main').onAdmin('click', '.js-edit-cat', async function (event) {
     const target = $(event.target).closest('.js-edit-cat');
     if (!target.length) return;
-    const categories = await API.getCategories();
+    const categories = STORAGE.getAll('categories');
+    const services = STORAGE.getAll('services');
     const c = categories.find(x => x.category_id === target.data('id'));
     if (!c) return;
     $('#catId').val(c.category_id);
     $('#catName').val(c.name);
     $('#catStatus').val(c.status);
+    renderCategoryServices(c.category_id, services);
     $('#categoryFormTitle').text('Edit Category');
     new bootstrap.Modal('#categoryFormModal').show();
   });
@@ -101,11 +115,11 @@ adminReady(async function () {
     const target = $(event.target).closest('.js-delete-cat');
     if (!target.length) return;
     const id = target.data('id');
-    const services = await API.getServices();
-    const inUse = services.some(s => s.category_id === id);
+    const services = STORAGE.getAll('services');
+    const inUse = services.some(s => String(resolveServiceCategoryId(s)) === String(id));
     if (inUse) { alert('This category is used by one or more services. Reassign those services first.'); return; }
     return confirmDelete('Delete this category?', async function () {
-      try { await API.deleteCategory(id); await renderCategoriesTable(); showAdminToast(API.savedMessage()); }
+      try { await API.deleteCategory(id); await renderCategoriesTable(false); showAdminToast(API.savedMessage()); }
       catch (error) { showAdminToast(error.message, 'danger'); }
     });
   });
@@ -119,22 +133,24 @@ adminReady(async function () {
       if (id) await API.updateCategory(id, data);
       else await API.createCategory(data);
       bootstrap.Modal.getInstance(document.getElementById('categoryFormModal')).hide();
-      await renderCategoriesTable();
+      await renderCategoriesTable(false);
       showAdminToast(API.savedMessage());
     } catch (error) { showAdminToast(error.message, 'danger'); }
     finally { submit.prop('disabled', false); }
   });
 });
 
-async function renderCategoriesTable() {
-  const [categories, services] = await Promise.all([API.getCategories(), API.getServices()]);
+async function renderCategoriesTable(refreshData = false) {
+  const [categories, services] = refreshData
+    ? await Promise.all([API.getCategories(), API.getServices()])
+    : [STORAGE.getAll('categories'), STORAGE.getAll('services')];
   const $body = $('#categoriesBody').empty();
   if (!categories.length) {
     $body.append('<tr><td colspan="4" class="text-center text-muted py-4">No categories yet.</td></tr>');
     return;
   }
   categories.forEach(c => {
-    const count = services.filter(s => s.category_id === c.category_id).length;
+    const count = services.filter(s => s.status !== 'Inactive' && String(resolveServiceCategoryId(s)) === String(c.category_id)).length;
     $body.append(`
       <tr>
         <td class="fw-semibold">${escapeHtmlA(c.name)}</td>
@@ -146,6 +162,23 @@ async function renderCategoriesTable() {
         </td>
       </tr>`);
   });
+}
+
+function renderCategoryServices(categoryId, services) {
+  const matches = services.filter(service => String(resolveServiceCategoryId(service)) === String(categoryId));
+  const $list = $('#categoryServicesList').empty();
+  $('#categoryServicesCount').text(matches.length);
+  if (!matches.length) {
+    $list.append('<div class="list-group-item text-muted small">No services currently use this category.</div>');
+  } else {
+    matches
+      .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
+      .forEach(service => {
+        const badgeClass = service.status === 'Active' ? 'text-bg-success' : 'text-bg-secondary';
+        $list.append(`<div class="list-group-item d-flex align-items-center justify-content-between gap-3"><span>${escapeHtmlA(service.name || 'Unnamed service')}</span><span class="badge ${badgeClass}">${escapeHtmlA(service.status || 'Unknown')}</span></div>`);
+      });
+  }
+  $('#categoryServicesSection').prop('hidden', false);
 }
 </script>
 </body>

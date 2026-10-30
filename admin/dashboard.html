@@ -91,7 +91,7 @@
       <div class="panel mb-0">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="panel-title mb-0"><i class="bi bi-calendar-check me-2 text-primary"></i>Upcoming Bookings</h5>
-          <a href="bookings.html" class="btn btn-sm btn-admin-primary">View All Bookings</a>
+          <a href="bookings.html" class="btn btn-sm btn-admin-primary dashboard-view-bookings">View All Bookings</a>
         </div>
         <div class="table-wrap">
           <table class="admin-table">
@@ -128,7 +128,7 @@
 <script>
 adminReady(async function () {
   await API.ready;
-  if (!(await initAdminChrome('dashboard.html', 'Dashboard'))) return;
+  await initAdminChrome('dashboard.html', 'Dashboard');
   await renderDashboard();
   await API.refreshSharedData();
 
@@ -162,18 +162,15 @@ async function renderDashboard() {
   }, Promise.resolve(0));
   const acceptedPayments = new Map(await Promise.all(bookings.map(async booking =>
     [String(booking.id), await PaymentsHelper.acceptedAmountPaid(booking, pendingPaymentIndex)])));
-  const outstandingBalance = await PaymentsHelper.totalOutstanding(bookings, pendingPaymentIndex);
   if (version !== dashboardVersion) return;
 
   // Render top stat cards
   const cards = [
     { label: "Collected Revenue", value: BookingCalc.formatCurrency(acceptedRevenue), icon: "bi-cash-stack", cls: "success" },
-    { label: "Outstanding Balance", value: BookingCalc.formatCurrency(stats.balances?.outstanding_balances || 0), icon: "bi-hourglass-split", cls: "warn" },
     { label: "Total Bookings", value: stats.total_bookings, icon: "bi-journal-check" },
     { label: "Pending Approval", value: stats.pending_bookings, icon: "bi-hourglass-split", cls: "warn" },
     { label: "Confirmed Events", value: stats.confirmed_bookings, icon: "bi-check2-circle" },
     { label: "Awaiting Payment", value: stats.awaiting_payment_bookings, icon: "bi-cash-coin", cls: stats.awaiting_payment_bookings > 0 ? "warn" : "" },
-    { label: "Outstanding Balance", value: BookingCalc.formatCurrency(outstandingBalance), icon: "bi-hourglass-split", cls: outstandingBalance > 0 ? "warn" : "" },
     { label: "Completed", value: stats.completed_bookings, icon: "bi-flag" },
     { label: "Active Services", value: stats.active_services, icon: "bi-boxes" },
     { label: "Items On Rental", value: stats.items_on_rental, icon: "bi-truck" },

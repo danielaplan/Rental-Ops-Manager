@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <p class="text-muted">For customers without an account — Facebook Messenger, phone calls, SMS, referrals, or walk-ins.</p>
+  <p class="text-muted">Enter the essential booking details now. Optional customer and event information can be added later from Bookings.</p>
 
   <div class="panel">
     <form id="manualBookingForm">
@@ -32,39 +32,12 @@
             <h6 class="manual-section-title">1. Customer Details</h6>
           <div class="row g-3 mb-3">
             <div class="col-12">
-              <label class="form-label" for="mCustomerId">Existing customer <span class="text-muted">(optional)</span></label>
-              <select class="form-select" id="mCustomerId"><option value="">Create a new customer</option></select>
-              <div class="form-text">Choose a repeat customer to avoid creating a duplicate record.</div>
-            </div>
-            <div class="col-12">
               <label class="form-label" for="mCustName">Full Name</label>
               <input type="text" class="form-control" id="mCustName" maxlength="100" required>
             </div>
             <div class="col-12">
               <label class="form-label" for="mCustContact">Contact Number</label>
               <input type="text" class="form-control" id="mCustContact" maxlength="20" required>
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="mCustEmail">Email (optional)</label>
-              <input type="email" class="form-control" id="mCustEmail" maxlength="100">
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="mCustType">Customer Type</label>
-              <select class="form-select" id="mCustType">
-                <option>First-time client</option>
-                <option>Returning client</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="mSource">Booking Source</label>
-              <select class="form-select" id="mSource">
-                <option>Manual</option>
-                <option>Facebook Messenger</option>
-                <option>Phone Call</option>
-                <option>SMS</option>
-                <option>Referral</option>
-                <option>Walk-in</option>
-              </select>
             </div>
           </div>
           </div>
@@ -88,33 +61,9 @@
             <div class="mb-3" id="mAvailabilityStatus"></div>
 
             <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <label class="form-label" for="mEventType">Event Type</label>
-                <select class="form-select" id="mEventType" required></select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="mGuests">Number of Guests</label>
-                <input type="number" min="1" class="form-control" id="mGuests">
-              </div>
               <div class="col-12">
                 <label class="form-label" for="mLocation">Event Location</label>
                 <input type="text" class="form-control" id="mLocation" maxlength="255" required>
-              </div>
-              <div class="col-12">
-                <label class="form-label" for="mSpecialRequests">Special Requests</label>
-                <textarea class="form-control" id="mSpecialRequests" rows="2"></textarea>
-              </div>
-              <div class="col-12">
-                <label class="form-label" for="mThemeNotes">Theme / setup notes</label>
-                <textarea class="form-control" id="mThemeNotes" rows="2"></textarea>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="mPreparation">Preparation allowance (minutes)</label>
-                <input type="number" min="0" step="1" class="form-control" id="mPreparation" value="0" required>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="mTravel">Travel allowance (minutes)</label>
-                <input type="number" min="0" step="1" class="form-control" id="mTravel" value="0" required>
               </div>
             </div>
           </div>
@@ -148,7 +97,6 @@
             <div class="col-6">
               <label class="form-label" for="mAmountPaid">Agreed down payment paid now (₱)</label>
                 <input type="number" min="0" step="0.01" class="form-control" id="mAmountPaid" value="0">
-                <div class="form-text">If the connection fails, this amount is kept only as a reminder and is not recorded as payment.</div>
             </div>
             <div class="col-12">
               <label class="form-label" for="mAgreedTotal">Agreed rental total (₱)</label>
@@ -207,17 +155,12 @@ adminReady(async function () {
     await renderAddons();
     await updateSummary();
     await checkAvailability();
-    const service = (await API.getServices()).find(item => item.service_id === this.value);
-    $('#mPreparation').val(service?.default_preparation_minutes || 0);
-    $('#mTravel').val(service?.default_travel_minutes || 0);
   });
-  $('.admin-main').onAdmin('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage, #mPreparation, #mTravel', async function () {
+  $('.admin-main').onAdmin('change', '.js-m-addon, #mDate, #mStart, #mEnd, #mPackage', async function () {
     if (this.id === 'mDate') await renderPackages();
     await updateSummary();
     await checkAvailability();
   });
-  $('#mCustomerId').onAdmin('change', applySelectedCustomer);
-
   $('#manualBookingForm').onAdmin('submit', async function (e) {
     e.preventDefault();
     await createManualBooking();
@@ -231,34 +174,14 @@ async function populateForm() {
     $wrap.append(`
       <div class="col-md-6">
         <label class="service-check-card d-flex align-items-center gap-2 mb-0">
-          <input type="radio" name="service" class="js-m-service form-check-input mt-0" value="${escapeHtmlA(s.service_id)}">
+          <input type="radio" name="service" class="js-m-service form-check-input mt-0" value="${escapeHtmlA(s.service_id)}" data-preparation="${escapeHtmlA(s.default_preparation_minutes || 0)}" data-travel="${escapeHtmlA(s.default_travel_minutes || 0)}">
           <span class="flex-fill"><strong>${escapeHtmlA(s.name)}</strong><br><small class="text-muted">Select a package below</small></span>
         </label>
       </div>`);
   });
 
-  const $evt = $('#mEventType').empty();
-  CONFIG.eventTypes.forEach(t => $evt.append(`<option>${t}</option>`));
-
   const $pm = $('#mPayMethod').empty();
   CONFIG.paymentMethods.forEach(m => $pm.append(`<option>${m}</option>`));
-
-  const customers = await API.getCustomers();
-  customers.sort((a, b) => String(a.name).localeCompare(String(b.name))).forEach(customer => {
-    $('#mCustomerId').append(`<option value="${escapeHtmlA(customer.customer_id)}">${escapeHtmlA(customer.name)} · ${escapeHtmlA(customer.contact || 'No contact')}</option>`);
-  });
-}
-
-async function applySelectedCustomer() {
-  const customer = (await API.getCustomers()).find(item => String(item.customer_id) === String($('#mCustomerId').val()));
-  const selected = Boolean(customer);
-  if (customer) {
-    $('#mCustName').val(customer.name || '');
-    $('#mCustContact').val(customer.contact || '');
-    $('#mCustEmail').val(customer.email || customer.messenger || '');
-    $('#mCustType').val(customer.customer_type || 'Returning client');
-  }
-  $('#mCustName, #mCustContact, #mCustEmail, #mCustType').prop('disabled', selected);
 }
 
 let packageVersion = 0, addonVersion = 0, summaryVersion = 0, availabilityVersion = 0;
@@ -290,7 +213,6 @@ async function restoreManualDraft(){
    await renderAddons();
  }
  Object.entries(draft).forEach(([id, value]) => { if (!['service', 'addonIds'].includes(id)) $('#' + id).val(value); });
- if ($('#mCustomerId').val()) await applySelectedCustomer();
  $('.js-m-addon').each(function () { this.checked = (draft.addonIds || []).includes(this.value); });
  await updateSummary();
  await checkAvailability();
@@ -300,6 +222,13 @@ $(document).off('input.manualDraft change.manualDraft','#manualBookingForm :inpu
 });
 function getMSelectedServices() { return $('.js-m-service:checked').map(function () { return this.value; }).get(); }
 function getMSelectedAddons() { return $('.js-m-addon:checked').map(function () { return this.value; }).get(); }
+function selectedServiceAllowances() {
+  const selected = $('.js-m-service:checked');
+  return {
+    preparation_minutes: Number(selected.data('preparation') || 0),
+    travel_minutes: Number(selected.data('travel') || 0)
+  };
+}
 
 async function renderAddons() {
   const version = ++addonVersion;
@@ -350,7 +279,9 @@ async function checkAvailability() {
     $('#mSubmitBtn').prop('disabled', true);
     return;
   }
-  const availability = await Promise.all(serviceIds.map(async id => ({ id, result: await API.checkAvailability(id, date, start, end, null, { preparation_minutes: Number($('#mPreparation').val() || 0), travel_minutes: Number($('#mTravel').val() || 0) }) })));
+  const availability = await Promise.all(serviceIds.map(async id => {
+    return { id, result: await API.checkAvailability(id, date, start, end, null, selectedServiceAllowances()) };
+  }));
   if (version !== availabilityVersion) return;
   const conflicts = availability.flatMap(entry => entry.result.conflicts?.bookings || []);
   const blocked = availability.some(entry => (entry.result.conflicts?.blocks || []).length);
@@ -381,7 +312,6 @@ async function createManualBooking() {
   manualSaving = true;
   $('#mSubmitBtn').prop('disabled', true);
   let createdBooking = null;
-  let amountPaid = 0;
   try {
   const serviceIds = getMSelectedServices();
   if (serviceIds.length!==1) { showFieldError('#mPackage','Select one service.'); return; }
@@ -391,7 +321,7 @@ async function createManualBooking() {
   if (!timeCheck.ok) { showFieldError('#mEnd', timeCheck.message); return; }
   clearFieldError('#mEnd');
 
-  const availability = await API.checkAvailability(serviceIds[0], date, start, end, null, { preparation_minutes: Number($('#mPreparation').val() || 0), travel_minutes: Number($('#mTravel').val() || 0) });
+  const availability = await API.checkAvailability(serviceIds[0], date, start, end, null, selectedServiceAllowances());
   if ((availability.conflicts?.blocks || []).length) {
     $('#manualSaveError').text('This interval is blocked and cannot be saved.').prop('hidden', false).trigger('focus');
     return;
@@ -401,7 +331,7 @@ async function createManualBooking() {
   const discount = Number($('#mDiscount').val() || 0);
   const fees = Number($('#mFees').val() || 0);
   const { subtotal, addonsTotal, total } = await manualTotals(addonIds, discount, fees);
-  amountPaid = Number($('#mAmountPaid').val() || 0);
+  const amountPaid = Number($('#mAmountPaid').val() || 0);
   const agreedTotal = Number($('#mAgreedTotal').val());
   for (const [selector, value, label] of [
     ['#mDiscount', discount, 'Discount'],
@@ -417,35 +347,21 @@ async function createManualBooking() {
   }
 
     createdBooking = await API.createBooking({
-      customer_id: $('#mCustomerId').val() || null,
       customer_name: $('#mCustName').val().trim(),
       contact: $('#mCustContact').val().trim(),
-      email: $('#mCustEmail').val().trim(),
-      customer_type: $('#mCustType').val(),
-      event_type: $('#mEventType').val(),
       event_date: date, start_time: start, end_time: end,
       location: $('#mLocation').val().trim(),
-      guests: Number($('#mGuests').val() || 0),
-      special_requests: $('#mSpecialRequests').val().trim(),
-      theme_notes: $('#mThemeNotes').val().trim(),
-      preparation_minutes: Number($('#mPreparation').val() || 0), travel_minutes: Number($('#mTravel').val() || 0),
       service_ids: serviceIds, package_id: $('#mPackage').val() || null,
       addon_ids: addonIds,
       discount, fees,
       subtotal, addons_total: addonsTotal, total, agreed_total: agreedTotal,
       amount_paid: 0,
-      status: "Pending",
-      source: $('#mSource').val()
+      status: "Pending"
     });
 
     if (amountPaid > 0) {
-      if (createdBooking.pending_sync || String(createdBooking.id).startsWith('LOCAL-')) {
-        API.rememberIntendedPayment?.(createdBooking.id, amountPaid, $('#mPayMethod').val());
-      } else {
-        const payment = await PaymentsHelper.recordPayment(createdBooking.id, amountPaid, $('#mPayMethod').val(), 'Down payment / reservation fee');
-        if (!payment) throw new Error('The initial payment could not be recorded.');
-        API.clearIntendedPayment?.(createdBooking.id);
-      }
+      const payment = await PaymentsHelper.recordPayment(createdBooking.id, amountPaid, $('#mPayMethod').val(), 'Down payment / reservation fee');
+      if (!payment) throw new Error('The initial payment could not be recorded.');
     }
 
     localStorage.removeItem(manualDraftKey());
@@ -453,10 +369,9 @@ async function createManualBooking() {
     window.location.href = 'bookings.html';
   } catch(error) {
     if (createdBooking) {
-      if (amountPaid > 0) API.rememberIntendedPayment?.(createdBooking.id, amountPaid, $('#mPayMethod').val());
       localStorage.removeItem(manualDraftKey());
       $('#mSubmitBtn').prop('disabled', true).text('Booking saved; payment needs attention');
-      $('#manualSaveError').html(`Booking ${escapeHtmlA(createdBooking.id)} was saved, but the initial payment was not recorded. The intended amount was kept as a local reminder. Avoid creating the booking again; open it and record payment online from its Payments tab. <a href="bookings.html">Open Bookings</a>`).prop('hidden', false).trigger('focus');
+      $('#manualSaveError').html(`Booking ${escapeHtmlA(createdBooking.id)} was saved locally, but the initial payment was not recorded. Avoid creating it again; open the booking and retry payment from its Payments tab. <a href="bookings.html">Open Bookings</a>`).prop('hidden', false).trigger('focus');
       return;
     }
     $('#manualSaveError').text(error.message).prop('hidden',false).trigger('focus');

@@ -266,6 +266,14 @@
               <div class="col-md-5">
                 <div class="panel mb-0">
                   <div class="panel-title">Record Payment</div>
+                  <div class="rounded border bg-light p-3 mb-3" aria-label="Booking payment summary">
+                    <div class="row g-2 text-center">
+                      <div class="col-4"><div class="text-muted small">Total</div><strong id="paySummaryTotal">₱0.00</strong></div>
+                      <div class="col-4"><div class="text-muted small">Paid</div><strong class="text-success" id="paySummaryPaid">₱0.00</strong></div>
+                      <div class="col-4"><div class="text-muted small">Balance</div><strong class="text-danger" id="paySummaryBalance">₱0.00</strong></div>
+                    </div>
+                    <div class="small text-center mt-2" id="payBalancePreview" aria-live="polite">Enter a payment to preview the new balance.</div>
+                  </div>
                   <div class="mb-2">
                     <label class="form-label" for="payAmount">Payment amount (₱)</label>
                     <input type="number" min="0.01" step="0.01" class="form-control" id="payAmount" required>
@@ -396,6 +404,14 @@ let deliveryFormRevision = 0;
 let returnToBookingDetails = false;
 let detailVersion = 0, bookingsVersion = 0, detailEditRevision = 0;
 let pendingConflictApproval = null;
+function updatePaymentBalancePreview() {
+  const balance = Number($('#paySummaryBalance').data('amount') || 0);
+  const amount = Number($('#payAmount').val());
+  const preview = Number.isFinite(amount) && amount > 0
+    ? `Balance after payment: ${BookingCalc.formatCurrency(Math.max(balance - amount, 0))}`
+    : 'Enter a payment to preview the new balance.';
+  $('#payBalancePreview').text(preview);
+}
 $('#bookingDetailModal').onAdmin('input change', ':input', () => { detailEditRevision++; });
 $('#bookingDetailModal').onAdmin('hidden.bs.modal', () => { detailVersion++; });
 
@@ -408,6 +424,7 @@ adminReady(async function () {
   $('#payMethod').empty();
   CONFIG.paymentMethods.forEach(m => $('#payMethod').append(`<option>${m}</option>`));
   CONFIG.paymentMethods.forEach(m => $('#correctionMethod').append(`<option>${m}</option>`));
+  $('#payAmount').onAdmin('input change', updatePaymentBalancePreview);
   $('#dStatusSelect').empty();
 
   const requestedBookingId = new URLSearchParams(window.location.search).get('booking_id');
@@ -1000,6 +1017,10 @@ async function loadBookingDetail(id) {
   const intendedPayment = API.getIntendedPayment?.(id) || null;
   $('#dPaid').text(BookingCalc.formatCurrency(paid));
   $('#dBalance').text(BookingCalc.formatCurrency(balance));
+  $('#paySummaryTotal').text(BookingCalc.formatCurrency(b.total));
+  $('#paySummaryPaid').text(BookingCalc.formatCurrency(paid));
+  $('#paySummaryBalance').text(BookingCalc.formatCurrency(balance)).data('amount', balance);
+  updatePaymentBalancePreview();
   const allowedStatusOptions = b.status === 'Pending' ? ['Pending','Confirmed'] : ['Confirmed'];
   $('#dStatusSelect').html(allowedStatusOptions.map(status => `<option>${status}</option>`).join('')).val(b.status);
   $('#dPaymentStatusSelect').val(paymentStatus);

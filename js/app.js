@@ -105,18 +105,16 @@ async function applySiteAppearance() {
   const cached = publicSettingsCache();
   const settings = cached;
   const root = document.documentElement;
-  const primary = normalizeHexColor(settings.primary_color);
-  const accent = normalizeHexColor(settings.accent_color);
+  const defaults = CONFIG.themeDefaults || { primary: '#8a633f', accent: '#d1a170', primaryDark: '#171714' };
+  const primary = normalizeHexColor(settings.primary_color) || defaults.primary;
+  const accent = normalizeHexColor(settings.accent_color) || defaults.accent;
+  const defaultTheme = primary.toLowerCase() === defaults.primary.toLowerCase() && accent.toLowerCase() === defaults.accent.toLowerCase();
 
-  if (primary) {
-    root.style.setProperty('--color-primary', primary);
-    root.style.setProperty('--color-primary-dark', adjustColor(primary, -18));
-    root.style.setProperty('--color-primary-light', adjustColor(primary, 18));
-  }
-  if (accent) {
-    root.style.setProperty('--color-accent', accent);
-    root.style.setProperty('--color-accent-dark', adjustColor(accent, -18));
-  }
+  root.style.setProperty('--color-primary', primary);
+  root.style.setProperty('--color-primary-dark', defaultTheme ? defaults.primaryDark : adjustColor(primary, -42));
+  root.style.setProperty('--color-primary-light', adjustColor(primary, 18));
+  root.style.setProperty('--color-accent', accent);
+  root.style.setProperty('--color-accent-dark', adjustColor(accent, -28));
 }
 
 function normalizeHexColor(value) {
@@ -133,6 +131,21 @@ function safeWebUrl(value) {
   }
 }
 
+function publicServicePresentationValue(service, field) {
+  const map = publicContentCache()?.[field] || {};
+  const candidates = [service?.service_id, service?._server_id];
+  const serverId = service?._server_id ?? String(service?.service_id || '').match(/(\d+)$/)?.[1];
+  if (serverId !== undefined && serverId !== null && serverId !== '') {
+    candidates.push(`SVC-${String(serverId).padStart(3, '0')}`);
+    const aliases = STORAGE._get('er_sync_ids', {});
+    Object.entries(aliases).forEach(([key, value]) => {
+      if (key.startsWith('services:') && String(value) === String(serverId)) candidates.push(key.slice('services:'.length));
+    });
+  }
+  const key = candidates.find(candidate => candidate != null && map[String(candidate)]);
+  return key == null ? '' : map[String(key)];
+}
+
 function adjustColor(hex, amount) {
   const value = parseInt(hex.slice(1), 16);
   const change = (channel) => Math.max(0, Math.min(255, channel + amount));
@@ -141,6 +154,18 @@ function adjustColor(hex, amount) {
   const blue = change(value & 255);
   return '#' + [red, green, blue].map(channel => channel.toString(16).padStart(2, '0')).join('');
 }
+
+window.addEventListener?.('storage', event => {
+  if (event.key === PUBLIC_STORAGE_KEYS.settings) applySiteAppearance();
+  if (event.key === PUBLIC_STORAGE_KEYS.websiteContent) {
+    renderSiteChrome();
+    renderHero();
+    renderAbout();
+    renderServices();
+    renderGallery();
+    renderContact();
+  }
+});
 
 async function renderSiteChrome() {
   const cached = publicContentCache();
@@ -168,8 +193,12 @@ async function renderHero() {
   const content = publicContentCache();
   const configuredImage = safeWebUrl(content.hero_image);
   const usesLegacySeed = /images\.unsplash\.com\/photo-1530103862676/.test(configuredImage);
-  $('#heroTitle').text('Turn your celebration into a moment everyone remembers.');
-  $('#heroDesc').text('We bring the music, the sweets, and the picture-perfect detailsâ€”so you can be fully present for every smile.');
+  const title = String(content.hero_title || '').trim();
+  const description = String(content.hero_description || '').trim();
+  const buttonText = String(content.hero_button_text || '').trim();
+  $('#heroTitle').text(title || 'Turn your celebration into a moment everyone remembers.');
+  $('#heroDesc').text(description || 'We bring the music, the sweets, and the picture-perfect details—so you can be fully present for every smile.');
+  $('#heroButtonText').text(buttonText || 'Explore services');
   $('#heroImage').attr('src', configuredImage && !usesLegacySeed ? configuredImage : 'images/defaults/hero-bg.jpg');
 }
 
@@ -195,7 +224,7 @@ async function renderServices() {
 
   services.forEach(s => {
     const displayName = publicServiceName(s.name);
-    const configuredImage = safeWebUrl(publicContentCache().service_images?.[s.service_id]) || safeWebUrl(s.image)
+    const configuredImage = safeWebUrl(publicServicePresentationValue(s, 'service_images')) || safeWebUrl(s.image)
       || safeWebUrl((cachedServices.find(item => String(item.service_id) === String(s.service_id)) || {}).image);
     const serviceImage = (!/images\.unsplash\.com/.test(configuredImage) && configuredImage)
       || publicGalleryVisual(serviceGalleryKeywords(s.name))
@@ -271,7 +300,7 @@ async function openServiceDetails(serviceId) {
   const displayName = publicServiceName(s.name || cachedService?.name || 'Service');
   $('#serviceModalLabel').text(displayName);
   $('#serviceModalBody').html(`
-    <img src="${escapeHtml(safeWebUrl(publicContentCache().service_images?.[s.service_id] || s.image || cachedService?.image))}" alt="${escapeHtml(displayName)}" class="w-100 mb-3" style="border-radius:8px;aspect-ratio:16/9;object-fit:cover;">
+    <img src="${escapeHtml(safeWebUrl(publicServicePresentationValue(s, 'service_images') || s.image || cachedService?.image))}" alt="${escapeHtml(displayName)}" class="w-100 mb-3" style="border-radius:8px;aspect-ratio:16/9;object-fit:cover;">
     <p class="mb-0 text-muted">Contact our staff to confirm current package options, inclusions, and pricing for this service.</p>
   `);
   new bootstrap.Modal('#serviceModal').show();
@@ -285,7 +314,7 @@ async function renderGallery() {
   $('#galleryCarousel').toggle(shown.length > 0);
   [...shown, ...shown].forEach((img, index) => {
     $wrap.append(`
-      <div class="gallery-slide" onmouseenter="pauseGalleryCarousel()" onmouseleave="startGalleryCarousel()" aria-hidden="${index >= shown.length ? 'true' : 'false'}">
+        <div class="gallery-slide" onmouseenter="pauseGalleryCarousel()" onmouseleave="startGalleryCarousel()" aria-hidden="${index >= shown.length ? 'true' : 'false'}">
         <div class="gallery-item">
           <img src="${escapeHtml(safeWebUrl(img.image))}" alt="${escapeHtml(img.title)}">
           <div class="gallery-caption">${escapeHtml(img.title)}</div>
@@ -303,6 +332,7 @@ let galleryCarouselFrame = null;
 let galleryCarouselOffset = 0;
 let galleryCarouselLastFrame = 0;
 let galleryCarouselPaused = false;
+let galleryCarouselShiftTimer = null;
 
 function startGalleryCarousel() {
   if (galleryCarouselFrame !== null) window.cancelAnimationFrame?.(galleryCarouselFrame);
@@ -324,6 +354,40 @@ function pauseGalleryCarousel() {
   galleryCarouselLastFrame = 0;
 }
 
+function shiftGalleryCarousel(direction) {
+  const track = document.getElementById('galleryGrid');
+  const firstSlide = track?.firstElementChild;
+  if (!track || !firstSlide || track.children.length < 2) return;
+
+  if (galleryCarouselShiftTimer !== null) window.clearTimeout(galleryCarouselShiftTimer);
+  pauseGalleryCarousel();
+
+  const styles = window.getComputedStyle?.(track);
+  const gap = Number.parseFloat(styles?.columnGap || styles?.gap || '0') || 0;
+  const step = firstSlide.getBoundingClientRect().width + gap;
+  const loopWidth = track.scrollWidth / 2;
+  if (direction < 0 && loopWidth > 0 && galleryCarouselOffset + step > 0) {
+    galleryCarouselOffset -= loopWidth;
+    track.style.transition = 'none';
+    track.style.transform = `translate3d(${galleryCarouselOffset}px,0,0)`;
+    void track.offsetWidth;
+  }
+
+  galleryCarouselOffset += direction < 0 ? step : -step;
+  track.style.transition = 'transform .48s cubic-bezier(.22,.7,.2,1)';
+  track.style.transform = `translate3d(${galleryCarouselOffset}px,0,0)`;
+  galleryCarouselShiftTimer = window.setTimeout(() => {
+    galleryCarouselShiftTimer = null;
+    if (loopWidth > 0) {
+      while (galleryCarouselOffset <= -loopWidth) galleryCarouselOffset += loopWidth;
+      while (galleryCarouselOffset > 0) galleryCarouselOffset -= loopWidth;
+      track.style.transition = 'none';
+      track.style.transform = `translate3d(${galleryCarouselOffset}px,0,0)`;
+    }
+    startGalleryCarousel();
+  }, 500);
+}
+
 function animateGalleryCarousel(timestamp) {
   if (galleryCarouselPaused) return;
   const track = document.getElementById('galleryGrid');
@@ -339,6 +403,7 @@ function animateGalleryCarousel(timestamp) {
 async function renderContact() {
   const cached = publicContentCache();
   const c = cached;
+  const settings = publicSettingsCache();
   const phone = c.contact_phone === '0917-123-4567' ? '' : (c.contact_phone || '');
   const email = c.contact_email === 'hello@fiestaandco.ph' ? '' : (c.contact_email || '');
   const address = c.contact_address === '123 Rizal Avenue, Caloocan City, Metro Manila' ? '' : (c.contact_address || '');
@@ -347,8 +412,10 @@ async function renderContact() {
   $('#contactEmail').text(email).attr('href', email ? 'mailto:' + email : '#');
   $('#contactEmail').closest('.contact-info-item').toggle(!!email);
   $('#contactAddress').text(address).closest('.contact-info-item').toggle(!!address);
-  const facebook = safeWebUrl(c.contact_facebook === 'https://facebook.com/fiestaandco' ? '' : c.contact_facebook);
-  const instagram = safeWebUrl(c.contact_instagram === 'https://instagram.com/fiestaandco' ? '' : c.contact_instagram);
+  const contentFacebook = c.contact_facebook === 'https://facebook.com/fiestaandco' ? '' : c.contact_facebook;
+  const contentInstagram = c.contact_instagram === 'https://instagram.com/fiestaandco' ? '' : c.contact_instagram;
+  const facebook = safeWebUrl(contentFacebook || settings.facebook);
+  const instagram = safeWebUrl(contentInstagram || settings.instagram);
   const bookingLink = document.getElementById('howFacebookLink');
   if (bookingLink) {
     bookingLink.hidden = !facebook;
