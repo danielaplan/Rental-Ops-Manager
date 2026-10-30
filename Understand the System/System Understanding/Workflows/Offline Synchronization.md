@@ -78,7 +78,7 @@ Offline mode is a recovery notebook, not a second database. It protects draft wo
 
 ## Part B — Technical Explanation
 
-`js/sync.js` sends `createBooking` directly to the server while online and falls back to a local outbox draft only for offline/network failure. It also wraps `generateBookingChecklist`, `updateBookingItem`, and `recordReturn` with outbox behavior. Other writes call their direct `js/api.js` methods and raise `online_required` when the browser is offline. `js/sync-ui.js` explains the boundary and disables internet-required booking, money, catalog, settings, content, gallery, inventory, and owner controls while offline.
+`js/sync.js` sends `createBooking`, `generateBookingChecklist`, `updateBookingItem`, and `recordReturn` directly to the server while online and falls back to a local outbox draft only for an offline state, a temporary local booking, or a transport-level network failure. This ordering ensures checklist updates reach the server before release and return inspections reach it before final review. Other writes call their direct `js/api.js` methods and raise `online_required` when the browser is offline. `js/sync-ui.js` explains the boundary and disables internet-required booking, money, catalog, settings, content, gallery, inventory, and owner controls while offline.
 
 `api/sync.php` accepts only `bookings/create`, `bookingItems/generate`, `bookingItems/update`, and `equipment/inspect`. An offline booking create must be Pending, unpaid, and contain no conflict-approval fields. Receipts and local-to-server ID aliases remain in the private sync state so retries stay idempotent. Each accepted operation retains its own transaction; the returned batch can contain committed, conflicting, and failed results together.
 

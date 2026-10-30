@@ -350,12 +350,27 @@
   API.getBookingItems=async id=>{if(!String(ref('bookings',id)).startsWith('LOCAL-'))await read('bookingItems','forBooking','&booking_id='+encodeURIComponent(ref('bookings',id)),id);return STORAGE.getAll('bookingItems').filter(row=>String(row.booking_id)===String(id));};
   API.getPaymentsForBooking=async id=>{if(!String(ref('bookings',id)).startsWith('LOCAL-'))await read('payments','all','&booking_id='+encodeURIComponent(ref('bookings',id)),id);return STORAGE.getAll('payments').filter(row=>String(row.booking_id)===String(id));};
   API.getItemHistory=async id=>{if(!String(ref('rentalItems',id)).startsWith('LOCAL-'))await read('itemHistory','forItem','&rental_item_id='+encodeURIComponent(ref('rentalItems',id)),{field:'rental_item_id',value:id});return STORAGE.getAll('itemHistory').filter(row=>String(row.rental_item_id)===String(id));};
-  API.generateBookingChecklist=async(id,serviceIds)=>{const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(id));const result=generateLocalChecklist(id,serviceIds,booking?.package_id);enqueue('bookingItems','generate',{booking_id:id,service_ids:serviceIds},id);return result;};
-  API.updateBookingItem=async(id,data)=>{const row=updateLocal('bookingItems',id,data);if(!row)throw new Error('Checklist item not found on this device.');enqueue('bookingItems','update',{...data,booking_id:row.booking_id,checklist_item_id:row.checklist_item_id,template_item_id:row.template_item_id,rental_item_id:row.rental_item_id},id);return row;};
+  API.generateBookingChecklist=async(id,serviceIds)=>{
+    const draft=()=>{const booking=STORAGE.getAll('bookings').find(row=>String(row.id)===String(id));const result=generateLocalChecklist(id,serviceIds,booking?.package_id);enqueue('bookingItems','generate',{booking_id:id,service_ids:serviceIds},id);lastWriteMode='draft';return result;};
+    if(!navigator.onLine||String(id).startsWith('LOCAL-'))return draft();
+    try{const result=await direct.generateBookingChecklist(id,serviceIds);lastWriteMode='server';reads.clear();return result;}
+    catch(error){if(error?.code!=='network_error')throw error;return draft();}
+  };
+  API.updateBookingItem=async(id,data)=>{
+    const draft=()=>{const row=updateLocal('bookingItems',id,data);if(!row)throw new Error('Checklist item not found on this device.');enqueue('bookingItems','update',{...data,booking_id:row.booking_id,checklist_item_id:row.checklist_item_id,template_item_id:row.template_item_id,rental_item_id:row.rental_item_id},id);lastWriteMode='draft';return row;};
+    if(!navigator.onLine||String(id).startsWith('LOCAL-'))return draft();
+    try{const result=await direct.updateBookingItem(id,data);lastWriteMode='server';reads.clear();return result;}
+    catch(error){if(error?.code!=='network_error')throw error;return draft();}
+  };
   API.deleteBookingItem=onlineOnly('deleteBookingItem','Checklist deletion');
   API.logItemHistory=onlineOnly('logItemHistory','Inventory history changes');
   API.recordRelease=onlineOnly('recordRelease','Equipment release');
-  API.recordReturn=async(bookingId,inspectedBy,itemResults,notes)=>{const rows=STORAGE.getAll('bookingItems');for(const item of itemResults){const row=rows.find(value=>String(value.booking_item_id)===String(item.booking_item_id));if(row)Object.assign(row,{returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||'',inspected:true,pending_sync:true});}saveRows('bookingItems',rows);const items=itemResults.map(item=>({checklist_item_id:item.checklist_item_id??item.booking_item_id,template_item_id:item.template_item_id,rental_item_id:item.rental_item_id??null,returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||''}));enqueue('equipment','inspect',{booking_id:bookingId,inspected_by:inspectedBy,items},bookingId);return {booking_id:bookingId,items,pending_sync:true};};
+  API.recordReturn=async(bookingId,inspectedBy,itemResults,notes)=>{
+    const draft=()=>{const rows=STORAGE.getAll('bookingItems');for(const item of itemResults){const row=rows.find(value=>String(value.booking_item_id)===String(item.booking_item_id));if(row)Object.assign(row,{returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||'',inspected:true,pending_sync:true});}saveRows('bookingItems',rows);const items=itemResults.map(item=>({checklist_item_id:item.checklist_item_id??item.booking_item_id,template_item_id:item.template_item_id,rental_item_id:item.rental_item_id??null,returned_qty:item.returned_qty,condition:item.condition,notes:item.notes||notes||''}));enqueue('equipment','inspect',{booking_id:bookingId,inspected_by:inspectedBy,items},bookingId);lastWriteMode='draft';return {booking_id:bookingId,items,pending_sync:true};};
+    if(!navigator.onLine||String(bookingId).startsWith('LOCAL-'))return draft();
+    try{const result=await direct.recordReturn(bookingId,inspectedBy,itemResults,notes);lastWriteMode='server';reads.clear();return result;}
+    catch(error){if(error?.code!=='network_error')throw error;return draft();}
+  };
   API.finalizeReturn=onlineOnly('finalizeReturn','Final return review');
   API.getPackages=()=>cachedRead('packages');
   API.getChecklistTemplates=()=>cachedRead('checklistTemplates');

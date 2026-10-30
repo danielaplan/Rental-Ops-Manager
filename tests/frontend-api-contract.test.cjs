@@ -325,6 +325,25 @@ test('release requires internet while return inspection remains an offline draft
 
   assert.equal(context.API.getSyncQueue().some(item => item.entity === 'itemReleases'), false);
   assert.ok(context.API.getSyncQueue().some(item => item.entity === 'equipment' && item.action === 'inspect'));
+  assert.equal(context.API.savedMessage(), 'Saved as an offline draft. Pending server validation.');
+});
+
+test('online checklist and return saves reach the server before release or final review', async () => {
+  const { context, requests } = createHarness();
+
+  await context.API.generateBookingChecklist('BK-001', ['SVC-001']);
+  await context.API.updateBookingItem('BI-001', {
+    checked_released: true, quantity_released: 1, condition_out: 'Good'
+  });
+  await context.API.recordReturn('BK-001', 'Owner', [{
+    booking_item_id: 'BI-001', rental_item_id: 'RI-001', returned_qty: 1, condition: 'Good'
+  }], 'Returned online');
+
+  assert.equal(context.API.getSyncQueue().length, 0);
+  assert.ok(requests.some(request => request.url.includes('/api/bookingItems.php?do=generate')));
+  assert.ok(requests.some(request => request.url.includes('/api/bookingItems.php?do=update&id=1')));
+  assert.ok(requests.some(request => request.url.includes('/api/equipment.php?do=inspect')));
+  assert.equal(context.API.savedMessage(), 'Saved by the server.');
 });
 
 test('shared refresh includes every unscoped admin collection', async () => {

@@ -42,4 +42,10 @@ The first standard-XAMPP consolidated run exposed a PHP 8.0 runtime incompatibil
 
 Final non-migration acceptance passed with `passed: true` and `source_unchanged: true`: all ten backend/sync test files passed, including the two offline recovery checks and five fixed-bug scenarios; all 68 frontend tests passed; syntax and whitespace checks passed. Evidence: `tests/acceptance-results/1793337477627-5976/summary.json`. Deferred legacy blockouts, migration execution, operational data, manual physical-device/owner acceptance, and production performance remained excluded.
 
+## Server-first checklist and inspection follow-up
+
+A post-merge review found that checklist updates and return inspections still entered the outbox even while online. That allowed the direct release or final-review request to reach the server before its prerequisite data. The shared sync facade now sends checklist generation, checklist edits, and return inspection directly while online, waits for server confirmation, and uses the outbox only for an offline state, temporary local booking, or genuine network failure. Draft and server success messages now follow the actual save path.
+
+Focused syntax and frontend verification passed 51/51 tests. Final non-migration acceptance passed all ten backend/sync files, both offline recovery checks, all five fixed-bug scenarios, all 69 frontend tests, and syntax/whitespace checks. Evidence: `tests/acceptance-results/1793340331130-25084/`. No schema or migration change was required.
+
 [Back to Development Journal](README.md)

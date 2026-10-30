@@ -72,7 +72,7 @@ test('Pending alteration exposes every mutable booking term without changing non
   assert.match(source, /agreed_total:/);
 });
 
-test('release is online-only while return inspection queues one atomic operation', () => {
+test('release is online-only while checklist and return saves are server-first with offline fallback', () => {
   const bookings = read('admin/bookings.html');
   const source = read('js/sync.js');
   const inventory = read('js/inventory.js');
@@ -80,10 +80,11 @@ test('release is online-only while return inspection queues one atomic operation
   const inspection = read('api/equipment_service.php');
   const availability = read('api/availability_service.php');
   const release = source.match(/API\.recordRelease=.*?;\r?\n/)?.[0] || '';
-  const returned = source.match(/API\.recordReturn=.*?;\r?\n/)?.[0] || '';
   assert.match(release, /onlineOnly\('recordRelease','Equipment release'\)/);
-  assert.match(returned, /enqueue\('equipment','inspect'/);
-  assert.doesNotMatch(release + returned, /logItemHistory|itemHistory','create/);
+  assert.match(source, /direct\.updateBookingItem\(id,data\)/);
+  assert.match(source, /direct\.recordReturn\(bookingId,inspectedBy,itemResults,notes\)/);
+  assert.match(source, /enqueue\('equipment','inspect'/);
+  assert.doesNotMatch(release, /logItemHistory|itemHistory','create/);
   assert.match(source, /API\.updatePayment=onlineOnly|\['updatePayment','Payments'\]/);
   assert.match(bookings, /\$\('#bookingDetailModal'\)\.onAdmin\('change', '\.js-release-check, \.js-release-qty, \.js-release-condition'/);
   assert.doesNotMatch(bookings, /\$\('\.admin-main'\)\.onAdmin\('change', '\.js-release-check'/);
