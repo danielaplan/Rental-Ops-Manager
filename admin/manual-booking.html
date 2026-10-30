@@ -148,6 +148,7 @@
             <div class="col-6">
               <label class="form-label" for="mAmountPaid">Agreed down payment paid now (₱)</label>
                 <input type="number" min="0" step="0.01" class="form-control" id="mAmountPaid" value="0">
+                <div class="form-text">If the connection fails, this amount is kept only as a reminder and is not recorded as payment.</div>
             </div>
             <div class="col-12">
               <label class="form-label" for="mAgreedTotal">Agreed rental total (₱)</label>
@@ -380,6 +381,7 @@ async function createManualBooking() {
   manualSaving = true;
   $('#mSubmitBtn').prop('disabled', true);
   let createdBooking = null;
+  let amountPaid = 0;
   try {
   const serviceIds = getMSelectedServices();
   if (serviceIds.length!==1) { showFieldError('#mPackage','Select one service.'); return; }
@@ -399,7 +401,7 @@ async function createManualBooking() {
   const discount = Number($('#mDiscount').val() || 0);
   const fees = Number($('#mFees').val() || 0);
   const { subtotal, addonsTotal, total } = await manualTotals(addonIds, discount, fees);
-  const amountPaid = Number($('#mAmountPaid').val() || 0);
+  amountPaid = Number($('#mAmountPaid').val() || 0);
   const agreedTotal = Number($('#mAgreedTotal').val());
   for (const [selector, value, label] of [
     ['#mDiscount', discount, 'Discount'],
@@ -437,8 +439,13 @@ async function createManualBooking() {
     });
 
     if (amountPaid > 0) {
-      const payment = await PaymentsHelper.recordPayment(createdBooking.id, amountPaid, $('#mPayMethod').val(), 'Down payment / reservation fee');
-      if (!payment) throw new Error('The initial payment could not be recorded.');
+      if (createdBooking.pending_sync || String(createdBooking.id).startsWith('LOCAL-')) {
+        API.rememberIntendedPayment?.(createdBooking.id, amountPaid, $('#mPayMethod').val());
+      } else {
+        const payment = await PaymentsHelper.recordPayment(createdBooking.id, amountPaid, $('#mPayMethod').val(), 'Down payment / reservation fee');
+        if (!payment) throw new Error('The initial payment could not be recorded.');
+        API.clearIntendedPayment?.(createdBooking.id);
+      }
     }
 
     localStorage.removeItem(manualDraftKey());
@@ -446,9 +453,10 @@ async function createManualBooking() {
     window.location.href = 'bookings.html';
   } catch(error) {
     if (createdBooking) {
+      if (amountPaid > 0) API.rememberIntendedPayment?.(createdBooking.id, amountPaid, $('#mPayMethod').val());
       localStorage.removeItem(manualDraftKey());
       $('#mSubmitBtn').prop('disabled', true).text('Booking saved; payment needs attention');
-      $('#manualSaveError').html(`Booking ${escapeHtmlA(createdBooking.id)} was saved locally, but the initial payment was not recorded. Avoid creating it again; open the booking and retry payment from its Payments tab. <a href="bookings.html">Open Bookings</a>`).prop('hidden', false).trigger('focus');
+      $('#manualSaveError').html(`Booking ${escapeHtmlA(createdBooking.id)} was saved, but the initial payment was not recorded. The intended amount was kept as a local reminder. Avoid creating the booking again; open it and record payment online from its Payments tab. <a href="bookings.html">Open Bookings</a>`).prop('hidden', false).trigger('focus');
       return;
     }
     $('#manualSaveError').text(error.message).prop('hidden',false).trigger('focus');

@@ -115,5 +115,7 @@ test('server booking boundaries keep pricing, text limits, release, history, and
   assert.match(release, /saveChecklistHistory\(\$pdo,\$item,\$bookingId,'Released'/);
   assert.match(inspection, /'action'=>'Returned'/);
   assert.match(sync, /\$entity==='payments' && in_array\(\$action,\['create','update'\],true\)/);
+  assert.match(sync, /Offline booking drafts must remain Pending and cannot record payment or approve a conflict/);
+  assert.match(sync, /array_intersect\(\['approve_conflicts','conflicting_booking_ids','override_reason','approval_base'\]/);
   assert.match(sync, /_sync_conflict_check/);
 });

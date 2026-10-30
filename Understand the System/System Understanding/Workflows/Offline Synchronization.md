@@ -31,9 +31,13 @@ Drafting work can safely wait for server review. Money, approvals, final lifecyc
 
 Ana starts a new booking while the connection is down. The browser labels it **Pending Sync** and gives it a temporary ID. When internet returns, synchronization starts automatically; Ana may also choose **Refresh data and sync**.
 
+When Ana is online, creating a booking goes directly to the booking API and the browser shows the official server result. A local draft is created only when the browser is already offline or the create request fails at the network layer. A server validation or conflict response remains an online error and is never converted into a local draft.
+
 The server then applies the normal booking and availability rules. If no conflict exists, the server accepts the booking and replaces its temporary ID. If another owner already accepted an overlapping booking, Ana’s draft stays on the device as a visible conflict. It does not become official until an owner resolves the conflict online.
 
 Ana may also draft the booking checklist and returned-item inspection offline. She cannot confirm the release, record money, approve an overlap, cancel the booking, or complete the post-event review until she is online.
+
+If Ana entered an intended down payment while the network failed, the amount and method remain only as a local reminder. They do not change `amount_paid`, payment history, dashboard revenue, or reports. After the booking receives its server ID, the reminder follows that ID and tells Ana to record the real payment online.
 
 ### Step-by-step workflow
 
@@ -60,6 +64,7 @@ flowchart LR
 ### Important things to remember
 
 - **Pending Sync** means saved on this device, not accepted by the business database.
+- An intended payment reminder is not a receipt or accepted payment and must be recorded online.
 - Automatic and manual synchronization use the same server validation.
 - A successful HTTP response may still contain an operation conflict or failure.
 - The sync endpoint also enforces the allowlist, so an old or modified browser cannot replay an online-only action.
@@ -73,9 +78,9 @@ Offline mode is a recovery notebook, not a second database. It protects draft wo
 
 ## Part B — Technical Explanation
 
-`js/sync.js` wraps only `createBooking`, `generateBookingChecklist`, `updateBookingItem`, and `recordReturn` with outbox behavior. Other writes call their direct `js/api.js` methods and raise `online_required` when the browser is offline. `js/sync-ui.js` explains the boundary and marks relevant booking controls as internet-required.
+`js/sync.js` sends `createBooking` directly to the server while online and falls back to a local outbox draft only for offline/network failure. It also wraps `generateBookingChecklist`, `updateBookingItem`, and `recordReturn` with outbox behavior. Other writes call their direct `js/api.js` methods and raise `online_required` when the browser is offline. `js/sync-ui.js` explains the boundary and disables internet-required booking, money, catalog, settings, content, gallery, inventory, and owner controls while offline.
 
-`api/sync.php` accepts only `bookings/create`, `bookingItems/generate`, `bookingItems/update`, and `equipment/inspect`. Receipts and local-to-server ID aliases remain in the private sync state so retries stay idempotent. Each accepted operation retains its own transaction; the returned batch can contain committed, conflicting, and failed results together.
+`api/sync.php` accepts only `bookings/create`, `bookingItems/generate`, `bookingItems/update`, and `equipment/inspect`. An offline booking create must be Pending, unpaid, and contain no conflict-approval fields. Receipts and local-to-server ID aliases remain in the private sync state so retries stay idempotent. Each accepted operation retains its own transaction; the returned batch can contain committed, conflicting, and failed results together.
 
 ### Technical references
 

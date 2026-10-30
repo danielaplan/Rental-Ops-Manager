@@ -1,6 +1,6 @@
 # Final Hostinger Testing — Final Scenarios
 
-Complete these scenarios in order. Record every result in [Report.md](Report.md). Screenshots are required for FAIL and BLOCKED outcomes.
+	Complete these scenarios in order. Record every result in [Report.md](Report.md). Screenshots are required for FAIL and BLOCKED outcomes.
 
 ## F01 — Hosting, HTTPS, and owner sign-in
 
@@ -46,10 +46,12 @@ Complete these scenarios in order. Record every result in [Report.md](Report.md)
 **Steps:**
 
 1. Confirm C.
-2. Create D as Pending. Try to confirm it without a reason; then use the supported conflict-approval flow with reason `HST FINAL — approved test overlap`.
-3. Refresh Details, Calendar, and Audit History for C and D.
-4. Create H, add its ₱200 payment, then cancel it using the stated test reason.
-5. Attempt a new same-service booking in H’s old interval.
+2. Create D as Pending, then remain on **Admin → Bookings** and open D's booking details.
+3. In **Details → Booking Status**, choose **Confirmed** and select **Save Booking**. The server must show the conflicting booking instead of confirming silently.
+4. In the conflict-approval panel that appears below the status controls, enter `HST FINAL — approved test overlap`, then select **Approve listed overlaps and confirm**. This approval must be performed while online.
+5. Refresh Details, Calendar, and Audit History for C and D.
+6. Create H, add its ₱200 payment, then cancel it using the stated test reason.
+7. Attempt a new same-service booking in H’s old interval.
 
 **Expected:** The conflict cannot confirm silently; approved conflict evidence is recorded; cancellation retains payment/audit history and releases the cancelled interval.
 
@@ -152,11 +154,13 @@ Complete these scenarios in order. Record every result in [Report.md](Report.md)
 **Steps:**
 
 1. While signed in and fully loaded, disconnect only the testing device.
-2. Create J once and, if the UI supports it, record its matching payment once.
-3. Confirm visible Pending Sync entries. Reconnect and use Sync Now twice.
-4. Refresh, then inspect Bookings, Customers, Payments, Checklist, and Audit History.
+2. Create J once in **Manual Booking**. Enter an intended ₱400 down payment and select its method before saving.
+3. Confirm J is an **Offline draft / Pending Sync**. Confirm the ₱400 is labelled as an intended payment reminder, is not present in payment history, and does not increase paid totals or revenue. Payment and other online-only controls must be disabled.
+4. Reconnect. Wait for automatic synchronization, then select **Refresh data and sync** twice. Confirm J receives one official Booking ID and the reminder follows that booking.
+5. While online, open J's **Payments** tab and record the ₱400 Completed payment once using reference `HST-F12-INTENT`.
+6. Refresh, then inspect Bookings, Customers, Payments, Checklist, Dashboard/Reports, and Audit History.
 
-**Expected:** Valid queued work reaches the server exactly once. Local and server IDs link correctly; no duplicate customer, booking, payment, or checklist appears.
+**Expected:** The Pending unpaid booking draft reaches the server exactly once. Local and server IDs link correctly; no duplicate customer, booking, or checklist appears. The intended payment is never counted while offline; after it is recorded online exactly one accepted payment appears and the reminder clears.
 
 ## F13 — Backup, scheduler, and recovery check
 

@@ -26,4 +26,20 @@ The owner approved changing the broad offline outbox into limited recovery sync.
 
 No schema migration, normal development database, operational data, Hostinger deployment, staging, production, physical-device, or client-acceptance check was performed. Existing untracked QA evidence was left untouched.
 
+## Post-rebase completion
+
+After rebasing this branch onto `origin/main`, the remaining implementation gaps were closed:
+
+- Online booking creation now calls the authoritative booking endpoint first. Only an offline state or transport-level network failure creates a local draft; server validation errors do not enter the outbox.
+- Offline booking drafts are forced to Pending with zero accepted payment and no conflict-approval payload. The sync endpoint independently rejects any modified or older client that attempts to replay Confirmed, paid, or conflict-approved booking creation.
+- An entered down-payment amount survives a failed/offline create only as an intended-payment reminder. It follows the temporary booking ID to the accepted server ID, never affects revenue or payment history, and clears after an online payment is recorded.
+- Catalog, inventory, gallery, package/template, website-content, settings, and owner write controls now visibly disable while offline. The service-worker cache version was bumped so existing devices receive the policy/UI changes.
+- The final Hostinger guide now gives the exact Bookings-screen conflict-approval steps and tests the intended-payment boundary during F12.
+
+Post-rebase frontend verification passed 69 focused tests plus repository syntax and whitespace checks. Because the normal XAMPP data directory could not start safely, a separate disposable MariaDB data directory was initialized on port 3317. Against that isolated instance, `sync-plan-gaps.test.cjs` and `offline-sync.test.cjs` passed all three live PHP/MySQL scenarios: Pending-only recovery, authoritative-operation rejection, exactly-once replay, retained overlap conflict, and rejected offline payment. The final focused frontend simulation passed 50/50 tests, followed by syntax and whitespace checks. The temporary server was stopped and its data directory removed; the normal XAMPP database was not used.
+
+The first standard-XAMPP consolidated run exposed a PHP 8.0 runtime incompatibility in return inspection: string-key array unpacking in `equipment_service.php` produced HTTP 500. Replacing that expression with the equivalent `array_merge()` kept behavior unchanged while supporting the installed PHP 8.0.30 runtime. The focused booking lifecycle suite then passed 2/2.
+
+Final non-migration acceptance passed with `passed: true` and `source_unchanged: true`: all ten backend/sync test files passed, including the two offline recovery checks and five fixed-bug scenarios; all 68 frontend tests passed; syntax and whitespace checks passed. Evidence: `tests/acceptance-results/1793337477627-5976/summary.json`. Deferred legacy blockouts, migration execution, operational data, manual physical-device/owner acceptance, and production performance remained excluded.
+
 [Back to Development Journal](README.md)
