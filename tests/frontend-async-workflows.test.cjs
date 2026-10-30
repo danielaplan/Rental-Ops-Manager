@@ -390,3 +390,13 @@ test('stale booking location conflicts expose the location comparison and retry 
   assert.match(html, /Client B location/);
   assert.match(html, /Client A location/);
 });
+
+test('collapsed admin sidebar enlarges and centers icons without shrinking mobile navigation', () => {
+  const css = fs.readFileSync(path.join(root, 'css/admin.css'), 'utf8');
+  assert.match(css, /\.admin-sidebar:not\(\.is-expanded\) \.sidebar-brand-mark \{[^}]*width: 46px;[^}]*height: 46px;/s);
+  assert.match(css, /\.admin-sidebar:not\(\.is-expanded\) \.nav-link \{[^}]*width: calc\(100% - 16px\);[^}]*min-height: 50px;[^}]*justify-content: flex-start;/s);
+  assert.match(css, /\.admin-sidebar:not\(\.is-expanded\) \.nav-link i \{[^}]*width: 40px;[^}]*height: 40px;[^}]*margin: 0 auto;[^}]*font-size: 1\.22rem;/s);
+  assert.match(css, /\.sidebar-brand-copy \{[^}]*max-width: 0;[^}]*transition: max-width \.24s ease/s);
+  assert.match(css, /\.admin-sidebar \.nav-label \{[^}]*max-width: 0;[^}]*transition: max-width \.24s ease/s);
+  assert.match(css, /@media \(max-width: 991\.98px\)[\s\S]*\.admin-sidebar:not\(\.is-expanded\) \.nav-link \{[^}]*width: auto;[^}]*justify-content: flex-start;/);
+});

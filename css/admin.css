@@ -129,6 +129,7 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   color: #fff;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   background: transparent;
+  transition: gap .24s ease, margin .24s ease, padding .24s ease;
 }
 .admin-sidebar:not(.is-expanded) .brand { justify-content: center; gap: 0; margin-inline: 0; padding-inline: 0; }
 .sidebar-brand-mark {
@@ -143,15 +144,16 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
   font-weight: 800;
   padding-top: 7px;
+  transition: width .24s ease, height .24s ease, flex-basis .24s ease, border-radius .2s ease, padding .2s ease;
 }
 .sidebar-brand-mark img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
 .sidebar-brand-mark.has-image { padding: 3px; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: rgba(255,255,255,.08); clip-path: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
-.admin-sidebar:not(.is-expanded) .sidebar-brand-mark { position: absolute; left: 50%; width: 38px; height: 38px; flex-basis: 38px; margin: 0; transform: translateX(-50%); }
+.admin-sidebar:not(.is-expanded) .sidebar-brand-mark { width: 46px; height: 46px; flex-basis: 46px; margin: 0; }
 .admin-sidebar.is-expanded .brand { justify-content: flex-start; }
-.sidebar-brand-copy { min-width: 0; opacity: 0; transform: translateX(-6px); white-space: nowrap; transition: opacity .16s ease, transform .2s ease; }
+.sidebar-brand-copy { min-width: 0; max-width: 0; overflow: hidden; opacity: 0; transform: translateX(-6px); white-space: nowrap; transition: max-width .24s ease, opacity .16s ease, transform .2s ease; }
 .sidebar-brand-copy .brand-name { display: block; max-width: 165px; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-brand-copy small { display: block; margin-top: 3px; color: rgba(255,255,255,.5); font: 500 .7rem/1 'Inter', sans-serif; }
-.admin-sidebar.is-expanded .sidebar-brand-copy { opacity: 1; transform: translateX(0); }
+.admin-sidebar.is-expanded .sidebar-brand-copy { max-width: 180px; opacity: 1; transform: translateX(0); }
 .admin-sidebar nav { min-height: 0; flex: 1; flex-wrap: nowrap; overflow-x: hidden; overflow-y: auto; padding-bottom: .65rem; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--a-accent) 46%, transparent) transparent; }
 .admin-sidebar nav::-webkit-scrollbar { width: 5px; }
 .admin-sidebar nav::-webkit-scrollbar-track { background: transparent; }
@@ -159,7 +161,9 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
 .admin-sidebar:not(.is-expanded) nav { position: relative; }
 .admin-sidebar:not(.is-expanded) nav::before { position: absolute; top: 18px; bottom: 54px; left: 50%; width: 1px; background: linear-gradient(transparent, rgba(255,255,255,.18) 8%, rgba(255,255,255,.18) 92%, transparent); content: ''; transform: translateX(-50%); }
 .admin-sidebar .nav-link {
-  margin: 0.16rem 0.65rem;
+  width: calc(100% - 1.3rem);
+  min-height: 44px;
+  margin: 0.16rem auto;
   color: rgba(255,255,255,0.75);
   padding: 0.68rem 0.85rem;
   font-size: 0.92rem;
@@ -168,13 +172,41 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
   gap: 0.6rem;
   border: 1px solid transparent;
   border-radius: 10px;
-  transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease;
+  transition: width .24s ease, min-height .24s ease, padding .24s ease, gap .24s ease, border-radius .2s ease, color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease;
 }
-.admin-sidebar .nav-link i { width: 18px; flex: 0 0 18px; font-size: 1rem; text-align: center; }
-.admin-sidebar:not(.is-expanded) .nav-link { position: relative; z-index: 1; }
-.admin-sidebar:not(.is-expanded) .nav-link i { display: grid; width: 28px; height: 28px; place-items: center; flex-basis: 28px; margin-left: -5px; border: 1px solid rgba(255,255,255,.10); border-radius: 50%; background: rgba(18,18,16,.92); }
-.admin-sidebar .nav-label { opacity: 0; transform: translateX(-5px); white-space: nowrap; transition: opacity .15s ease, transform .2s ease; }
-.admin-sidebar.is-expanded .nav-label { opacity: 1; transform: translateX(0); }
+.admin-sidebar .nav-link i { display: grid; width: 18px; height: 18px; place-items: center; flex: 0 0 18px; margin: 0; font-size: 1rem; line-height: 1; text-align: center; transition: width .24s ease, height .24s ease, flex-basis .24s ease, margin .24s ease, border-color .2s ease, border-radius .2s ease, background-color .2s ease, font-size .2s ease, box-shadow .2s ease; }
+.admin-sidebar:not(.is-expanded) .nav-link {
+  position: relative;
+  z-index: 1;
+  width: calc(100% - 16px);
+  min-height: 50px;
+  justify-content: flex-start;
+  gap: 0;
+  margin: .2rem auto;
+  padding: 0;
+  border-radius: 12px;
+}
+.admin-sidebar:not(.is-expanded) .nav-link i {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  flex: 0 0 40px;
+  margin: 0 auto;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(18,18,16,.92);
+  font-size: 1.22rem;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+.admin-sidebar:not(.is-expanded) .nav-label { pointer-events: none; }
+.admin-sidebar:not(.is-expanded) .nav-link:hover { transform: none; }
+.admin-sidebar:not(.is-expanded) .nav-link:hover i,
+.admin-sidebar:not(.is-expanded) .nav-link:focus-visible i { border-color: color-mix(in srgb, var(--a-accent) 42%, rgba(255,255,255,.12)); background: color-mix(in srgb, var(--a-accent) 14%, rgba(18,18,16,.92)); }
+.admin-sidebar:not(.is-expanded) .nav-link.active i { border-color: color-mix(in srgb, var(--a-accent) 58%, transparent); color: #fff; background: color-mix(in srgb, var(--a-accent) 24%, rgba(18,18,16,.94)); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 14px rgba(0,0,0,.2); }
+.admin-sidebar .nav-label { max-width: 0; overflow: hidden; opacity: 0; transform: translateX(-5px); white-space: nowrap; transition: max-width .24s ease, opacity .15s ease, transform .2s ease; }
+.admin-sidebar.is-expanded .nav-label { max-width: 180px; opacity: 1; transform: translateX(0); }
 .admin-sidebar .nav-link:hover { background: rgba(255,255,255,0.07); color: #fff; transform: translateX(2px); }
 .admin-sidebar .nav-link.active {
   background: linear-gradient(90deg, color-mix(in srgb, var(--a-accent) 22%, transparent), rgba(255,255,255,.07));
@@ -348,6 +380,13 @@ body.login-page .form-control:focus { background: rgba(19,17,14,.52); border-col
     transition: transform 0.25s ease;
   }
   .admin-sidebar.is-expanded { width: min(280px, calc(100vw - 32px)); }
+  .admin-sidebar:not(.is-expanded) .brand { justify-content: flex-start; gap: .75rem; margin: 0 .65rem; padding: 1rem .55rem; }
+  .admin-sidebar:not(.is-expanded) .sidebar-brand-mark { width: 34px; height: 38px; flex-basis: 34px; }
+  .admin-sidebar:not(.is-expanded) nav::before { display: none; }
+  .admin-sidebar:not(.is-expanded) .nav-link { width: auto; min-height: 0; justify-content: flex-start; gap: .6rem; margin: .16rem .65rem; padding: .68rem .85rem; border-radius: 10px; }
+  .admin-sidebar:not(.is-expanded) .nav-link i { display: block; width: 18px; height: auto; flex: 0 0 18px; border: 0; border-radius: 0; background: transparent; font-size: 1rem; line-height: inherit; box-shadow: none; }
+  .admin-sidebar:not(.is-expanded) .nav-label { max-width: 180px; overflow: visible; pointer-events: auto; }
+  .admin-sidebar:not(.is-expanded) .nav-link:hover { transform: translateX(2px); }
   .admin-sidebar .sidebar-brand-copy,
   .admin-sidebar .nav-label,
   .admin-sidebar .nav-section-label span { opacity: 1; transform: none; }
@@ -466,6 +505,12 @@ table.admin-table td .btn { min-height: 34px; }
 
 @media (prefers-reduced-motion: reduce) {
   .admin-sidebar,
+  .admin-sidebar .brand,
+  .admin-sidebar .sidebar-brand-mark,
+  .admin-sidebar .sidebar-brand-copy,
+  .admin-sidebar .nav-link,
+  .admin-sidebar .nav-link i,
+  .admin-sidebar .nav-label,
   .stat-card { transition: none; }
   .stat-card:hover { transform: none; }
 }
