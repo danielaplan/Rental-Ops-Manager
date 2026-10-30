@@ -6,15 +6,18 @@ const { test } = require('node:test');
 const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
-test('manual booking uses event-date promotions, reusable customers, and bounded inputs', () => {
+test('manual booking keeps the create form focused and uses service allowance defaults', () => {
   const source = read('admin/manual-booking.html');
-  assert.match(source, /id="mCustomerId"/);
   assert.match(source, /id="mCustName" maxlength="100"/);
   assert.match(source, /id="mCustContact" maxlength="20"/);
-  assert.match(source, /id="mCustEmail" maxlength="100"/);
+  for (const removed of ['mCustomerId','mCustEmail','mCustType','mSource','mEventType','mGuests','mSpecialRequests','mThemeNotes','mPreparation','mTravel']) {
+    assert.doesNotMatch(source, new RegExp(`id="${removed}"`));
+  }
   assert.match(source, /const eventDate = \$\('#mDate'\)\.val\(\)/);
   assert.match(source, /promotion_start_date <= eventDate && p\.promotion_end_date >= eventDate/);
-  assert.match(source, /customer_id: \$\('#mCustomerId'\)\.val\(\) \|\| null/);
+  assert.match(source, /data-preparation="\$\{escapeHtmlA\(s\.default_preparation_minutes \|\| 0\)\}"/);
+  assert.match(source, /data-travel="\$\{escapeHtmlA\(s\.default_travel_minutes \|\| 0\)\}"/);
+  assert.match(source, /selectedServiceAllowances\(\)/);
   assert.doesNotMatch(source, /conflict_ids|reviewedConflictApproval/);
 });
 
@@ -32,6 +35,33 @@ test('confirmation preserves blocked-time allowances and requires explicit overl
   assert.match(source, /override_reason: reason/);
 });
 
+test('booking table exposes safe quick status and payment actions', () => {
+  const source = read('admin/bookings.html');
+  assert.match(source, /function quickStatusControl\(booking, paymentStatus\)/);
+  assert.match(source, /class="badge border-0 bg-\$\{color\} \$\{textColor\} dropdown-toggle py-1 px-2"/);
+  assert.match(source, /class="dropdown-item js-quick-booking-status"/);
+  assert.match(source, /\['Pending','Confirmed','Awaiting Completion','Awaiting Payment','Completed'\]\.filter/);
+  assert.match(source, /class="dropdown-item js-quick-payment" data-action="partial"/);
+  assert.match(source, /class="dropdown-item js-quick-payment" data-action="full"/);
+  assert.match(source, /class="dropdown-item js-quick-payment" data-action="unpaid"/);
+  assert.match(source, /class="dropdown-item js-quick-payment" data-action="history"/);
+  assert.match(source, /openBookingDetail\(\$\(this\)\.data\('id'\), 'payments'\)/);
+  assert.match(source, /aria-label="\$\{escapeHtmlA\(paymentStatus\)\}; quick payment actions/);
+  assert.match(source, />\$\{escapeHtmlA\(paymentStatus\)\}<\/button>/);
+  assert.match(source, /await API\.overrideBookingStatus\(id, next\)/);
+  for (const id of ['paySummaryTotal', 'paySummaryPaid', 'paySummaryBalance', 'payBalancePreview']) {
+    assert.match(source, new RegExp(`id="${id}"`));
+  }
+  assert.match(source, /function updatePaymentBalancePreview\(\)/);
+  assert.match(source, /Balance after payment:/);
+  for (const removed of ['payPurpose', 'payStatus', 'payReference', 'dPaymentStatusSelect']) {
+    assert.doesNotMatch(source, new RegExp(`id="${removed}"`));
+  }
+  assert.match(source, /payment_status: 'Completed', payment_date:/);
+  assert.match(source, /title="View booking details" aria-label="View booking details"/);
+  assert.match(source, /<i class="bi bi-eye" aria-hidden="true"><\/i> View/);
+});
+
 test('return conditions, deposit lock, and payment correction controls match server behavior', () => {
   const config = read('js/config.js');
   const bookings = read('admin/bookings.html');
@@ -45,6 +75,10 @@ test('return conditions, deposit lock, and payment correction controls match ser
     assert.match(bookings, new RegExp(`id="${id}"`));
   }
   assert.match(payments, /js-correct-payment/);
+  assert.match(config, /paymentMethods:\s*\["GCash", "MariBank", "Cash"\]/);
+  assert.match(bookings, /function syncCashPaymentStatus\(methodSelector, statusSelector\)/);
+  assert.match(bookings, /\$\(statusSelector\)\.prop\('disabled', isCash\)/);
+  assert.match(payments, /if \(PaymentsHelper\.isCash\(method\)\) payload\.payment_status = 'Completed'/);
 });
 
 test('Pending alteration exposes every mutable booking term without changing non-Pending edits', () => {
@@ -83,7 +117,8 @@ test('release and return queue only their atomic server operations', () => {
   assert.match(inspection, /A short return must be marked Missing and include item notes/);
   assert.match(availability, /condition_in<>'Missing'/);
   assert.match(bookings, /approval_base: approvalBase/);
-  assert.match(bookings, /const allowedStatusOptions = b\.status === 'Pending' \? \['Pending','Confirmed'\] : \['Confirmed'\]/);
+  assert.match(bookings, /const detailStatuses = \[\.\.\.new Set\(\[b\.status, 'Pending', 'Confirmed', 'Awaiting Completion', 'Awaiting Payment', 'Completed'\]\)\]/);
+  assert.match(bookings, /await API\.overrideBookingStatus\(booking\.id, newStatus\)/);
 });
 
 test('server booking boundaries keep pricing, text limits, release, history, and payment replay authoritative', () => {
@@ -102,4 +137,10 @@ test('server booking boundaries keep pricing, text limits, release, history, and
   assert.match(inspection, /'action'=>'Returned'/);
   assert.match(sync, /\$entity==='payments' && in_array\(\$action,\['create','update'\],true\)/);
   assert.match(sync, /_sync_conflict_check/);
+  assert.match(read('api/payment_service.php'), /if \(\$method==='Cash'\) \$status='Completed'/);
+  assert.match(bookings, /UPDATE notifications SET resolved_at=COALESCE\(resolved_at,NOW\(\)\)/);
+  assert.match(bookings, /ON DUPLICATE KEY UPDATE message=VALUES\(message\),requires_action=1,created_at=NOW\(\),resolved_at=NULL/);
+  const notifications = read('api/notifications.php');
+  assert.match(notifications, /n\.notification_type='awaiting_completion' AND b\.status<>'Awaiting Completion'/);
+  assert.match(notifications, /n\.notification_type='awaiting_payment' AND b\.status<>'Awaiting Payment'/);
 });

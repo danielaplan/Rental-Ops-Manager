@@ -28,7 +28,7 @@ Each recorded rental payment for Ana is a separate row.
 | `payment_id` | `INT NOT NULL AUTO_INCREMENT` |
 | `booking_id` | `INT NOT NULL` |
 | `amount` | `DECIMAL(10,2) NOT NULL DEFAULT 0.00` |
-| `payment_method` | `ENUM('gcash','maribank') NOT NULL` |
+| `payment_method` | `ENUM('gcash','maribank','cash') NOT NULL` |
 | `payment_status` | `VARCHAR(20) NOT NULL DEFAULT 'Pending'` |
 | `payment_date` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP` |
 | `notes` | `TEXT` |
@@ -53,6 +53,8 @@ Each recorded rental payment for Ana is a separate row.
 Source files that directly mention this table: [availability_service.php](../../Backend/Files/availability_service.php.md), [booking_service.php](../../Backend/Files/booking_service.php.md), [bookings.php](../../Backend/Files/bookings.php.md), [payment_service.php](../../Backend/Files/payment_service.php.md), [payments.php](../../Backend/Files/payments.php.md), [reports.php](../../Backend/Files/reports.php.md), [sync.php](../../Backend/Files/sync.php.md).
 
 The PHP services can impose validation and workflow rules beyond these SQL definitions. Read the connected workflow before changing data directly.
+
+Cash is accepted only as a Completed payment. Both direct API writes and offline replay enforce that rule.
 
 ## Source
 

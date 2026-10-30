@@ -192,10 +192,11 @@
   };
   const validatePaymentDraft=(input,old)=>{
     const data={...(old||{}),...input};
-    const amount=Number(data.amount), status=data.payment_status||'Completed';
+    const amount=Number(data.amount), method=String(data.method??data.payment_method??'').trim().toLowerCase(), status=data.payment_status||'Completed';
     const date=String(data.payment_date||'').trim();
     const reference=data.payment_reference;
     if(!Number.isFinite(amount)||amount<=0)throw new Error('Enter a payment amount greater than zero.');
+    if(!['gcash','maribank','cash'].includes(method))throw new Error('Choose GCash, MariBank, or Cash as the payment method.');
     if(!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(date)||Number.isNaN(Date.parse(date.replace(' ','T'))))throw new Error('Enter a valid payment date and time.');
     if(new Date(date.replace(' ','T'))>new Date())throw new Error('Payment date cannot be in the future.');
     if(reference!==null&&reference!==undefined&&(!String(reference).trim()||new TextEncoder().encode(String(reference)).length>150))throw new Error('Payment reference must be at most 150 characters.');
@@ -220,7 +221,8 @@
       if(entity==='bookings'&&action==='update'&&String(args[1]?.status).toLowerCase()==='completed')throw new Error('Complete a return inspection before marking this booking Completed.');
       const id=action==='create'?null:args[0];
       const old=id==null?null:STORAGE.getAll(entity).find(row=>String(row[fields[entity]])===String(id));
-      const input=action==='create'?(args[0]||{}):action==='update'?(args[1]||{}):{};
+      const input={...(action==='create'?(args[0]||{}):action==='update'?(args[1]||{}):{})};
+      if(entity==='payments'&&String(input.method??input.payment_method??old?.method??old?.payment_method??'').trim().toLowerCase()==='cash')input.payment_status='Completed';
       if(entity==='bookings')validateBookingDraft(input);
       if(entity==='payments')validatePaymentDraft(input,old);
       let result;
@@ -249,6 +251,14 @@
       return result;
     };
   });
+  API.overrideBookingStatus=async(id,status)=>{
+    if(!owner())throw new Error('Sign in before saving.');
+    const old=STORAGE.getAll('bookings').find(row=>String(row.id)===String(id));
+    if(!old)throw new Error('Booking not found on this device.');
+    const result=updateLocal('bookings',id,{status});
+    enqueue('bookings','overrideStatus',{id,status,_base:{status:old.status}},id);
+    return result;
+  };
   const cachedRead=async(entity,action='all',query='',scope)=>{await read(entity,action,query,scope);return STORAGE.getAll(entity);};
   API.getCategories=()=>cachedRead('categories');
   API.getServices=()=>cachedRead('services');

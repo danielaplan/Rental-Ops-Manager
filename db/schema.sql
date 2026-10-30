@@ -201,14 +201,14 @@ CREATE TABLE IF NOT EXISTS BOOKINGS (
 
 -- ----------------------------------------------------------------------------
 -- 6. PAYMENTS
---    Down payments and balance payments (GCash / MariBank).
+--    Down payments and balance payments (GCash / MariBank / Cash).
 --    Relationship: BOOKINGS -> PAYMENTS (1-to-M)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS PAYMENTS (
     payment_id       INT           NOT NULL AUTO_INCREMENT,
     booking_id       INT           NOT NULL,
     amount           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    payment_method   ENUM('gcash','maribank') NOT NULL,
+payment_method   ENUM('gcash','maribank','cash') NOT NULL,
     payment_status   VARCHAR(20) NOT NULL DEFAULT 'Pending',
     payment_date     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     notes            TEXT,

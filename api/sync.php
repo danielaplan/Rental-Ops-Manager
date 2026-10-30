@@ -65,7 +65,7 @@ foreach ($queue as $item) {
         }
         $record=null; $id=null;
         if ($entity==='bookings') {
-            if (!in_array($action,['create','update','delete','cancel'],true)) domainFail('Unsupported booking action.');
+            if (!in_array($action,['create','update','delete','cancel','overrideStatus'],true)) domainFail('Unsupported booking action.');
             // Reconciliation and reservation changes share the same service lock order.
             reconcileBookings($pdo);
             $id=$action==='create'?null:entityId($data['id'] ?? $data['booking_id'] ?? null);
@@ -89,7 +89,9 @@ foreach ($queue as $item) {
             // create, classify an overlap with an existing confirmed booking as an
             // actionable conflict rather than silently creating an ordinary Pending row.
             if ($action==='create') $data['_sync_conflict_check']=true;
-            $id=saveBooking($pdo,$action,$id,$data,(int)$actor['user_id']);
+            $id=$action==='overrideStatus'
+                ? overrideBookingStatus($pdo,$id,(string)($data['status'] ?? ''),(int)$actor['user_id'])
+                : saveBooking($pdo,$action,$id,$data,(int)$actor['user_id']);
             $record=bookingRow($id);
         } elseif ($entity==='payments' && in_array($action,['create','update'],true)) {
             $id=$action==='update' ? asInt($data['payment_id'] ?? $data['id'] ?? null,1) : null;

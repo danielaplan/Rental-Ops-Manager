@@ -5,8 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 029bc4ed-f6f8-48e9-afa4-819cfc579d61
-  modified: 2026-10-16
+  modified: 2026-10-30
 ---
+
+## Manual booking status overrides approved — 2026-10-30
+
+The owner explicitly approved making `Pending`, `Confirmed`, `Awaiting Completion`, `Awaiting Payment`, and `Completed` manually selectable from the booking status dropdown for convenience, even when the ordinary return-inspection or full-payment lifecycle is incomplete. This supersedes the earlier restriction that `Awaiting Payment` and `Completed` could only be produced by post-event release/finalization. Manual overrides remain authenticated, audited, synchronized, and subject to availability conflict checks when entering `Confirmed`. Payment status remains derived independently from Completed payment records, so a booking may intentionally be `Confirmed` and `Unpaid`.
 
 ## Awaiting Payment workflow implemented — 2026-10-16
 

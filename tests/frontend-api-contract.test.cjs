@@ -353,6 +353,32 @@ test('pending offline payments remain keyed by the exact local booking ID', asyn
   assert.equal(accepted, 0, 'queued local payments must not count as server-accepted revenue');
 });
 
+test('offline cash payments are queued as Completed', async () => {
+  const { context } = createHarness();
+
+  const payment = await context.API.createPayment({
+    booking_id: 'BK-001', amount: 250, method: 'Cash',
+    payment_status: 'Pending', payment_date: '2026-10-20 12:00:00'
+  });
+
+  assert.equal(payment.payment_status, 'Completed');
+  assert.equal(context.API.getSyncQueue()[0].data.payment_status, 'Completed');
+  assert.equal(context.API.getSyncQueue()[0].data.payment_method, 'Cash');
+});
+
+test('manual booking status overrides remain in the offline outbox', async () => {
+  const { context, collections } = createHarness();
+  collections.bookings.push({ id: 'BK-001', status: 'Confirmed', pending_sync: false });
+
+  const booking = await context.API.overrideBookingStatus('BK-001', 'Awaiting Payment');
+  const operation = context.API.getSyncQueue().find(item => item.entity === 'bookings');
+
+  assert.equal(booking.status, 'Awaiting Payment');
+  assert.equal(operation.action, 'overrideStatus');
+  assert.equal(operation.data.status, 'Awaiting Payment');
+  assert.equal(operation.data._base.status, 'Confirmed');
+});
+
 test('itemized deposit deduction and refund actions remain in the offline outbox', async () => {
   const { context } = createHarness();
 

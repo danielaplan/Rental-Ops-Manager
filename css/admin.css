@@ -489,6 +489,8 @@ table.admin-table tbody tr:last-child td { border-bottom: 0; }
 table.admin-table td:has(.btn),
 table.admin-table td:has(.form-check-input) { white-space: nowrap; }
 table.admin-table td .btn { min-height: 34px; }
+.booking-status-select { width: auto; min-width: 108px; min-height: 28px; padding-top: .18rem; padding-bottom: .18rem; padding-left: .45rem; font-size: .76rem; font-weight: 600; line-height: 1.2; }
+.booking-status-select option { color: #212529; background: #fff; font-weight: 500; }
 
 .admin-body .modal-content {
   border: 1px solid var(--a-border);

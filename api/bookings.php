@@ -39,6 +39,12 @@ if ($method === 'GET' && in_array($action,['all','get'],true)) {
     $rows = db()->query("SELECT b.*,c.full_name AS customer_name,c.contact_number AS contact,COALESCE(p.completed_payments,0) AS completed_payments,EXISTS(SELECT 1 FROM booking_conflict_overrides o WHERE o.booking_id=b.booking_id OR o.conflicting_booking_id=b.booking_id) AS has_approved_overlap FROM bookings b JOIN customers c ON c.customer_id=b.customer_id LEFT JOIN (SELECT booking_id,SUM(amount) AS completed_payments FROM payments WHERE payment_status='Completed' GROUP BY booking_id) p ON p.booking_id=b.booking_id ORDER BY b.event_start_datetime DESC")->fetchAll();
     sendJson(['ok'=>true,'data'=>array_map('bookingView',$rows)]);
 }
+if ($method === 'POST' && $action==='overrideStatus') {
+    $body=readJsonBody();
+    $status=is_string($body['status'] ?? null) ? trim($body['status']) : '';
+    $savedId=domainTransaction(fn(PDO $pdo)=>overrideBookingStatus($pdo,$id ?? 0,$status,$ownerId));
+    sendJson(['ok'=>true,'data'=>bookingRow($savedId)]);
+}
 if ($method === 'POST' && in_array($action,['create','update','cancel','delete','release','complete'],true)) {
     $body = readJsonBody();
     $savedId = domainTransaction(fn(PDO $pdo) => saveBooking($pdo,$action,$id,$body,$ownerId));

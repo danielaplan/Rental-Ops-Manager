@@ -296,6 +296,7 @@ const API = (() => {
     async getBooking(id) { return normalize("bookings", await request("bookings.php", { query: { do: "get", id: serverId(id) } })); },
     async createBooking(data) { return normalize("bookings", await request("bookings.php", { query: { do: "create" }, body: payload("bookings", data) })); },
     async updateBooking(id, data) { return normalize("bookings", await request("bookings.php", { query: { do: "update", id: serverId(id) }, body: payload("bookings", data) })); },
+    async overrideBookingStatus(id, status) { return normalize("bookings", await request("bookings.php", { query: { do: "overrideStatus", id: serverId(id) }, body: { status } })); },
     deleteBooking: id => request("bookings.php", { query: { do: "delete", id: serverId(id) }, body: {} }),
 
     async upsertCustomerFromBooking(booking) {

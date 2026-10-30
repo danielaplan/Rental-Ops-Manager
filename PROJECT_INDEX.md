@@ -72,6 +72,7 @@ Contact image: `admin/content.html` provides a Contact Section Image URL/upload 
 ## 5. Database Navigation
 
 - Structural source of truth: [`db/schema.sql`](db/schema.sql); synthetic setup data: [`db/seed.sql`](db/seed.sql).
+- Existing installations add the Cash payment enum with [`db/migrations/20261030_add_cash_payment_method.sql`](db/migrations/20261030_add_cash_payment_method.sql); do not run it against operational data without the normal backup and deployment authorization.
 - Table purpose and grouped navigation: [Database Overview](<Understand the System/System Understanding/Database/Database Overview.md>).
 - Relationships and cardinality: [Table Relationships](<Understand the System/System Understanding/Database/Table Relationships.md>).
 - Column-level reference: [`Understand the System/System Understanding/Database/Tables/`](<Understand the System/System Understanding/Database/Tables/>).

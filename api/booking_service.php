@@ -4,6 +4,43 @@ require_once __DIR__ . '/availability_service.php';
 require_once __DIR__ . '/booking_pricing.php';
 require_once __DIR__ . '/checklist_service.php';
 
+function overrideBookingStatus(PDO $pdo,int $id,string $status,int $ownerId): int {
+    reconcileBookings($pdo);
+    $old=lockBooking($pdo,$id);
+    $allowed=['Pending','Confirmed','Awaiting Completion','Awaiting Payment','Completed'];
+    if (!in_array($status,$allowed,true)) domainFail('Choose a supported manual booking status.');
+    if ($old['status']===$status) return $id;
+    if ($status === 'Confirmed') {
+        $now = $pdo->query('SELECT NOW()')->fetchColumn();
+        $conflicts = availabilityConflicts(
+            $pdo,
+            (int)$old['service_id'],
+            $old['blocked_start_datetime'],
+            $old['blocked_end_datetime'],
+            $id,
+            $old['blocked_end_datetime'] > $now
+        );
+        requireConflictApproval($conflicts,[]);
+    }
+    $pdo->prepare("UPDATE bookings SET status=?,awaiting_completion_at=CASE WHEN ? IN ('Awaiting Completion','Awaiting Payment') THEN COALESCE(awaiting_completion_at,NOW()) ELSE awaiting_completion_at END,completed_at=CASE WHEN ?='Completed' THEN NOW() ELSE NULL END WHERE booking_id=?")
+        ->execute([$status,$status,$status,$id]);
+    $pdo->prepare("UPDATE notifications SET resolved_at=COALESCE(resolved_at,NOW()) WHERE booking_id=? AND notification_type IN ('awaiting_completion','awaiting_payment')")
+        ->execute([$id]);
+    $notice = match ($status) {
+        'Awaiting Completion' => ['awaiting_completion','Post-event review and manual service release required.'],
+        'Awaiting Payment' => ['awaiting_payment','Outstanding rental balance must be collected before completion.'],
+        default => null
+    };
+    if ($notice) {
+        $pdo->prepare("INSERT INTO notifications(user_id,booking_id,notification_type,message,requires_action,created_at,resolved_at)
+            SELECT user_id,?,?,?,1,NOW(),NULL FROM users WHERE role='owner' AND account_status='Active'
+            ON DUPLICATE KEY UPDATE message=VALUES(message),requires_action=1,created_at=NOW(),resolved_at=NULL")
+            ->execute([$id,$notice[0],$notice[1]]);
+    }
+    auditWrite($pdo,$ownerId,'booking_status_overridden','booking',$id,'Manual owner status override from '.$old['status'].' to '.$status.'.',$old['status'],$status);
+    return $id;
+}
+
 function bookingView(array $row): array {
     $row['id'] = $row['booking_id'];
     $row['has_approved_overlap'] = (bool)($row['has_approved_overlap'] ?? false);

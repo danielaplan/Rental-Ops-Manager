@@ -54,7 +54,7 @@ const PaymentsHelper = {
   recordPayment(bookingId, amount, method, notes, details = {}) {
     const paymentAmount = Number(amount);
     if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) return Promise.resolve(null);
-    return API.createPayment({
+    const payload = {
       booking_id: bookingId,
       amount: paymentAmount,
       method: method,
@@ -64,7 +64,9 @@ const PaymentsHelper = {
       // valid local timestamp unless a caller deliberately supplies one.
       payment_date: PaymentsHelper.paymentTimestamp(),
       ...details
-    });
+    };
+    if (PaymentsHelper.isCash(method)) payload.payment_status = 'Completed';
+    return API.createPayment(payload);
   },
 
   async renderHistory(bookingId, containerSelector, isCurrent = () => true) {
@@ -91,6 +93,11 @@ const PaymentsHelper = {
     const normalized = String(method || '').toLowerCase();
     if (normalized === 'gcash') return 'GCash';
     if (['maribank', 'bank transfer'].includes(normalized)) return 'MariBank';
+    if (normalized === 'cash') return 'Cash';
     return method || 'Not recorded';
+  },
+
+  isCash(method) {
+    return String(method || '').trim().toLowerCase() === 'cash';
   }
 };

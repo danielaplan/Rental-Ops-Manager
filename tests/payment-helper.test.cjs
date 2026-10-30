@@ -32,3 +32,14 @@ test('recordPayment preserves an explicitly supplied payment_date', async () => 
 
   assert.equal(payload.payment_date, '2026-10-27 09:00:00');
 });
+
+test('recordPayment always marks cash as Completed', async () => {
+  let payload;
+  const helper = loadPaymentsHelper(async value => { payload = value; return value; });
+
+  await helper.recordPayment(12, 200, 'Cash', '', { payment_status: 'Pending' });
+
+  assert.equal(payload.method, 'Cash');
+  assert.equal(payload.payment_status, 'Completed');
+  assert.equal(helper.methodLabel('cash'), 'Cash');
+});

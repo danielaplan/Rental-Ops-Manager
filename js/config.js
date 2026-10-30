@@ -43,7 +43,7 @@ const CONFIG = {
     "Fully Paid": "success"
   },
 
-  paymentMethods: ["GCash", "MariBank"],
+  paymentMethods: ["GCash", "MariBank", "Cash"],
 
   customerTypes: ["Guest / No Account", "Registered"],
 

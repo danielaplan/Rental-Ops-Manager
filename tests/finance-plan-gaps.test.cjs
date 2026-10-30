@@ -40,6 +40,9 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   assert.equal(Number(completed.recorded_by), Number(login.data.user.user_id));
   assert.equal(completed.provenance,'owner');
   assert.equal(completed.payment_reference,null);
+  const cash = (await createPayment({amount:'5.00',payment_status:'Pending',payment_method:'Cash'})).data;
+  assert.equal(cash.payment_method,'cash');
+  assert.equal(cash.payment_status,'Completed');
   await createPayment({amount:'30.00',payment_status:'Pending',payment_method:'MariBank'});
   await createPayment({amount:'20.00',payment_status:'Failed'});
   await createPayment({amount:'50.00',payment_date:'2000-08-01 12:00:00'});
@@ -58,7 +61,7 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   assert.equal(deposit.deductions.length,1);
   assert.equal(Number(deposit.refund_amount),90);
   const report = (await request(`api/reports.php?do=report&${period}`)).data;
-  assert.equal(Number(report.total_revenue_collected),Number(baseline.total_revenue_collected)+120,'Only corrected Completed payment within payment-date period contributes revenue');
+  assert.equal(Number(report.total_revenue_collected),Number(baseline.total_revenue_collected)+125,'Only corrected and cash Completed payments within payment-date period contribute revenue');
   assert.equal(Number(report.total_bookings),Number(baseline.total_bookings)+1,'The legacy report booking count remains available to the reports page');
   assert.equal(Number(report.total_customers),Number(baseline.total_customers)+1);
   assert.equal(Number(report.balances.deposits_held),Number(baseline.balances.deposits_held)+100);
@@ -96,6 +99,12 @@ async function request(path, body, expected = 200, method = body ? 'POST' : 'GET
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'11.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'10.00',payment_method:'GCash',payment_date:`${start} 00:00:00`},201);
   await request('api/payments.php?do=create',{booking_id:overpayment.booking_id,amount:'0.01',payment_method:'GCash',payment_date:`${start} 00:00:00`},400);
+  const manualStatus = (await book()).data;
+  const awaitingOverride = (await request(`api/bookings.php?do=overrideStatus&id=${manualStatus.booking_id}`,{status:'Awaiting Payment'})).data;
+  assert.equal(awaitingOverride.status,'Awaiting Payment');
+  const completedOverride = (await request(`api/bookings.php?do=overrideStatus&id=${manualStatus.booking_id}`,{status:'Completed'})).data;
+  assert.equal(completedOverride.status,'Completed');
+  await request(`api/bookings.php?do=overrideStatus&id=${manualStatus.booking_id}`,{status:'Cancelled'},400);
   const empty = (await request('api/reports.php?do=report&start=2000-09-01&end=2000-09-30')).data;
   assert.equal(Number(empty.total_revenue_collected),0);
   for (const kind of ['upcoming','cancellations','overlaps']) await request(`api/reports.php?do=${kind}&start=bad&end=${end}`,undefined,400);

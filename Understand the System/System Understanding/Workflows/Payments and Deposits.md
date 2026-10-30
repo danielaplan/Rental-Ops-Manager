@@ -52,10 +52,16 @@ flowchart LR
 
 The two lines stay separate on purpose: rental payments reduce the rental balance, while deductions reduce only the refundable deposit.
 
+On the Bookings table, the Payment badge stays visible beside a quick-action dropdown. Owners can start a partial payment, prefill the exact remaining balance, or open payment history and audited corrections. Returning a booking to Unpaid requires correcting its Completed payments rather than directly overwriting the derived paid total.
+
+The Record Payment panel repeats the booking total, accepted paid amount, and remaining balance beside the form. Entering a Completed payment previews the balance that will remain after it is recorded.
+
+The routine payment form asks only for amount, method, date, and optional notes. New payments are recorded as Completed, while payment type is derived from the remaining balance. Status and type remain available in the audited correction workflow; any existing reference stays in the stored payment record without appearing in the routine form.
+
 ### Important things to remember
 
 - Only Completed payment rows count toward collected revenue or the booking balance.
-- Methods are GCash or MariBank. Statuses are Pending, Completed, or Failed.
+- Methods are GCash, MariBank, or Cash. Cash is always recorded as Completed; electronic methods may be Pending, Completed, or Failed.
 - A deduction cannot exceed the remaining held amount.
 - Deposits and deductions do not count as rental revenue.
 - The application records money events; it does not contact GCash, MariBank, a bank, or a refund gateway.
@@ -70,6 +76,8 @@ Ana pays ₱2,000 toward her ₱2,750 rental, leaving ₱750. Her separate ₱50
 This section names the files, routes, tables, and validation rules. Beginner readers may skip it and continue to the next lesson.
 
 ### Technical details
+
+Booking status and payment status remain separate. The owner may manually override the operational booking status from the booking table or detail view; the server authenticates, audits, and synchronizes that change, and still checks scheduling conflicts when entering Confirmed. The financial label continues to come only from Completed payment records, so a booking can intentionally be Confirmed or Completed while its payment label remains Unpaid.
 
 `payments.php` and `payment_service.php`; `deposits.php` and `deposit_service.php`. Tables: `PAYMENTS`, `DEPOSITS`, `DEPOSIT_DEDUCTIONS`, `AUDIT_LOGS`.
 

@@ -41,6 +41,8 @@ Ana’s Completed GCash payment is counted as collected revenue on its `payment_
 
 `reports.php` returns metric definitions with its data. Dashboard defaults to the current month in Asia/Manila. Compatibility fields remain for current screens. `audit.php` reads append-only `AUDIT_LOGS`; migration archive rows may also be included as historical evidence.
 
+The topbar bell lists unresolved action-required notifications for the signed-in owner. Awaiting Completion and Awaiting Payment booking states create or reactivate the matching notice; leaving those states resolves it. Status changes refresh the existing bell so its count and booking link do not remain stale.
+
 ### Visual explanation
 
 ```mermaid
@@ -72,7 +74,7 @@ This section names the files, routes, tables, and validation rules. Beginner rea
 
 ### Technical details
 
-`GET api/reports.php?do=dashboard`, `?do=report&start=YYYY-MM-DD&end=YYYY-MM-DD`, `?do=upcoming|cancellations|overlaps`. `GET api/audit.php?after_id=…&limit=…`. Tables: `PAYMENTS`, `BOOKINGS`, `DEPOSITS`, `DEPOSIT_DEDUCTIONS`, `BOOKING_CONFLICT_OVERRIDES`, `AUDIT_LOGS`.
+`GET api/reports.php?do=dashboard`, `?do=report&start=YYYY-MM-DD&end=YYYY-MM-DD`, `?do=upcoming|cancellations|overlaps`. `GET api/notifications.php?do=unresolved|all`. `GET api/audit.php?after_id=…&limit=…`. Tables: `PAYMENTS`, `BOOKINGS`, `DEPOSITS`, `DEPOSIT_DEDUCTIONS`, `BOOKING_CONFLICT_OVERRIDES`, `NOTIFICATIONS`, `AUDIT_LOGS`.
 
 ### Technical references
 

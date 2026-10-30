@@ -270,12 +270,22 @@ test('booking details retain the newer booking when the older lookup resolves la
 test('notification links reliably open their booking without waiting for the table', () => {
   const admin = fs.readFileSync(path.join(root, 'js/admin.js'), 'utf8');
   const bookings = fs.readFileSync(path.join(root, 'admin/bookings.html'), 'utf8');
+  assert.match(admin, /let wrap = document\.getElementById\('adminNotifications'\)/);
+  assert.doesNotMatch(admin, /if \(!topbar \|\| document\.getElementById\('adminNotifications'\)\) return/);
+  assert.match(admin, /Bookings needing attention/);
+  assert.match(admin, /These alerts show bookings that still need a return review or an outstanding payment/);
+  assert.match(admin, /Payment complete — finish booking/);
+  assert.match(admin, /Number\(row\.outstanding_balance\) <= 0/);
+  assert.match(admin, /!booking\?\.pending_sync \|\| !requiredStatuses\[row\.notification_type\] \|\| booking\.status === requiredStatuses\[row\.notification_type\]/);
   assert.match(admin, /booking_id=\$\{encodeURIComponent\(row\.booking_id\)\}&tab=\$\{view\.tab\}/);
   assert.match(admin, /link\.hasAttribute\('data-admin-reload'\)/);
   assert.match(admin, /awaiting_completion: \{ action: 'Complete return review', tab: 'return' \}/);
   assert.match(admin, /awaiting_payment: \{ action: 'Collect outstanding balance', tab: 'payments' \}/);
   assert.ok(bookings.indexOf('const tableLoad = renderBookingsTable();') < bookings.indexOf('await openBookingDetail(requestedBookingId'));
   assert.ok(bookings.indexOf('await openBookingDetail(requestedBookingId') < bookings.indexOf('await tableLoad;'));
+  assert.match(bookings, /async function refreshStatusNotifications\(\)/);
+  assert.match(bookings, /const result = await API\.flushSyncQueue\(\)/);
+  assert.match(bookings, /await refreshStatusNotifications\(\)/);
 });
 
 test('booking notification destination activates its requested workflow tab', async () => {
@@ -300,6 +310,7 @@ test('booking UI keeps Awaiting Payment visible until full-payment completion', 
   assert.match(config, /"Awaiting Payment": "danger"/);
   assert.match(source, /\['Awaiting Completion', 'Awaiting Payment'\]\.includes\(b\.status\)/);
   assert.match(source, /Record the remaining .* as a completed payment before completing this booking/);
+  assert.match(source, /The rental balance is fully paid\. Complete this booking to clear its action notification\./);
   assert.match(source, /await API\.finalizeReturn\(bookingId\);/);
   assert.match(source, /syncResult\?\.failed/);
 });
@@ -399,4 +410,10 @@ test('collapsed admin sidebar enlarges and centers icons without shrinking mobil
   assert.match(css, /\.sidebar-brand-copy \{[^}]*max-width: 0;[^}]*transition: max-width \.24s ease/s);
   assert.match(css, /\.admin-sidebar \.nav-label \{[^}]*max-width: 0;[^}]*transition: max-width \.24s ease/s);
   assert.match(css, /@media \(max-width: 991\.98px\)[\s\S]*\.admin-sidebar:not\(\.is-expanded\) \.nav-link \{[^}]*width: auto;[^}]*justify-content: flex-start;/);
+});
+
+test('packages keep the checklist New version action without an empty-template label', () => {
+  const source = fs.readFileSync(path.join(root, 'admin/packages.html'), 'utf8');
+  assert.match(source, /class="btn btn-sm btn-outline-secondary js-template-package mt-1"[^>]*>New version<\/button>/);
+  assert.doesNotMatch(source, />No template<\/span>/);
 });

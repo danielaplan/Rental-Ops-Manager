@@ -20,9 +20,10 @@ function savePayment(PDO $pdo, string $action, ?int $id, array $body, array $own
     $data=$body+$old;
     $cents=moneyCents($data['amount'] ?? null);
     if ($cents===0) domainFail('Payment amount must be positive.');
-    $method=is_string($data['payment_method'] ?? null) ? match(strtolower($data['payment_method'])) {'gcash'=>'GCash','maribank'=>'MariBank',default=>null} : null;
+    $method=is_string($data['payment_method'] ?? null) ? match(strtolower(trim($data['payment_method']))) {'gcash'=>'GCash','maribank'=>'MariBank','cash'=>'Cash',default=>null} : null;
     $type=$data['payment_type'] ?? null;
     $status=$data['payment_status'] ?? 'Completed';
+    if ($method==='Cash') $status='Completed';
     $date=$data['payment_date'] ?? date('Y-m-d H:i:s');
     $parsed=is_string($date) ? DateTimeImmutable::createFromFormat('!Y-m-d H:i:s',$date) : false;
     if (!$method || ($type!==null && !in_array($type,['Down payment','Balance'],true)) || !in_array($status,['Pending','Completed','Failed'],true) || !$parsed || $parsed->format('Y-m-d H:i:s')!==$date) domainFail('Valid payment method, type, status, and date are required.');

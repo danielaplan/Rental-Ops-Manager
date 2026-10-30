@@ -323,22 +323,34 @@ window.addEventListener?.('storage', event => {
 
 async function renderActionNotifications() {
   const topbar = document.querySelector('.admin-topbar');
-  if (!topbar || document.getElementById('adminNotifications')) return;
-  const wrap = document.createElement('div');
-  wrap.id = 'adminNotifications';
-  wrap.className = 'dropdown ms-auto me-2';
-  topbar.appendChild(wrap);
+  if (!topbar) return;
+  let wrap = document.getElementById('adminNotifications');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'adminNotifications';
+    wrap.className = 'dropdown ms-auto me-2';
+    topbar.appendChild(wrap);
+  }
   try {
     const rows = await API.getNotifications();
+    const requiredStatuses = { awaiting_completion: 'Awaiting Completion', awaiting_payment: 'Awaiting Payment' };
+    const cachedBookings = typeof STORAGE !== 'undefined' && typeof STORAGE.getAll === 'function' ? STORAGE.getAll('bookings') : [];
+    const actionableRows = rows.filter(row => {
+      const booking = cachedBookings.find(item => String(item._server_id ?? item.booking_id ?? item.id).replace(/^[A-Za-z]+-0*/, '') === String(row.booking_id));
+      return !booking?.pending_sync || !requiredStatuses[row.notification_type] || booking.status === requiredStatuses[row.notification_type];
+    });
     const views = {
       awaiting_completion: { action: 'Complete return review', tab: 'return' },
       awaiting_payment: { action: 'Collect outstanding balance', tab: 'payments' }
     };
-    wrap.innerHTML = `<button class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Action-required notifications"><i class="bi bi-bell"></i>${rows.length ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${rows.length}</span>` : ''}</button><div class="dropdown-menu dropdown-menu-end p-2" style="min-width:min(94vw,28rem);max-height:70vh;overflow:auto"><h6 class="dropdown-header">Action required</h6>${rows.length ? rows.map(row => {
-      const view = views[row.notification_type] || { action: 'Review booking', tab: 'details' };
-      const balance = row.notification_type === 'awaiting_payment' ? ` · ${BookingCalc.formatCurrency(row.outstanding_balance)} due` : '';
+    wrap.innerHTML = `<button class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Bookings needing attention"><i class="bi bi-bell"></i>${actionableRows.length ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${actionableRows.length}</span>` : ''}</button><div class="dropdown-menu dropdown-menu-end p-2" style="min-width:min(94vw,28rem);max-height:70vh;overflow:auto"><h6 class="dropdown-header">Bookings needing attention</h6><p class="small text-muted px-3 mb-2">These alerts show bookings that still need a return review or an outstanding payment. They disappear after the required action is finished or the booking status changes.</p>${actionableRows.length ? actionableRows.map(row => {
+      const paidAwaitingCompletion = row.notification_type === 'awaiting_payment' && Number(row.outstanding_balance) <= 0;
+      const view = paidAwaitingCompletion
+        ? { action: 'Payment complete — finish booking', tab: 'return' }
+        : (views[row.notification_type] || { action: 'Review booking', tab: 'details' });
+      const balance = row.notification_type === 'awaiting_payment' && !paidAwaitingCompletion ? ` · ${BookingCalc.formatCurrency(row.outstanding_balance)} due` : '';
       return `<a class="dropdown-item text-wrap border-bottom py-2" data-admin-reload href="bookings.html?booking_id=${encodeURIComponent(row.booking_id)}&tab=${view.tab}"><span class="d-flex justify-content-between gap-2"><strong>${escapeHtmlA(row.booking_reference || `Booking ${row.booking_id}`)}</strong><span class="badge bg-warning text-dark">${escapeHtmlA(row.booking_status)}</span></span><span class="d-block small fw-semibold">${escapeHtmlA(view.action)}${escapeHtmlA(balance)}</span><span class="d-block small">${escapeHtmlA(row.customer_name)} · ${escapeHtmlA(row.service_name)}</span><span class="d-block small text-muted">${escapeHtmlA(BookingCalc.formatDate(row.event_date))}, ${escapeHtmlA(BookingCalc.formatTime(row.start_time))}–${escapeHtmlA(BookingCalc.formatTime(row.end_time))}</span><span class="d-block small text-muted mt-1">${escapeHtmlA(row.message)}</span></a>`;
-    }).join('') : '<span class="dropdown-item-text text-muted">No action-required bookings.</span>'}</div>`;
+    }).join('') : '<span class="dropdown-item-text text-muted">No bookings need attention.</span>'}</div>`;
   } catch (error) {
     wrap.innerHTML = '<span class="small text-muted">Notifications unavailable</span>';
   }

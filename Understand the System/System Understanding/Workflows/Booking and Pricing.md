@@ -29,9 +29,9 @@ Ana chooses one karaoke service, a ₱2,500 package, and a ₱300 add-on. With a
 
 ### Step-by-step workflow
 
-1. Select an existing customer or create Ana’s customer record.
+1. Enter Ana’s name and contact number. The focused create form makes a customer record; optional details can be added later from Bookings.
 2. Select exactly one active service and, optionally, a package belonging to it.
-3. Enter start/end datetimes, location, preparation and travel allowances.
+3. Enter the date, start/end times, and location. Availability automatically uses the selected service’s preparation and travel defaults.
 4. Select add-ons, discount, fees, and the agreed total.
 5. Save the manual booking as Pending. Overlaps are shown as warnings; confirmation performs the authoritative approval check.
 6. The server creates a unique `AKAD-…` reference, snapshots package name/price, and copies the package checklist template.
@@ -39,6 +39,8 @@ Ana chooses one karaoke service, a ₱2,500 package, and a ₱300 add-on. With a
 ### What Happens Behind the Scenes?
 
 `saveBooking()` is shared by direct and sync paths. It validates catalog relationships, promotion dates, dates, location, allowances, pricing inputs, status transitions, and conflicts in one transaction. Catalog pricing is package + add-ons − discount + fees, never below zero. `agreed_total` is the contractual booking total used for balances.
+
+The manual create screen intentionally omits existing-customer selection, email, customer type, booking source, event type, guest count, special/theme notes, and editable allowance controls. Those optional details do not block creation; service allowance defaults still protect availability calculations, and booking details can be completed later from the Bookings screen.
 
 ### Visual explanation
 

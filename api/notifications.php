@@ -8,7 +8,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET' || !in_array($do,['all','unresolved'],t
     sendJson(['ok'=>false,'error'=>'Notifications are read-only; workflow completion resolves action-required items.','code'=>'method_not_allowed'],405);
 }
 
-domainTransaction(fn(PDO $pdo) => reconcileBookings($pdo));
+domainTransaction(function(PDO $pdo): void {
+    reconcileBookings($pdo);
+    $pdo->exec("UPDATE notifications n
+        JOIN bookings b ON b.booking_id=n.booking_id
+        SET n.resolved_at=COALESCE(n.resolved_at,NOW())
+        WHERE n.resolved_at IS NULL AND n.requires_action=1
+        AND ((n.notification_type='awaiting_completion' AND b.status<>'Awaiting Completion')
+          OR (n.notification_type='awaiting_payment' AND b.status<>'Awaiting Payment'))");
+});
 $limit = min(asInt($_GET['limit'] ?? 100,1) ?? 100,500);
 $sql = "SELECT n.*,b.booking_reference,b.status AS booking_status,b.event_date,b.start_time,b.end_time,
     c.full_name AS customer_name,s.service_name,

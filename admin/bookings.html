@@ -110,13 +110,9 @@
                 <div class="p-3 border rounded bg-light">
                   <h6 class="mb-3"><i class="bi bi-sliders me-1"></i> Quick Status Update</h6>
                   <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-12">
                       <label class="form-label mb-1 fw-bold" for="dStatusSelect">Booking Status</label>
                       <select class="form-select form-select-sm" id="dStatusSelect"></select>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label mb-1 fw-bold" for="dPaymentStatusSelect">Payment Status</label>
-                      <input class="form-control form-control-sm" id="dPaymentStatusSelect" readonly aria-label="Calculated payment status">
                     </div>
                     <div class="col-12 d-flex justify-content-end">
                       <button class="btn btn-sm btn-admin-primary px-3" id="dSaveBookingBtn">
@@ -265,6 +261,14 @@
               <div class="col-md-5">
                 <div class="panel mb-0">
                   <div class="panel-title">Record Payment</div>
+                  <div class="rounded border bg-light p-3 mb-3" aria-label="Booking payment summary">
+                    <div class="row g-2 text-center">
+                      <div class="col-4"><div class="text-muted small">Total</div><strong id="paySummaryTotal">â‚±0.00</strong></div>
+                      <div class="col-4"><div class="text-muted small">Paid</div><strong class="text-success" id="paySummaryPaid">â‚±0.00</strong></div>
+                      <div class="col-4"><div class="text-muted small">Balance</div><strong class="text-danger" id="paySummaryBalance">â‚±0.00</strong></div>
+                    </div>
+                    <div class="small text-center mt-2" id="payBalancePreview" aria-live="polite">Enter a completed payment to preview the new balance.</div>
+                  </div>
                   <div class="mb-2">
                     <label class="form-label" for="payAmount">Payment amount (₱)</label>
                     <input type="number" min="0.01" step="0.01" class="form-control" id="payAmount" required>
@@ -273,15 +277,7 @@
                     <label class="form-label" for="payMethod">Method</label>
                     <select class="form-select" id="payMethod"></select>
                   </div>
-                  <div class="mb-2">
-                    <label class="form-label" for="payPurpose">Payment type</label>
-                    <select class="form-select" id="payPurpose">
-                      <option value="Down payment">Down payment</option>
-                      <option value="Balance">Balance</option>
-                    </select>
-                  </div>
-                  <div class="row g-2 mb-2"><div class="col-sm-6"><label class="form-label" for="payStatus">Status</label><select class="form-select" id="payStatus"><option>Completed</option><option>Pending</option><option>Failed</option></select></div><div class="col-sm-6"><label class="form-label" for="payDate">Payment date and time</label><input type="datetime-local" class="form-control" id="payDate" required></div></div>
-                  <div class="mb-2"><label class="form-label" for="payReference">Reference <span class="text-muted">(optional)</span></label><input type="text" maxlength="150" class="form-control" id="payReference"></div>
+                  <div class="mb-2"><label class="form-label" for="payDate">Payment date and time</label><input type="datetime-local" class="form-control" id="payDate" required></div>
                   <div class="mb-2">
                     <label class="form-label" for="payNotes">Additional notes</label>
                     <input type="text" class="form-control" id="payNotes">
@@ -395,6 +391,26 @@ let deliveryFormRevision = 0;
 let returnToBookingDetails = false;
 let detailVersion = 0, bookingsVersion = 0, detailEditRevision = 0;
 let pendingConflictApproval = null;
+function syncCashPaymentStatus(methodSelector, statusSelector) {
+  const isCash = PaymentsHelper.isCash($(methodSelector).val());
+  if (isCash) $(statusSelector).val('Completed');
+  $(statusSelector).prop('disabled', isCash);
+}
+function updatePaymentBalancePreview() {
+  const balance = Number($('#paySummaryBalance').data('amount') || 0);
+  const amount = Number($('#payAmount').val());
+  const preview = Number.isFinite(amount) && amount > 0
+    ? `Balance after payment: ${BookingCalc.formatCurrency(Math.max(balance - amount, 0))}`
+    : 'Enter a completed payment to preview the new balance.';
+  $('#payBalancePreview').text(preview);
+}
+async function refreshStatusNotifications() {
+  const result = await API.flushSyncQueue();
+  const rejected = [...(result?.failed || []), ...(result?.conflicts || [])]
+    .find(item => item.entity === 'bookings');
+  if (rejected) throw new Error(rejected.reason || 'The booking status was not accepted by the server.');
+  await renderActionNotifications();
+}
 $('#bookingDetailModal').onAdmin('input change', ':input', () => { detailEditRevision++; });
 $('#bookingDetailModal').onAdmin('hidden.bs.modal', () => { detailVersion++; });
 
@@ -407,6 +423,8 @@ adminReady(async function () {
   $('#payMethod').empty();
   CONFIG.paymentMethods.forEach(m => $('#payMethod').append(`<option>${m}</option>`));
   CONFIG.paymentMethods.forEach(m => $('#correctionMethod').append(`<option>${m}</option>`));
+  $('#payAmount').onAdmin('input change', updatePaymentBalancePreview);
+  $('#correctionMethod').onAdmin('change', () => syncCashPaymentStatus('#correctionMethod', '#correctionStatus'));
   $('#dStatusSelect').empty();
 
   const requestedBookingId = new URLSearchParams(window.location.search).get('booking_id');
@@ -422,6 +440,35 @@ adminReady(async function () {
   $('.admin-main').onAdmin('click', '.js-view-booking', async function (e) {
     e.preventDefault();
     await openBookingDetail($(this).data('id'));
+  });
+
+  $('.admin-main').onAdmin('click', '.js-quick-payment', async function () {
+    const action = $(this).data('action');
+    await openBookingDetail($(this).data('id'), 'payments');
+    if (action === 'partial') window.setTimeout(() => $('#payAmount').val('').trigger('focus'), 180);
+    if (action === 'full') window.setTimeout(() => {
+      $('#payAmount').val($(this).data('remaining')).trigger('input');
+      $('#payMethod').trigger('focus');
+    }, 180);
+    if (action === 'unpaid') window.setTimeout(() => showAdminToast('Correct each Completed payment to Failed to return this booking to Unpaid while preserving its audit history.', 'warning'), 180);
+  });
+
+  $('.admin-main').onAdmin('click', '.js-quick-booking-status', async function () {
+    const control = $(this);
+    const id = control.data('id');
+    const next = control.data('status');
+    if (!next) return;
+    control.prop('disabled', true);
+    try {
+      await API.overrideBookingStatus(id, next);
+      showAdminToast(API.savedMessage());
+      await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+      await refreshStatusNotifications();
+    } catch (error) {
+      showAdminToast(error.message, 'danger');
+    } finally {
+      control.prop('disabled', false);
+    }
   });
 
   $('#editBookingBtn').onAdmin('click', async function () {
@@ -547,8 +594,9 @@ adminReady(async function () {
     const newStatus = $('#dStatusSelect').val();
     const booking = await API.getBooking(currentBookingId);
     if (!booking) return;
-    if (newStatus === 'Completed' && booking.status !== 'Completed') {
-      $('#dSaveConflictMsg').text('Use Save Return Inspection to request completion after recording the returned items.').show().trigger('focus');
+    if (newStatus === booking.status) {
+      $('#dSaveConflictMsg').hide();
+      showAdminToast('No status change to save.');
       return;
     }
 
@@ -584,10 +632,11 @@ adminReady(async function () {
     pendingConflictApproval = null;
     $('#dSaveConflictMsg').hide(); $('#dConflictApproval').prop('hidden', true); $('#dConflictReason').val('');
     try {
-      await API.updateBooking(booking.id, { status: newStatus });
+      await API.overrideBookingStatus(booking.id, newStatus);
       bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'))?.hide();
       showAdminToast(API.savedMessage());
       await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
+      await refreshStatusNotifications();
     } catch (error) {
       $('#dSaveConflictMsg').text(error.message).show();
     }
@@ -626,6 +675,7 @@ adminReady(async function () {
     $('#correctionAmount').val(payment.amount);
     $('#correctionMethod').val(payment.method);
     $('#correctionStatus').val(payment.payment_status || 'Completed');
+    syncCashPaymentStatus('#correctionMethod', '#correctionStatus');
     $('#correctionType').val(payment.payment_type || 'Down payment');
     $('#correctionReason').val('');
     $('#paymentCorrectionError').prop('hidden', true).text('');
@@ -820,16 +870,15 @@ adminReady(async function () {
     }
     button.prop('disabled', true);
     try {
-      const purpose = $('#payPurpose').val();
       const additionalNotes = $('#payNotes').val().trim();
       const paymentDate = $('#payDate').val();
       if (!paymentDate) { error.prop('hidden', false).text('Enter the payment date and time.').trigger('focus'); return; }
       const payment = await PaymentsHelper.recordPayment(currentBookingId, amount, $('#payMethod').val(), additionalNotes, {
-        payment_type: purpose, payment_status: $('#payStatus').val(), payment_date: paymentDate.replace('T',' ') + ':00', payment_reference: $('#payReference').val().trim() || null
+        payment_status: 'Completed', payment_date: paymentDate.replace('T',' ') + ':00'
       });
       if (!payment) throw new Error('The payment was not recorded. Check the amount and try again.');
       error.prop('hidden', true).text('');
-      $('#payAmount, #payNotes, #payReference').val('');
+      $('#payAmount, #payNotes').val('');
       showAdminToast(API.savedMessage());
       await renderBookingsTable($('#filterStatus').val(), $('#filterSearch').val());
       await loadBookingDetail(currentBookingId);
@@ -853,6 +902,13 @@ async function renderPendingBookingCatalog(selectedPackage = $('#editPackageId')
 
 const BOOKING_PAGE_SIZE=15;
 let bookingPage=0;
+function quickStatusControl(booking, paymentStatus) {
+  const current = String(booking.status || 'Pending');
+  const color = CONFIG.bookingStatusColors[current] || 'secondary';
+  const textColor = ['warning', 'info', 'light'].includes(color) ? 'text-dark' : 'text-white';
+  const actions = ['Pending','Confirmed','Awaiting Completion','Awaiting Payment','Completed'].filter(status=>status!==current);
+  return `<div class="dropdown d-inline-block"><button type="button" class="badge border-0 bg-${color} ${textColor} dropdown-toggle py-1 px-2" data-bs-toggle="dropdown" aria-expanded="false" aria-label="${escapeHtmlA(current)}; quick status actions for booking ${escapeHtmlA(booking._server_id || booking.id)}">${escapeHtmlA(current)}</button><ul class="dropdown-menu">${actions.map(status => `<li><button type="button" class="dropdown-item js-quick-booking-status" data-id="${escapeHtmlA(booking.id)}" data-status="${escapeHtmlA(status)}">Mark ${escapeHtmlA(status)}</button></li>`).join('')}</ul></div>`;
+}
 async function renderBookingsTable(statusFilter, search) {
   const version = ++bookingsVersion;
   const [bookingsData, services, pendingPaymentIndex] = await Promise.all([
@@ -874,8 +930,11 @@ async function renderBookingsTable(statusFilter, search) {
     bookings = bookings.filter(b => b.customer_name.toLowerCase().includes(q) || String(b.id).toLowerCase().includes(q));
   }
 
-  const paymentStatuses = new Map(await Promise.all(bookings.map(async booking =>
-    [String(booking.id), await PaymentsHelper.paymentStatus(booking, pendingPaymentIndex)])));
+  const paymentSummaries = new Map(await Promise.all(bookings.map(async booking =>
+    [String(booking.id), {
+      status: await PaymentsHelper.paymentStatus(booking, pendingPaymentIndex),
+      remaining: await PaymentsHelper.remainingBalance(booking, pendingPaymentIndex)
+    }])));
   if (version !== bookingsVersion) return;
   if(bookingPage*BOOKING_PAGE_SIZE>=bookings.length)bookingPage=0;
   const $body = $('#bookingsBody').empty();
@@ -887,7 +946,8 @@ async function renderBookingsTable(statusFilter, search) {
   const total=bookings.length;
   for (const b of bookings.slice(bookingPage * BOOKING_PAGE_SIZE, (bookingPage + 1) * BOOKING_PAGE_SIZE)) {
     const svcNames = (b.service_ids || []).map(id => (services.find(s => s.service_id === id) || {}).name).filter(Boolean).join(', ');
-    const paymentStatus = paymentStatuses.get(String(b.id));
+    const paymentSummary = paymentSummaries.get(String(b.id));
+    const paymentStatus = paymentSummary.status;
     $body.append(`
       <tr>
         <td><a href="#" class="fw-semibold js-view-booking" data-id="${escapeHtmlA(b.id)}">${escapeHtmlA(b._server_id || (String(b.id).startsWith('LOCAL-') ? 'Offline draft' : b.id))}</a></td>
@@ -903,11 +963,20 @@ async function renderBookingsTable(statusFilter, search) {
           <div class="text-truncate" style="max-width:170px;" title="${escapeHtmlA(svcNames)}">${escapeHtmlA(svcNames)}</div>
         </td>
         <td class="fw-bold">${BookingCalc.formatCurrency(b.total)}</td>
-        <td>${badgeStatus(paymentStatus, CONFIG.paymentStatusColors)}</td>
-        <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}${b.pending_sync ? '<span class="badge bg-warning text-dark">Pending Sync</span>' : ''}</td>
+        <td>
+          <div class="dropdown d-inline-block text-nowrap">
+              <button type="button" class="badge border-0 bg-${CONFIG.paymentStatusColors[paymentStatus] || 'secondary'} dropdown-toggle py-1 px-2" data-bs-toggle="dropdown" aria-expanded="false" aria-label="${escapeHtmlA(paymentStatus)}; quick payment actions for booking ${escapeHtmlA(b._server_id || b.id)}">${escapeHtmlA(paymentStatus)}</button>
+              <ul class="dropdown-menu">
+                ${paymentSummary.remaining > 0 ? `<li><button type="button" class="dropdown-item js-quick-payment" data-action="partial" data-id="${escapeHtmlA(b.id)}"><i class="bi bi-cash-coin me-2"></i>Record partial payment</button></li><li><button type="button" class="dropdown-item js-quick-payment" data-action="full" data-remaining="${escapeHtmlA(paymentSummary.remaining.toFixed(2))}" data-id="${escapeHtmlA(b.id)}"><i class="bi bi-check2-circle me-2"></i>Pay remaining balance</button></li>` : ''}
+                ${paymentStatus !== 'Unpaid' ? `<li><button type="button" class="dropdown-item js-quick-payment" data-action="unpaid" data-id="${escapeHtmlA(b.id)}"><i class="bi bi-arrow-counterclockwise me-2"></i>Make unpaid / correct</button></li>` : ''}
+                <li><button type="button" class="dropdown-item js-quick-payment" data-action="history" data-id="${escapeHtmlA(b.id)}"><i class="bi bi-clock-history me-2"></i>Payment history</button></li>
+              </ul>
+          </div>
+        </td>
+        <td><div class="text-nowrap">${quickStatusControl(b, paymentStatus)}</div>${b.pending_sync ? '<span class="badge bg-warning text-dark mt-1">Pending Sync</span>' : ''}</td>
         <td class="text-center">
-          <button class="btn btn-sm btn-outline-secondary py-1 px-2 js-view-booking" data-id="${escapeHtmlA(b.id)}" title="View Details">
-            <i class="bi bi-eye"></i> View
+          <button class="btn btn-sm btn-outline-secondary py-1 px-2 js-view-booking" data-id="${escapeHtmlA(b.id)}" title="View booking details" aria-label="View booking details">
+            <i class="bi bi-eye" aria-hidden="true"></i> View
           </button>
         </td>
       </tr>`);
@@ -984,9 +1053,15 @@ async function loadBookingDetail(id) {
   const pendingPaymentAmount = pendingPaymentIndex.get(String(id)) || 0;
   $('#dPaid').text(BookingCalc.formatCurrency(paid));
   $('#dBalance').text(BookingCalc.formatCurrency(balance));
-  const allowedStatusOptions = b.status === 'Pending' ? ['Pending','Confirmed'] : ['Confirmed'];
-  $('#dStatusSelect').html(allowedStatusOptions.map(status => `<option>${status}</option>`).join('')).val(b.status);
-  $('#dPaymentStatusSelect').val(paymentStatus);
+  $('#paySummaryTotal').text(BookingCalc.formatCurrency(b.total));
+  $('#paySummaryPaid').text(BookingCalc.formatCurrency(paid));
+  $('#paySummaryBalance').text(BookingCalc.formatCurrency(balance)).data('amount', balance);
+  updatePaymentBalancePreview();
+  const detailStatuses = [...new Set([b.status, 'Pending', 'Confirmed', 'Awaiting Completion', 'Awaiting Payment', 'Completed'])];
+  $('#dStatusSelect').html(detailStatuses.map(status => `<option>${escapeHtmlA(status)}</option>`).join('')).val(b.status);
+  const detailStatusColor = CONFIG.bookingStatusColors[b.status] || 'secondary';
+  $('#dStatusSelect').removeClass('bg-warning bg-info bg-danger bg-success bg-dark bg-secondary text-dark text-white')
+    .addClass(`booking-status-select bg-${detailStatusColor} ${['warning','info','light'].includes(detailStatusColor) ? 'text-dark' : 'text-white'}`);
   $('#dPaymentPendingNote').text(pendingPaymentAmount > 0 ? `${BookingCalc.formatCurrency(pendingPaymentAmount)} is Pending Sync and is not included as accepted payment yet.` : '').prop('hidden', pendingPaymentAmount <= 0);
   $('#cancelBookingBtn').prop('hidden', ['Cancelled','Completed','Awaiting Completion','Awaiting Payment'].includes(b.status));
 
@@ -1001,7 +1076,9 @@ async function loadBookingDetail(id) {
   $('#postEventReview').prop('hidden', !['Awaiting Completion', 'Awaiting Payment'].includes(b.status));
   $('#postEventReviewTitle').text(awaitingPayment ? 'Payment completion review' : 'Post-event release review');
   $('#postEventReviewHelp').text(awaitingPayment
-    ? `Service availability has been released. Record the remaining ${BookingCalc.formatCurrency(balance)} as completed payment before completing this booking.`
+    ? (balance > 0
+      ? `Service availability has been released. Record the remaining ${BookingCalc.formatCurrency(balance)} as completed payment before completing this booking.`
+      : 'The rental balance is fully paid. Complete this booking to clear its action notification.')
     : 'After the event ends, review the service, completed payments, and deposit before releasing the booking.');
   $('.post-event-review-input').prop('hidden', awaitingPayment);
   $('#finalizeReturnBtn').html(awaitingPayment
