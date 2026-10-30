@@ -27,6 +27,13 @@ async function rejected(token) {assert.equal((await request('api/auth.php?do=me'
 
 (async()=>{
   const primary = tokenOf(await request('api/auth.php',{body:{contact_number:'TEST-OWNER',password:'OfflineTest!2026'}}));
+  const primaryByCredential = tokenOf(await request('api/auth.php',{body:{credential:'TEST-OWNER',password:'OfflineTest!2026'}}));
+  const secondaryByCredential = tokenOf(await request('api/auth.php',{body:{credential:'juan',password:'password'}}));
+  await request('api/auth.php?do=logout',{token:primaryByCredential,body:{}});
+  await request('api/auth.php?do=logout',{token:secondaryByCredential,body:{}});
+  sql("UPDATE users SET contact_number='TEST-OWNER' WHERE user_id=2;");
+  assert.equal((await request('api/auth.php',{body:{credential:'TEST-OWNER',password:'OfflineTest!2026'}})).status,401,'Ambiguous credentials must not select an owner');
+  sql("UPDATE users SET contact_number='0918-222-3333' WHERE user_id=2;");
   const secondary = tokenOf(await login());
   assert.equal((await request('api/owners.php',{token:secondary})).status,403);
   assert.equal((await request('api/owners.php?do=deactivate&id=1',{token:primary,body:{}})).status,400);

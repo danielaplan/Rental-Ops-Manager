@@ -32,7 +32,7 @@
     </div>
     <form id="loginForm">
       <div class="mb-3">
-        <label class="form-label" for="loginUsername">Contact number</label>
+        <label class="form-label" for="loginUsername">Username or contact number</label>
         <input type="text" class="form-control" id="loginUsername" autocomplete="username" required>
       </div>
       <div class="mb-3">
@@ -69,14 +69,14 @@
 
     $('#loginForm').onAdmin('submit', async function (e) {
       e.preventDefault();
-      // Fix #2: No silent fallback — blank contact number is a real error.
-      const username = $('#loginUsername').val().trim();
+      // Fix #2: No silent fallback — a blank login credential is a real error.
+      const credential = $('#loginUsername').val().trim();
       const password = $('#loginPassword').val();
-      if (!username) {
-        alert('Please enter your contact number.');
+      if (!credential) {
+        alert('Please enter your username or contact number.');
         return;
       }
-      await AdminAuth.login(username, password);
+      await AdminAuth.login(credential, password);
       window.location.href = 'dashboard.html';
     });
   });

@@ -25,7 +25,7 @@ Bookings and financial records should not be changed by an anonymous browser or 
 
 ### Follow Ana’s fictional rental
 
-The owner signs in with a username and password before recording Ana’s booking. Five failed attempts lock that account for 15 minutes. A successful login resets the failure count.
+The owner signs in with a username or contact number and password before recording Ana’s booking. This lets a newly added owner use the username created for the account while existing owners can continue using their contact numbers. Five failed attempts lock that account for 15 minutes. A successful login resets the failure count.
 
 ### Step-by-step workflow
 
@@ -47,7 +47,7 @@ sequenceDiagram
   participant A as auth.php
   participant U as USERS
   participant S as SESSIONS
-  O->>A: username and password
+  O->>A: username or contact number and password
   A->>U: lock and verify active owner
   A->>S: create token with expiry
   A-->>O: token and owner profile
@@ -61,7 +61,7 @@ The diagram follows the login information from the owner to the server, then sho
 
 - Current login support is owner-only. The legacy `staff` enum value does not grant a session.
 - Passwords are hashed; tokens are random 64-character hexadecimal strings.
-- Invalid credentials do not reveal whether the username exists.
+- Invalid credentials do not reveal whether the username or contact number exists.
 - HTTPS and the configured production-origin allowlist must be correct at deployment.
 - Seed credentials are development material and must not be deployed.
 

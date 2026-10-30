@@ -494,6 +494,25 @@ table.admin-table tbody tr:last-child td { border-bottom: 0; }
 table.admin-table td:has(.btn),
 table.admin-table td:has(.form-check-input) { white-space: nowrap; }
 table.admin-table td .btn { min-height: 34px; }
+.audit-table { min-width: 960px; table-layout: fixed; }
+.audit-table th:nth-child(1) { width: 132px; }
+.audit-table th:nth-child(2) { width: 140px; }
+.audit-table th:nth-child(3) { width: 160px; }
+.audit-table th:nth-child(4) { width: 150px; }
+.audit-table th:nth-child(5) { width: 185px; }
+.audit-table td { vertical-align: top; }
+.audit-date-cell > span { display: block; white-space: nowrap; }
+.audit-action { font-weight: 600; color: var(--a-primary-dark); }
+.audit-record,
+.audit-change { white-space: nowrap; }
+.audit-description { overflow-wrap: anywhere; }
+.audit-details summary { width: fit-content; min-height: 34px; padding: 0.4rem 0; color: var(--a-primary); font-weight: 600; cursor: pointer; }
+.audit-detail-content { margin-top: 0.35rem; padding: 0.75rem; border: 1px solid var(--a-border); border-radius: 8px; background: var(--a-bg); }
+.audit-detail-content dl { display: grid; grid-template-columns: minmax(110px, auto) minmax(0, 1fr); gap: 0.3rem 0.75rem; margin: 0; }
+.audit-detail-content dt { color: var(--a-muted); font-size: 0.78rem; font-weight: 600; }
+.audit-detail-content dd { min-width: 0; margin: 0; }
+.audit-detail-content ul { margin: 0; padding-left: 1.1rem; }
+.audit-detail-content li + li { margin-top: 0.3rem; }
 .booking-status-select { width: auto; min-width: 108px; min-height: 28px; padding-top: .18rem; padding-bottom: .18rem; padding-left: .45rem; font-size: .76rem; font-weight: 600; line-height: 1.2; }
 .booking-status-select option { color: #212529; background: #fff; font-weight: 500; }
 

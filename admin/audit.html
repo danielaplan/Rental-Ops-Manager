@@ -13,18 +13,24 @@
   <div class="panel mb-3">
     <div class="row g-3">
       <div class="col-sm-6 col-lg-3"><label class="form-label" for="auditOwner">Owner</label><select class="form-select" id="auditOwner"><option value="">All actors</option></select></div>
-      <div class="col-sm-6 col-lg-3"><label class="form-label" for="auditAction">Action</label><input class="form-control" id="auditAction" placeholder="e.g. booking_created"></div>
+      <div class="col-sm-6 col-lg-3"><label class="form-label" for="auditAction">Action</label><input class="form-control" id="auditAction" placeholder="e.g. Booking created"></div>
       <div class="col-sm-6 col-lg-3"><label class="form-label" for="auditRecord">Record</label><input class="form-control" id="auditRecord" placeholder="e.g. booking or booking 10"></div>
       <div class="col-sm-6 col-lg-3"><label class="form-label" for="auditDate">Date</label><input type="date" class="form-control" id="auditDate"></div>
     </div>
   </div>
   <div class="panel"><div class="d-flex justify-content-between align-items-center mb-3"><div><div class="panel-title">Append-only activity</div><div class="small text-muted">Audit entries can be reviewed but cannot be edited or deleted.</div></div><span class="badge bg-light text-dark border" id="auditCount"></span></div>
-    <div class="table-wrap"><table class="admin-table"><thead><tr><th>Date</th><th>Actor</th><th>Action</th><th>Record</th><th>Change</th><th>Description</th></tr></thead><tbody id="auditBody"></tbody></table></div>
+    <div class="table-wrap"><table class="admin-table audit-table"><thead><tr><th scope="col">Date</th><th scope="col">Actor</th><th scope="col">Action</th><th scope="col">Record</th><th scope="col">Change</th><th scope="col">Description</th></tr></thead><tbody id="auditBody"></tbody></table></div>
   </div>
 </main>
 <script src="../vendor/jquery-3.7.1.min.js"></script><script src="../vendor/bootstrap-5.3.3.bundle.min.js"></script><script src="../js/config.js"></script><script src="../js/storage.js"></script><script src="../js/api.js"></script><script src="../js/sync.js"></script><script src="../js/bookings.js"></script><script src="../js/admin.js"></script><script src="../js/sync-ui.js"></script><script src="../js/offline.js"></script>
 <script>
 let auditRows = [];
+const auditActionLabels = {
+  booking_created: 'Booking created',
+  template_create: 'Template created',
+  payment_recorded: 'Payment recorded',
+  cancellation: 'Booking cancelled'
+};
 adminReady(async function () {
   await API.ready; await initAdminChrome('audit.html', 'Audit History');
   try {
@@ -37,10 +43,39 @@ adminReady(async function () {
 });
 function renderAudit() {
   const actor = $('#auditOwner').val(), action = $('#auditAction').val().trim().toLowerCase(), record = $('#auditRecord').val().trim().toLowerCase(), date = $('#auditDate').val();
-  const rows = auditRows.filter(row => (!actor || String(row.user_id) === actor) && (!action || String(row.action).toLowerCase().includes(action)) && (!record || `${row.record_type} ${row.record_id}`.toLowerCase().includes(record)) && (!date || String(row.created_at).slice(0,10) === date));
+  const rows = auditRows.filter(row => (!actor || String(row.user_id) === actor) && (!action || `${row.action} ${auditActionLabel(row.action)}`.toLowerCase().includes(action)) && (!record || `${row.record_type} ${row.record_id}`.toLowerCase().includes(record)) && (!date || String(row.created_at).slice(0,10) === date));
   $('#auditCount').text(`${rows.length} entr${rows.length === 1 ? 'y' : 'ies'}`);
   const body = $('#auditBody').empty();
   if (!rows.length) return body.append('<tr><td colspan="6" class="text-center text-muted py-4">No audit entries match these filters.</td></tr>');
-  rows.slice().reverse().forEach(row => body.append(`<tr><td>${escapeHtmlA(row.created_at)}</td><td>${escapeHtmlA(row.actor_name || row.origin)}</td><td>${escapeHtmlA(row.action)}</td><td>${escapeHtmlA(row.record_type)} #${escapeHtmlA(row.record_id)}</td><td>${escapeHtmlA(row.old_status || '—')} → ${escapeHtmlA(row.new_status || '—')}</td><td>${escapeHtmlA(row.description)}</td></tr>`));
+  rows.slice().reverse().forEach(row => body.append(`<tr><td class="audit-date-cell">${renderAuditDate(row.created_at)}</td><td>${escapeHtmlA(row.actor_name || row.origin)}</td><td><span class="audit-action">${escapeHtmlA(auditActionLabel(row.action))}</span></td><td><span class="audit-record">${escapeHtmlA(auditFieldLabel(row.record_type))} #${escapeHtmlA(row.record_id)}</span></td><td><span class="audit-change">${escapeHtmlA(row.old_status || '—')} <span aria-hidden="true">→</span> ${escapeHtmlA(row.new_status || '—')}</span></td><td class="audit-description">${renderAuditDescription(row.description)}</td></tr>`));
+}
+function auditFieldLabel(value) {
+  const label = String(value || '').replaceAll('_', ' ').trim();
+  return label ? label.charAt(0).toUpperCase() + label.slice(1) : '—';
+}
+function auditActionLabel(value) {
+  return auditActionLabels[value] || auditFieldLabel(value);
+}
+function renderAuditDate(value) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!match) return escapeHtmlA(value || '—');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const hour = Number(match[4]), displayHour = hour % 12 || 12;
+  return `<span>${months[Number(match[2]) - 1]} ${Number(match[3])}, ${match[1]}</span><span class="text-muted">${displayHour}:${match[5]}:${match[6] || '00'} ${hour < 12 ? 'AM' : 'PM'}</span>`;
+}
+function renderAuditValue(value) {
+  if (Array.isArray(value)) return `<ul>${value.map(item => `<li>${renderAuditValue(item)}</li>`).join('')}</ul>`;
+  if (value && typeof value === 'object') return `<dl>${Object.entries(value).map(([key,item]) => `<dt>${escapeHtmlA(auditFieldLabel(key))}</dt><dd>${renderAuditValue(item)}</dd>`).join('')}</dl>`;
+  return escapeHtmlA(value === null || value === '' ? '—' : value);
+}
+function renderAuditDescription(value) {
+  const text = String(value || '');
+  try {
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed !== 'object') return escapeHtmlA(text || '—');
+    return `<details class="audit-details"><summary>View details</summary><div class="audit-detail-content">${renderAuditValue(parsed)}</div></details>`;
+  } catch (_) {
+    return escapeHtmlA(text || '—');
+  }
 }
 </script></body></html>

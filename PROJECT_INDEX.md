@@ -100,6 +100,7 @@ Prerequisites and local setup are in [`README.md`](README.md). Start MySQL befor
 | Focused safeguard unit tests | `node tests/run_revised_backend.cjs test_fixes.php` | Four direct shared-service validations; refuses normal database names and rolls back every test. |
 | Booking lifecycle integration | `node tests/run_revised_backend.cjs test_booking_flow.php` | Walks Pending → Confirmed → Awaiting Completion → Completed and rolls back its realistic fixture transaction. |
 | Frontend-only regression | `node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs tests/booking-flow-frontend-regressions.test.cjs` | Harness/contract evidence, not physical-browser acceptance. |
+| Audit History rendering | `node --test tests/audit-history-rendering.test.cjs` | Covers readable labels and timestamps, collapsed JSON details, escaping, and plain-text fallback. |
 | Syntax | `node tests/check_syntax.cjs` | Checks PHP, JavaScript, service worker, test scripts, and admin inline scripts without requiring Python on PATH. |
 | Historical migration regression | `node tests/migration-plan-gaps.test.cjs` | Synthetic and guarded; not part of normal setup or production authorization. |
 | Whitespace | `git diff --check` | Run after edits. |

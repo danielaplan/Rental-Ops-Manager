@@ -56,16 +56,17 @@ if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'auth.php') {
     $method = $_SERVER['REQUEST_METHOD'];
     if ($method === 'POST' && $do === null) {
         $body = readJsonBody();
-        $username = $body['username'] ?? $body['contact_number'] ?? $body['contact'] ?? null;
+        $login = $body['credential'] ?? $body['username'] ?? $body['contact_number'] ?? $body['contact'] ?? null;
         $password = $body['password'] ?? null;
-        if (!is_string($username) || trim($username)==='' || !is_string($password) || $password==='') {
-            sendJson(['ok'=>false,'error'=>'Username and password are required.','code'=>'validation'],400);
+        if (!is_string($login) || trim($login)==='' || !is_string($password) || $password==='') {
+            sendJson(['ok'=>false,'error'=>'Username or contact number and password are required.','code'=>'validation'],400);
         }
-        $credential = array_key_exists('username',$body) ? 'username' : 'contact_number';
-        $result = domainTransaction(function () use ($username,$password,$credential) {
+        $credentialType = array_key_exists('credential',$body) ? 'credential' : (array_key_exists('username',$body) ? 'username' : 'contact_number');
+        $result = domainTransaction(function () use ($login,$password,$credentialType) {
             $db = db();
-            $q = $db->prepare("SELECT *, locked_until>NOW() AS is_locked FROM users WHERE `$credential`=? ORDER BY user_id FOR UPDATE");
-            $q->execute([trim($username)]);
+            $where = $credentialType === 'credential' ? '(username=? OR contact_number=?)' : "`$credentialType`=?";
+            $q = $db->prepare("SELECT *, locked_until>NOW() AS is_locked FROM users WHERE $where ORDER BY user_id FOR UPDATE");
+            $q->execute($credentialType === 'credential' ? [trim($login),trim($login)] : [trim($login)]);
             $matches = $q->fetchAll();
             if (count($matches)!==1) return null;
             $user = $matches[0];

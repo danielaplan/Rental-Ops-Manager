@@ -35,13 +35,13 @@ const AdminAuth = {
     }
   },
 
-  async login(username, password) {
+  async login(credential, password) {
     let response;
     try {
       response = await fetch('../api/auth.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact_number: username, password })
+        body: JSON.stringify({ credential, password })
       });
     } catch (cause) {
       const error = new Error('The login server could not be reached. Open this page through the configured PHP site (not file:// or a static-only host) and check the server connection.');
@@ -60,7 +60,7 @@ const AdminAuth = {
       throw new Error(envelope?.error || `Sign in failed (HTTP ${response.status}).`);
     }
     STORAGE._set(STORAGE_KEYS.adminSession, {
-      username,
+      credential,
       loginAt: new Date().toISOString(),
       expiresAt: Date.now() + envelope.data.expires_in * 1000,
       ...envelope.data

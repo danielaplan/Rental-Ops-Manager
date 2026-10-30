@@ -232,6 +232,18 @@ test('admin login explains when its PHP endpoint cannot be reached', async () =>
   );
 });
 
+test('admin login sends a username or contact number as one credential', async () => {
+  const h = harness('js/admin.js');
+  let request;
+  h.context.fetch = async (_url, options) => {
+    request = JSON.parse(options.body);
+    return { ok: true, text: async () => JSON.stringify({ ok: true, data: { session_token: 'token', expires_in: 60, user: { user_id: 2 } } }) };
+  };
+  h.context.STORAGE._set = () => {};
+  await vm.runInContext('AdminAuth.login("new-owner", "temporary-password")', h.context);
+  assert.deepEqual({ ...request }, { credential: 'new-owner', password: 'temporary-password' });
+});
+
 test('settings refresh updates the sidebar brand without replacing navigation', async () => {
   const h = harness('js/admin.js', { getSettings: async () => ({ business_name: 'Initial name' }) });
   const brandName = { textContent: '' };
