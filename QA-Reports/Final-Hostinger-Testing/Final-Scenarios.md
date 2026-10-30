@@ -1,6 +1,6 @@
 # Final Hostinger Testing — Final Scenarios
 
-Complete these scenarios in order. Record every result in [Report.md](Report.md). Screenshots are required for FAIL and BLOCKED outcomes.
+	Complete these scenarios in order. Record every result in [Report.md](Report.md). Screenshots are required for FAIL and BLOCKED outcomes.
 
 ## F01 — Hosting, HTTPS, and owner sign-in
 
