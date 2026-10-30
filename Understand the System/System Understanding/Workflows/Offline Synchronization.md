@@ -1,6 +1,6 @@
 ---
 title: "Offline Synchronization"
-date: 2026-10-17
+date: 2026-10-30
 tags:
   - akad
   - system-understanding
@@ -13,98 +13,82 @@ status: current-source-reviewed
 
 ## Part A — Understanding the Feature
 
-This first part uses everyday language. You can continue to the next lesson without studying the technical section.
-
 ### What is this feature?
 
-Supported writes can be placed in a browser outbox while the PHP server is unreachable. Reconnection replays each operation to the authoritative backend.
+The system is online-first. During a temporary outage, it can preserve only three kinds of recovery work on the current device:
 
-### Why does the system need it?
+- a new booking draft;
+- generated or edited checklist drafts; and
+- a return-inspection draft.
 
-A temporary outage should not discard the owner’s work, but local data must not silently overwrite newer server data or bypass business rules.
+Payments, deposits, deductions, refunds, booking changes or approvals, cancellations, releases, final completion, delivery, catalog, inventory, gallery metadata, settings, website content, and owner changes require an internet connection. Reports may show the last saved values, but they do not create offline records.
+
+### Why is it limited?
+
+Drafting work can safely wait for server review. Money, approvals, final lifecycle decisions, and shared configuration must be checked against the current database immediately so another device cannot unknowingly create a contradictory official record.
 
 ### Follow Ana’s fictional rental
 
-An owner saves Ana’s booking while offline. The browser assigns a local ID and operation ID. After reconnection, the server validates the booking, maps the local ID to its database ID, and stores a receipt. If the reply is lost, retry returns the same acknowledgement instead of creating a duplicate.
+Ana starts a new booking while the connection is down. The browser labels it **Pending Sync** and gives it a temporary ID. When internet returns, synchronization starts automatically; Ana may also choose **Refresh data and sync**.
+
+When Ana is online, creating a booking goes directly to the booking API and the browser shows the official server result. A local draft is created only when the browser is already offline or the create request fails at the network layer. A server validation or conflict response remains an online error and is never converted into a local draft.
+
+The server then applies the normal booking and availability rules. If no conflict exists, the server accepts the booking and replaces its temporary ID. If another owner already accepted an overlapping booking, Ana’s draft stays on the device as a visible conflict. It does not become official until an owner resolves the conflict online.
+
+Ana may also draft the booking checklist and returned-item inspection offline. She cannot confirm the release, record money, approve an overlap, cancel the booking, or complete the post-event review until she is online.
+
+If Ana entered an intended down payment while the network failed, the amount and method remain only as a local reminder. They do not change `amount_paid`, payment history, dashboard revenue, or reports. After the booking receives its server ID, the reminder follows that ID and tells Ana to record the real payment online.
 
 ### Step-by-step workflow
 
-1. `js/api.js` detects a network failure for a supported write.
-2. `js/offline.js`/`js/storage.js` retain an operation with `client_id`, entity, action, data, owner, and optional local ID. Money writes are first validated and calculated as integer cents, so excess precision never enters the queue.
-3. `js/sync.js` sends up to 100 operations to `POST api/sync.php?do=commit`.
-4. The server resolves local references and checks a per-owner receipt. After acceptance, the browser replaces temporary booking/payment primary keys and their cached links with the acknowledged server IDs.
-5. Each operation gets its own transaction and shared domain validation, including the same cent precision and remaining-balance rules used by direct payment and deposit endpoints.
-6. The reply separates committed, conflict, and failed operations. Pending payment drafts remain separate from server-confirmed `amount_paid`; accepted totals change only after acknowledgement and refresh.
-7. Conflicts and failures stay visible for owner review. A rejected payment or deposit can be corrected in place and retried with the same operation ID, so the receipt check still protects against a duplicate while unrelated queued work remains untouched.
-
-The browser also caches every admin page and its local app assets after offline setup succeeds. This makes navigation possible during an outage, but it does not download fresh server data; supported offline work still needs an existing signed-in session and previously saved data.
-
-### What Happens Behind the Scenes?
-
-The receipt ledger and local-to-server ID map live in `APP_SETTINGS` row 2. Identical retries return the stored acknowledgement; reusing an accepted operation ID with changed data fails. Booking `_base` values detect stale edits for reservation fields and mutable pricing fields: service, package, add-ons, discount, fees, agreed total, preparation, and travel allowances.
-
-Temporary aliases exist only to resolve dependent queued operations. They must not translate an acknowledged server booking or payment back into a `LOCAL-*` primary key. Remapping is idempotent: replaying after the queue is empty creates no second booking or payment.
-
-Customer links follow the same identity rule. Each offline booking receives or retains a customer ID, and acknowledgement replaces a temporary customer identity with the customer ID returned in the accepted booking. Phone numbers are never used to merge cached customers or calculate their booking totals.
-
-Rejected monetary drafts retain their queue entry and editable amount. Before retry, the browser applies the same positive-value and two-decimal validation used for a new draft, updates the matching cached Pending Sync record, and replays the original `client_id`. An accepted operation cannot be changed under that identity, while an operation the server rejected has no receipt and may safely be corrected.
-
-Deposit refunds remain “Refund pending” while queued. The refund can follow a queued deposit creation in the same ordered replay. Once accepted, the browser applies the server-returned deposit status and refund timestamp to the scoped cache instead of retaining an optimistic local timestamp.
+1. A supported offline action is saved in the browser outbox with an operation ID and owner ID.
+2. The sync panel shows the draft as pending. Closing and reopening the page does not make it official.
+3. Reconnection automatically sends the outbox to `POST api/sync.php?do=commit`; **Refresh data and sync** performs the same replay manually.
+4. The server accepts only the limited recovery actions and runs normal booking, checklist, inspection, and conflict validation.
+5. The response separates committed, conflicting, and failed operations. Accepted operations receive server IDs; rejected or conflicting drafts remain visible.
+6. Replaying the same accepted operation returns its saved acknowledgement instead of creating a duplicate.
 
 ### Visual explanation
 
 ```mermaid
-sequenceDiagram
-  participant B as Browser outbox
-  participant S as sync.php
-  participant R as Receipt ledger
-  participant D as Domain service
-  B->>S: queued operations
-  S->>R: seen this owner and client ID?
-  alt identical receipt exists
-    R-->>S: prior acknowledgement
-  else new operation
-    S->>D: validate and transact
-    D-->>S: record or conflict
-    S->>R: save receipt and ID map
-  end
-  S-->>B: committed, conflicts, failed
+flowchart LR
+  A[Offline device] --> B{Action type}
+  B -->|Booking, checklist, inspection draft| C[Local Pending Sync outbox]
+  B -->|Money, approval, release, finalization, shared setup| D[Internet required]
+  C --> E[Reconnect or Sync Now]
+  E --> F{Server validation}
+  F -->|Accepted| G[Official server record]
+  F -->|Conflict or failure| H[Draft retained for online review]
 ```
-
-The diagram shows a queued action reaching the server, being checked for an earlier receipt, and then being accepted or returned for review.
 
 ### Important things to remember
 
-- A successful HTTP response may still contain conflicts or failures.
-- The batch is not atomic; one failed operation does not roll back accepted neighbors.
-- A payment linked to a locally created booking adopts its own server payment ID and the booking's server ID after acknowledgement; neither record is duplicated on an empty retry.
-- Correcting a rejected payment or deposit does not discard other queued operations and does not generate a replacement operation identity.
-- Customer summaries associate bookings by customer ID, so a shared contact number does not combine separate people.
-- Stale detection covers selected booking reservation and pricing fields, not every entity or field. Conflicts retain the draft and display previous, current server, and proposed values for owner resolution.
-- One growing JSON receipt row serializes commits and has no retention policy.
-- Offline UI evidence is synthetic/local; real device, quota, network, and multi-user acceptance remain deployment checks.
-- Offline sync is approved and retained even though an older revised design document described online-only scope.
+- **Pending Sync** means saved on this device, not accepted by the business database.
+- An intended payment reminder is not a receipt or accepted payment and must be recorded online.
+- Automatic and manual synchronization use the same server validation.
+- A successful HTTP response may still contain an operation conflict or failure.
+- The sync endpoint also enforces the allowlist, so an old or modified browser cannot replay an online-only action.
+- Cached pages and values can be stale; the browser does not download new server data while offline.
+- Offline setup still requires an earlier authenticated online session, cached pages/data, HTTPS or localhost, and available browser storage.
+- Local synthetic tests do not replace physical-device, Hostinger, multi-owner, storage-quota, or client acceptance.
 
 ### Remember This
 
-The offline queue is a waiting list, not the shared database. A queued change becomes official only after the server validates and accepts it.
+Offline mode is a recovery notebook, not a second database. It protects draft work while keeping money and final decisions online and authoritative.
 
 ## Part B — Technical Explanation
 
-This section names the files, routes, tables, and validation rules. Beginner readers may skip it and continue to the next lesson.
+`js/sync.js` sends `createBooking`, `generateBookingChecklist`, `updateBookingItem`, and `recordReturn` directly to the server while online and falls back to a local outbox draft only for an offline state, a temporary local booking, or a transport-level network failure. This ordering ensures checklist updates reach the server before release and return inspections reach it before final review. Other writes call their direct `js/api.js` methods and raise `online_required` when the browser is offline. `js/sync-ui.js` explains the boundary and disables internet-required booking, money, catalog, settings, content, gallery, inventory, and owner controls while offline.
 
-### Technical details
-
-`api/sync.php`, `api/sync_state.php`, shared `*_service.php` files; `js/sync.js`, `js/offline.js`, `js/storage.js`, `js/sync-ui.js`. Storage: browser local data plus `APP_SETTINGS.settings_id=2`.
+`api/sync.php` accepts only `bookings/create`, `bookingItems/generate`, `bookingItems/update`, and `equipment/inspect`. An offline booking create must be Pending, unpaid, and contain no conflict-approval fields. Receipts and local-to-server ID aliases remain in the private sync state so retries stay idempotent. Each accepted operation retains its own transaction; the returned batch can contain committed, conflicting, and failed results together.
 
 ### Technical references
 
 [sync.php](../Backend/Files/sync.php.md) · [sync_state.php](../Backend/Files/sync_state.php.md) · [APP_SETTINGS](../Database/Tables/APP_SETTINGS.md)
 
-
 ## Continue Your Learning
 
-**You’ve learned:** the difference between saving a change temporarily on one device and having the shared server accept it.
+**You’ve learned:** which recovery drafts can wait on one device and which decisions require the shared server immediately.
 
 **Previous lesson:** [Post-event Completion](Post-event%20Completion.md)
 

@@ -88,7 +88,7 @@ Use this precedence when sources differ:
 4. Implementation plans describe intended or completed work but are not approval records and do not prove runtime behavior.
 5. The proposal is contextual: [Revised Rentals Proposal](<Source Documents/Documentation/REvised/AKAD_REVISED_Rentals_Proposal___RJDM_Collective.md>). Do not treat proposal text or AI assumptions as later approval.
 
-Current controlling decisions include preserved offline synchronization, owner-only authenticated operation, clean production initialization from the reviewed schema, the approved `Awaiting Payment` lifecycle, and deferred FR-10 internal availability blockouts. Preserve historical records when documenting a changed decision; never silently rewrite approval history.
+Current controlling decisions include online-first operation with offline recovery limited to booking, checklist, and return-inspection drafts; owner-only authenticated operation; clean production initialization from the reviewed schema; the approved `Awaiting Payment` lifecycle; and deferred FR-10 internal availability blockouts. Preserve historical records when documenting a changed decision; never silently rewrite approval history.
 
 ## 7. Testing and Verification
 

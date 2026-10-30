@@ -29,7 +29,7 @@ status: current-source-reviewed
 
 ## Source/requirement contradictions
 
-- Revised design text says online-only/offline deferred; the later owner decision preserves offline sync, and current source/tests implement it.
+- Revised design text says online-only/offline deferred; the later owner decision now preserves limited recovery sync only for booking, checklist, and return-inspection drafts.
 - Revised design includes internal availability blocks; the later owner decision defers activation even though draft schema/API artifacts remain.
 - Revised design lists lifecycle states without Awaiting Payment; the later approved policy and current source add it after service release when rental balance remains.
 - Older vault pages described approximately 19 tables, unauthenticated business reads, staff access, first-package defaults, one-service pricing gaps, destructive checklist regeneration, and event-date booking-summary revenue. Current source supersedes those descriptions.

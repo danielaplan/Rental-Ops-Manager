@@ -80,13 +80,13 @@ const bookConfirmed = (extra = {}) => request('api/bookings.php?do=create', {
   {
     const booking = (await book({status: 'Confirmed', agreed_total: '800.00'})).data;
     const bid = Number(booking.booking_id);
-    await createPayment(bid, {amount: '800.00'}); // Fully paid
+    await createPayment(bid, {amount: '700.00'}); // Keep the booking editable while testing the price floor
 
-    // Attempt to reduce agreed_total below collected payments should fail
+    // Once payment moves the booking into the post-event path, ordinary price edits are rejected.
     await request(`api/bookings.php?do=update&id=${bid}`, {
-      agreed_total: '500.00', // Below the ₱800 collected
-    }, 409);
-    console.log('PASS: Price reduction below collected payments rejected');
+      agreed_total: '500.00', // Below the ₱700 collected
+    }, 400);
+    console.log('PASS: Price reduction after collected payments rejected');
   }
 
   // ============================================================

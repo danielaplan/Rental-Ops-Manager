@@ -442,6 +442,11 @@ test('offline readiness covers every admin page and explains the saved-data boun
     assert.match(shell, new RegExp(`admin/${page.replace('.', '\\.')}`), `${page} must be cached for offline navigation`);
   }
   for (const file of files) assert.ok(fs.existsSync(path.join(root, file)), `${file} must exist before the service worker caches it`);
-  assert.match(syncUi, /Offline app pages are cached on this device/);
+  assert.match(syncUi, /Recovery pages are cached on this device/);
+  assert.match(syncUi, /Offline drafts are not official until the server accepts them/);
   assert.match(syncUi, /the cache does not download new server data/);
+  assert.match(shell, /akad-shell-20261030-online-first-recovery-v2/);
+  for (const selector of ['#contentForm','#settingsForm','#ownerForm','#packageForm','.js-delete-service']) {
+    assert.match(syncUi, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${selector} must be visibly restricted while offline`);
+  }
 });

@@ -22,7 +22,7 @@ function saveReturnInspection(PDO $pdo,int $bookingId,array $items,int $checkedB
         $condition=$item['condition_in'] ?? $item['condition'] ?? null;
         if (!$expectedRow || $returned===null) domainFail('Returned quantity is required.');
         if ($returned < (int)$expectedRow['quantity_released'] && ($condition !== 'Missing' || !trim((string)($item['notes'] ?? '')))) domainFail('A short return must be marked Missing and include item notes.');
-        $saved=updateChecklistItem($pdo,$bookingId,$id,[...$item, 'notes' => $item['notes'] ?? null],$checkedBy);
+        $saved=updateChecklistItem($pdo,$bookingId,$id,array_merge($item, ['notes' => $item['notes'] ?? null]),$checkedBy);
         if ($saved['rental_item_id'] !== null) {
             saveItemHistory($pdo,[
                 'rental_item_id'=>$saved['rental_item_id'],'booking_id'=>$bookingId,'action'=>'Returned',

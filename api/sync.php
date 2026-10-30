@@ -47,8 +47,21 @@ foreach ($queue as $item) {
         if (!is_array($item) || !is_string($client) || $client==='' || strlen($client)>128) domainFail('A valid operation ID is required.');
         $entity=$item['entity'] ?? ''; $action=$item['action'] ?? ''; $data=$item['data'] ?? null;
         if (!is_string($entity) || !is_string($action) || !is_array($data)) domainFail('Operation entity, action, and object data are required.');
-        if (isset($item['owner_id']) && (int)$item['owner_id']!==(int)$actor['user_id']) domainFail('This operation belongs to another user.');
         $hash=hash('sha256',json_encode([$entity,$action,$data,$item['local_id'] ?? null],JSON_THROW_ON_ERROR));
+        $offlineAllowed=($entity==='bookings' && $action==='create')
+            || ($entity==='bookingItems' && in_array($action,['generate','update'],true))
+            || ($entity==='equipment' && $action==='inspect');
+        if (!$offlineAllowed) domainFail('This action requires an internet connection and cannot be replayed from the offline queue.',422,'online_required');
+        if ($entity==='bookings' && $action==='create') {
+            $status=strtolower(trim((string)($data['status'] ?? 'Pending')));
+            $hasApprovalData=array_intersect(['approve_conflicts','conflicting_booking_ids','override_reason','approval_base'],array_keys($data));
+            if ($status!=='pending' || moneyCents($data['amount_paid'] ?? 0)!==0 || $hasApprovalData) {
+                domainFail('Offline booking drafts must remain Pending and cannot record payment or approve a conflict.',422,'online_required');
+            }
+            $data['status']='Pending';
+            $data['amount_paid']=0;
+        }
+        if (isset($item['owner_id']) && (int)$item['owner_id']!==(int)$actor['user_id']) domainFail('This operation belongs to another user.');
         $pdo->beginTransaction();
         $state=syncState($pdo);
         $receipt=$state['receipts'][$actor['user_id'].':'.$client] ?? null;

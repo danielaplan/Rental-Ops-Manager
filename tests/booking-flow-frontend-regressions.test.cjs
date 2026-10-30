@@ -47,19 +47,18 @@ test('return conditions, deposit lock, and payment correction controls match ser
   assert.match(payments, /js-correct-payment/);
 });
 
-test('deposit refund control supports a queued held deposit and waits for server acknowledgement', () => {
+test('deposit refund control is online-only and uses the direct audited endpoint', () => {
   const source = fs.readFileSync(path.join(root, 'admin', 'bookings.html'), 'utf8');
   const sync = fs.readFileSync(path.join(root, 'js', 'sync.js'), 'utf8');
   const depositService = fs.readFileSync(path.join(root, 'api', 'deposit_service.php'), 'utf8');
   const depositsEndpoint = fs.readFileSync(path.join(root, 'api', 'deposits.php'), 'utf8');
   const syncEndpoint = fs.readFileSync(path.join(root, 'api', 'sync.php'), 'utf8');
   assert.match(source, /!depositRecorded\|\|refunded\|\|Number\(deposit\.refund_amount\)<=0\|\|Boolean\(refundOperation\)/);
-  assert.match(source, /Refund pending · Pending Sync/);
-  assert.match(sync, /refund_pending:true,pending_sync:true/);
-  assert.match(sync, /applyAcceptedDeposit\(op,ack\.data\)/);
+  assert.match(source, /data-online-required>Mark refundable balance refunded/);
+  assert.match(sync, /API\.refundDeposit=onlineOnly\('refundDeposit','Deposit refunds'\)/);
   assert.match(depositService, /function refundDeposit\(PDO \$pdo, int \$bookingId, int \$ownerId\): array/);
   assert.match(depositsEndpoint, /return refundDeposit\(\$pdo,\$bid,\(int\)\$owner\['user_id'\]\)/);
-  assert.match(syncEndpoint, /\$record=refundDeposit\(\$pdo,\$bid,\(int\)\$actor\['user_id'\]\)/);
+  assert.match(syncEndpoint, /online_required/);
 });
 
 test('Pending alteration exposes every mutable booking term without changing non-Pending edits', () => {
@@ -73,7 +72,7 @@ test('Pending alteration exposes every mutable booking term without changing non
   assert.match(source, /agreed_total:/);
 });
 
-test('release and return queue only their atomic server operations', () => {
+test('release is online-only while checklist and return saves are server-first with offline fallback', () => {
   const bookings = read('admin/bookings.html');
   const source = read('js/sync.js');
   const inventory = read('js/inventory.js');
@@ -81,11 +80,12 @@ test('release and return queue only their atomic server operations', () => {
   const inspection = read('api/equipment_service.php');
   const availability = read('api/availability_service.php');
   const release = source.match(/API\.recordRelease=.*?;\r?\n/)?.[0] || '';
-  const returned = source.match(/API\.recordReturn=.*?;\r?\n/)?.[0] || '';
-  assert.match(release, /enqueue\('itemReleases','create'/);
-  assert.match(returned, /enqueue\('equipment','inspect'/);
-  assert.doesNotMatch(release + returned, /logItemHistory|itemHistory','create/);
-  assert.match(source, /updatePayment:\['payments','update'\]/);
+  assert.match(release, /onlineOnly\('recordRelease','Equipment release'\)/);
+  assert.match(source, /direct\.updateBookingItem\(id,data\)/);
+  assert.match(source, /direct\.recordReturn\(bookingId,inspectedBy,itemResults,notes\)/);
+  assert.match(source, /enqueue\('equipment','inspect'/);
+  assert.doesNotMatch(release, /logItemHistory|itemHistory','create/);
+  assert.match(source, /API\.updatePayment=onlineOnly|\['updatePayment','Payments'\]/);
   assert.match(bookings, /\$\('#bookingDetailModal'\)\.onAdmin\('change', '\.js-release-check, \.js-release-qty, \.js-release-condition'/);
   assert.doesNotMatch(bookings, /\$\('\.admin-main'\)\.onAdmin\('change', '\.js-release-check'/);
   assert.match(inventory, /js-release-qty/);
@@ -116,5 +116,7 @@ test('server booking boundaries keep pricing, text limits, release, history, and
   assert.match(release, /saveChecklistHistory\(\$pdo,\$item,\$bookingId,'Released'/);
   assert.match(inspection, /'action'=>'Returned'/);
   assert.match(sync, /\$entity==='payments' && in_array\(\$action,\['create','update'\],true\)/);
+  assert.match(sync, /Offline booking drafts must remain Pending and cannot record payment or approve a conflict/);
+  assert.match(sync, /array_intersect\(\['approve_conflicts','conflicting_booking_ids','override_reason','approval_base'\]/);
   assert.match(sync, /_sync_conflict_check/);
 });

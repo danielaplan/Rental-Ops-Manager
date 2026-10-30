@@ -29,7 +29,7 @@ Internal business endpoints require a valid active-owner bearer token. Explicit 
 
 ## Direct and sync parity
 
-Direct endpoints and `sync.php` call shared services for booking, payment, catalog, delivery, checklist/history, audit, conflict, and deposit behavior. Sync adds receipts, local-ID mapping, stale-field checks, and per-operation result groups; it does not replace server validation.
+Direct endpoints remain authoritative for all writes. `sync.php` uses the same booking, checklist, inspection, and conflict services only for new booking drafts, checklist drafts, and return-inspection drafts. It adds receipts, local-ID mapping, and per-operation result groups; all other writes return `online_required` and must use their direct endpoint.
 
 ## Related documentation
 
