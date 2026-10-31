@@ -29,6 +29,14 @@ Login → dashboard/calendar → customer and booking → payment/deposit/delive
 
 Existing focused browser checks include keyboard disclosure and a 390×844 layout in a synthetic walkthrough. That is bounded evidence, not complete physical-device, assistive-technology, or production acceptance.
 
+The dashboard follows a task-first reading order: operational totals, upcoming bookings that may need preparation, then trend and inventory panels. Its balanced metric and analytics grids reflow to one column on narrow screens without changing the Chart.js data or chart types. Chart canvases keep text alternatives, and decorative dashboard icons are hidden from assistive technology. These source-level safeguards do not replace a screen-reader or physical-device check.
+
+The shared admin shell uses a restrained, task-first visual system: solid warm-charcoal navigation, sans-serif interface hierarchy, stable control states, tabular numerals, and sticky table headings. On desktop, the sidebar is always shown at full width with the business name, logo, section labels, and navigation labels visible. Mobile keeps the existing temporary navigation drawer so the working area remains usable on narrow screens.
+
+Admin readability is governed by shared role styles in `css/admin.css`: a 16-pixel body floor, stronger form labels, readable help text, larger table and badge text, clearer secondary copy, tabular numbers, and semantic heading levels for dialogs and multi-step workflows. All admin pages load the same versioned stylesheet so upgrades replace older service-worker copies consistently.
+
+Admin interface icons render as Lucide SVGs from the pinned local `vendor/lucide-1.65.0.min.js` bundle. The versioned `js/admin-icons.js` adapter converts the existing icon markers at initial load and whenever admin content is rendered dynamically. Bootstrap icon markup remains only as a resilient fallback; the public website icon implementation is unchanged.
+
 ## Related documentation
 
 [Frontend File Inventory](File%20Inventory.md) · [Frontend Current Status](Current%20Status.md) · [API Reference](../Backend/API%20Reference.md)

@@ -100,6 +100,10 @@ Prerequisites and local setup are in [`README.md`](README.md). Start MySQL befor
 | Focused safeguard unit tests | `node tests/run_revised_backend.cjs test_fixes.php` | Four direct shared-service validations; refuses normal database names and rolls back every test. |
 | Booking lifecycle integration | `node tests/run_revised_backend.cjs test_booking_flow.php` | Walks Pending → Confirmed → Awaiting Completion → Completed and rolls back its realistic fixture transaction. |
 | Frontend-only regression | `node --test tests/public-site-data.test.cjs tests/frontend-api-contract.test.cjs tests/frontend-async-workflows.test.cjs tests/frontend-api-direct.test.cjs tests/booking-flow-frontend-regressions.test.cjs` | Harness/contract evidence, not physical-browser acceptance. |
+| Admin dashboard hierarchy | `node --test tests/admin-dashboard-ux.test.cjs` | Source-level order and accessibility semantics; not visual or assistive-technology acceptance. |
+| Admin shell visual safeguards | `node --test tests/admin-shell-polish.test.cjs` | Shared typography, expanded branding, table scanability, and dashboard restraint. |
+| Admin Lucide icons | `node --test tests/admin-lucide-icons.test.cjs` | Pinned local Lucide bundle, dynamic icon conversion, and offline-shell coverage. |
+| Admin readability system | `node --test tests/admin-readability.test.cjs` | Shared type floors, versioned admin stylesheet coverage, and heading-level safeguards. |
 | Syntax | `node tests/check_syntax.cjs` | Checks PHP, JavaScript, service worker, test scripts, and admin inline scripts without requiring Python on PATH. |
 | Historical migration regression | `node tests/migration-plan-gaps.test.cjs` | Synthetic and guarded; not part of normal setup or production authorization. |
 | Whitespace | `git diff --check` | Run after edits. |

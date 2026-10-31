@@ -7,7 +7,7 @@
 <link href="../vendor/fonts.css" rel="stylesheet">
 <link href="../vendor/bootstrap-5.3.3.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../vendor/bootstrap-icons.css">
-<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/admin.css?v=20261031-readability-v1">
 </head>
 <body class="admin-body">
 
@@ -53,7 +53,7 @@
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="bookingDetailTitle">Booking <span id="detailBookingId"></span></h5>
+        <h2 class="modal-title h5" id="bookingDetailTitle">Booking <span id="detailBookingId"></span></h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close booking details"></button>
       </div>
       <div class="modal-body">
@@ -69,14 +69,14 @@
           <div class="tab-pane fade show active" id="tabDetails" role="tabpanel" aria-labelledby="detailsTabButton" tabindex="0">
             <div class="row g-4">
               <div class="col-md-6">
-                <h6>Customer</h6>
+                <h3 class="h6">Customer</h3>
                 <p class="mb-1"><strong id="dCustName"></strong></p>
                 <p class="mb-1 text-muted" id="dCustContact"></p>
                 <p class="mb-1 text-muted" id="dCustEmail"></p>
                 <p class="mb-0"><span class="badge bg-light text-dark border" id="dCustType"></span></p>
               </div>
               <div class="col-md-6">
-                <h6>Event</h6>
+                <h3 class="h6">Event</h3>
                 <p class="mb-1" id="dEventType"></p>
                 <p class="mb-1" id="dEventDateTime"></p>
                 <p class="mb-1" id="dEventLocation"></p>
@@ -90,11 +90,11 @@
                 </button>
               </div>
               <div class="col-md-6">
-                <h6>Services &amp; Add-ons</h6>
+                <h3 class="h6">Services &amp; Add-ons</h3>
                 <ul id="dServicesList" class="mb-0"></ul>
               </div>
               <div class="col-md-6">
-                <h6>Amounts</h6>
+                <h3 class="h6">Amounts</h3>
                 <div class="summary-box">
                   <div class="summary-row"><span>Subtotal</span><span id="dSubtotal"></span></div>
                   <div class="summary-row"><span>Add-ons</span><span id="dAddonsTotal"></span></div>
@@ -109,7 +109,7 @@
               </div>
               <div class="col-12">
                 <div class="p-3 border rounded bg-light">
-                  <h6 class="mb-3"><i class="bi bi-sliders me-1"></i> Quick Status Update</h6>
+                  <h3 class="h6 mb-3"><i class="bi bi-sliders me-1"></i> Quick Status Update</h3>
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label mb-1 fw-bold" for="dStatusSelect">Booking Status</label>
@@ -135,7 +135,7 @@
               </div>
               <div class="col-12">
                 <div class="border rounded p-3">
-                <h6>Negotiated refundable deposit</h6><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
+                <h3 class="h6">Negotiated refundable deposit</h3><p class="small text-muted">Record the amount agreed by the owner and client. This is separate from rental payments.</p>
                 <div class="row g-2">
                   <div class="col-sm-6"><label for="depositHeld">Amount held (₱)</label><input id="depositHeld" class="form-control" type="number" min="0.01" step="0.01"></div>
                   <div class="col-sm-6"><label for="depositDeduction">Legacy aggregate deduction (₱)</label><input id="depositDeduction" class="form-control" type="number" min="0" step="0.01" readonly></div>
@@ -151,7 +151,7 @@
               </div>
               <div class="col-12">
                 <div class="border rounded p-3">
-                <h6>Delivery arrangement</h6>
+                <h3 class="h6">Delivery arrangement</h3>
                 <div class="row g-2">
                   <div class="col-md-4">
                     <label class="form-label" for="deliveryMethod">Delivery method</label>
@@ -314,13 +314,13 @@
   </div>
 </div>
 
-<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingTitle" aria-hidden="true"><div class="modal-dialog"><form class="modal-content" id="cancelBookingForm"><div class="modal-header"><h5 class="modal-title" id="cancelBookingTitle">Cancel booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>This keeps the booking in history and releases its reserved schedule. If equipment has already been dispatched, record every returned quantity and incoming condition in the Return tab before cancelling.</p><label class="form-label" for="cancellationReason">Cancellation reason</label><textarea class="form-control" id="cancellationReason" rows="3" maxlength="5000" required></textarea><div id="cancellationError" class="text-danger small mt-2" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button><button type="submit" class="btn btn-danger">Confirm cancellation</button></div></form></div></div>
+<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingTitle" aria-hidden="true"><div class="modal-dialog"><form class="modal-content" id="cancelBookingForm"><div class="modal-header"><h2 class="modal-title h5" id="cancelBookingTitle">Cancel booking</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>This keeps the booking in history and releases its reserved schedule. If equipment has already been dispatched, record every returned quantity and incoming condition in the Return tab before cancelling.</p><label class="form-label" for="cancellationReason">Cancellation reason</label><textarea class="form-control" id="cancellationReason" rows="3" maxlength="5000" required></textarea><div id="cancellationError" class="text-danger small mt-2" role="alert" hidden></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep booking</button><button type="submit" class="btn btn-danger">Confirm cancellation</button></div></form></div></div>
 
 <div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingTitle" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <form class="modal-content" id="editBookingForm" novalidate>
       <div class="modal-header">
-        <h5 class="modal-title" id="editBookingTitle">Edit event details</h5>
+        <h2 class="modal-title h5" id="editBookingTitle">Edit event details</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -371,7 +371,7 @@
 
 <div class="modal fade" id="paymentCorrectionModal" tabindex="-1" aria-labelledby="paymentCorrectionTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered"><form class="modal-content" id="paymentCorrectionForm" novalidate>
-    <div class="modal-header"><h5 class="modal-title" id="paymentCorrectionTitle">Correct payment</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-header"><h2 class="modal-title h5" id="paymentCorrectionTitle">Correct payment</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
     <div class="modal-body"><input type="hidden" id="correctionPaymentId">
       <div class="row g-3">
         <div class="col-sm-6"><label class="form-label" for="correctionAmount">Amount (₱)</label><input type="number" min="0.01" step="0.01" class="form-control" id="correctionAmount" required></div>
@@ -395,7 +395,9 @@
 <script src="../js/bookings.js"></script>
 <script src="../js/inventory.js"></script>
 <script src="../js/payments.js"></script>
+<script src="../vendor/lucide-1.65.0.min.js"></script>
 <script src="../js/admin.js"></script>
+<script src="../js/admin-icons.js?v=20261031-lucide-v2"></script>
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
@@ -934,11 +936,11 @@ async function renderBookingsTable(statusFilter, search) {
         <td>
           <div class="text-truncate" style="max-width:170px;" title="${escapeHtmlA(svcNames)}">${escapeHtmlA(svcNames)}</div>
         </td>
-        <td class="fw-bold">${BookingCalc.formatCurrency(b.total)}</td>
-        <td>${badgeStatus(paymentStatus, CONFIG.paymentStatusColors)}</td>
-        <td>${badgeStatus(b.status, CONFIG.bookingStatusColors)}${b.pending_sync ? '<span class="badge bg-warning text-dark">Pending Sync</span>' : ''}</td>
-        <td class="text-center">
-          <button class="btn btn-sm btn-outline-secondary py-1 px-2 js-view-booking" data-id="${escapeHtmlA(b.id)}" title="View Details">
+        <td class="fw-bold booking-total-cell">${BookingCalc.formatCurrency(b.total)}</td>
+        <td class="booking-state-cell">${badgeStatus(paymentStatus, CONFIG.paymentStatusColors)}</td>
+        <td class="booking-state-cell">${badgeStatus(b.status, CONFIG.bookingStatusColors)}${b.pending_sync ? '<span class="badge bg-warning text-dark">Pending Sync</span>' : ''}</td>
+        <td class="text-center booking-action-cell">
+          <button class="btn btn-sm booking-view-btn js-view-booking" data-id="${escapeHtmlA(b.id)}" title="View booking details" aria-label="View booking ${escapeHtmlA(b.id)} details">
             <i class="bi bi-eye"></i> View
           </button>
         </td>

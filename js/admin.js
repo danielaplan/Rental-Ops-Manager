@@ -182,43 +182,6 @@ function safeAdminImageUrl(value) {
   } catch { return ''; }
 }
 
-function setAdminSidebarExpanded(expanded) {
-  const sidebar = document.getElementById('adminSidebar');
-  if (!sidebar?.classList) return;
-  sidebar.classList.toggle('is-expanded', expanded);
-  document.body?.classList?.toggle('admin-sidebar-expanded', expanded);
-  const toggle = document.getElementById('adminSidebarSizeBtn');
-  if (toggle) {
-    toggle.setAttribute('aria-expanded', String(expanded));
-    toggle.setAttribute('aria-label', expanded ? 'Collapse admin sidebar' : 'Expand admin sidebar');
-    toggle.title = expanded ? 'Collapse sidebar' : 'Expand sidebar';
-    const icon = toggle.querySelector('i');
-    if (icon) icon.className = `bi ${expanded ? 'bi-chevron-double-left' : 'bi-chevron-double-right'}`;
-  }
-  try { localStorage.setItem('akad_admin_sidebar_expanded', expanded ? '1' : '0'); } catch {}
-}
-
-function toggleAdminSidebarSize() {
-  const sidebar = document.getElementById('adminSidebar');
-  if (sidebar) setAdminSidebarExpanded(!sidebar.classList.contains('is-expanded'));
-}
-
-function bindAdminSidebarSizeToggle() {
-  let toggle = document.getElementById('adminSidebarSizeBtn');
-  if (!toggle) {
-    toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.id = 'adminSidebarSizeBtn';
-    toggle.className = 'admin-sidebar-edge-toggle';
-    toggle.innerHTML = '<i class="bi bi-chevron-double-right" aria-hidden="true"></i><span class="visually-hidden">Expand sidebar</span>';
-    document.body.appendChild(toggle);
-  }
-  toggle.onclick = toggleAdminSidebarSize;
-  let expanded = false;
-  try { expanded = localStorage.getItem('akad_admin_sidebar_expanded') === '1'; } catch {}
-  setAdminSidebarExpanded(expanded);
-}
-
 function updateAdminSidebarBrand() {
   const brandName = document.querySelector('#adminSidebar .brand-name');
   if (brandName) {
@@ -250,7 +213,6 @@ async function renderAdminSidebar(activeHref) {
   });
   html += `<a class="nav-link sidebar-logout" href="#" id="adminLogoutBtn" title="Logout"><i class="bi bi-box-arrow-right"></i><span class="nav-label">Logout</span></a></nav>`;
   $('#adminSidebar').html(html);
-  bindAdminSidebarSizeToggle();
   $('#adminLogoutBtn').on('click', function (e) {
     e.preventDefault();
     if (confirm('Log out of the admin panel?')) { AdminAuth.logout(); }

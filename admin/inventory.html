@@ -7,7 +7,7 @@
 <link href="../vendor/fonts.css" rel="stylesheet">
 <link href="../vendor/bootstrap-5.3.3.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../vendor/bootstrap-icons.css">
-<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/admin.css?v=20261031-readability-v1">
 </head>
 <body class="admin-body">
 
@@ -56,7 +56,7 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <form class="modal-content" id="itemForm">
       <div class="modal-header">
-        <h5 class="modal-title" id="itemFormTitle">Add Rental Item</h5>
+        <h2 class="modal-title h5" id="itemFormTitle">Add Rental Item</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close rental item form"></button>
       </div>
       <div class="modal-body">
@@ -118,7 +118,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Rental / Return History</h5>
+        <h2 class="modal-title h5">Rental / Return History</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close rental history"></button>
       </div>
       <div class="modal-body" id="historyBody"></div>
@@ -133,7 +133,9 @@
 <script src="../js/api.js"></script>
 <script src="../js/sync.js"></script>
 <script src="../js/bookings.js"></script>
+<script src="../vendor/lucide-1.65.0.min.js"></script>
 <script src="../js/admin.js"></script>
+<script src="../js/admin-icons.js?v=20261031-lucide-v2"></script>
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
@@ -188,7 +190,7 @@ adminReady(async function () {
     if (!target.length) return;
     const id = target.data('id');
     const [item, history] = await Promise.all([API.getRentalItems().then(items => items.find(x => x.rental_item_id === id)), API.getItemHistory(id)]);
-    let html = `<h6>${escapeHtmlA(item ? item.name : '')}</h6>`;
+    let html = `<h3 class="h6">${escapeHtmlA(item ? item.name : '')}</h3>`;
     if (!history.length) {
       html += '<p class="text-muted">No rental/return history yet.</p>';
     } else {
