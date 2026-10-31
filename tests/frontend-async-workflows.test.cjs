@@ -232,6 +232,28 @@ test('admin login explains when its PHP endpoint cannot be reached', async () =>
   );
 });
 
+test('admin verification clears only a session rejected as unauthorized', async () => {
+  const h = harness('js/admin.js');
+  let removed = false;
+  h.context.STORAGE._get = () => ({ session_token: 'token', expiresAt: Date.now() + 60000, user: { user_id: 1 } });
+  h.context.localStorage.removeItem = () => { removed = true; };
+  h.context.fetch = async () => ({ ok: false, status: 401 });
+
+  assert.equal(await vm.runInContext('AdminAuth.verifyWithServer()', h.context), false);
+  assert.equal(removed, true);
+});
+
+test('admin verification keeps a valid cached session during a server error', async () => {
+  const h = harness('js/admin.js');
+  let removed = false;
+  h.context.STORAGE._get = () => ({ session_token: 'token', expiresAt: Date.now() + 60000, user: { user_id: 1 } });
+  h.context.localStorage.removeItem = () => { removed = true; };
+  h.context.fetch = async () => ({ ok: false, status: 500 });
+
+  assert.equal(await vm.runInContext('AdminAuth.verifyWithServer()', h.context), true);
+  assert.equal(removed, false);
+});
+
 test('settings refresh updates the sidebar brand without replacing navigation', async () => {
   const h = harness('js/admin.js', { getSettings: async () => ({ business_name: 'Initial name' }) });
   const brandName = { textContent: '' };
@@ -292,6 +314,14 @@ test('notification links reliably open their booking without waiting for the tab
   assert.match(admin, /Payment is fully collected\. Complete the booking to resolve this notification\./);
   assert.ok(bookings.indexOf('const tableLoad = renderBookingsTable();') < bookings.indexOf('await openBookingDetail(requestedBookingId'));
   assert.ok(bookings.indexOf('await openBookingDetail(requestedBookingId') < bookings.indexOf('await tableLoad;'));
+});
+
+test('every admin notification shell loads booking formatters before admin.js', () => {
+  for (const file of fs.readdirSync(path.join(root, 'admin')).filter(file => file.endsWith('.html'))) {
+    const source = fs.readFileSync(path.join(root, 'admin', file), 'utf8');
+    if (!source.includes('class="admin-topbar"')) continue;
+    assert.ok(source.indexOf('../js/bookings.js') < source.indexOf('../js/admin.js'), file);
+  }
 });
 
 test('booking notification destination activates its requested workflow tab', async () => {

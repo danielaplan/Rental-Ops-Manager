@@ -15,7 +15,7 @@ const AdminAuth = {
   },
 
   // Fix #3: Server-side verification — asks PHP if the token is still real.
-  // Returns true if confirmed, false if rejected. Falls back to localStorage on network error (offline).
+  // Returns true if confirmed, false if unauthorized. Falls back to localStorage when verification is unavailable.
   async verifyWithServer() {
     const s = STORAGE._get(STORAGE_KEYS.adminSession);
     if (!s?.session_token) return false;
@@ -23,12 +23,12 @@ const AdminAuth = {
       const response = await fetch('../api/auth.php?do=me', {
         headers: { Authorization: `Bearer ${s.session_token}` }
       });
-      if (!response.ok) {
-        // Server rejected — wipe stale localStorage session so login page shows next time.
+      if (response.status === 401) {
+        // The auth endpoint uses 401 when the token is expired, revoked, or invalid.
         localStorage.removeItem(STORAGE_KEYS.adminSession);
         return false;
       }
-      return true;
+      return response.ok || this.isLoggedIn();
     } catch {
       // Network error (offline mode) — trust the local expiry check only.
       return this.isLoggedIn();
