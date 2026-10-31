@@ -42,6 +42,8 @@ Ana chooses one karaoke service, a ₱2,500 package, and a ₱300 add-on. With a
 
 The same transaction locks an existing booking before changing its price. A new agreed total below Completed payments is rejected without changing the booking, checklist, payment, or audit records. A package already referenced by a booking may still be renamed or repriced for future catalog use, but it cannot move to another service; the booking keeps its package snapshots.
 
+While a booking is Pending, changing its package, add-ons, discount, or fees in the admin editor recalculates the agreed-total field from catalog pricing. The field remains editable so the owner can enter a negotiated amount after reviewing the calculated value.
+
 ### Visual explanation
 
 ```mermaid
