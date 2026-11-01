@@ -232,16 +232,26 @@ test('admin login explains when its PHP endpoint cannot be reached', async () =>
   );
 });
 
-test('admin login sends a username or contact number as one credential', async () => {
+test('admin verification clears only a session rejected as unauthorized', async () => {
   const h = harness('js/admin.js');
-  let request;
-  h.context.fetch = async (_url, options) => {
-    request = JSON.parse(options.body);
-    return { ok: true, text: async () => JSON.stringify({ ok: true, data: { session_token: 'token', expires_in: 60, user: { user_id: 2 } } }) };
-  };
-  h.context.STORAGE._set = () => {};
-  await vm.runInContext('AdminAuth.login("new-owner", "temporary-password")', h.context);
-  assert.deepEqual({ ...request }, { credential: 'new-owner', password: 'temporary-password' });
+  let removed = false;
+  h.context.STORAGE._get = () => ({ session_token: 'token', expiresAt: Date.now() + 60000, user: { user_id: 1 } });
+  h.context.localStorage.removeItem = () => { removed = true; };
+  h.context.fetch = async () => ({ ok: false, status: 401 });
+
+  assert.equal(await vm.runInContext('AdminAuth.verifyWithServer()', h.context), false);
+  assert.equal(removed, true);
+});
+
+test('admin verification keeps a valid cached session during a server error', async () => {
+  const h = harness('js/admin.js');
+  let removed = false;
+  h.context.STORAGE._get = () => ({ session_token: 'token', expiresAt: Date.now() + 60000, user: { user_id: 1 } });
+  h.context.localStorage.removeItem = () => { removed = true; };
+  h.context.fetch = async () => ({ ok: false, status: 500 });
+
+  assert.equal(await vm.runInContext('AdminAuth.verifyWithServer()', h.context), true);
+  assert.equal(removed, false);
 });
 
 test('settings refresh updates the sidebar brand without replacing navigation', async () => {
@@ -318,6 +328,14 @@ test('notification links reliably open their booking without waiting for the tab
   assert.match(admin, /Payment is fully collected\. Complete the booking to resolve this notification\./);
   assert.ok(bookings.indexOf('const tableLoad = renderBookingsTable();') < bookings.indexOf('await openBookingDetail(requestedBookingId'));
   assert.ok(bookings.indexOf('await openBookingDetail(requestedBookingId') < bookings.indexOf('await tableLoad;'));
+});
+
+test('every admin notification shell loads booking formatters before admin.js', () => {
+  for (const file of fs.readdirSync(path.join(root, 'admin')).filter(file => file.endsWith('.html'))) {
+    const source = fs.readFileSync(path.join(root, 'admin', file), 'utf8');
+    if (!source.includes('class="admin-topbar"')) continue;
+    assert.ok(source.indexOf('../js/bookings.js') < source.indexOf('../js/admin.js'), file);
+  }
 });
 
 test('booking notification destination activates its requested workflow tab', async () => {
@@ -471,7 +489,7 @@ test('offline readiness covers every admin page and explains the saved-data boun
   assert.match(syncUi, /Recovery pages are cached on this device/);
   assert.match(syncUi, /Offline drafts are not official until the server accepts them/);
   assert.match(syncUi, /the cache does not download new server data/);
-  assert.match(shell, /akad-shell-20261030-online-first-recovery-v2/);
+  assert.match(shell, /akad-shell-20261031-lucide-admin-icons-v2/);
   for (const selector of ['#contentForm','#settingsForm','#ownerForm','#packageForm','.js-delete-service']) {
     assert.match(syncUi, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${selector} must be visibly restricted while offline`);
   }

@@ -15,7 +15,7 @@ const AdminAuth = {
   },
 
   // Fix #3: Server-side verification — asks PHP if the token is still real.
-  // Returns true if confirmed, false if rejected. Falls back to localStorage on network error (offline).
+  // Returns true if confirmed, false if unauthorized. Falls back to localStorage when verification is unavailable.
   async verifyWithServer() {
     const s = STORAGE._get(STORAGE_KEYS.adminSession);
     if (!s?.session_token) return false;
@@ -23,12 +23,12 @@ const AdminAuth = {
       const response = await fetch('../api/auth.php?do=me', {
         headers: { Authorization: `Bearer ${s.session_token}` }
       });
-      if (!response.ok) {
-        // Server rejected — wipe stale localStorage session so login page shows next time.
+      if (response.status === 401) {
+        // The auth endpoint uses 401 when the token is expired, revoked, or invalid.
         localStorage.removeItem(STORAGE_KEYS.adminSession);
         return false;
       }
-      return true;
+      return response.ok || this.isLoggedIn();
     } catch {
       // Network error (offline mode) — trust the local expiry check only.
       return this.isLoggedIn();
@@ -182,43 +182,6 @@ function safeAdminImageUrl(value) {
   } catch { return ''; }
 }
 
-function setAdminSidebarExpanded(expanded) {
-  const sidebar = document.getElementById('adminSidebar');
-  if (!sidebar?.classList) return;
-  sidebar.classList.toggle('is-expanded', expanded);
-  document.body?.classList?.toggle('admin-sidebar-expanded', expanded);
-  const toggle = document.getElementById('adminSidebarSizeBtn');
-  if (toggle) {
-    toggle.setAttribute('aria-expanded', String(expanded));
-    toggle.setAttribute('aria-label', expanded ? 'Collapse admin sidebar' : 'Expand admin sidebar');
-    toggle.title = expanded ? 'Collapse sidebar' : 'Expand sidebar';
-    const icon = toggle.querySelector('i');
-    if (icon) icon.className = `bi ${expanded ? 'bi-chevron-double-left' : 'bi-chevron-double-right'}`;
-  }
-  try { localStorage.setItem('akad_admin_sidebar_expanded', expanded ? '1' : '0'); } catch {}
-}
-
-function toggleAdminSidebarSize() {
-  const sidebar = document.getElementById('adminSidebar');
-  if (sidebar) setAdminSidebarExpanded(!sidebar.classList.contains('is-expanded'));
-}
-
-function bindAdminSidebarSizeToggle() {
-  let toggle = document.getElementById('adminSidebarSizeBtn');
-  if (!toggle) {
-    toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.id = 'adminSidebarSizeBtn';
-    toggle.className = 'admin-sidebar-edge-toggle';
-    toggle.innerHTML = '<i class="bi bi-chevron-double-right" aria-hidden="true"></i><span class="visually-hidden">Expand sidebar</span>';
-    document.body.appendChild(toggle);
-  }
-  toggle.onclick = toggleAdminSidebarSize;
-  let expanded = false;
-  try { expanded = localStorage.getItem('akad_admin_sidebar_expanded') === '1'; } catch {}
-  setAdminSidebarExpanded(expanded);
-}
-
 function updateAdminSidebarBrand() {
   const brandName = document.querySelector('#adminSidebar .brand-name');
   if (brandName) {
@@ -250,7 +213,6 @@ async function renderAdminSidebar(activeHref) {
   });
   html += `<a class="nav-link sidebar-logout" href="#" id="adminLogoutBtn" title="Logout"><i class="bi bi-box-arrow-right"></i><span class="nav-label">Logout</span></a></nav>`;
   $('#adminSidebar').html(html);
-  bindAdminSidebarSizeToggle();
   $('#adminLogoutBtn').on('click', function (e) {
     e.preventDefault();
     if (confirm('Log out of the admin panel?')) { AdminAuth.logout(); }
