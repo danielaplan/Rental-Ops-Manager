@@ -36,10 +36,13 @@ Ana’s Completed GCash payment is counted as collected revenue on its `payment_
 5. Deposits, refundable balances, and deductions are lifetime operational figures.
 6. Upcoming, cancellation, and overlap endpoints return inspectable rows.
 7. Audit logs are read-only and paginated by audit ID.
+8. The Audit History screen turns technical action names into readable labels and keeps structured JSON details collapsed until the owner opens them.
 
 ### What Happens Behind the Scenes?
 
 `reports.php` returns metric definitions with its data. Dashboard defaults to the current month in Asia/Manila. Compatibility fields remain for current screens. `audit.php` reads append-only `AUDIT_LOGS`; migration archive rows may also be included as historical evidence.
+
+The Audit History screen changes presentation only: timestamps are shown as readable date-and-time lines, while structured descriptions use an accessible **View details** disclosure. The original append-only description remains unchanged in the database and API response.
 
 The printable customer summary groups booking rows by `customer_id` and displays the corresponding customer name. It does not group by name or phone, because either value may legitimately be shared.
 

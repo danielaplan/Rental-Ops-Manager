@@ -64,6 +64,16 @@ test('reads use the script-relative API base, bearer auth, and frontend normaliz
   );
 });
 
+test('booking package IDs use the same prefixed format as package options', async () => {
+  const { API } = harness(() => ({
+    data: [{ booking_id: 1, service_id: 2, package_id: 3, addon_ids: [], agreed_total: 500 }]
+  }));
+
+  const bookings = await API.getBookings();
+
+  assert.equal(bookings[0].package_id, 'PKG-003');
+});
+
 test('CRUD writes use PHP action parameters, numeric IDs, and mapped fields', async () => {
   const { API, requests } = harness(request => {
     const url = new URL(request.url);

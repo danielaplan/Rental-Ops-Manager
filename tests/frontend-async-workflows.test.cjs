@@ -28,7 +28,7 @@ function harness(file, api = {}) {
       append(value) { target.html += value; return this; },
       prop(name, value) { if (arguments.length === 1) return target.props[name]; target.props[name] = value; return this; },
       data(name, value) { if (arguments.length === 1) return target.data[name]; target.data[name] = value; return this; },
-      map() { return { get: () => key === '.js-m-service:checked' ? ['SVC-001'] : [] }; },
+      map() { return { get: () => key === '.js-m-service:checked' ? ['SVC-001'] : key === '.js-edit-addon:checked' ? ['ADD-001'] : [] }; },
       on() { return this; }, onAdmin() { return this; }, off() { return this; },
       show() { return this; }, hide() { return this; }, trigger() { return this; },
       toggle() { return this; }, toggleClass() { return this; }, attr() { return this; },
@@ -301,6 +301,20 @@ test('booking details retain the newer booking when the older lookup resolves la
   old.resolve({ id: 1, customer_name: 'Old booking' }); await first;
   assert.equal(h.node('#dCustName').text, 'New booking');
   assert.equal(shown, 1);
+});
+
+test('pending booking pricing changes recalculate the editable agreed total', async () => {
+  const h = harness('admin/bookings.html', {
+    getPackages: async () => [{ package_id: 'PKG-001', price: 1499 }],
+    getAddons: async () => [{ addon_id: 'ADD-001', price: 300 }]
+  });
+  h.node('#editPackageId').value = 'PKG-001';
+  h.node('#editDiscount').value = '100';
+  h.node('#editFees').value = '50';
+
+  await h.context.updatePendingBookingTotal();
+
+  assert.equal(h.node('#editAgreedTotal').value, '1749.00');
 });
 
 test('notification links reliably open their booking without waiting for the table', () => {

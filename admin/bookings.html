@@ -353,7 +353,7 @@
               <div class="col-sm-6"><label class="form-label" for="editTravel">Travel allowance (minutes)</label><input class="form-control" type="number" min="0" step="1" id="editTravel"></div>
               <div class="col-sm-4"><label class="form-label" for="editDiscount">Discount (₱)</label><input class="form-control" type="number" min="0" step="0.01" id="editDiscount"></div>
               <div class="col-sm-4"><label class="form-label" for="editFees">Additional fees (₱)</label><input class="form-control" type="number" min="0" step="0.01" id="editFees"></div>
-              <div class="col-sm-4"><label class="form-label" for="editAgreedTotal">Agreed total (₱)</label><input class="form-control" type="number" min="0" step="0.01" id="editAgreedTotal"></div>
+              <div class="col-sm-4"><label class="form-label" for="editAgreedTotal">Agreed total (₱)</label><input class="form-control" type="number" min="0" step="0.01" id="editAgreedTotal"><div class="form-text">Recalculates after pricing selections change; you may enter a negotiated override afterward.</div></div>
             </div>
           </fieldset>
           </div>
@@ -404,7 +404,7 @@
 let currentBookingId = null;
 let deliveryFormRevision = 0;
 let returnToBookingDetails = false;
-let detailVersion = 0, bookingsVersion = 0, detailEditRevision = 0;
+let detailVersion = 0, bookingsVersion = 0, detailEditRevision = 0, pendingPricingVersion = 0;
 let pendingConflictApproval = null;
 function updatePaymentBalancePreview() {
   const balance = Number($('#paySummaryBalance').data('amount') || 0);
@@ -513,7 +513,11 @@ adminReady(async function () {
     returnToBookingDetails = false;
     return openBookingDetail(currentBookingId);
   });
-  $('#editServiceId, #editEventDate').onAdmin('change', () => renderPendingBookingCatalog());
+  $('#editServiceId').onAdmin('change', async () => { await renderPendingBookingCatalog(); updatePendingBookingTotal(); });
+  $('#editEventDate').onAdmin('change', () => renderPendingBookingCatalog());
+  $('#editPackageId').onAdmin('change', updatePendingBookingTotal);
+  $('#editAddonList').onAdmin('change', '.js-edit-addon', updatePendingBookingTotal);
+  $('#editDiscount, #editFees').onAdmin('input', updatePendingBookingTotal);
 
   $('#editBookingForm').onAdmin('submit', async function (e) {
     e.preventDefault();
@@ -883,6 +887,17 @@ async function renderPendingBookingCatalog(selectedPackage = $('#editPackageId')
   $('#editPackageId').html('<option value="">No package</option>' + eligiblePackages.map(item => `<option value="${escapeHtmlA(item.package_id)}">${escapeHtmlA(item.name || item.package_name)} — ${BookingCalc.formatCurrency(item.price)}</option>`).join('')).val(selectedPackage || '');
   const eligibleAddons = addons.filter(item => String(item.service_id) === String(serviceId) && (item.status === 'Active' || selectedAddons.includes(item.addon_id)));
   $('#editAddonList').html(eligibleAddons.length ? eligibleAddons.map(item => `<div class="col-md-6"><label class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input mt-0 js-edit-addon" value="${escapeHtmlA(item.addon_id)}" ${selectedAddons.includes(item.addon_id) ? 'checked' : ''}><span>${escapeHtmlA(item.name)} — ${BookingCalc.formatCurrency(item.price)}</span></label></div>`).join('') : '<div class="col-12 text-muted small">No add-ons for this service.</div>');
+}
+
+async function updatePendingBookingTotal() {
+  const version = ++pendingPricingVersion;
+  const [packages, addons] = await Promise.all([API.getPackages(), API.getAddons()]);
+  if (version !== pendingPricingVersion) return;
+  const packageRow = packages.find(item => String(item.package_id) === String($('#editPackageId').val()));
+  const addonIds = $('.js-edit-addon:checked').map(function(){ return String(this.value); }).get();
+  const addonsTotal = addons.filter(item => addonIds.includes(String(item.addon_id))).reduce((sum, item) => sum + Number(item.price || 0), 0);
+  const total = Math.max(Number(packageRow?.price || 0) + addonsTotal - Number($('#editDiscount').val() || 0) + Number($('#editFees').val() || 0), 0);
+  $('#editAgreedTotal').val(total.toFixed(2));
 }
 
 const BOOKING_PAGE_SIZE=15;

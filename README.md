@@ -68,10 +68,10 @@ cd C:\path\to\Rental-Ops-Manager
 
 ### Step 7 — Log in
 
-| Account | Contact number | Password |
-|---------|---------------|----------|
-| Primary owner | `0917-123-4567` | `password` |
-| Second owner | `0918-222-3333` | `password` |
+| Account | Username or contact number | Password |
+|---------|----------------------------|----------|
+| Primary owner | `maria` or `0917-123-4567` | `password` |
+| Second owner | `juan` or `0918-222-3333` | `password` |
 
 ---
 
@@ -99,7 +99,7 @@ That's it!
 | **Page loads but nothing works / blank page** | You opened the HTML file directly | Use `http://127.0.0.1:8000/` — not `file://` |
 | **Database error on startup** | MySQL is not running | Open XAMPP Control Panel and start MySQL |
 | **Database error: "table doesn't exist"** | Database was never created | Run the two commands from Step 4 |
-| **Login fails** | Wrong credentials or database not seeded | Make sure you ran the seed command and use contact number `0917-123-4567` with password `password` |
+| **Login fails** | Wrong credentials or database not seeded | Make sure you ran the seed command and use username `maria` or contact number `0917-123-4567` with password `password` |
 | **"Port 8000 already in use"** | Another PHP server is still running | Close the other terminal, or use a different port: `& 'C:\xampp\php\php.exe' -S 127.0.0.1:9000 -t .` |
 | **API returns HTML instead of data** | PHP server started from wrong folder | Make sure you `cd` into the project folder before running the start command |
 | **Commands fail / "not recognized"** | XAMPP installed in a different location | Replace `C:\xampp` with your actual XAMPP path |
@@ -142,7 +142,7 @@ After completing the Quick Start, run these checks to confirm everything is work
 | Seed data present | `& 'C:\xampp\mysql\bin\mysql.exe' -u root -e "SELECT full_name FROM akad_rentals.USERS"` | `Maria Santos`, `Juan Dela Cruz` |
 | Server starts | `& 'C:\xampp\php\php.exe' -S 127.0.0.1:8000 -t .` | `Listening on http://127.0.0.1:8000` |
 | API responds | Open `http://127.0.0.1:8000/api/services.php` in browser | JSON with services list |
-| Login works | Open `http://127.0.0.1:8000/admin/login.html`, use `0917-123-4567` / `password` | Redirects to dashboard |
+| Login works | Open `http://127.0.0.1:8000/admin/login.html`, use `maria` or `0917-123-4567` / `password` | Redirects to dashboard |
 
 ---
 

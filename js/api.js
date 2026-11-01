@@ -101,6 +101,7 @@ const API = (() => {
       row.status = titleCaseStatus(row.status);
       row.service_ids = (Array.isArray(row.service_ids) ? row.service_ids : []).map(id => prefixedId("SVC", id));
       if (!row.service_ids.length && row.service_id != null) row.service_ids = [prefixedId("SVC", row.service_id)];
+      if (row.package_id != null) row.package_id = prefixedId("PKG", row.package_id);
       row.addon_ids = (Array.isArray(row.addon_ids) ? row.addon_ids : []).map(id => prefixedId("ADD", id));
       row.payment_status = calculatePaymentStatus(row);
     }
