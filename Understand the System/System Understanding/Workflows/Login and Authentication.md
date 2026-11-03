@@ -35,6 +35,8 @@ The owner signs in with a username or contact number and password before recordi
 4. Each protected request validates the owner and extends the session.
 5. Logout deletes the current token. Deactivation or password reset deletes all sessions for that account.
 
+If the browser cannot verify a still-unexpired token because the server is temporarily unavailable, it keeps the cached session instead of forcing the owner back to the login screen. An explicit `401 Unauthorized` response still clears the cached session.
+
 ### What Happens Behind the Scenes?
 
 `currentSession()` accepts only active users whose role is `owner`. Sessions last 24 hours from the most recent accepted request. Owner-administration actions run through `api/owners.php`; primary-owner rules prevent unsafe removal of the last controlling account.

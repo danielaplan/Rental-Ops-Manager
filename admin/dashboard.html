@@ -7,7 +7,7 @@
 <link href="../vendor/fonts.css" rel="stylesheet">
 <link href="../vendor/bootstrap-5.3.3.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../vendor/bootstrap-icons.css">
-<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/admin.css?v=20261031-readability-v1-dashboard-layout-v2">
 </head>
 <body class="admin-body">
 
@@ -25,92 +25,103 @@
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <span id="dashboardDataState" class="small text-muted" role="status" aria-live="polite">Showing saved data while the latest data is checked.</span>
-      <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshDashboardData" title="Refresh dashboard data" aria-label="Refresh dashboard data"><i class="bi bi-arrow-clockwise"></i></button>
-      <a href="manual-booking.html" class="btn btn-admin-accent"><i class="bi bi-plus-lg me-1"></i> Create Manual Booking</a>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshDashboardData" title="Refresh dashboard data" aria-label="Refresh dashboard data"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
+      <a href="manual-booking.html" class="btn btn-admin-accent"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Create Manual Booking</a>
     </div>
   </div>
 
-  <!-- ANIMATED OVERVIEW CHARTS -->
-  <div class="row g-3 mb-4 dashboard-primary-charts">
-    <div class="col-lg-8">
-      <div class="panel h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+  <section aria-labelledby="overviewTitle" class="dashboard-section">
+    <div class="dashboard-section-heading">
+      <div>
+        <h2 id="overviewTitle">At a glance</h2>
+      </div>
+      <p>Current totals and items that may need action.</p>
+    </div>
+    <div class="dashboard-metric-grid" id="statsRow" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="upcomingTitle" class="dashboard-section dashboard-schedule-section">
+    <div class="dashboard-section-heading">
+      <div>
+        <h2 id="upcomingTitle">Upcoming bookings</h2>
+      </div>
+      <p>Next events that need preparation or follow-up.</p>
+    </div>
+    <div class="panel dashboard-schedule-panel mb-0">
+      <div class="dashboard-panel-header">
+        <div>
+          <h3 class="panel-title mb-0"><i class="bi bi-calendar-check me-2 text-primary" aria-hidden="true"></i>Next on the calendar</h3>
+          <span class="text-muted small">Upcoming confirmed and pending work</span>
+        </div>
+        <a href="bookings.html" class="btn btn-sm btn-admin-primary dashboard-view-bookings">View All Bookings</a>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Customer</th>
+              <th>Event Date</th>
+              <th>Services</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="upcomingBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="trendsTitle" class="dashboard-section dashboard-section-last">
+    <div class="dashboard-section-heading">
+      <div>
+        <h2 id="trendsTitle">Recent trends</h2>
+      </div>
+      <p>Bookings, revenue, and service demand over time.</p>
+    </div>
+    <div class="dashboard-analytics-grid">
+      <div class="panel dashboard-analytics-panel dashboard-panel-trend">
+        <div class="dashboard-panel-header">
           <div>
-            <h5 class="panel-title mb-0"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Revenue & Bookings Trend</h5>
+            <h3 class="panel-title mb-0"><i class="bi bi-graph-up-arrow me-2 text-primary" aria-hidden="true"></i>Revenue & Bookings Trend</h3>
             <span class="text-muted small">Monthly performance overview</span>
           </div>
           <span class="badge bg-light text-dark border">Recent Months</span>
         </div>
-        <div style="position: relative; height: 280px;">
-          <canvas id="revenueChart"></canvas>
+        <div class="dashboard-chart dashboard-chart-wide">
+          <canvas id="revenueChart" role="img" aria-label="Monthly revenue and bookings trend chart"></canvas>
         </div>
       </div>
-    </div>
-    <div class="col-lg-4">
-      <div class="panel h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="panel-title mb-0"><i class="bi bi-pie-chart-fill me-2 text-success"></i>Booking Status</h5>
+
+      <div class="panel dashboard-analytics-panel dashboard-panel-status">
+        <div class="dashboard-panel-header">
+          <h3 class="panel-title mb-0"><i class="bi bi-pie-chart-fill me-2 text-success" aria-hidden="true"></i>Booking Status</h3>
         </div>
-        <div style="position: relative; height: 260px;" class="d-flex align-items-center justify-content-center">
-          <canvas id="statusChart"></canvas>
+        <div class="dashboard-chart dashboard-chart-status d-flex align-items-center justify-content-center">
+          <canvas id="statusChart" role="img" aria-label="Bookings grouped by status chart"></canvas>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- STATS CARDS -->
-  <div class="row g-3 mb-4 admin-summary-cards" id="statsRow"></div>
-
-  <!-- CHARTS & TABLES ROW 2: POPULAR SERVICES & INVENTORY ATTENTION -->
-  <div class="row g-3 mb-4">
-    <div class="col-lg-7">
-      <div class="panel h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="panel-title mb-0"><i class="bi bi-bar-chart-line-fill me-2 text-info"></i>Most Booked Services</h5>
+      <div class="panel dashboard-analytics-panel dashboard-panel-services">
+        <div class="dashboard-panel-header">
+          <h3 class="panel-title mb-0"><i class="bi bi-bar-chart-line-fill me-2 text-info" aria-hidden="true"></i>Most Booked Services</h3>
           <a href="services.html" class="btn btn-sm btn-outline-secondary">Manage Services</a>
         </div>
-        <div style="position: relative; height: 230px;">
-          <canvas id="servicesChart"></canvas>
+        <div class="dashboard-chart dashboard-chart-services">
+          <canvas id="servicesChart" role="img" aria-label="Most booked services chart"></canvas>
         </div>
       </div>
-    </div>
-    <div class="col-lg-5">
-      <div class="panel h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="panel-title mb-0"><i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Inventory Attention</h5>
+
+      <div class="panel dashboard-analytics-panel dashboard-panel-attention">
+        <div class="dashboard-panel-header">
+          <h3 class="panel-title mb-0"><i class="bi bi-exclamation-triangle-fill me-2 text-warning" aria-hidden="true"></i>Inventory Attention</h3>
           <a href="inventory.html" class="btn btn-sm btn-outline-secondary">View Inventory</a>
         </div>
-        <div id="attentionList"></div>
+        <div class="dashboard-attention-list" id="attentionList"></div>
       </div>
     </div>
-  </div>
-
-  <!-- UPCOMING BOOKINGS TABLE -->
-  <div class="row g-3">
-    <div class="col-12">
-      <div class="panel mb-0">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="panel-title mb-0"><i class="bi bi-calendar-check me-2 text-primary"></i>Upcoming Bookings</h5>
-          <a href="bookings.html" class="btn btn-sm btn-admin-primary dashboard-view-bookings">View All Bookings</a>
-        </div>
-        <div class="table-wrap">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Booking ID</th>
-                <th>Customer</th>
-                <th>Event Date</th>
-                <th>Services</th>
-                <th>Total</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="upcomingBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+  </section>
 </main>
 
 <script src="../vendor/jquery-3.7.1.min.js"></script>
@@ -122,7 +133,9 @@
 <script src="../js/sync.js"></script>
 <script src="../js/bookings.js"></script>
 <script src="../js/payments.js"></script>
+<script src="../vendor/lucide-1.65.0.min.js"></script>
 <script src="../js/admin.js"></script>
+<script src="../js/admin-icons.js?v=20261031-lucide-v2"></script>
 <script src="../js/sync-ui.js"></script>
 <script src="../js/offline.js"></script>
 <script>
@@ -178,13 +191,13 @@ async function renderDashboard() {
   ];
 
   const $row = $('#statsRow').empty();
-  cards.forEach(c => {
+  cards.forEach((c, index) => {
     $row.append(`
-      <div class="col-6 col-md-4 col-xl-3">
+      <div class="dashboard-metric ${index < 4 ? 'dashboard-metric-primary' : 'dashboard-metric-secondary'}">
         <div class="stat-card compact-stat-card dashboard-stat-card ${c.cls || ''}">
           <div class="stat-header">
             <span class="stat-label">${c.label}</span>
-            <div class="stat-icon"><i class="bi ${c.icon}"></i></div>
+            <div class="stat-icon"><i class="bi ${c.icon}" aria-hidden="true"></i></div>
           </div>
           <div class="stat-value">${c.value}</div>
         </div>
@@ -213,7 +226,14 @@ async function renderDashboard() {
   const items = rentalItems.filter(i => ["Damaged", "Under Maintenance", "Missing"].includes(i.status));
   const $att = $('#attentionList').empty();
   if (!items.length) {
-    $att.append('<div class="text-center text-muted py-4"><i class="bi bi-shield-check fs-2 text-success d-block mb-1"></i>All inventory items are in good condition.</div>');
+    $att.append(`
+      <div class="dashboard-attention-empty">
+        <span class="dashboard-attention-empty-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+        <div>
+          <p class="dashboard-attention-empty-title">No inventory issues need attention</p>
+          <p class="dashboard-attention-empty-copy">There are no damaged, missing, or maintenance items to review.</p>
+        </div>
+      </div>`);
   } else {
     items.forEach(i => {
       $att.append(`
